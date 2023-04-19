@@ -50,6 +50,11 @@ export function addTrailingSlashtoURL(url)
 
 }
 
+export function replaceNewLineCharacters(string)
+{
+    return string.replace(/(?:\r\n|\r|\n)/g, '\\n');
+}
+
 export function replaceSpacewithHyphen(str)
 {
     var replaced = str.replace(/ /g, '-');
@@ -67,3 +72,37 @@ export function dateTimeReviver(key, value) {
     return value;
 }
 
+export function haystackHasNeedle(needle, haystack)
+{
+    if(haystack==null || haystack==undefined)
+    {
+        return false
+    }
+        const regex = new RegExp(needle+"*");
+
+         var toSearch = haystack.toLowerCase()
+
+            if(toSearch.includes(needle.toLowerCase()))
+            {
+                return haystack
+            }
+
+
+        
+    
+
+    return ""
+
+}
+
+export function varNotEmpty(variable)
+{
+
+    if(variable!=null && variable!=undefined)
+    {
+        return true
+    }else
+    {
+        return false
+    }
+}

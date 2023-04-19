@@ -8,9 +8,10 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
         {
-            console.log(req.body)
+            //console.log(req.body)
             if(req.body.etag!=null && req.body.etag.trim()!="" && req.body.data!=null && req.body.data.trim()!="" && req.body.updated!=null && req.body.updated.toString().trim()!="" && req.body.type!=null && req.body.type.trim()!="" && req.body.calendar_id!=null && req.body.calendar_id.toString().trim()!="")
             {
+                console.log(req.body.data, typeof(req.body.data))
                 var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
                 var userid = await getUseridFromUserhash(userHash[0])
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
                 {
                     
                     //Insert info into database;
-                    var filename=getRandomString(20)+".ics"
+                    var filename=getRandomString(64)+".ics"
 
                     var url = currentCalendar.url
                     var lastChar = currentCalendar.url.substr(-1); 
@@ -57,7 +58,8 @@ export default async function handler(req, res) {
                     }
                     else
                     {
-                        res.status(200).json({ success: false, data: {message: 'ERROR_UPDATE'} })
+                        console.log(response)
+                        res.status(200).json({ success: false, data: {message: 'ERROR_UPDATE', details: response.result.statusText}})
 
                     }
             

@@ -13,6 +13,8 @@ import { withRouter } from "next/router";
 import FilterList from "../filters/FilterList";
 import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+import Link from "next/link";
+import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
 
 class GenericLists extends Component{
     constructor(props)
@@ -25,6 +27,7 @@ class GenericLists extends Component{
         this.updateDimensions = this.updateDimensions.bind(this)
         this.filterSettingsMenuClicked = this.filterSettingsMenuClicked.bind(this)
         this.manageCalendarsClicked = this.manageCalendarsClicked.bind(this)
+        this.labelSettingClicked = this.labelSettingClicked.bind(this)
 
     }
 
@@ -65,7 +68,6 @@ class GenericLists extends Component{
                 return response.json()
             } )
             .then((body) =>{
-                console.log(body)
                 if(body!=null && body.success!=null)
                 {
                     if(body.success.toString()=="true")
@@ -80,7 +82,7 @@ class GenericLists extends Component{
                                 
                                 //temp_Labelcomponent.push((<><Button size="sm" value={labels[key].name} onClick={this.props.labelClicked} style={{margin: 5, backgroundColor: labels[key].colour, color: 'white'}} >{labels[key].name}</Button>{' '}</>))
                                 var border="1px solid "+labels[key].colour
-                                if(!labels[key].name.startsWith("mmdm-"))
+                                if(!labels[key].name.startsWith(SYSTEM_DEFAULT_LABEL_PREFIX+"-"))
                                 {
                                     temp_Labelcomponent.push(<Badge key={labels[key].name} value={labels[key].name} onClick={this.props.labelClicked} bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: labels[key].colour,  textDecorationColor : 'white'}} >{labels[key].name}</Badge>)
 
@@ -145,6 +147,11 @@ class GenericLists extends Component{
         */
 
     }
+
+    labelSettingClicked()
+    {
+        this.props.router.push("/labels")
+    }
     manageCalendarsClicked()
     {
         this.props.router.push("/accounts/caldav")
@@ -186,13 +193,14 @@ class GenericLists extends Component{
                     <br />
                     <div style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
                     <Col><h3><AiOutlineFilter />{this.i18next.t("FILTERS")}</h3></Col>
-                    <Col style={{textAlign:"right"}}><AiOutlineSetting onClick={this.filterSettingsMenuClicked} /></Col>
+                    <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting /></Link></Col>
                     </div>
                     <Row style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
                     <Col><FilterList filterClicked={this.props.filterClicked} /></Col>
                     </Row>
-                    <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
-                        <h4>By Labels</h4>
+                    <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
+                        <Col><h3>By Labels</h3></Col>
+                        <Col> <Link href="/labels/manage"> <h3 style={{textAlign: "right"}}><AiOutlineSetting  /></h3></Link></Col>
                     </Row>
                     <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
                         <div className="col-12">
@@ -203,7 +211,7 @@ class GenericLists extends Component{
                         <Col>
                         <h3><BsCalendar3 /> Calendars</h3>
                         </Col>
-                        <Col style={{textAlign:"right"}}><AiOutlineSetting onClick={this.manageCalendarsClicked} /></Col>
+                        <Col style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting  /></Link> </Col>
 
                     </div>
                     <Row style={{ marginTop: 10, marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }}>

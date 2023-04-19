@@ -1,8 +1,10 @@
-import { isValidResultArray } from "../general"
+import { isValidResultArray, varNotEmpty } from "../general"
 import { arrangeTodoListbyHierarchy, getParsedTodoList, getUnparsedEventData, returnGetParsedVTODO } from "./calendar"
-import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
+import { dueDatetoUnixStamp, getI18nObject, ISODatetoHuman, ISODatetoHumanISO } from "./general"
 import ical from '@/../ical/ical'
 import { applyEventFilter } from "./filters"
+import moment from "moment"
+import { getAuthenticationHeadersforUser } from "./user"
 
 export async function getEvents(calendarEvents, filter)
 {
@@ -39,8 +41,14 @@ function filterEvents(calendarEvents, filter)
 
 export function majorTaskFilter(todo)
 {
-    if((todo.completed==null || todo.completed=="")&& todo.completion!="100"&&todo.summary!=null && todo.summary!=undefined && (todo.deleted == null || todo.deleted == ""))
+    var todoStatusOK = true
+    if(todo.status !=null && todo.status=="COMPLETED")
     {
+        todoStatusOK=false
+    }
+    if((todo.completed==null || todo.completed=="")&& todo.completion!="100"&&todo.summary!=null && todo.summary!=undefined && (todo.deleted == null || todo.deleted == "") && todoStatusOK)
+    {
+        
         return true
     }
     else{
@@ -222,4 +230,260 @@ export function getParsedEvent(data)
         }
     }
 
+}
+
+export function isAllDayEvent(start, end)
+{
+    var dateStart = moment(start).unix()
+    var dateend = moment(end).unix()
+    var allDay=false
+    if(dateend-dateStart ==86400)
+    {
+        allDay= true
+    }
+
+    return allDay
+
+}
+
+export function rruleToObject(rrule)
+{
+    var objectToReturn = {"FREQ": "", "INTERVAL":"", "UNTIL":""}
+    if(varNotEmpty(rrule))
+    {
+        var burst = rrule.split(';')
+
+        if(varNotEmpty(burst) && Array.isArray(burst))
+        {
+            for(const i in burst)
+            {
+                if(burst[i].startsWith("FREQ="))
+                {
+                    var freq = burst[i].split('=')[1]
+                    objectToReturn["FREQ"]=freq
+                }
+
+                if(burst[i].startsWith("INTERVAL="))
+                {
+                    var interval = burst[i].split('=')[1]
+                    objectToReturn["INTERVAL"]=interval
+
+                }
+                if(burst[i].startsWith("UNTIL="))
+                {
+                    var interval = burst[i].split('=')[1]
+                    objectToReturn["UNTIL"]=interval
+
+                }
+
+            }
+        }
+    }
+
+    if(objectToReturn["INTERVAL"]=="" && objectToReturn["FREQ"]!="" )
+    {
+        objectToReturn["INTERVAL"]=1
+    }
+    return objectToReturn
+
+}
+
+export function rruleObjecttoWords(rrule)
+{
+    var words = ""
+    var i18next = getI18nObject()
+    if(varNotEmpty(rrule))
+    {
+        if(rrule["FREQ"]!="")
+        {
+            if(rrule["INTERVAL"]=="1" || rrule["INTERVAL"]=="" || rrule["INTERVAL"]==1 )
+            {
+                if(rrule["FREQ"]=="DAILY")
+                {
+                    words+=i18next.t("EVERY")+" "+i18next.t("DAY").toLowerCase()
+                }
+
+                if(rrule["FREQ"]=="WEELY")
+                {
+                    words+=i18next.t("EVERY")+" "+i18next.t("WEEK").toLowerCase()
+
+                }
+
+                if(rrule["FREQ"]=="MONTHLY")
+                {
+                    words+=i18next.t("EVERY")+" "+i18next.t("MONTH").toLowerCase()
+
+                }
+
+            }else{
+                if(rrule["FREQ"]=="DAILY")
+                {
+                    words+=i18next.t("EVERY")+" "+rrule["INTERVAL"]+" "+i18next.t("DAYS").toLowerCase()
+                }
+
+                if(rrule["FREQ"]=="WEEKLY")
+                {
+                    words+=i18next.t("EVERY")+" "+rrule["INTERVAL"]+" "+i18next.t("WEEKS").toLowerCase()
+
+                }
+
+                if(rrule["FREQ"]=="MONTHLY")
+                {
+                    words+=i18next.t("EVERY")+" "+rrule["INTERVAL"]+" "+i18next.t("MONTHS").toLowerCase()
+
+                }
+            }
+        }
+
+        if(rrule["UNTIL"]!="")
+        {
+            words+=" "+i18next.t("UNTIL").toLowerCase()+" "+ new Date(moment(rrule["UNTIL"]))
+        }
+
+    }
+    return words
+}
+
+export function rruleObjectToString(rrule)
+{
+    var toReturn =""
+    if(varNotEmpty(rrule) && rrule["FREQ"]!=""){
+        for (const key in rrule)
+        {
+            if(varNotEmpty(rrule[key])&&rrule[key]!="")
+            {
+                if(key=="UNTIL")
+                {
+                    toReturn+=key+"="+moment(rrule[key]).toISOString()+";"
+
+                }else
+                {
+                    toReturn+=key+"="+rrule[key]+";"
+
+                }
+
+            }
+        }
+    }
+
+    return toReturn
+}
+
+export function getEmptyRecurrenceObject()
+{
+    var toReturn =  {"FREQ": "", "UNTIL": "", "INTERVAL": ""}
+
+    return toReturn
+}
+export function rrule_DataToFormData(rrule)
+{
+    var toReturn = {"FREQ": "", "UNTIL": "", "INTERVAL": ""}
+    
+    toReturn["UNTIL"] = ISODatetoHuman(rrule["UNTIL"])
+    if(rrule["FREQ"]=="DAILY"){
+        toReturn["FREQ"] = "DAYS"
+
+    }
+
+    if(rrule["FREQ"]=="WEEKLY"){
+        toReturn["FREQ"] = "WEEKS"
+
+    }
+    if(rrule["FREQ"]=="MONTHLY"){
+        toReturn["FREQ"] = "MONTHS"
+
+    }
+    toReturn["INTERVAL"] = rrule["INTERVAL"]
+    
+    return toReturn
+
+}
+
+export function reccurence_torrule(formDataRRule)
+{
+    var toReturn = {"FREQ": "", "UNTIL": "", "INTERVAL": ""}
+    toReturn["UNTIL"] = formDataRRule["UNTIL"]
+
+    if(formDataRRule["FREQ"]=="DAYS"){
+        toReturn["FREQ"] = "DAILY"
+
+    }
+
+    if(formDataRRule["FREQ"]=="WEEKS"){
+        toReturn["FREQ"] = "WEEKLY"
+
+    }
+    if(formDataRRule["FREQ"]=="MONTHS"){
+        toReturn["FREQ"] = "MONTHLY"
+    }
+    toReturn["INTERVAL"] = formDataRRule["INTERVAL"]
+
+    return toReturn
+}
+
+export function getEmptyEventDataObject()
+{
+    var toReturn = { "data": {"start": "", "end":"", "summary": "", "description": "", "rrule": "", "status": "","location": ""}, "event": {"calendar_id":null, "url": null} }
+
+    return toReturn
+}
+
+export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
+{
+    var missingKeys=[]
+    var toReturn=newEventData
+
+    for (const i in oldEventData.data)
+    {
+        var found = false
+        for (const k in newEventData.data)
+        {
+            if(k==i)
+            {
+                found=true
+            }
+        }
+
+        if(found==false)
+        {
+            missingKeys.push(i)
+        }
+
+    }
+    for (const l in missingKeys)
+    {
+        toReturn.data[missingKeys[l]]=oldEventData.data[missingKeys[l]]
+    }
+    return newEventData
+
+}
+
+
+export async function updateEvent(calendar_id, url, etag, data) {
+    const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
+
+    const authorisationData = await getAuthenticationHeadersforUser()
+    var updated = Math.floor(Date.now() / 1000)
+    const requestOptions =
+    {
+        method: 'POST',
+        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+        mode: 'cors',
+        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    }
+    return new Promise( (resolve, reject) => {
+        try {
+            fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) => {
+                    resolve(body)
+    
+                });
+        }
+        catch (e) {
+            resolve({success: false, data:{message: e.message}})
+        }
+    
+    
+    })
 }

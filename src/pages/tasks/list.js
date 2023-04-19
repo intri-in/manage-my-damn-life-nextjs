@@ -15,12 +15,15 @@ import { AiOutlineMenuUnfold } from 'react-icons/ai'
 import { TbLayoutSidebarLeftCollapse } from 'react-icons/tb'
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { withRouter } from 'next/router'
+import { MYDAY_LABEL } from '@/config/constants'
+import { getI18nObject } from '@/helpers/frontend/general'
 
 class TaskViewList extends Component {
 
   constructor(props) {
     super(props)
-    this.state = { showTaskEditor: true, caldav_accounts_id: null, calendars_id: null, filter: { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: ["mmdm-myday"] } }, title: "My Day", updated: "", isSyncing: false, taskView: "tasklist", showLeftColumnOffcanvas: false, showListColumn: true }
+    this.i18next = getI18nObject()
+    this.state = { showTaskEditor: true, caldav_accounts_id: null, calendars_id: null, filter: { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }, title: "My Day", updated: "", isSyncing: false, taskView: "tasklist", showLeftColumnOffcanvas: false, showListColumn: true }
     this.getParamsFromURL = this.getParamsFromURL.bind(this)
     this.calendarNameClicked = this.calendarNameClicked.bind(this)
     this.labelClicked = this.labelClicked.bind(this)
@@ -92,7 +95,7 @@ class TaskViewList extends Component {
     this.setState({ filter: { filter: currentFilter }, caldav_accounts_id: null, calendars_id: null, title: "Label: " + labelName, showLeftColumnOffcanvas: false })
   }
   myDayClicked() {
-    var filter = { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: ["mmdm-myday"] } }
+    var filter = { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }
     this.setState({ filter: filter, title: "My Day", caldav_accounts_id: '', calendars_id: null, showLeftColumnOffcanvas: false })
 
   }
@@ -157,7 +160,7 @@ class TaskViewList extends Component {
     return (
       <>
         <Head>
-          <title>MMDM - Task View - List</title>
+          <title>{this.i18next.t("APP_NAME_TITLE")+" - "+this.i18next.t("TASK_VIEW")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -179,7 +182,7 @@ class TaskViewList extends Component {
             </Col>
           </div>
         </div>
-        <Toastify />
+        {/*  <Toastify /> */}
         <Offcanvas show={this.state.showLeftColumnOffcanvas} onHide={this.handleCloseOffcanvas}>
           <Offcanvas.Header closeButton>
             <Offcanvas.Title></Offcanvas.Title>

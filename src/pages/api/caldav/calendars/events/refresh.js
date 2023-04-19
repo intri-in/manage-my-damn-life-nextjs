@@ -69,7 +69,7 @@ export default async function handler(req, res) {
 
                                     calendarObjectsArray.push(calendarObjects)
                                     saveCalendarEventsintoDB(calendarObjects, caldav_accounts[i].caldav_accounts_id, allCalendarsinCaldavAccount[j].calendars_id)
-                                    updateLabels()
+                                    updateLabels(userid)
     
                                 }
                             }

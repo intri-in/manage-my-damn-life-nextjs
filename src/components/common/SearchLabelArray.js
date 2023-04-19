@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import { Col, Row } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
 import { searchLabelObject } from "@/helpers/frontend/labels";
+import ListGroup from 'react-bootstrap/ListGroup';
 
 export default class SearchLabelArray extends Component{
     constructor(props)
@@ -19,6 +20,7 @@ export default class SearchLabelArray extends Component{
     }
     addLabelClicked(label)
     {
+        this.setState({finalOutput: null, labelSearchValue:""})
         var incomingLabelArray = [] 
         if(isValidResultArray(this.props.labels))
         {
@@ -50,7 +52,7 @@ export default class SearchLabelArray extends Component{
 
             for(const i in result)
             {
-                finalOutput.push(<div key={result[i]} style={{padding: 10}} onClick={() => this.addLabelClicked(result[i])}>{result[i]}</div>)
+                finalOutput.push(<ListGroup.Item action key={result[i]} style={{padding: 10}} onClick={() => this.addLabelClicked(result[i])}>{result[i]}</ListGroup.Item>)
     
             }
     
@@ -58,7 +60,7 @@ export default class SearchLabelArray extends Component{
         }
         if(isValidResultArray(result))
         {
-            this.setState({finalOutput: <div style={{border: "1px gray solid"}}>{finalOutput}</div>})
+            this.setState({finalOutput: <ListGroup style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>})
 
         }
         else{

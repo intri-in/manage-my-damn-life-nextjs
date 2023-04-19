@@ -85,6 +85,8 @@ class ShowCalendarList extends Component{
                     }
 
 
+                }else{
+                    this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
                 }
 
                 this.setState({finalOutput: finalOutput})
@@ -132,7 +134,7 @@ class ShowCalendarList extends Component{
         return(
                <>
                {this.state.finalOutput}
-               <Toastify />
+               {/* <Toastify /> */}
                </> 
             
         )

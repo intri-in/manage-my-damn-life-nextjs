@@ -1,6 +1,6 @@
 import { getConnectionVar } from "../db"
 import validator from 'validator';
-import { getRandomColourCode } from "@/helpers/general";
+import { getRandomColourCode, isValidResultArray } from "@/helpers/general";
 
 export class CaldavAccount{
     
@@ -96,6 +96,59 @@ export class CaldavAccount{
     
     }
 
+    async delete()
+    {
+        var con = getConnectionVar()
+        return new Promise( (resolve, reject) => {
+            con.query('DELETE FROM caldav_accounts WHERE caldav_accounts_id=?', [this.caldav_accounts_id], function (error, results, fields) {
+                con.end()
+                if (error) {
+                    resolve(error.message)
+                }
+
+                resolve(null)
+                });    
+        })
+
+    }
+    /**
+     * Gets CalDAV account from ID.
+     */
+    static async getFromID(caldav_accounts_id)
+    {
+        var con = getConnectionVar()
+        return new Promise( (resolve, reject) => {
+            con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ?", [ caldav_accounts_id], function (err, result, fields) {
+                if (err) throw err;
+                con.end()
+                resolve(Object.values(JSON.parse(JSON.stringify(result))));
+    
+            })
+        }) 
+
+    }
+
+    static async getIDFromCalendar(calendarObject)
+    {
+        var con = getConnectionVar()
+        return new Promise( (resolve, reject) => {
+            con.query("SELECT * FROM calendars WHERE calendars_id=?", [calendarObject.calendars_id], function (err, result, fields) {
+                if (err) throw err;
+                con.end()
+                var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
+                if(isValidResultArray(resultFromDB))
+                {
+                    resolve(resultFromDB[0].caldav_accounts_id);
+    
+                }else
+                {
+                    resolve(null)
+                }
+        
+            })
+            })
+    
+    }
 
 
 }

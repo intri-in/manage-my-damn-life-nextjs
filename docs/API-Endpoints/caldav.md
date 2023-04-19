@@ -2,10 +2,10 @@
 
 A quick guide to server API.
 
-## Endpoints
 
 
-### caldav
+
+## caldav
 
 Gets all registered CalDAV accounts and calendars.
 ```
@@ -20,7 +20,7 @@ None.
 
 
 
-### caldav/register
+## caldav/register
 
 Registers a remote CalDAV account.
 
@@ -39,7 +39,32 @@ Registers a remote CalDAV account.
 
 ---
 
-### caldav/calendars
+## caldav/delete
+
+Deletes CalDAV account from database.
+
+```
+> Method: GET
+> Authentication Required: Yes
+```
+** Parameters**
+
+| Parameter | Description | Required |
+| ----------- | ----------- |  ----------- |
+|caldav_account_id|ID of account to be deleted|Yes|
+
+** Response **
+
+| Message | HTTP Status | Success | Description |  
+| ----------- | ----------- |  ----------- |----------- |
+|CALDAV_ACCOUNT_DELETED| 200|true |Sent when the CalDAV Account is successfully deleted.|
+|ERROR_NO_ACCESS_TO_CALDAV_ACCOUNT|401|false |User doesn't have access to the requested CalDAV account|
+
+
+---
+
+
+## caldav/calendars
 
 Gets all calendars in CalDAV account that are stored in database.
 ```
@@ -55,7 +80,7 @@ Gets all calendars in CalDAV account that are stored in database.
 |password|Password of CalDav server.|Yes|
 |accountname|Account name to identify CalDav server.|Yes|
 
-### caldav/calendars/labels
+## caldav/calendars/labels
 
 Return all lables from database. 
 
@@ -68,7 +93,7 @@ Return all lables from database.
 None
 
 
-### caldav/calendars/events/all
+## caldav/calendars/events/all
 
 Get events on particular added CalDAV account from its id.
 ```
@@ -83,7 +108,7 @@ Get events on particular added CalDAV account from its id.
 |filter|Filter for type. Possible values: todo, null |No|
 
 
-### caldav/calendars/events/db/all
+## caldav/calendars/events/db/all
 
 Get all events from database..
 ```

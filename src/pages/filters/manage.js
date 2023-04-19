@@ -164,7 +164,7 @@ class ManageFilters extends Component{
         return(
         <>
             <Head>
-            <title>{"MMDM - "+this.i18next.t("MANAGE_FILTERS")}</title>
+            <title>{this.i18next.t("APP_NAME_TITLE")+" - "+this.i18next.t("MANAGE_FILTERS")}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link rel="icon" href="/favicon.ico" />
             </Head>
@@ -180,7 +180,7 @@ class ManageFilters extends Component{
             </div>
             {this.state.addFilterForm}
             </div>
-            <Toastify />
+           {/*  <Toastify /> */}
         </>)
     }
 }

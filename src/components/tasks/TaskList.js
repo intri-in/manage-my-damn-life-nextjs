@@ -15,7 +15,7 @@ export default class TaskList extends Component {
         var i18next = getI18nObject()
         this.i18next = i18next
         this.refreshCalendars = this.refreshCalendars.bind(this)
-        this.state = { i18next: i18next, toast_placeholder: Toastify(), taskList: null, caldav_accounts_id: this.props.caldav_accounts_id, calendars_id: this.props.calendars_id, taskListName: "", taskListColor: '', view:props.view }
+        this.state = { i18next: i18next, toast_placeholder: null, taskList: null, caldav_accounts_id: this.props.caldav_accounts_id, calendars_id: this.props.calendars_id, taskListName: "", taskListColor: '', view:props.view }
         this.renderTaskListUI = this.renderTaskListUI.bind(this)
         this.asyncSaveLabelstoDB = this.asyncSaveLabelstoDB.bind(this)
         this.getCalendarName = this.getCalendarName.bind(this)
@@ -71,7 +71,7 @@ export default class TaskList extends Component {
                 if (todoListSorted[0]!=null && Object.keys(todoListSorted[0]).length>0) {
                     if(this.props.view=="tasklist")
                     {
-                        output.push(<div key={taskListName}><h4  autoFocus style={{ paddingTop: 10, paddingBottom: 10,  }}>{taskListName}</h4><TaskView fetchEvents={this.props.fetchEvents} todoList={todoListSorted} context={this} filter={this.props.filter} view={this.props.view} listName={taskListName} listColor={responseFromServer.data.message[i].info.color} /></div>)
+                        output.push(<div key={taskListName}><h4  autoFocus style={{ paddingTop: 10, paddingBottom: 10,  }}>{taskListName}</h4><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoListSorted} context={this} filter={this.props.filter} view={this.props.view} listName={taskListName} listColor={responseFromServer.data.message[i].info.color} /></div>)
 
                     }else{
                         for(const k in todoListSorted[0])
@@ -196,7 +196,7 @@ export default class TaskList extends Component {
         })
 
         */
-        this.setState({taskList: (<> <h4 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h4><TaskView fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
+        this.setState({taskList: (<> <h4 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h4><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
 
     }
 

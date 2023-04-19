@@ -25,7 +25,7 @@ class AddFilters extends Component {
         super(props)
         this.i18next = getI18nObject()
 
-        this.state={output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom:null, dueDateBefore: null, selectedFilters: {logic : "OR", filter: {due: ["", ""], label:[], priority:""}}, filterResultinWords:"", filterbyLabelChecked:false, labelNamesChecklist: <Loading /> ,filterbyPriority : false, priorityValue: "",toast_placeholder: <Toastify />, filternameInvalid: false, filterName:"", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList : {}, labelList: [] }
+        this.state={output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom:null, dueDateBefore: null, selectedFilters: {logic : "OR", filter: {due: ["", ""], label:[], priority:""}}, filterResultinWords:"", filterbyLabelChecked:false, labelNamesChecklist: <Loading /> ,filterbyPriority : false, priorityValue: "", filternameInvalid: false, filterName:"", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList : {}, labelList: [] }
         this.filterbyDueChanged = this.filterbyDueChanged.bind(this)
         this.dueFromDateChanged = this.dueFromDateChanged.bind(this)
         this.dueBeforeDateChanged = this.dueBeforeDateChanged.bind(this)

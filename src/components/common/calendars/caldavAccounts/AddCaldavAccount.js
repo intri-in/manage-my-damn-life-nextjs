@@ -15,7 +15,7 @@ export default class AddCaldavAccount extends Component{
         super(props)
         var i18next = getI18nObject()
         this.i18next=i18next
-        this.state= {serverURL: '', accountName: '', username: '', password: '', toast_placeholder: Toastify(), i18next: i18next, requestPending: false}
+        this.state= {serverURL: '', accountName: '', username: '', password: '',  i18next: i18next, requestPending: false}
         this.serverURLValueChanged = this.serverURLValueChanged.bind(this)
         this.accountNameValueChanged = this.accountNameValueChanged.bind(this)
         this.serverUsernameValueChanged = this.serverUsernameValueChanged.bind(this)
@@ -58,7 +58,7 @@ export default class AddCaldavAccount extends Component{
     async makeServerRequest()
     {
         this.setState({requestPending: true})
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/register?url="+ this.state.serverURL+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
+        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/register?url="+ addTrailingSlashtoURL(this.state.serverURL)+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =
@@ -169,8 +169,7 @@ export default class AddCaldavAccount extends Component{
 
             </Form.Group>
 
-            {this.state.toast_placeholder}
-
+            {/* <Toastify /> */}
             </>
         )
     }

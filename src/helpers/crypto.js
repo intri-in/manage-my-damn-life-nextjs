@@ -2,6 +2,7 @@ import crypto from "crypto"
 
 export function getRandomString(len)
 {
-  var id = crypto.randomBytes(len).toString('hex');
+  var hexLength = len/2
+  var id = crypto.randomBytes(hexLength).toString('hex');
   return id
 }

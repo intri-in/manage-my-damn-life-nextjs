@@ -112,6 +112,10 @@ export default class GanttView extends Component {
                     {
                          backgroundColor=todoList[3][key]
                     } 
+                    if(moment(startDate).unix()>moment(dueDate).unix())
+                    {
+                        startDate= dueDate
+                    }
                     var toPush = {
                         start: startDate,
                         end: dueDate,

@@ -2,22 +2,17 @@ import * as moment from 'moment';
 
 class VTodoGenerator{
 
-    constructor(...values)
+    constructor(todoObject)
     {
-        this.due = values[0].due
-        this.start= values[0].start
-        this.summary=values[0].summary
-        this.created=values[0].created
-        this.completion= values[0].completion
-        this.completed= values[0].completed
-        this.status=values[0].status
-        this.uid=values[0].uid
-        this.categories=values[0].categories
-        this.priority=values[0].priority
-        this.relatedto=values[0].relatedto
-        this.lastmodified=values[0].lastmodified
-        this.dtstamp= values[0].dtstamp
-        this.description=values[0].description
+        if(todoObject!=null && Object.keys(todoObject).length>0)
+        {
+            for(const key in todoObject)
+            {
+                this[key]=todoObject[key]
+            }
+        }else{
+            throw new Error("No valid task object provided.")
+        }
     }
 
     generate()
@@ -76,14 +71,15 @@ class VTodoGenerator{
             finalVTODO +="DUE:"+this.getISO8601Date(this.due)+"\n" 
         }
 
-        if(this.status!=null&&this.status!=""&& this.statusIsValid(this.status)){
-            finalVTODO +="STATUS:"+this.status+"\n" 
-
-        }
 
         if(this.completed!=null && this.completed!="")
         {
             finalVTODO += "COMPLETED:"+this.getISO8601Date(moment().unix()*1000)+"\n"
+
+            // The task is completed, so we set the STATUS as COMPLETED.
+            // This is required for apps like JTX Boards to recognize that the task has been completed.
+            finalVTODO += "STATUS:COMPLETED\n" 
+
             //finalVTODO +="PERCENT-COMPLETE: 100\n" 
             if(this.completion!=null && this.completion!="")
             {
@@ -91,6 +87,11 @@ class VTodoGenerator{
             }
 
         }else{
+            if(this.status!=null&&this.status!=""&& this.statusIsValid(this.status)){
+                finalVTODO +="STATUS:"+this.status+"\n" 
+    
+            }
+    
             if(this.completion!=null && this.completion!="")
             {
                 finalVTODO +="PERCENT-COMPLETE:"+this.completion+"\n" 
@@ -132,6 +133,46 @@ class VTodoGenerator{
         {
             finalVTODO +="START:"+this.getISO8601Date(this.start)+"\n"
         }
+
+        if(this.class!=null && this.class!="" && this.class!=undefined)
+        {
+            finalVTODO +="CLASS:"+this.class+"\n"
+
+        }
+
+        if(this.geo!=null && this.geo!="" && this.geo!=undefined)
+        {
+            finalVTODO +="GEO:"+this.geo+"\n"
+
+        }
+
+        if(this.lastmod!=null && this.lastmod!="" && this.lastmod!=undefined)
+        {
+            finalVTODO +="LAST-MODIFIED:"+this.lastmod+"\n"
+
+        }else{
+            finalVTODO +="LAST-MODIFIED:"+dtstamp+"\n"
+
+        }
+
+        if(this.location!=null && this.location!="" && this.location!=undefined)
+        {
+            finalVTODO +="LOCATION:"+this.location+"\n"
+
+        }
+        if(this.organizer!=null && this.organizer!="" && this.organizer!=undefined)
+        {
+            finalVTODO +="ORGANIZER:"+this.organizer+"\n"
+
+        }
+
+        if(this.sequence!=null && this.sequence!="" && this.sequence!=undefined)
+        {
+            finalVTODO +="SEQUENCE:"+this.sequence+"\n"
+
+        }
+
+        
         
         
         finalVTODO +="END:VTODO\nEND:VCALENDAR"

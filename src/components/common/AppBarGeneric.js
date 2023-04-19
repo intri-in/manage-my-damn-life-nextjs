@@ -12,6 +12,9 @@ import { AiOutlineSetting } from "react-icons/ai";
 import  {IoSyncCircleOutline}  from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
 import { logoutUser } from "@/helpers/frontend/user";
+import Link from "next/link";
+import { getSyncTimeout } from "@/helpers/frontend/settings";
+import { toast } from "react-toastify";
 
 class AppBarGeneric extends Component {
 
@@ -23,10 +26,19 @@ class AppBarGeneric extends Component {
     this.taskViewClicked = this.taskViewClicked.bind(this)
     this.syncButtonClicked = this.syncButtonClicked.bind(this)
     this.logOutClicked = this.logOutClicked.bind(this)
-
+  
   }
 componentDidMount(){
   this.setState({isSyncing: this.props.isSyncing})
+ 
+  var context = this
+  setInterval(() => {
+    //context.syncButtonClicked()
+    //toast.info("syncing")
+    console.log("getSyncTimeout", getSyncTimeout())
+  }, getSyncTimeout())
+
+
 }
 
 
@@ -65,6 +77,7 @@ async syncButtonClicked() {
     this.props.router.push("/login")
   }
   render() {
+  
     var syncButton = this.state.isSyncing ? (   <Spinner
     as="span"
     animation="border"
@@ -89,8 +102,8 @@ async syncButtonClicked() {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse  id="basic-navbar-nav">
                 <Nav className="me-auto">
-                    <Nav.Link style={{color: "white"}} onClick={this.logoClicked}  >{this.i18next.t("HOME")} </Nav.Link>
-                    <Nav.Link style={{color: "white"}} onClick={this.taskViewClicked}  >Task View</Nav.Link>
+                    <Link style={{color: "white", textDecoration: "none"}} href="/"> {this.i18next.t("HOME")}</Link> &nbsp; &nbsp;
+                    <Link style={{color: "white", textDecoration: "none"}} href="/tasks/list"> Task View</Link>
                 </Nav>
                 <Nav>
 

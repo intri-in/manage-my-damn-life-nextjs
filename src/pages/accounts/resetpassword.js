@@ -246,7 +246,7 @@ class ResetPassword extends Component{
             <div style={{textAlign : "center"}}><Link href="/login">Cancel</Link></div>
 
         </div> 
-        <Toastify />     
+        {/*  <Toastify />     */}
         </Container>
 
         </>

@@ -25,7 +25,7 @@ export function TaskView(props)
     {
      var output_list=(
         
-        <GenerateTaskUIList fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context} listColor={props.listColor}  />)
+        <GenerateTaskUIList scheduleItem={props.scheduleItem} fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context} listColor={props.listColor}  />)
      
     } 
     else
@@ -63,8 +63,8 @@ export function RecursivelyGetListItemforTask(props) {
         {
             continue;
         }
-      if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
-        {
+    if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
+       {
             var listitem = null
             var pl = 4 * level
             var tempToReturn = []

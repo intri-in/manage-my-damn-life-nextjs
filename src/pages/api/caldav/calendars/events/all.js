@@ -23,7 +23,6 @@ export default async function handler(req, res) {
                         if(caldav_accounts[i].caldav_accounts_id==req.query.caldav_accounts_id)
                         {
                             var client = await getCaldavClient(caldav_accounts[i].caldav_accounts_id)
-                            console.log(client)
                             const allCalendarsinCaldavAccount= await getCalendarsfromCaldavAccountsID(caldav_accounts[i].caldav_accounts_id)
     
                             if(allCalendarsinCaldavAccount!=null && Array.isArray(allCalendarsinCaldavAccount) && allCalendarsinCaldavAccount.length>0)
@@ -69,7 +68,7 @@ export default async function handler(req, res) {
 
                                     calendarObjectsArray.push(calendarObjects)
                                     saveCalendarEventsintoDB(calendarObjects, caldav_accounts[i].caldav_accounts_id, allCalendarsinCaldavAccount[j].calendars_id)
-                                    updateLabels()
+                                    updateLabels(userid)
     
                                 }
                             }

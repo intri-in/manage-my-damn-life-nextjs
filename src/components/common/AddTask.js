@@ -17,7 +17,7 @@ export default class AddTask extends Component{
     {
         super(props)
         this.i18next = getI18nObject()
-        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false,toastPlaceholder: <Toastify />, calendar_id: props.calendars_id}
+        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false, calendar_id: props.calendars_id}
         this.addTask = this.addTask.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)

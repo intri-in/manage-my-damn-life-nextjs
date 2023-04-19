@@ -135,7 +135,7 @@ async function processSyncCalendarResponse(caldav_accounts_id, response)
                 if(calendarExists==true)
                 {
                     var updateResult= await updateCalendarinDB(response.updated[i], caldav_accounts_id)
-                    console.log(updateResult, response.updated[i].url)
+                    //console.log(updateResult, response.updated[i].url)
                 }
             }
         }

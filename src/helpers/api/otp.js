@@ -29,11 +29,11 @@ export async function sendResetPasswordMessage(emailid, otp )
 {
     var messageText = ("<b>OTP to reset your password</b>")
     messageText += "<p> Hi there!</p>"
-    messageText += "<p> Your OTP to reset your MMDM password is: <b>"+otp+"</b></p>"
+    messageText += "<p> Your OTP to reset your MMDL password is: <b>"+otp+"</b></p>"
     messageText += "<p> Thank you,</p>"
-    messageText += "<p> MMDM Admin</p>"
+    messageText += "<p> MMDL Admin</p>"
 
-    var subject = otp+ " is your OTP to reset your MMDM password"
+    var subject = otp+ " is your OTP to reset your MMDL password"
     return new Promise( (resolve, reject) => {
         
         sendEmail(emailid, subject, messageText).then(result =>

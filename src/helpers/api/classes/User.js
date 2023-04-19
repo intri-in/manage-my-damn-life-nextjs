@@ -1,6 +1,9 @@
 import { getConnectionVar } from "../db";
 import { getUserHashSSIDfromAuthorisation, getUseridFromUserhash } from "@/helpers/api/user"
 import crypto from "crypto"
+import { CaldavAccount } from "./CaldavAccount";
+import { varNotEmpty } from "@/helpers/general";
+import { Calendars } from "./Calendars";
 
 export class User{
 
@@ -37,8 +40,63 @@ export class User{
       return userid
 
     }
+
+    /**
+     * Checks if current user has access to calendar. Return full calendar object if true,
+     * null otherwise
+     * @param {*} calendarObject Object of class Calendars 
+     * @returns full calendar object if user has access, null otherwise
+     */
+    async hasAccesstoCalendar(calendarObject)
+    {
+        var toReturn = null
+        var allCaldav = await this.getCaldavAccounts()
+        for(const i in allCaldav)
+        {
+            
+            var caldavAccountObject = new CaldavAccount(allCaldav[i])
+            var allCalendarsForUser = await caldavAccountObject.getAllCalendars()
+            if(varNotEmpty(allCalendarsForUser))
+            {
+                for(const k in allCalendarsForUser)
+                {
+                    if(allCalendarsForUser[i].calendars_id==calendarObject.calendars_id)
+                    {
+                        return allCalendarsForUser[i]
+                    }
+                }
+                
+            }
+            
+    
+        }
+
+        return toReturn
+    }
+    async hasAccesstoCaldavAccountID(caldav_accounts_id)
+    {
+        var con = getConnectionVar()
+        return new Promise( (resolve, reject) => {
+            con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ? AND userid=?", [caldav_accounts_id, this.userid], function (err, result, fields) {
+                if (err) throw err;
+                con.end()
+                var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
+    
+                if(resultFromDB!=null&&Array.isArray(resultFromDB)&&resultFromDB.length>0)
+                {
+                    resolve(true);
+                }
+                else
+                {
+                    resolve(false);
+                }
+                
+    
+            })
+        })
     
 
+    }
     static async hasAccesstoCaldavAccountID(caldav_accounts_id)
     {
         var con = getConnectionVar()
@@ -109,6 +167,37 @@ export class User{
         )
     
     }
+
+    /**
+     * Gets all events for the current user.
+     * @param {*} type Type of event like VTODO, VEVENT, VTIMEZONE
+     * @returns Array of events.
+     */
+    async getAllEvents(type)
+    {
+        var toReturn = []
+        var caldav_accounts = await this.getCaldavAccounts()
+        for(const i in caldav_accounts)
+        {
+            var caldavAccountObject = new CaldavAccount(caldav_accounts[i])
+            var allCalendarsForUser = await caldavAccountObject.getAllCalendars()
+            if(varNotEmpty(allCalendarsForUser))
+            {
+                for(const k in allCalendarsForUser)
+                {
+                    var calObj = new Calendars(allCalendarsForUser[k])
+                    var allEvents = await calObj.getAllEvents(type)
+                    for(const l in allEvents)
+                    {
+                        toReturn.push(allEvents[l])
+                    }
+                }
+            }
+        }
+
+        return toReturn
+    }
+
     async getCaldavAccounts()
     {
       var con = getConnectionVar()

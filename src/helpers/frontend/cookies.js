@@ -9,11 +9,11 @@ export function setCookie(cname, cvalue, exdays)
 
 export function getDefaultCalendarID()
 {
-    Cookies.get("DEFAULT_CALENDAR_NAME")
+    Cookies.get("DEFAULT_CALENDAR_ID")
     return "2";
 }
 
 export function setDefaultCalendarID(calendars_id)
 {
-    Cookies.set("DEFAULT_CALENDAR_NAME", calendars_id, { expires: 3650 })
+    Cookies.set("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
 }

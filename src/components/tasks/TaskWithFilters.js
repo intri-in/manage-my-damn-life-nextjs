@@ -6,6 +6,7 @@ import { t } from "i18next";
 import { applyTaskFilter } from "@/helpers/frontend/events";
 import GenerateTaskUIList from "./GenerateTaskUIList";
 import { MdCancel } from "react-icons/md";
+import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
 export class TaskWithFilters extends Component{
     constructor(props)
     {
@@ -135,7 +136,7 @@ export class TaskWithFilters extends Component{
           {
             for(const k in this.props.todoList[1][key].todo.category)
             {
-              if(this.labelisinArray(this.props.todoList[1][key].todo.category[k], labelList)==false && this.props.todoList[1][key].todo.category[k].startsWith("mmdm")==false)
+              if(this.labelisinArray(this.props.todoList[1][key].todo.category[k], labelList)==false && this.props.todoList[1][key].todo.category[k].startsWith(SYSTEM_DEFAULT_LABEL_PREFIX)==false)
               {
                 labelList.push(this.props.todoList[1][key].todo.category[k])
               }

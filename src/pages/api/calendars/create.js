@@ -44,9 +44,7 @@ export default async function handler(req, res) {
                             defaultAccountType: 'caldav',
                         })
                         var url=addTrailingSlashtoURL(caldavFromDB.url)+"calendars/"+caldavFromDB.username+"/"+replaceSpacewithHyphen(req.body.calendarName.trim())
-                        console.log(url)
                         var calendarColor= getRandomColourCode()
-                        console.log(calendarColor)
                         const result = await client.makeCalendar({
                             url: url,
                             props: {

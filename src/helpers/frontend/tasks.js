@@ -52,3 +52,28 @@ function sortFunction(a, b) {
     }
 }
 
+/**
+ * Generates a new task object to pass to the VTODOGENERATOR
+ * Makes sure that no data goes missing when a task is being edited, even when MMDL doesn't
+ * support some of the fields.
+ * @param {*} currenTaskObject 
+ * @param {*} oldData 
+ */
+export function generateNewTaskObject(currenTaskObject, oldData)
+{
+    var newTaskObject= currenTaskObject
+    if(oldData!=null && Object.keys(oldData).length>0)
+    {
+        for (const key in oldData)
+        {
+            if(key!="due" && key!="start" && key!="summary"&& key!="created"&& key!="completion"&& key!="completed"&& key!="status"&& key!="uid"&& key!="categories"&& key!="priority"&& key!="relatedto"&& key!="lastmodified"&& key!="dtstamp"&& key!="description")
+            {
+                newTaskObject[key]=oldData[key]
+            }
+        }
+    }
+    console.log("inputobj", currenTaskObject, "outputObj", newTaskObject)
+
+    return newTaskObject
+
+}

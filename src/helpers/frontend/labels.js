@@ -1,3 +1,4 @@
+import { MYDAY_LABEL } from '@/config/constants';
 import { isValidObject } from '../general';
 import { getUserDB } from './db';
 import { objectArrayHasKey, getRandomColourCode} from './general';
@@ -95,7 +96,28 @@ export async function getLabelsFromServer()
         });
     })
 } 
+export async function makeUpdateLabelRequest()
+{
+    const url_api=process.env.NEXT_PUBLIC_API_URL+"labels/updatecache"
+    const authorisationData=await getAuthenticationHeadersforUser()
 
+    const requestOptions =
+    {
+        method: 'GET',
+        mode: 'cors',
+        headers: new Headers({'authorization': authorisationData}),
+
+    }
+    return new Promise( (resolve, reject) => {
+
+        const response =  fetch(url_api, requestOptions)
+        .then(response => response.json())
+        .then((body) =>{
+            resolve(body)
+        });
+    })
+
+}
 export function searchLabelObject(objectToSearch, searchTerm)
 {
     var resultArray=[]
@@ -126,7 +148,7 @@ export function categoryArrayHasMyDayLabel(categoryArray)
     var found = false
     for (const i in categoryArray)
     {
-        if(categoryArray[i]=="mmdm-myday")
+        if(categoryArray[i]==MYDAY_LABEL)
         {
             return true
         }
@@ -154,7 +176,7 @@ export function removeMyDayLabelFromArray(categoryArray)
     var newArray = []
     for (const i in categoryArray)
     {
-        if(categoryArray[i]!="mmdm-myday")
+        if(categoryArray[i]!=MYDAY_LABEL)
         {
             newArray.push(categoryArray[i])
         }

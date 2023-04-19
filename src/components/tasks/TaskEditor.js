@@ -7,7 +7,7 @@ import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
 import {Row, Col, Button } from "react-bootstrap";
 import * as moment from 'moment';
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
-import { isValidResultArray } from "@/helpers/general";
+import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
 import VTodoGenerator from "@/external/VTODOGenerator";
 import { getRandomString } from "@/helpers/crypto";
@@ -15,11 +15,13 @@ import { postNewTodo } from "@/helpers/frontend/eventmodifier";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { caldavAccountsfromServer, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { toast } from "react-toastify";
-import { AiFillDelete } from "react-icons/ai";
+import { AiFillDelete, AiOutlineDelete } from "react-icons/ai";
 import ical from '@/../ical/ical'
 import { TaskDeleteConfirmation } from "./TaskDeleteConfirmation";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { Loading } from "../common/Loading";
+import ParentTaskSearch from "./ParentTaskSearch";
+import { generateNewTaskObject } from "@/helpers/frontend/tasks";
 
 export default class TaskEditor extends Component {
     constructor(props) {
@@ -55,7 +57,7 @@ export default class TaskEditor extends Component {
         {
             taskDone=props.data.taskDone
         }
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category,labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar:"", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null}
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category,labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar:"", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null,relatedto :props.data.relatedto}
 
 
         this.i18next= getI18nObject()
@@ -77,6 +79,8 @@ export default class TaskEditor extends Component {
         this.deleteTheTaskFromServer = this.deleteTheTaskFromServer.bind(this)
         this.getStatusDropdown = this.getStatusDropdown.bind(this)   
         this.statusValueChanged = this.statusValueChanged.bind(this)
+        this.removeParentClicked = this.removeParentClicked.bind(this)
+        this.onParentSelect = this.onParentSelect.bind(this)
      }
 
     componentDidMount() {
@@ -106,17 +110,12 @@ export default class TaskEditor extends Component {
 
         }
 
-        if(this.props.data.relatedto!=null&&this.props.data.relatedto!="")
-        {
-            this.setState({parentTask: (<div><h4>Parent Task</h4>
-            <p>{this.props.todoList[1][this.props.data.relatedto].todo.summary}</p></div>)})
-        }
 
         if(this.props.data.taskDone!=null&&this.props.data.taskDone!="")
         {
             var completed=Math.floor(Date.now() / 1000)
 
-            this.setState({completed: completed})
+            this.setState({completed: completed, })
         }
         this.setState({saveButton: ( <Button onClick={this.saveTask} style={{width: "90%"}}>Save</Button>
         )})
@@ -161,6 +160,11 @@ export default class TaskEditor extends Component {
         }  
 
     }
+    removeParentClicked()
+    {
+        this.props.onChange();
+        this.setState({relatedto : ""})
+    }
 
     removeLabel(e)
     {
@@ -187,7 +191,7 @@ export default class TaskEditor extends Component {
         if(isValidResultArray(calendarsFromServer))
         {
             calendarOutput=[]
-           // calendarOutput.push(<option key="calendar-select-empty" ></option>)
+            calendarOutput.push(<option key="calendar-select-empty" ></option>)
 
             for(let i=0; i<calendarsFromServer.length; i++)
             {
@@ -360,27 +364,36 @@ export default class TaskEditor extends Component {
     }
     async saveTask()
     {
-        var dueDate = ""
-        this.setState({saveButton: <Loading />})
-        if(this.state.dueDate!=null && this.state.dueDate!="")
+        if( varNotEmpty(this.state.summary) && this.state.summary.trim()!="")
         {
-            var dueDateUnix= moment(this.state.dueDate, 'D/M/YYYY H:mm').unix()*1000;
-            dueDate =  moment(dueDateUnix).format('YYYYMMDD');
-            dueDate +=  "T"+moment(dueDateUnix).format('HHmmss');
-
-        }
-      
-        var todoData={due: dueDate, start: this.state.start, summary: this.state.summary, created:this.props.data.created, completion:this.state.completion, completed: this.state.completed, status: this.state.status, uid:this.props.data.uid, categories:this.state.category, priority:this.state.priority, relatedto: this.props.data.relatedto, lastmodified:"",dtstamp: this.props.data.dtstamp, description: this.state.description, }
-        var todo = new VTodoGenerator(todoData)
-        var finalVTODO = todo.generate()
-        var etag= getRandomString(32)
-        if(this.props.data.url==null)
-        {
-            var resultsofPost= await this.postNewTodo(this.state.calendar, finalVTODO, etag, this.processResult)
+            var dueDate = ""
+            this.setState({saveButton: <Loading />})
+            if(this.state.dueDate!=null && this.state.dueDate!="")
+            {
+                var dueDateUnix= moment(this.state.dueDate, 'D/M/YYYY H:mm').unix()*1000;
+                dueDate =  moment(dueDateUnix).format('YYYYMMDD');
+                dueDate +=  "T"+moment(dueDateUnix).format('HHmmss');
     
-        }
-        else{
-            var resultofEdit  = await this.updateTodo(this.state.calendar,this.props.data.url, this.props.data.etag, finalVTODO)
+            }
+          
+            var todoData={due: dueDate, start: this.state.start, summary: this.state.summary, created:this.props.data.created, completion:this.state.completion, completed: this.state.completed, status: this.state.status, uid:this.props.data.uid, categories:this.state.category, priority:this.state.priority, relatedto: this.state.relatedto, lastmodified:"",dtstamp: this.props.data.dtstamp, description: this.state.description, }
+    
+            var finalTodoData= generateNewTaskObject(todoData, this.props.data)
+            var todo = new VTodoGenerator(todoData)
+            var finalVTODO = todo.generate()
+            console.log(finalVTODO)
+            var etag= getRandomString(32)
+            if(this.props.data.url==null)
+            {
+                 var resultsofPost= await this.postNewTodo(this.state.calendar, finalVTODO, etag, this.processResult)
+        
+            }
+            else{
+                var resultofEdit  = await this.updateTodo(this.state.calendar,this.props.data.url, this.props.data.etag, finalVTODO)
+            }
+    
+        }else{
+            toast.error(this.i18next.t("CANT_CREATE_EMPTY_TASK"))
         }
     }
     processResult(result)
@@ -446,7 +459,29 @@ export default class TaskEditor extends Component {
         }
 
     }
+    onParentSelect(uid){
+        this.setState({relatedto:uid})
+    }
     render() {
+
+        var parentTask =""
+        if(this.state.relatedto!=null&&this.state.relatedto!="")
+        {
+            parentTask = (
+            <div >
+                <Row style={{justifyContent: 'center', display: 'flex', alignItems: "center",  }}>
+                <Col>
+                    <p>{this.props.todoList[1][this.state.relatedto].todo.summary}</p>
+                </Col>
+                <Col>
+                <p style={{textAlign: "right", color: "red"}}><AiOutlineDelete onClick={this.removeParentClicked} /></p>
+                </Col>
+                </Row>
+            </div>)
+        }else{
+            parentTask=(<ParentTaskSearch onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
+        }
+
         return (
             <div key={this.props.data.uid}>
                 <Row  style={{ marginBottom: 10,}}>
@@ -465,7 +500,10 @@ export default class TaskEditor extends Component {
 
                 <h4>Calendar</h4>
                 <div style={{marginBottom: 10}}>{this.state.calendarOptions}</div>
-                {this.state.parentTask}
+
+                <h4>Parent Task</h4>
+                <div style={{marginBottom: 10}}>{parentTask}</div>
+
                 <h4>Start Date</h4>
                 <div style={{marginBottom: 10}}><Datetime value={this.state.start} onChange={this.startDateChange} dateFormat="D/M/YYYY"  timeFormat="HH:mm"   /></div>
 

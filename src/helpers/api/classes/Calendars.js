@@ -4,6 +4,37 @@ import validator from 'validator';
 
 export class Calendars{
 
+    constructor(calendarObject)
+    {
+        for (const key in calendarObject)
+        {
+             this[key] = calendarObject[key]
+        }
+ 
+    }
+
+    getAllEvents(type)
+    {
+
+        var con = getConnectionVar()
+        var query="SELECT * FROM calendar_events WHERE calendar_id= ?"
+        if(type!=null && type!=undefined)
+        {
+            query="SELECT * FROM calendar_events WHERE calendar_id= ? AND type=?"
+        }
+        return new Promise( (resolve, reject) => {
+            con.query(query , [ this.calendars_id, type], function (err, result, fields) {
+                con.end()
+                if (err) {
+                    console.log("Calendars.getAllEvents: ",err) 
+                    resolve(null)
+                }
+                var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
+                resolve(resultFromDB)
+            })
+        })
+
+    }
     /**
      * 
      * @param {*} calendar Calendar object from tsdav or from database.

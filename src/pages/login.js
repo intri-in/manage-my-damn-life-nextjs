@@ -202,7 +202,7 @@ class Login extends Component{
             {registrationLink}
             
         </div> 
-        <Toastify />     
+        {/*  <Toastify />   */}  
         </Container>
 
         </>)

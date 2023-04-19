@@ -11,10 +11,11 @@ import TaskEditor from "./TaskEditor";
 import Modal from 'react-bootstrap/Modal';
 import { TaskEditorExitModal } from "./TaskEditorExitModal";
 import { toast } from "react-toastify";
-import { Toastify } from "../Generic";
 import { TaskDeleteConfirmation } from "./TaskDeleteConfirmation";
 import { ContextMenuTrigger, ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 import { RightclickContextMenu } from "./RightclickContextMenu";
+import { MYDAY_LABEL } from "@/config/constants";
+import Draggable from 'react-draggable'; 
 
 export default class TaskUI extends Component{
 
@@ -31,7 +32,7 @@ export default class TaskUI extends Component{
         }
         
         this.i18next = getI18nObject()
-        this.state={labelColours: {}, labelArray: [], labelNames: [], showTaskEditor:false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false,showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder:(<Toastify />), showSubtaskEditor: false, subtaskData:{}, collapseButton: "", isCollapsed:this.props.collapsed}
+        this.state={labelColours: {}, labelArray: [], labelNames: [], showTaskEditor:false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false,showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder:null, showSubtaskEditor: false, subtaskData:{}, collapseButton: "", isCollapsed:this.props.collapsed}
         this.taskClicked= this.taskClicked.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
@@ -77,7 +78,7 @@ export default class TaskUI extends Component{
         var newData = this.state.data
         newData.priority="1"
 
-        this.setState({data: newData, showTaskEditor: true})
+        this.setState({data: newData, showTaskEditor: true, taskDataChanged: true})
     }
     collapseButtonClicked(e)
     {
@@ -120,7 +121,7 @@ export default class TaskUI extends Component{
     }
     onAddtoMyday(input)
     {
-        // first check if the task already has label mmdm-myday
+        // first check if the task already has label for my day.
         var newDataArray= this.state.data
 
         if(this.state.data.category!=null && Array.isArray(this.state.data.category))
@@ -129,7 +130,7 @@ export default class TaskUI extends Component{
 
             for(const i in this.state.data.category)
             {
-                if(this.state.data.category[i]=="mmdm-myday")
+                if(this.state.data.category[i]==MYDAY_LABEL)
                 {
                     found = true
                 }
@@ -137,7 +138,7 @@ export default class TaskUI extends Component{
 
             if(found==false)
             {
-                newDataArray.category.push("mmdm-myday")
+                newDataArray.category.push(MYDAY_LABEL)
                 this.setState({data: newDataArray, showTaskEditor: true, })
 
             }
@@ -150,7 +151,7 @@ export default class TaskUI extends Component{
         else
         {
             newDataArray.category=[]
-            newDataArray.category.push("mmdm-myday")
+            newDataArray.category.push(MYDAY_LABEL)
             this.setState({data: newDataArray, showTaskEditor: true, })
 
         }
@@ -176,6 +177,10 @@ export default class TaskUI extends Component{
         //var taskEditor=( )
 
        this.setState({showTaskEditor: true, taskEditor: null})
+    }
+    scheduleItem(id)
+    {
+        
     }
     subTaskEditorClosed(){
         this.setState({showSubtaskEditor: false})
@@ -351,7 +356,7 @@ export default class TaskUI extends Component{
             }
             else if(this.props.priority<7)
             {
-                priorityColor="yellow"
+                priorityColor="gold"
                 priorityStar=(
                 <AiFillStar color={priorityColor} size={12} />
           )
@@ -391,7 +396,6 @@ export default class TaskUI extends Component{
             borderLeft = "10px solid "+this.props.listColor
         }
 
-        
         return(
             <div>
                 <ContextMenuTrigger id={this.state.data.uid} >
@@ -447,7 +451,7 @@ export default class TaskUI extends Component{
                 />
                 {this.state.toastPlaceHolder}
                 </ContextMenuTrigger>
-                <RightclickContextMenu onEditTask={this.onEditTask} onAddSubtask={this.onAddSubtask} onAddtoMyday={this.onAddtoMyday} id={this.state.data.uid} removeFromMyDay={this.removeFromMyDay} category={this.state.data.category}/>
+                <RightclickContextMenu  scheduleItem={this.props.scheduleItem} onEditTask={this.onEditTask} onAddSubtask={this.onAddSubtask} onAddtoMyday={this.onAddtoMyday} id={this.state.data.uid} removeFromMyDay={this.removeFromMyDay} category={this.state.data.category} data={this.state.data}/>
             </div>
         )
     }

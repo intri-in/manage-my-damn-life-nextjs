@@ -14,6 +14,8 @@ import { Toastify } from "@/components/Generic";
 import { Loading } from "../../Loading";
 import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import AddNewCalendar from "../AddNewCalendar";
+import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
+import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 
 export default class CaldavAccounts extends Component{
     constructor(props)
@@ -21,33 +23,47 @@ export default class CaldavAccounts extends Component{
         super(props)
         var i18n = getI18nObject()
         this.i18next = i18n
-        this.state = {addedAccounts : null, i18n: i18n, addAccountScreenisVisible: false, showLoading: false, showAddCalendarModal: false, addCalendarModalBody: null}
+        this.state = {addedAccounts : null, i18n: i18n, addAccountScreenisVisible: false, showLoading: false, showAddCalendarModal: false, addCalendarModalBody: null, showDeleteAccountModal: false, calendartoDelete: null, }
 
         this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
         this.showAddAccountModal = this.showAddAccountModal.bind(this)
         this.getCaldavAccountsfromDB()
-        this.onAccoundAddSuccess = this.onAccoundAddSuccess.bind(this)
+        this.onAccountAddSuccess = this.onAccountAddSuccess.bind(this)
         this.syncButtonClicked = this.syncButtonClicked.bind(this)
         this.onAddAccountDismissed = this.onAddAccountDismissed.bind(this)
         this.calendarAddButtonClicked = this.calendarAddButtonClicked.bind(this)
         this.addCalendarModalHidden = this.addCalendarModalHidden.bind(this)
         this.addCalendarResponse = this.addCalendarResponse.bind(this)
+        this.getDeleteAccountModal = this.getDeleteAccountModal.bind(this)
+        this.deleteCaldavModalHidden = this.deleteCaldavModalHidden.bind(this)
+        this.makeDeleteRequest = this.makeDeleteRequest.bind(this)
+
     }
 
     componentDidMount(){
+        if(window!=undefined){
+            const queryString = window.location.search;
+            const params = new URLSearchParams(queryString);
+            var message= params.get('message')
+            if(message!=null && message!=undefined)
+            {
+                toast.info(this.i18next.t(message))
+            }
+
+        }
     }
     async syncButtonClicked()
     {
         this.setState({showLoading: true})
         toast.info(this.i18next.t("REFRESHING_CALENDAR_LIST"))
 
-        var refresh = await refreshCalendarList()
         this.getCaldavAccountsfromDB()
+        var refresh = await refreshCalendarList()
         this.setState({showLoading: false})
     }
-    caldavAccountDeleteClicked(caldav_accountID)
+    caldavAccountDeleteClicked(calendarData)
     {
-        
+        this.setState({showDeleteAccountModal: true, calendartoDelete: calendarData})
     }
     calendarAddButtonClicked(calendarData)
     {
@@ -126,7 +142,7 @@ export default class CaldavAccounts extends Component{
                                 <Col>
                                 <h1>{caldav_accounts.data.message[j].account.name}</h1>
                                 </Col>
-                                <Col onClick={()=>this.caldavAccountDeleteClicked(caldav_accounts.data.message[j].caldav_accounts_id)} style={{textAlign: "right", color:"red"}}><AiOutlineDelete /></Col>
+                                <Col onClick={()=>this.caldavAccountDeleteClicked(caldav_accounts.data.message[j])} style={{textAlign: "right", color:"red"}}><AiOutlineDelete /></Col>
                             </Row>
                                 <p>{
                                 caldav_accounts.data.message[j].account.url
@@ -138,30 +154,7 @@ export default class CaldavAccounts extends Component{
 
                         </div>
                        )
-                       /*output.push(<Row style={{padding: 30}}>
-                            <Col>
-                            <h3>{j+1}</h3>
-                            </Col>
-                            <Col>
-                            {
-                                caldav_accounts.data.message[j].account.name
-                            }
-                            </Col>
-                            <Col>
-                            {
-                                caldav_accounts.data.message[j].account.url
-                            }
-                            </Col>
-                            <Col>
-                            <ListGroup>
-                                {calendars}
-                            </ListGroup>
-                            </Col>
-                            <Col>
-                                <BiRefresh size={30} />
-                            </Col>
-                            
-                        </Row>)*/
+                      
                     }
                     this.setState({addedAccounts: output})
                 }else
@@ -183,33 +176,114 @@ export default class CaldavAccounts extends Component{
             addAccountScreenisVisible: !prevState.addAccountScreenisVisible 
           }));    }
 
-    onAccoundAddSuccess()
+    onAccountAddSuccess()
     {
-        this.setState({ alertMessage: (<Alert variant="success">{this.state.i18n.t("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY")}</Alert>), addAccountScreenisVisible: false})
+
+        toast.success(this.i18next.t("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY"))
+        toast.info("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY")
         this.getCaldavAccountsfromDB()
         fetchLatestEvents()
+        this.setState({ addAccountScreenisVisible: false})
 
     }
     onAddAccountDismissed()
     {
         this.setState({addAccountScreenisVisible: false})
     }
+    deleteCaldavModalHidden(){
+        this.setState({showDeleteAccountModal: false, calendartoDelete:null})
+    }
+    async makeDeleteRequest(caldav_account_id)
+    {
+        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/delete?caldav_account_id="+caldav_account_id
+
+        const authorisationData=await getAuthenticationHeadersforUser()
+        const requestOptions =
+        {
+            method: 'DELETE',
+            mode: 'cors',
+            headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
+        }
+        try    
+        {
+            const response = await fetch(url_api, requestOptions)
+        .then(response => response.json())
+        .then((body) =>{
+            if(body!=null && body.success!=null)
+            {
+                var message = getMessageFromAPIResponse(body)
+
+                if(body.success==true)
+                {
+                    toast.success(this.i18next.t(message))
+
+                    this.setState({showDeleteAccountModal: false, calendartoDelete: null})
+                    this.getCaldavAccountsfromDB()
+                }else{
+
+                    toast.error(this.i18next.t(message))
+
+                }
+            }else{
+                toast.error(this.i18next.t("ERROR_GENERIC"))
+            }
+           
+            
+        });
+        }
+        catch(e)
+        {
+            this.props.onResponse(e.message)
+        }
+
+
+    }
+    getDeleteAccountModal(){
+
+
+        var body= this.state.calendartoDelete==null ? null :(
+            <>
+            <p>{this.i18next.t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
+            <h3>{this.state.calendartoDelete.account.name}</h3>
+            <b>{this.i18next.t("Total") +" "+ this.i18next.t("CALENDARS").toLowerCase()} : {this.state.calendartoDelete.calendars.length}</b>
+            </>
+        )
+        return this.state.calendartoDelete==null? null: (
+            <>
+                <Modal centered show={this.state.showDeleteAccountModal} onHide={this.deleteCaldavModalHidden}>
+                    <Modal.Header closeButton>
+                    </Modal.Header>
+                    <Modal.Body>{body}</Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="secondary" onClick={this.deleteCaldavModalHidden}>
+                    {this.i18next.t("BACK")}
+                    </Button>
+                    <Button variant="danger" onClick={()=>this.makeDeleteRequest(this.state.calendartoDelete.account.caldav_accounts_id)}>
+                        {this.i18next.t("DELETE")}
+                    </Button>
+                    </Modal.Footer>
+                </Modal>
+
+            </>
+        )
+    }
     render(){
         if(this.state.addAccountScreenisVisible)
         {
             return (
-                <AddCaldavAccount onAddAccountDismissed={this.onAddAccountDismissed} onAccoundAddSuccess={this.onAccoundAddSuccess} />
+                <AddCaldavAccount onAddAccountDismissed={this.onAddAccountDismissed} onAccoundAddSuccess={this.onAccountAddSuccess} />
             )
         }
         else
         {
             var syncButton = this.state.showLoading ? (<div ><Loading /></div>) : (<IoSyncCircleOutline size={24} onClick={this.syncButtonClicked} />)
+
+            var deleteAccountModal = this.getDeleteAccountModal()
             return(
                 <>
-                {this.state.alertMessage}
                 <Row>
                     <Col>
-                    <h1>Caldav Accounts</h1>
+                    <h1>{this.i18next.t("CALDAV_ACCOUNTS")}</h1>
                     </Col>
                 </Row>
                 <br />
@@ -232,12 +306,13 @@ export default class CaldavAccounts extends Component{
                     </Col>
                 </Row>
                 <br />
-                <Toastify />
+                {/* <Toastify /> */}
                 <Modal centered show={this.state.showAddCalendarModal} onHide={this.addCalendarModalHidden}>
                 <Modal.Header closeButton>
                 </Modal.Header>
                 <Modal.Body>{this.state.addCalendarModalBody}</Modal.Body>
-            </Modal>
+                </Modal>
+                {deleteAccountModal}
                 </>
             )
         }

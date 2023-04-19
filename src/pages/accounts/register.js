@@ -180,7 +180,7 @@ class Register extends Component{
 
                 </div>
                 </Container>
-                <Toastify />
+                {/* <Toastify /> */}
             </>
         )
     }

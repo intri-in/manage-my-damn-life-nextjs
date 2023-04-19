@@ -101,7 +101,7 @@ export default class GenerateTaskUIList extends Component{
     
                 var collapsed=this.state.collapsed[key].collapsed
                 listitem=(
-                <div key={key}  style={{marginTop: marginTop}}> <TaskUI id={key} key={key} collapseButtonClicked={this.collapseButtonClicked} collapsed={collapsed} hasChildren={hasChildren} unparsedData={todoList[2]} data={todoList[1][key].todo} todoList={todoList} fetchEvents={this.props.fetchEvents}  title={todoList[1][key].todo.summary} dueDate={dueDate} dueDateinWords="Words" level={level} priority={todoList[1][key].todo.priority} listColor={listColor} completion={todoList[1][key].todo.completion} labels={todoList[1][key].todo.category}/>
+                <div key={key}  style={{marginTop: marginTop}}> <TaskUI scheduleItem={this.props.scheduleItem} id={key} key={key} collapseButtonClicked={this.collapseButtonClicked} collapsed={collapsed} hasChildren={hasChildren} unparsedData={todoList[2]} data={todoList[1][key].todo} todoList={todoList} fetchEvents={this.props.fetchEvents}  title={todoList[1][key].todo.summary} dueDate={dueDate} dueDateinWords="Words" level={level} priority={todoList[1][key].todo.priority} listColor={listColor} completion={todoList[1][key].todo.completion} labels={todoList[1][key].todo.category}/>
                     </div>
                 )
                 tempToReturn.push(listitem)
@@ -109,7 +109,7 @@ export default class GenerateTaskUIList extends Component{
                     if(this.state.collapsed[key].collapsed==false)
                     {
         
-                        listitem=( <GenerateTaskUIList collpased={this.state.collapsed} key={"LIST_"+key} fetchEvents={this.props.fetchEvents} list={list[i][2]} todoList={todoList} level={level} context={context} listColor={listColor} />)
+                        listitem=( <GenerateTaskUIList scheduleItem={this.props.scheduleItem} collpased={this.state.collapsed} key={"LIST_"+key} fetchEvents={this.props.fetchEvents} list={list[i][2]} todoList={todoList} level={level} context={context} listColor={listColor} />)
                         tempToReturn.push(listitem)
             
                     }
