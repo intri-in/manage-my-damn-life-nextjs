@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { getRandomString } from "../crypto";
-import { varNotEmpty } from "../general";
+import { isNumber, varNotEmpty } from "../general";
 import { rruleToObject } from "./events";
 import { getMessageFromAPIResponse } from "./response";
 import { getAuthenticationHeadersforUser } from "./user";
@@ -62,9 +62,14 @@ export  function getObjectForAPICall(eventData)
     }
     obj['summary'] =  eventData.summary
 
-    if(varNotEmpty(eventData.alarms))
+    if(varNotEmpty(eventData.alarms) && Array.isArray(eventData.alarms))
     {
-        obj['alarms']=eventData["alarms"]
+        obj['alarms']=[]
+
+        for (const i in eventData.alarms)
+        {
+            obj['alarms'].push(eventData.alarms[i].VALUE*(-1/60))
+        }
     }
     if(varNotEmpty(eventData.uid))
     {
@@ -125,9 +130,32 @@ export  function getObjectForAPICall(eventData)
     for (const key in eventData)
     {
         
-        if(key!="start" &&  key!="transp" && key!="summary" && key!="alarms" && key!="end" && key!="uid" && key!="sequence" && key!="rrule" && key!="created" && key!="description" && key!="status" && key!="url" && key!="location" && varNotEmpty(eventData[key]) && eventData[key]!="" && key!="type" && key!="dtstamp")
+        if(key!="start" &&  key!="transp" && key!="summary" && key!="alarms" && key!="end" && key!="uid" && key!="sequence" && key!="rrule" && key!="created" && key!="description" && key!="status" && key!="url" && key!="location" && varNotEmpty(eventData[key]) && eventData[key]!="" && key!="type" && key!="dtstamp" && isNumber(key)==false)
         {
-            unsupportedProperties[key] = eventData[key]
+
+            var data=eventData[key]
+            if(typeof(eventData[key])!='string')
+            {
+                if(Array.isArray(eventData[key]))
+                {
+                    data=""
+                    for(const k in eventData[key])
+                    {
+                        data+= eventData[key][k]
+                    }
+                }else{
+                    try{
+                        data=JSON.stringify(eventData[key])
+                    }
+                    catch(e)
+                    {
+                        console.log("getObjectForAPICall", e)
+                    }
+                }
+
+                
+            }
+            unsupportedProperties[key] = data
         }
     }
 

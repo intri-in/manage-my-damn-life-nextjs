@@ -8,7 +8,7 @@ import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import Form from 'react-bootstrap/Form';
 import { Row, Col } from "react-bootstrap";
-import { getEmptyEventDataObject, getParsedEvent, isAllDayEvent, rruleToObject, updateEvent } from "@/helpers/frontend/events";
+import { getEmptyEventDataObject, getParsedEvent, isAllDayEvent, majorTaskFilter, rruleToObject, updateEvent } from "@/helpers/frontend/events";
 import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
 import Offcanvas from 'react-bootstrap/Offcanvas';
@@ -27,7 +27,7 @@ export default class DashboardView extends Component {
 
         super(props)
         this.i18next = getI18nObject()
-        this.state = { showEventEditor: false, viewValue: 0, events: null, eventEdited: false, eventDataDashBoard: {}, allEvents: {}, recurMap: {}, selectedID: "" }
+        this.state = { showEventEditor: false, viewValue: 0, events: null, eventEdited: false, eventDataDashBoard: {}, allEvents: {}, recurMap: {}, selectedID: "", calendarAR:props.calendarAR }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -59,6 +59,11 @@ export default class DashboardView extends Component {
             {
                 this.scheduleEvent(this.props.scheduleItem)
             }
+        }
+
+        if(this.props.calendarAR!= prevProps.calendarAR)
+        {
+            this.setState({calendarAR: this.props.calendarAR})
         }
     }
 
@@ -105,7 +110,7 @@ export default class DashboardView extends Component {
         }
         var eventData = this.state.allEvents[newID]
 
-        if (this.state.allEvents[newID].type != "VTODO" && this.state.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.state.allEvents[newID])) {
+        if (varNotEmpty(this.state.allEvents[newID]) && this.state.allEvents[newID].type != "VTODO" && this.state.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.state.allEvents[newID])) {
 
             this.setState({ showEventEditor: true, selectedID: e.event.id, eventDataDashBoard: eventData })
 
@@ -114,7 +119,7 @@ export default class DashboardView extends Component {
     handleDateClick(e) {
         var eventData = getEmptyEventDataObject()
         eventData.data["start"] = e.date
-        eventData.data["end"] = new Date(moment(e.date).unix() * 1000 + 3600 * 1000)
+        eventData.data["end"] = new Date(moment(e.date).unix() * 1000 + 86400 * 1000)
 
 
         this.setState({ showEventEditor: true, eventDataDashBoard: eventData })
@@ -367,19 +372,22 @@ export default class DashboardView extends Component {
                     else if (event.type == "VTODO") {
                         var data = returnGetParsedVTODO(allEvents.data.message[i].events[j].data)
 
-
-                        var title = "[" + this.i18next.t("TASK") + "] " + data.summary
-                        var eventObject = {
-                            id: data.uid,
-                            title: title,
-                            allDay: true,
-                            start: data.due,
-                            end: data.due,
-                            editable: false,
-                            draggable: true,
-                            backgroundColor: allEvents.data.message[i].info.color
+                        if(majorTaskFilter(data))
+                        {
+                            var title = "[" + this.i18next.t("TASK") + "] " + data.summary
+                            var eventObject = {
+                                id: data.uid,
+                                title: title,
+                                allDay: false,
+                                start: data.due,
+                                end: data.due,
+                                editable: false,
+                                draggable: true,
+                                backgroundColor: allEvents.data.message[i].info.color
+                            }
+                            finalEvents.push(eventObject)
+    
                         }
-                        finalEvents.push(eventObject)
 
                     }
                 }
@@ -396,17 +404,13 @@ export default class DashboardView extends Component {
         var eventEditor = this.state.showEventEditor ? (<EventEditor key={this.state.selectedID} onDismiss={this.eventEditorDismissed} eventData={eventDataDashBoard} />
         ) : (null)
         return  (<>
-            <Row>
+            <Row style={{padding: 20}} >
                 <Col>
-                </Col>
-                <Col>
-                    <Form.Select value={this.state.viewValue} onChange={this.viewChanged}>
+                    <Form.Select  value={this.state.viewValue} onChange={this.viewChanged}>
                         <option value="1">View: Day</option>
                         <option value="2">View: Week</option>
                         <option value="3">View: Month</option>
                     </Form.Select>
-                </Col>
-                <Col>
                 </Col>
             </Row>
             <FullCalendar
@@ -416,6 +420,7 @@ export default class DashboardView extends Component {
                 themeSystem='standard'
                 events={this.state.events}
                 editable={true}
+                aspectRatio={this.state.calendarAR}
                 eventClick={this.eventClick}
                 dateClick={this.handleDateClick}
                 onClick={this.onClick}
@@ -426,6 +431,8 @@ export default class DashboardView extends Component {
                 eventDrop={this.eventDrop}
                 eventResize={this.eventResize}
             />
+            <br />
+            <br />
             <Offcanvas placement='start' show={this.state.showEventEditor} onHide={this.eventEditorClosed}>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>{this.i18next.t("EDIT_EVENT")}</Offcanvas.Title>

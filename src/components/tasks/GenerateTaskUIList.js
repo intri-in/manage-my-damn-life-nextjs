@@ -8,6 +8,8 @@ import TaskUI from './TaskUI';
 import { getRandomString } from '@/helpers/crypto';
 import Collapse from 'react-bootstrap/Collapse';
 import { TaskWithFilters } from './TaskWithFilters';
+import { varNotEmpty } from "@/helpers/general";
+import { majorTaskFilter } from "@/helpers/frontend/events";
 export default class GenerateTaskUIList extends Component{
     constructor(props)
     {
@@ -29,24 +31,24 @@ export default class GenerateTaskUIList extends Component{
     collapseButtonClicked(key)
     {
 
-    if(this.state.collapsed[key]!=undefined)
-    {
-        var newCollapsed = this.state.collapsed
-        
-        if(this.state.collapsed[key].collapsed==true)
+        if(this.state.collapsed[key]!=undefined)
         {
-            newCollapsed[key].collapsed=false
+            var newCollapsed = this.state.collapsed
+            
+            if(this.state.collapsed[key].collapsed==true)
+            {
+                newCollapsed[key].collapsed=false
 
-        }else{
-            newCollapsed[key].collapsed=true
+            }else{
+                newCollapsed[key].collapsed=true
+
+            }
+        
+            this.setState({collpased: newCollapsed})
+        
 
         }
-    
-        this.setState({collpased: newCollapsed})
-       
-
-    }
-    
+        
         
     }
     checkifTaskCollapsed(key)
@@ -59,6 +61,28 @@ export default class GenerateTaskUIList extends Component{
             }
             return this.state.collapsed[key].collapsed
      
+    }
+    countValidChildren(childrenList)
+    {
+        var children =0
+        var todoList= this.props.todoList
+        if(varNotEmpty(childrenList) && Array.isArray(childrenList) && childrenList.length>0)
+        {
+            for(const i in childrenList)
+            {
+                var key =childrenList[i][0]
+                //console.log(key)
+               
+                if( varNotEmpty(this.props.todoList[1][key]) && (todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="") && todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
+                {
+                    children+=1
+                }
+
+            }
+        }
+
+        return children
+
     }
     render(){
         var list = this.props.list
@@ -76,7 +100,7 @@ export default class GenerateTaskUIList extends Component{
             {
                 continue;
             }
-          if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
+        if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
             {
                 var listitem = null
                 var pl = 4 * level
@@ -94,8 +118,13 @@ export default class GenerateTaskUIList extends Component{
                 {
                     marginTop=0
                 }
+                var noOfChildren= 0
+                
+                if (list[i].length> 2) {
+                    noOfChildren = this.countValidChildren(list[i][2])
+                }
                 var hasChildren=false
-                if (list[i].length > 2) {
+                if (noOfChildren> 0) {
                     hasChildren=true
                 }
     
@@ -105,7 +134,7 @@ export default class GenerateTaskUIList extends Component{
                     </div>
                 )
                 tempToReturn.push(listitem)
-                if (list[i].length > 2) {
+                if (list[i].length> 2) {
                     if(this.state.collapsed[key].collapsed==false)
                     {
         

@@ -9,7 +9,8 @@ import { TaskView } from './TaskView';
 import { saveLabeltoDB } from '@/helpers/frontend/labels';
 import { getEvents } from '@/helpers/frontend/events';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
-export default class TaskList extends Component {
+import { withRouter } from 'next/router';
+ class TaskList extends Component {
     constructor(props) {
         super(props)
         var i18next = getI18nObject()
@@ -273,3 +274,5 @@ export async function getStaticProps() {
     }
 
 }
+
+export default withRouter(TaskList)

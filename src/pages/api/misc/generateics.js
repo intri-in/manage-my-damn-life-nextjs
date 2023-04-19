@@ -35,6 +35,7 @@ export default async function handler(req, res) {
                     {
                         obj.stamp = new Date(obj.stamp)
                     }
+                    console.log(obj)
 
                     var ics=getICS(obj)
 

@@ -5,7 +5,6 @@ import ical from '@/../ical/ical'
 import { applyEventFilter } from "./filters"
 import moment from "moment"
 import { getAuthenticationHeadersforUser } from "./user"
-
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= calendarEvents
@@ -237,7 +236,7 @@ export function isAllDayEvent(start, end)
     var dateStart = moment(start).unix()
     var dateend = moment(end).unix()
     var allDay=false
-    if(dateend-dateStart ==86400)
+    if(dateend-dateStart >=86400  )
     {
         allDay= true
     }

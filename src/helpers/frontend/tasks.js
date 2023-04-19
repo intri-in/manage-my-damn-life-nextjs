@@ -72,7 +72,7 @@ export function generateNewTaskObject(currenTaskObject, oldData)
             }
         }
     }
-    console.log("inputobj", currenTaskObject, "outputObj", newTaskObject)
+    //console.log("inputobj", currenTaskObject, "outputObj", newTaskObject)
 
     return newTaskObject
 

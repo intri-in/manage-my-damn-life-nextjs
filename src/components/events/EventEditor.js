@@ -17,13 +17,15 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import moment from "moment";
 import { DeleteEventConfirmation } from "../tasks/DeleteEventConfirmation";
 import { Loading } from "../common/Loading";
+import { parseTime, parseVALARMTIME } from "@/helpers/frontend/rfc5545";
+import { BsAlarm } from "react-icons/bs";
 
 export default class EventEditor extends Component {
     constructor(props) {
         super(props)
         this.i18next = getI18nObject()
         var emptyData = getEmptyEventDataObject()
-        this.state = { summary: "", fromTimeFormat: "HH:mm", toTimeFormat: "HH:mm", allDay: false, fromDate: props.eventData.data.start, toDate: props.eventData.data.end, calendarOptions: "", deleteButton: null, rrule:props.eventData.data.rrule, recurrence: { "FREQ": "", "UNTIL": "", "INTERVAL": "" }, repeatInfo: "", showRecurrenceEditor: false, showEventDeleteModal: false, selectedID: "", location: props.eventData.data.location, summary:props.eventData.data.summary, calendar_id:props.eventData.event.calendar_id, status: props.eventData.data.status, description: props.eventData.data.description}
+        this.state = { summary: "", fromTimeFormat: "HH:mm", toTimeFormat: "HH:mm", allDay: false, fromDate: props.eventData.data.start, toDate: props.eventData.data.end, calendarOptions: "", deleteButton: null, rrule:props.eventData.data.rrule, recurrence: { "FREQ": "", "UNTIL": "", "INTERVAL": "" }, repeatInfo: "", showRecurrenceEditor: false, showEventDeleteModal: false, selectedID: "", location: props.eventData.data.location, summary:props.eventData.data.summary, calendar_id:props.eventData.event.calendar_id, status: props.eventData.data.status, description: props.eventData.data.description, categories: props.eventData.data.categories, alarms: [], alarmTime:"START", alarmValue: 0}
         this.onSummaryChanged = this.onSummaryChanged.bind(this)
         this.allDaySwitched = this.allDaySwitched.bind(this)
         this.generateCalendarName = this.generateCalendarName.bind(this)
@@ -44,6 +46,11 @@ export default class EventEditor extends Component {
         this.onDismissDeleteDialog = this.onDismissDeleteDialog.bind(this)
         this.deleteEventFromServer = this.deleteEventFromServer.bind(this)
         this.goSetRRule = this.goSetRRule.bind(this)
+        this.getVAlarms = this.getVAlarms.bind(this)
+        this.alarmValueChanged = this.alarmValueChanged.bind(this)
+        this.alarmTimeSelected = this.alarmTimeSelected.bind(this)
+        this.removeAlarm = this.removeAlarm.bind(this)
+        this.newAlarmAdded = this.newAlarmAdded.bind(this)
     }
 
     generateEventDataArray(props) {
@@ -88,6 +95,8 @@ export default class EventEditor extends Component {
     }
     componentDidMount() {
 
+       // console.log(this.props.eventData.event.data, this.props.eventData.data)
+        this.getVAlarms(this.props.eventData.event.data)
         //var eventData = this.generateEventDataArray(this.props)
         if (isAllDayEvent(this.props.eventData.data.start, this.props.eventData.data.end)) {
             this.setState({ allDay: true, toTimeFormat: "", fromTimeFormat: "" })
@@ -108,6 +117,45 @@ export default class EventEditor extends Component {
 
     componentWillUnmount()
     {
+    }
+
+    async getVAlarms(data)
+    {
+        const url_api = process.env.NEXT_PUBLIC_API_URL + "misc/parseics"
+
+        const authorisationData = await getAuthenticationHeadersforUser()
+        var updated = Math.floor(Date.now() / 1000)
+        const requestOptions =
+        {
+            method: 'POST',
+            body: JSON.stringify({ "ics": data}),
+            mode: 'cors',
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        }
+        try {
+            fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) => {
+                    //console.log(body)
+                    var message = getMessageFromAPIResponse(body)
+                    
+                    if(varNotEmpty(message) && varNotEmpty(message["VCALENDAR"]) && Array.isArray(message["VCALENDAR"]) && message["VCALENDAR"].length>0 && varNotEmpty(message["VCALENDAR"][0].VEVENT) && varNotEmpty(message["VCALENDAR"][0].VEVENT[0].VALARM) && Array.isArray(message["VCALENDAR"][0].VEVENT[0].VALARM) && message["VCALENDAR"][0].VEVENT[0].VALARM.length>0 )
+                    {
+                        //Has Alarms
+                        var alarms=[]
+                        for (const i in message["VCALENDAR"][0].VEVENT[0].VALARM)
+                        {
+                            var parsedAlarm = parseVALARMTIME(message["VCALENDAR"][0].VEVENT[0].VALARM[i])
+                            alarms.push(parsedAlarm)
+                        }
+                        this.setState({alarms: alarms, parsedEventV2: message["VCALENDAR"][0].VEVENT[0]})
+                    }
+
+                });
+        }
+        catch (e) {
+        }
+
     }
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.eventData != this.props.eventData) {
@@ -374,10 +422,11 @@ export default class EventEditor extends Component {
 
     }
     async saveButtonClicked() {
-        var eventData = {data:{summary: this.state.summary, start: this.state.fromDate, end: this.state.toDate, status: this.state.status, description: this.state.description, rrule: this.state.rrule, location: this.state.location} , event:{calendar_id: this.state.calendar_id, url: this.props.eventData.event.url}}
+        var eventData = {data:{summary: this.state.summary, start: this.state.fromDate, end: this.state.toDate, status: this.state.status, description: this.state.description, rrule: this.state.rrule, location: this.state.location, alarms: this.state.alarms} , event:{calendar_id: this.state.calendar_id, url: this.props.eventData.event.url, }}
 
         // Add fields not supported by MMDL. 
 
+        //console.log(eventData)
         eventData = addAdditionalFieldsFromOldEvent(eventData, this.props.eventData)
         //console.log(eventData)
 
@@ -532,9 +581,109 @@ export default class EventEditor extends Component {
 
 
     }
+    alarmValueChanged(e)
+    {
+        this.setState({alarmValue:e.target.value})
+    }
+    alarmTimeSelected(e)
+    {
+        this.setState({alarmTime: e.target.value})
+    }
+    removeAlarm(alarmtoDelete)
+    {
+        console.log(alarmtoDelete)
+        this.setState(function (prevState, prevProps) {
+            var alarms = []
+            for (const i in prevState.alarms)
+            {
+                if(prevState.alarms[i].VALUE != alarmtoDelete.VALUE)
+                {
+                    alarms.push(prevState.alarms[i])
+                }
+            }
 
+            return({alarms: alarms})
+        })
+    }
+    newAlarmAdded()
+    {
+
+        
+            // Add the alarm, but only if it isn't already present in state array.
+            var valueinSeconds = -1*this.state.alarmValue*60
+
+                var newAlarms = this.state.alarms
+                var found = false
+                for (const i in this.state.alarms)
+                {
+                    if(this.state.alarms[i].VALUE==valueinSeconds)
+                    {
+                        found=true
+                    }
+                }
+
+                if(found==false)
+                {
+                    newAlarms.push({"RELATED": "START", "VALUE": valueinSeconds})
+
+                }else{
+                    toast.error(this.i18next.t("ALARM_ALREADY_SET"))
+                }
+
+               this.setState({alarms: newAlarms, alarmValue:0})
+           
+      
+    }
+    getAlarmForm(){
+        var toReturn=[]
+
+        if(this.state.alarms.length>0)
+        {
+            for(const i in this.state.alarms)
+            {
+               
+                var minuteValue = (this.state.alarms[i].VALUE/60).toString()
+                if(minuteValue.startsWith("-"))
+                {
+                    minuteValue = minuteValue.substring(1,minuteValue.length)
+                }
+                toReturn.push(<Row style={{padding:10,}}><Col className="col-9" style={{  display: 'flex', alignItems: "center", }}><BsAlarm /> &nbsp; {minuteValue} {this.i18next.t("ALARM_DESCRIPTION_BEFORE_START")}</Col><Col style={{  display: 'flex', alignItems: "center", justifyContent:"right" }} className="col-3" > <AiOutlineDelete style={{color: "red"}} onClick={()=>this.removeAlarm(this.state.alarms[i])}  /> </Col></Row>)
+               
+               
+            }
+        }
+
+        toReturn.push(
+        <Row style={{justifyContent: 'center', display: 'flex', alignItems: "center", }}>
+            <Col className="col-4">
+            <Form.Control
+                type="number"
+                min={0}
+                value={this.state.alarmValue}
+                onChange={this.alarmValueChanged}
+            />
+            </Col>
+            <Col className="col-8">
+            {this.i18next.t("ALARM_DESCRIPTION_BEFORE_START")}
+            </Col>
+           {/*  <Col className="col-6">
+            <Form.Select onChange={this.alarmTimeSelected} value={this.state.alarmTime}>
+                    <option value="START">{this.i18next.t("START")}</option>
+                    <option value="END">{this.i18next.t("END")}</option>
+                </Form.Select>
+            </Col>
+
+                */}
+        </Row>)
+        toReturn.push(
+        <div style={{padding : 10, textAlign: "center"}}>
+            <Button size="sm" onClick={this.newAlarmAdded}>{this.i18next.t("ADD")}</Button>
+        </div>)
+
+        return (<div style={{ border: "1px solid gray", padding: 10 }}>{toReturn}</div>)
+    }
     render() {
-        var toDate = this.state.allDay ? null : (<>{this.i18next.t("TO")}<Datetime value={this.state.toDate} onChange={this.endDateChanged} dateFormat="D/M/YYYY" timeFormat={this.state.toTimeFormat} closeOnSelect={true} /></>)
+        var toDate = this.state.allDay ? null : (<></>)
 
         var lastModified = ""
         if (varNotEmpty(this.props.eventData.data.lastmodified)) {
@@ -546,6 +695,7 @@ export default class EventEditor extends Component {
         var buttons = this.state.loading ? (<div style={{ textAlign: "center" }}> <Loading /></div>) : (<div style={{ textAlign: "center", }}><Button onClick={this.saveButtonClicked} style={{ width: "100%" }}>{this.i18next.t("SAVE")}</Button> <br />{this.state.deleteButton}
         </div>)
 
+        var alarm_form = this.getAlarmForm()
         var repeatInfo = this.getRepeatInfo()
         return (
             <>
@@ -565,8 +715,7 @@ export default class EventEditor extends Component {
                 {this.i18next.t("FROM")} <Datetime value={this.state.fromDate} onChange={this.fromDateChanged} closeOnSelect={true} dateFormat="D/M/YYYY" timeFormat={this.state.fromTimeFormat} />
 
 
-                {toDate}
-
+                {this.i18next.t("TO")}<Datetime value={this.state.toDate} onChange={this.endDateChanged} dateFormat="D/M/YYYY" timeFormat={this.state.toTimeFormat} closeOnSelect={true} />
                 <br />
 
                 <h3>{this.i18next.t("STATUS")}</h3>
@@ -583,6 +732,9 @@ export default class EventEditor extends Component {
                 <br />
                 <h3>{this.i18next.t("RECURRENCE")}</h3>
                 {repeatInfo}
+                <br />
+                <h3>{this.i18next.t("ALARMS")}</h3>
+                {alarm_form}
                 <br />
                 <h3>{this.i18next.t("LOCATION")}</h3>
                 <Form.Control onChange={this.onChangeLocation} value={this.state.location} />

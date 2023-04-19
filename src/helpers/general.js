@@ -106,3 +106,9 @@ export function varNotEmpty(variable)
         return false
     }
 }
+
+export function isNumber(value) {
+    if (typeof value === "string") {
+        return !isNaN(value);
+    }
+}

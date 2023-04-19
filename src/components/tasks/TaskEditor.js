@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
-import {Row, Col, Button } from "react-bootstrap";
+import { Row, Col, Button } from "react-bootstrap";
 import * as moment from 'moment';
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
@@ -26,41 +26,35 @@ import { generateNewTaskObject } from "@/helpers/frontend/tasks";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
-        if(props.data.due!=null&&props.data!=null&&props!=null)
-        {
+        if (props.data.due != null && props.data != null && props != null) {
             var dueDate = ISODatetoHuman(props.data.due)
 
         }
-        else{
+        else {
             var dueDate = ""
         }
-        var startDate=""
-        if(props.data.start!=null && props.data.start!="")
-        {
-             startDate = ISODatetoHuman(props.data.start)
+        var startDate = ""
+        if (props.data.start != null && props.data.start != "") {
+            startDate = ISODatetoHuman(props.data.start)
         }
-      
-        if(this.props.data.completion==null)
-        {
-            var completion= 0
+
+        if (this.props.data.completion == null) {
+            var completion = 0
         }
-        else
-        {
+        else {
             var completion = this.props.data.completion
         }
-        if(this.props.data.completed=null)
-        {
+        if (this.props.data.completed = null) {
             //completion = 100
         }
-        var taskDone =false
-        if(props.data.taskDone!=null && props.data.taskDone!="")
-        {
-            taskDone=props.data.taskDone
+        var taskDone = false
+        if (props.data.taskDone != null && props.data.taskDone != "") {
+            taskDone = props.data.taskDone
         }
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category,labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar:"", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null,relatedto :props.data.relatedto}
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto }
 
 
-        this.i18next= getI18nObject()
+        this.i18next = getI18nObject()
         this.dueDateChanged = this.dueDateChanged.bind(this)
         this.completionChanged = this.completionChanged.bind(this)
         this.getLabels = this.getLabels.bind(this)
@@ -77,185 +71,161 @@ export default class TaskEditor extends Component {
         this.deleteTask = this.deleteTask.bind(this)
         this.onDismissDeleteDialog = this.onDismissDeleteDialog.bind(this)
         this.deleteTheTaskFromServer = this.deleteTheTaskFromServer.bind(this)
-        this.getStatusDropdown = this.getStatusDropdown.bind(this)   
+        this.getStatusDropdown = this.getStatusDropdown.bind(this)
         this.statusValueChanged = this.statusValueChanged.bind(this)
         this.removeParentClicked = this.removeParentClicked.bind(this)
         this.onParentSelect = this.onParentSelect.bind(this)
-     }
+    }
 
     componentDidMount() {
         this.getLabels()
         this.generateCalendarName()
-        if(this.props.data.url==null)
-        {
+        if (this.props.data.url == null) {
             //Probably a new task.
             this.props.onChange()
 
         }
-        else
-        {
-            var deleteTaskButton=(<div onClick={this.deleteTask} style={{color: 'red', marginTop: 20, textAlign: "center"}}>Delete Task</div>)
+        else {
+            var deleteTaskButton = (<div onClick={this.deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>Delete Task</div>)
 
-            this.setState({deleteTaskButton: deleteTaskButton})
+            this.setState({ deleteTaskButton: deleteTaskButton })
         }
 
-        if(this.props.data.calendar_id!=null && this.props.data.calendar_id!="")
-        {
-            this.setState({calendar: this.props.data.calendar_id})
+        if (this.props.data.calendar_id != null && this.props.data.calendar_id != "") {
+            this.setState({ calendar: this.props.data.calendar_id })
 
         }
-        else
-        {
-            this.setState({calendar: getDefaultCalendarID()})
+        else {
+            this.setState({ calendar: getDefaultCalendarID() })
 
         }
 
 
-        if(this.props.data.taskDone!=null&&this.props.data.taskDone!="")
-        {
-            var completed=Math.floor(Date.now() / 1000)
+        if (this.props.data.taskDone != null && this.props.data.taskDone != "") {
+            var completed = Math.floor(Date.now() / 1000)
 
-            this.setState({completed: completed, })
+            this.setState({ completed: completed, })
         }
-        this.setState({saveButton: ( <Button onClick={this.saveTask} style={{width: "90%"}}>Save</Button>
-        )})
+        this.setState({
+            saveButton: (<Button onClick={this.saveTask} style={{ width: "90%" }}>Save</Button>
+            )
+        })
     }
 
     componentDidUpdate(prevProps, prevState) {
 
         if (this.props.calendar_id !== prevProps.calendar_id) {
-            
-            this.setState({calendar_id: this.props.calendar_id, calendar: this.props.calendar_id})
+
+            this.setState({ calendar_id: this.props.calendar_id, calendar: this.props.calendar_id })
         }
 
 
     }
 
-    getStatusDropdown()
-    {
+    getStatusDropdown() {
         var validStatuses = VTodoGenerator.getValidStatusValues()
         var finalOutput = []
-        finalOutput.push( <option value=""></option>        )
-        for (const i in validStatuses)
-        {
+        finalOutput.push(<option value=""></option>)
+        for (const i in validStatuses) {
             finalOutput.push(<option value={validStatuses[i]}>{validStatuses[i]}</option>)
         }
-        
+
         var finalOutput = (<Form.Select value={this.state.status} onChange={this.statusValueChanged} >
             {finalOutput}
-      </Form.Select>)
+        </Form.Select>)
 
-      return finalOutput
+        return finalOutput
     }
 
-    statusValueChanged(e)
-    {
-        this.setState({status: e.target.value})
+    statusValueChanged(e) {
+        this.setState({ status: e.target.value })
     }
-    calendarSelected(e)
-    {
-        if(this.props.data.calendar_id==null)
-        {
-            this.setState({calendar:e.target.value})
-        }  
+    calendarSelected(e) {
+        if (this.props.data.calendar_id == null) {
+            this.setState({ calendar: e.target.value })
+        }
 
     }
-    removeParentClicked()
-    {
+    removeParentClicked() {
         this.props.onChange();
-        this.setState({relatedto : ""})
+        this.setState({ relatedto: "" })
     }
 
-    removeLabel(e)
-    {
-        this.setState(function(previousState, currentProps) {
+    removeLabel(e) {
+        this.setState(function (previousState, currentProps) {
             var newArray = []
-            for (const i in previousState.category)
-            {
-                if(previousState.category[i]!=e.target.id)
-                {
+            for (const i in previousState.category) {
+                if (previousState.category[i] != e.target.id) {
                     newArray.push(previousState.category[i])
                 }
-            } 
+            }
             return {
-              category: newArray
+                category: newArray
             };
-          }); 
+        });
 
-          this.getLabels()
+        this.getLabels()
     }
-    async generateCalendarName()
-    {
-        var calendarOutput=null
+    async generateCalendarName() {
+        var calendarOutput = null
         var calendarsFromServer = await caldavAccountsfromServer()
-        if(isValidResultArray(calendarsFromServer))
-        {
-            calendarOutput=[]
+        if (isValidResultArray(calendarsFromServer)) {
+            calendarOutput = []
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
 
-            for(let i=0; i<calendarsFromServer.length; i++)
-            {
-                var tempOutput=[]
+            for (let i = 0; i < calendarsFromServer.length; i++) {
+                var tempOutput = []
 
-                for(let j=0;j<calendarsFromServer[i].calendars.length;j++)
-                {
-                    var value=calendarsFromServer[i].calendars[j].calendars_id
-                    var key=j+"."+value
-                    tempOutput.push(<option key={key} style={{background: calendarsFromServer[i].calendars[j].calendarColor}} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
+                for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
+                    var value = calendarsFromServer[i].calendars[j].calendars_id
+                    var key = j + "." + value
+                    tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
                 calendarOutput.push(<optgroup key={calendarsFromServer[i].account.name} label={calendarsFromServer[i].account.name}>{tempOutput}</optgroup>)
 
             }
         }
-        if(this.props.data.calendar_id!=null && this.props.data.url!=null)
-        {
+        if (this.props.data.calendar_id != null && this.props.data.url != null) {
             //Change of calendar disabled for old tasks. 
-            var disabled=true
+            var disabled = true
         }
-        else if(this.props.data.calendar_id!=null && this.props.data.url==null&& this.props.data.isSubtask!=null)
-        {
-            var disabled=true
+        else if (this.props.data.calendar_id != null && this.props.data.url == null && this.props.data.isSubtask != null) {
+            var disabled = true
 
         }
-        else
-        {
-            var disabled=false
+        else {
+            var disabled = false
         }
-        this.setState({calendarOptions: (<Form.Select key="calendarOptions" onChange={this.calendarSelected} disabled={disabled} value={this.props.data.calendar_id}>{calendarOutput}</Form.Select>)})
+        this.setState({ calendarOptions: (<Form.Select key="calendarOptions" onChange={this.calendarSelected} disabled={disabled} value={this.props.data.calendar_id}>{calendarOutput}</Form.Select>) })
     }
 
-    taskSummaryChanged(e){
-        this.setState({summary: e.target.value})
+    taskSummaryChanged(e) {
+        this.setState({ summary: e.target.value })
         this.props.onChange();
     }
-    taskCheckBoxClicked(e)
-    {
-        var completed=""
-        if(e.target.checked==true)
-        {
-            var completed=Math.floor(Date.now() / 1000)
+    taskCheckBoxClicked(e) {
+        var completed = ""
+        if (e.target.checked == true) {
+            var completed = Math.floor(Date.now() / 1000)
 
-            this.setState({taskDone: e.target.checked, completed:completed})
+            this.setState({ taskDone: e.target.checked, completed: completed })
 
-        }else
-        {
-            completed=null
-            this.setState({taskDone: e.target.checked, completed: completed})
+        } else {
+            completed = null
+            this.setState({ taskDone: e.target.checked, completed: completed })
 
         }
 
-        
+
     }
-    dueDateChanged(value){
-        if(value!=null)
-        {
-            this.setState({dueDate: value._d})
+    dueDateChanged(value) {
+        if (value != null) {
+            this.setState({ dueDate: value._d })
 
         }
-        else
-        {
-           
-            this.setState({dueDate: ''})
+        else {
+
+            this.setState({ dueDate: '' })
 
 
         }
@@ -263,301 +233,292 @@ export default class TaskEditor extends Component {
 
     }
 
-    startDateChange(value)
-    {
-        this.setState({start: value._d})
+    startDateChange(value) {
+        this.setState({ start: value._d })
         this.props.onChange();
 
     }
-    onLabelAdded(newLabelArray)
-    {
-        this.setState({category: newLabelArray})
+    onLabelAdded(newLabelArray) {
+        this.setState({ category: newLabelArray })
         this.getLabels()
         this.props.onChange()
     }
 
-    async getLabels(){
+    async getLabels() {
 
-        var labelArray=[]
-        var labels=  await getLabelsFromServer()
+        var labelArray = []
+        var labels = await getLabelsFromServer()
         var labelColour = ""
 
-        if( isValidResultArray(this.state.category))
-        {
+        if (isValidResultArray(this.state.category)) {
 
-            for(const i in this.state.category)
-            {
-                if(isValidResultArray(labels))
-                {
-                    for (let j=0; j< labels.length ; j++)
-                    {
-                            if(labels[j].name==this.state.category[i])
-                            {
-                                labelColour= labels[j].colour 
-                            }
+            for (const i in this.state.category) {
+                if (isValidResultArray(labels)) {
+                    for (let j = 0; j < labels.length; j++) {
+                        if (labels[j].name == this.state.category[i]) {
+                            labelColour = labels[j].colour
+                        }
                     }
                 }
-    
-                labelArray.push(<span onClick={this.removeLabel} id={this.state.category[i]} key={this.state.category[i]} className="badge rounded-pill textDefault" style={{marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white"}}>{this.state.category[i]}</span>)
+
+                labelArray.push(<span onClick={this.removeLabel} id={this.state.category[i]} key={this.state.category[i]} className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{this.state.category[i]}</span>)
 
             }
         }
-        labelArray.push(<div key={this.props.data.uid+"search"} style={{marginTop: 10, marginBottom: 10}}><SearchLabelArray dataList={labels} labels={this.state.category} onLabelAdded={this.onLabelAdded} /></div>)
-        this.setState({labels: labelArray})
+        labelArray.push(<div key={this.props.data.uid + "search"} style={{ marginTop: 10, marginBottom: 10 }}><SearchLabelArray dataList={labels} labels={this.state.category} onLabelAdded={this.onLabelAdded} /></div>)
+        this.setState({ labels: labelArray })
 
     }
-    completionChanged(target){
-        this.setState({completion: target.target.value})
+    completionChanged(target) {
+        this.setState({ completion: target.target.value })
         this.props.onChange()
 
     }
-    priorityChanged(e)
-    {
+    priorityChanged(e) {
 
-        this.setState({priority: e.target.value})
+        this.setState({ priority: e.target.value })
         this.props.onChange();
 
     }
-    descriptionChanged(e)
-    {
-        this.setState({description: e.target.value})
+    descriptionChanged(e) {
+        this.setState({ description: e.target.value })
         this.props.onChange();
 
     }
-    deleteTask()
-    {
-        this.setState({showTaskDeleteModal: true})
+    deleteTask() {
+        this.setState({ showTaskDeleteModal: true })
     }
-    onDismissDeleteDialog()
-    {
-        this.setState({showTaskDeleteModal: false})
+    onDismissDeleteDialog() {
+        this.setState({ showTaskDeleteModal: false })
 
     }
-    async deleteTheTaskFromServer()
-    {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/event/delete"
+    async deleteTheTaskFromServer() {
+        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/event/delete"
 
-        const authorisationData=await getAuthenticationHeadersforUser()
+        const authorisationData = await getAuthenticationHeadersforUser()
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({"etag":this.props.data.etag, "url": this.props.data.url, "calendar_id":this.state.calendar}),
+            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url, "calendar_id": this.state.calendar }),
             mode: 'cors',
-            headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try    
-        {
+        try {
             const response = await fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            this.props.onDismiss(body)
+                .then(response => response.json())
+                .then((body) => {
+                    this.props.onDismiss(body)
 
-           
-            
-        });
+
+
+                });
         }
-        catch(e)
-        {
+        catch (e) {
             this.props.onDismiss(e.message)
         }
 
     }
-    async saveTask()
-    {
-        if( varNotEmpty(this.state.summary) && this.state.summary.trim()!="")
-        {
+    async saveTask() {
+        if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
             var dueDate = ""
-            this.setState({saveButton: <Loading />})
-            if(this.state.dueDate!=null && this.state.dueDate!="")
-            {
-                var dueDateUnix= moment(this.state.dueDate, 'D/M/YYYY H:mm').unix()*1000;
-                dueDate =  moment(dueDateUnix).format('YYYYMMDD');
-                dueDate +=  "T"+moment(dueDateUnix).format('HHmmss');
-    
+            if (this.state.dueDate != null && this.state.dueDate != "") {
+                var dueDateUnix = moment(this.state.dueDate, 'D/M/YYYY H:mm').unix() * 1000;
+                dueDate = moment(dueDateUnix).format('YYYYMMDD');
+                dueDate += "T" + moment(dueDateUnix).format('HHmmss');
+
             }
-          
-            var todoData={due: dueDate, start: this.state.start, summary: this.state.summary, created:this.props.data.created, completion:this.state.completion, completed: this.state.completed, status: this.state.status, uid:this.props.data.uid, categories:this.state.category, priority:this.state.priority, relatedto: this.state.relatedto, lastmodified:"",dtstamp: this.props.data.dtstamp, description: this.state.description, }
-    
-            var finalTodoData= generateNewTaskObject(todoData, this.props.data)
-            var todo = new VTodoGenerator(todoData)
-            var finalVTODO = todo.generate()
-            console.log(finalVTODO)
-            var etag= getRandomString(32)
-            if(this.props.data.url==null)
-            {
-                 var resultsofPost= await this.postNewTodo(this.state.calendar, finalVTODO, etag, this.processResult)
-        
+
+            var dueDateUnix = moment(dueDate).unix()
+            var startDateUnix = moment(this.state.start).unix()
+            //console.log(startDateUnix, dueDateUnix, dueDateUnix - startDateUnix)
+            var valid = true
+            if (startDateUnix > dueDateUnix) {
+                if (this.state.start.toString().trim() != "" && varNotEmpty(this.state.start) && dueDate.toString().trim() != "" && varNotEmpty(dueDate)) {
+                    valid = false
+                }
+
+
             }
-            else{
-                var resultofEdit  = await this.updateTodo(this.state.calendar,this.props.data.url, this.props.data.etag, finalVTODO)
+            if (valid) {
+                this.setState({ saveButton: <Loading /> })
+
+                var todoData = { due: dueDate, start: this.state.start, summary: this.state.summary, created: this.props.data.created, completion: this.state.completion, completed: this.state.completed, status: this.state.status, uid: this.props.data.uid, categories: this.state.category, priority: this.state.priority, relatedto: this.state.relatedto, lastmodified: "", dtstamp: this.props.data.dtstamp, description: this.state.description, }
+
+                var finalTodoData = generateNewTaskObject(todoData, this.props.data)
+                var todo = new VTodoGenerator(todoData)
+                var finalVTODO = todo.generate()
+                //console.log(finalVTODO)
+                var etag = getRandomString(32)
+                if (this.props.data.url == null) {
+                    var resultsofPost= await this.postNewTodo(this.state.calendar, finalVTODO, etag, this.processResult)
+
+                }
+                else {
+                    var resultofEdit  = await this.updateTodo(this.state.calendar,this.props.data.url, this.props.data.etag, finalVTODO)
+                }
+
+            } else {
+                toast.error(this.i18next.t("ERROR_ENDDATE_SMALLER_THAN_START"))
             }
-    
-        }else{
+
+        } else {
             toast.error(this.i18next.t("CANT_CREATE_EMPTY_TASK"))
         }
     }
-    processResult(result)
-    {
+    processResult(result) {
         this.props.onDismiss()
     }
 
-    async postNewTodo(calendar_id, data, etag)
-    {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/add/event"
+    async postNewTodo(calendar_id, data, etag) {
+        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/add/event"
 
-        const authorisationData=await getAuthenticationHeadersforUser()
-        var updated=Math.floor(Date.now() / 1000)
+        const authorisationData = await getAuthenticationHeadersforUser()
+        var updated = Math.floor(Date.now() / 1000)
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({"etag":etag, "data": data, "type":"VTODO", "updated":updated, "calendar_id":calendar_id}),
+            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id }),
             mode: 'cors',
-            headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try    
-        {
+        try {
             const response = await fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            this.props.onDismiss(body)
+                .then(response => response.json())
+                .then((body) => {
+                    this.props.onDismiss(body)
 
-           
-            
-        });
+
+
+                });
         }
-        catch(e)
-        {
+        catch (e) {
             this.props.onDismiss(e.message)
         }
     }
-    async updateTodo(calendar_id, url, etag, data )
-    {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/modify/object"
+    async updateTodo(calendar_id, url, etag, data) {
+        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
 
-        const authorisationData=await getAuthenticationHeadersforUser()
-        var updated=Math.floor(Date.now() / 1000)
+        const authorisationData = await getAuthenticationHeadersforUser()
+        var updated = Math.floor(Date.now() / 1000)
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({"etag":etag, "data": data, "type":"VTODO", "updated":updated, "calendar_id":calendar_id, url: url, deleted: ""}),
+            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
             mode: 'cors',
-            headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try    
-        {
+        try {
             const response = await fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            this.props.onDismiss(body)
+                .then(response => response.json())
+                .then((body) => {
+                    this.props.onDismiss(body)
 
 
-        });
+                });
         }
-        catch(e)
-        {
+        catch (e) {
             toast.error(e.message)
         }
 
     }
-    onParentSelect(uid){
-        this.setState({relatedto:uid})
+    onParentSelect(uid) {
+        this.setState({ relatedto: uid })
     }
     render() {
 
-        var parentTask =""
-        if(this.state.relatedto!=null&&this.state.relatedto!="")
-        {
+        var parentTask = ""
+        if (this.state.relatedto != null && this.state.relatedto != "") {
             parentTask = (
-            <div >
-                <Row style={{justifyContent: 'center', display: 'flex', alignItems: "center",  }}>
-                <Col>
-                    <p>{this.props.todoList[1][this.state.relatedto].todo.summary}</p>
-                </Col>
-                <Col>
-                <p style={{textAlign: "right", color: "red"}}><AiOutlineDelete onClick={this.removeParentClicked} /></p>
-                </Col>
-                </Row>
-            </div>)
-        }else{
-            parentTask=(<ParentTaskSearch onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
+                <div >
+                    <Row style={{ justifyContent: 'center', display: 'flex', alignItems: "center", }}>
+                        <Col>
+                            <p>{this.props.todoList[1][this.state.relatedto].todo.summary}</p>
+                        </Col>
+                        <Col>
+                            <p style={{ textAlign: "right", color: "red" }}><AiOutlineDelete onClick={this.removeParentClicked} /></p>
+                        </Col>
+                    </Row>
+                </div>)
+        } else {
+            parentTask = (<ParentTaskSearch onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
         }
 
         return (
             <div key={this.props.data.uid}>
-                <Row  style={{ marginBottom: 10,}}>
+                <Row style={{ marginBottom: 10, }}>
                     <Col>
-                        <Form.Check 
+                        <Form.Check
                             label="Task Done?"
                             inline={true}
-                            style={{zoom: 1.5}}
+                            style={{ zoom: 1.5 }}
                             checked={this.state.taskDone}
                             onChange={this.taskCheckBoxClicked}
                         />
                     </Col>
                 </Row>
                 <h4>Task Summary</h4>
-                <div style={{marginBottom: 10}}><Form.Control onChange={this.taskSummaryChanged} autoFocus={true} value={this.state.summary} placeholder="Enter a summary" /></div>
+                <div style={{ marginBottom: 10 }}><Form.Control onChange={this.taskSummaryChanged} autoFocus={true} value={this.state.summary} placeholder="Enter a summary" /></div>
 
                 <h4>Calendar</h4>
-                <div style={{marginBottom: 10}}>{this.state.calendarOptions}</div>
+                <div style={{ marginBottom: 10 }}>{this.state.calendarOptions}</div>
 
                 <h4>Parent Task</h4>
-                <div style={{marginBottom: 10}}>{parentTask}</div>
+                <div style={{ marginBottom: 10 }}>{parentTask}</div>
 
                 <h4>Start Date</h4>
-                <div style={{marginBottom: 10}}><Datetime value={this.state.start} onChange={this.startDateChange} dateFormat="D/M/YYYY"  timeFormat="HH:mm"   /></div>
+                <div style={{ marginBottom: 10 }}><Datetime value={this.state.start} onChange={this.startDateChange} dateFormat="D/M/YYYY" timeFormat="HH:mm" /></div>
 
 
                 <h4>Due Date</h4>
-                <Row style={{marginBottom: 10}}>
+                <Row style={{ marginBottom: 10 }}>
                     <Datetime value={this.state.dueDate} onChange={this.dueDateChanged} dateFormat="D/M/YYYY" timeFormat="HH:mm" closeOnSelect={true} />
                 </Row>
 
                 <h4>Labels</h4>
-                <div style={{marginBottom: 10}}>
+                <div style={{ marginBottom: 10 }}>
                     {this.state.labels}
                 </div>
                 <h4>{this.i18next.t("STATUS")}</h4>
-                <div style={{marginBottom: 10}}>
+                <div style={{ marginBottom: 10 }}>
                     {this.getStatusDropdown()}
                 </div>
                 <h4>Priority</h4>
-                <div style={{marginBottom: 10}}>
-                <Form.Select  onChange={this.priorityChanged} value={this.state.priority} >
-                    <option value="0"></option>
-                    <optgroup key="High" label="High">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </optgroup>
-                    <optgroup key="Medium" label="Medium">
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                    </optgroup>
-                    <optgroup  key="Low" label="Low">
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                    </optgroup>
+                <div style={{ marginBottom: 10 }}>
+                    <Form.Select onChange={this.priorityChanged} value={this.state.priority} >
+                        <option value="0"></option>
+                        <optgroup key="High" label="High">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </optgroup>
+                        <optgroup key="Medium" label="Medium">
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                        </optgroup>
+                        <optgroup key="Low" label="Low">
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </optgroup>
 
-                </Form.Select>
+                    </Form.Select>
                 </div>
                 <h4>Completion</h4>
                 <div>{this.state.completion}%</div>
                 <Form.Range onChange={this.completionChanged} value={this.state.completion} />
                 <h4>Notes</h4>
                 <Form.Control as="textarea" onChange={this.descriptionChanged} value={this.state.description} placeholder="Enter your notes here." />
-                <div style={{marginTop: 40, textAlign: "center"}}>
+                <div style={{ marginTop: 40, textAlign: "center" }}>
                     {this.state.saveButton}
                 </div>
                 {this.state.deleteTaskButton}
                 <TaskDeleteConfirmation
-                show={this.state.showTaskDeleteModal}
-                onHide={this.onDismissDeleteDialog}
-                onDismissDeleteDialog= {this.onDismissDeleteDialog}
-                onDeleteOK={this.deleteTheTaskFromServer}
+                    show={this.state.showTaskDeleteModal}
+                    onHide={this.onDismissDeleteDialog}
+                    onDismissDeleteDialog={this.onDismissDeleteDialog}
+                    onDeleteOK={this.deleteTheTaskFromServer}
 
                 />
 

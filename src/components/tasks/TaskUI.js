@@ -400,7 +400,7 @@ export default class TaskUI extends Component{
             <div>
                 <ContextMenuTrigger id={this.state.data.uid} >
                 <div  style={{marginLeft: marginLevel, marginRight: 20, }}>
-                    <div style={{border: '1px solid  gray', borderLeft:borderLeft , borderRadius: 20, padding: 5, justifyContent: 'center', display: 'flex', lineHeight: '12px'}} className="row">
+                    <div style={{border: '1px solid  gray', borderLeft:borderLeft , borderRadius: 20, padding: 5, justifyContent: 'center', display: 'flex', lineHeight: '12px',}} className="row">
                         <div style={{justifyContent: 'center', display: 'flex',}} className="col-1">
                             <input onChange={this.checkBoxClicked} className="" type="checkbox" checked={this.state.taskChecked} aria-label="Checkbox for following text input" />
                         </div>
@@ -417,7 +417,7 @@ export default class TaskUI extends Component{
                             {progressBar}
                             
                         </div>
-                        <div  style={{padding: 0, position:'relative', verticalAlign: 'middle',  textAlign: 'center'}} className="col-2">
+                        <div  style={{padding: 0, position:'relative', verticalAlign: 'middle',  textAlign: 'right', }} className="col-2">
                         <div className="row">
                                 <div className="col">
                                 {this.state.collapseButton}

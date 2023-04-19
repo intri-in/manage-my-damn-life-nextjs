@@ -167,6 +167,7 @@ class TaskViewList extends Component {
         <AppBarGeneric onSynComplete={this.onSynComplete} isSyncing={this.props.isSyncing} />
 
         <div className='container-fluid'>
+
           <Row>
             <Col>
               <div  ></div>
@@ -181,9 +182,7 @@ class TaskViewList extends Component {
               <TaskList view={this.state.taskView} fetchEvents={this.onSynComplete} updated={this.state.updated} router={this.props.router} title={this.state.title} filter={this.state.filter} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
             </Col>
           </div>
-        </div>
-        {/*  <Toastify /> */}
-        <Offcanvas show={this.state.showLeftColumnOffcanvas} onHide={this.handleCloseOffcanvas}>
+          <Offcanvas placement='start' show={this.state.showLeftColumnOffcanvas} onHide={this.handleCloseOffcanvas}>
           <Offcanvas.Header closeButton>
             <Offcanvas.Title></Offcanvas.Title>
           </Offcanvas.Header>
@@ -191,6 +190,9 @@ class TaskViewList extends Component {
             {leftColumnMatter}
           </Offcanvas.Body>
         </Offcanvas>
+
+        </div>
+        {/*  <Toastify /> */}
 
       </>
     )

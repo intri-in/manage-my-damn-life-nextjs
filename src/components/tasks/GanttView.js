@@ -190,6 +190,10 @@ export default class GanttView extends Component {
 
         return -1
     }
+    onDateChange(e)
+    {
+
+    }
     render() {
 
 
@@ -197,9 +201,8 @@ export default class GanttView extends Component {
         
 
         var ganttTasks= this.generateTaskArray()
-        console.log(ganttTasks)
         if (ganttTasks != null && ganttTasks.length > 0) {
-            var ganttview =  <Gantt viewMode={this.state.viewMode} TaskListTable={DummyTaskListComponent} viewDate={Date.now()-(86400*1000*3)}  todayColor="#FFF8DC" TaskListHeader={DummyTaskHeaderComponent} tasks={ganttTasks} />
+            var ganttview =  <Gantt viewMode={this.state.viewMode} TaskListTable={DummyTaskListComponent} viewDate={Date.now()-(86400*1000*3)}  todayColor="#FFF8DC" onDateChange={this.onDateChange} TaskListHeader={DummyTaskHeaderComponent} tasks={ganttTasks} />
             finalOutput = (<div>
                 {ganttview}
                </div>)
