@@ -26,6 +26,7 @@ class AppBarGeneric extends Component {
     this.taskViewClicked = this.taskViewClicked.bind(this)
     this.syncButtonClicked = this.syncButtonClicked.bind(this)
     this.logOutClicked = this.logOutClicked.bind(this)
+    this.settingsClicked = this.settingsClicked.bind(this)
   
   }
 componentDidMount(){
@@ -76,6 +77,10 @@ async syncButtonClicked() {
     logoutUser()
     this.props.router.push("/login")
   }
+  settingsClicked()
+  {
+    this.props.router.push("/accounts/settings")
+  }
   render() {
   
     var syncButton = this.state.isSyncing ? (   <Spinner
@@ -113,7 +118,7 @@ async syncButtonClicked() {
                 </Nav>
                 </Navbar.Collapse>
                 <Nav.Link style={{color: "white", textAlign:"center"}}></Nav.Link>
-                <Nav.Link style={{color: "white", textAlign:"right"}}>{syncButton} <AiOutlineSetting size={24} /> <BiLogOut onClick={this.logOutClicked} size={24} /> </Nav.Link>
+                <Nav.Link style={{color: "white", textAlign:"right"}}>{syncButton} <AiOutlineSetting onClick={this.settingsClicked} size={24} /> <BiLogOut onClick={this.logOutClicked} size={24} /> </Nav.Link>
 
 
       </Navbar>

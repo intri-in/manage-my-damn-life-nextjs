@@ -9,8 +9,13 @@ export class User{
 
     constructor(userid)
     {
+        if(varNotEmpty(userid)==false ||varNotEmpty(userid) && userid=="" )
+        {
+            throw new Error("User id cannot be empty.")
+        }
         this.userid= userid
     }
+
 
 
     static async getDatafromUsername(username)
@@ -41,6 +46,35 @@ export class User{
 
     }
 
+    async getInfo()
+    {
+        var con = getConnectionVar()
+        console.log("this.userid", this.userid)
+        return new Promise( (resolve, reject) => {
+            con.query("SELECT users_id,username,email,created,level,userhash,mobile FROM users WHERE users_id= ? ", [this.userid], function (err, result, fields) {
+                con.end()
+                if (err) {
+                    console.log(err)
+                    resolve(null)
+                }
+                resolve(Object.values(JSON.parse(JSON.stringify(result)))[0])
+            }) 
+
+
+        })
+    }
+
+    async isAdmin()
+    {
+        var userInfo = await this.getInfo()
+        if(varNotEmpty(userInfo) && varNotEmpty(userInfo.level) && userInfo.level=="1")
+        {
+            return true
+        }
+        else{
+            return false
+        }
+    }
     /**
      * Checks if current user has access to calendar. Return full calendar object if true,
      * null otherwise

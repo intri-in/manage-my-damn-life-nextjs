@@ -109,3 +109,28 @@ Modifies user password.
 --------------
 
 
+## users/info
+
+
+
+Gets user info for the logged in user from the database.
+
+```
+> Method: GET
+> Authentication Required: Yes
+```
+** Parameters **
+
+None
+
+** Response **
+
+| Message | HTTP Status | Success | Description |  
+| ----------- | ----------- |  ----------- |----------- |
+|Object with userdata |200| true ||
+
+
+
+-----------
+
+

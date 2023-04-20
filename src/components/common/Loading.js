@@ -1,3 +1,4 @@
+import { varNotEmpty } from '@/helpers/general';
 import Spinner from 'react-bootstrap/Spinner';
 
 export function Loading(props)
@@ -7,9 +8,18 @@ export function Loading(props)
     {
         size=props.size
     }
-    return(
-        <div style={{padding: 5}}>
-              <Spinner size={size} animation="grow" variant="primary" />
-        </div>
-    )
+
+    var centered= null
+    if(props.centered==true)
+    {
+        centered ="center"
+    }
+    
+        return(
+            <div style={{padding: 5, padding:props.padding, textAlign:centered}}>
+                  <Spinner size={size} animation="grow" variant="primary" />
+            </div>
+        )
+   
+
 }

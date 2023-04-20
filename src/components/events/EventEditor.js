@@ -492,7 +492,8 @@ export default class EventEditor extends Component {
                     if (varNotEmpty(body)) {
                         var message = getMessageFromAPIResponse(body)
                         if (varNotEmpty(body.success) && body.success == true) {
-                            toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                            //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                            console.log("EVENT_SUBMIT_OK")
                         } else {
                             toast.error(this.i18next.t(message.toString()))
                         }
@@ -528,7 +529,9 @@ export default class EventEditor extends Component {
                     if (varNotEmpty(body)) {
                         var message = getMessageFromAPIResponse(body)
                         if (varNotEmpty(body.success) && body.success == true) {
-                            toast.success(this.i18next.t("UPDATE_OK"))
+                            //toast.success(this.i18next.t("UPDATE_OK"))
+                            console.log("UPDATE_OK")
+
                         } else {
                             toast.error(this.i18next.t(message.toString()))
                         }

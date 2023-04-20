@@ -2,6 +2,8 @@
 import i18next from 'i18next';
 import *  as translations from '@/i18n/strings.json'
 import * as moment from 'moment';
+import { varNotEmpty } from '../general';
+import { getMessageFromAPIResponse } from './response';
 
 export function getI18nObject()
 {
@@ -195,3 +197,15 @@ export const findPath = (ob, key) => {
       return false
   }
   
+  export function displayErrorMessageFromAPIResponse(body)
+  {
+    var message = getMessageFromAPIResponse(body)
+    if(varNotEmpty(message) && message!="")
+    {
+        toast.error(this.state.i18next.t(message))
+
+    }else{
+        toast.error(this.state.i18next.t("ERROR_GENERIC"))
+    }
+    
+  }
