@@ -2,6 +2,7 @@ import { getConnectionVar } from '@/helpers/api/db';
 import crypto from "crypto"
 import { Base64 } from 'js-base64';
 import { getRegistrationStatus, userRegistrationAllowed } from './settings';
+import { varNotEmpty } from '../general';
 export async function getUserDetailsfromUsername(username)
 {
     var con = getConnectionVar()
@@ -55,8 +56,9 @@ export async function insertUserIntoDB(username,password,email)
     }
     else if(totalUsers==0)
     {
-        forceInsertUserIntoDB(username, password,email)
-        return false
+        //The first user will be an admin.
+        forceInsertUserIntoDB(username, password,email,"1")
+        return true
     }
     else
     {
@@ -67,10 +69,14 @@ export async function insertUserIntoDB(username,password,email)
 
        
 }
-export async function forceInsertUserIntoDB(username,password,email)
+export async function forceInsertUserIntoDB(username,password,email,level)
 {
     var isUserinDB= await checkifUserisInDB(username)
 
+    if(varNotEmpty(level)==false)
+    {
+        level=0
+    }
     if(isUserinDB==true)
     {
         // No need to to anything.
@@ -82,7 +88,7 @@ export async function forceInsertUserIntoDB(username,password,email)
         var password = crypto.createHash('sha512').update(password).digest('hex')
         var created=Math.floor(Date.now() / 1000)
 
-        con.query('INSERT INTO users (username, password, email, created, userhash) VALUES (?,?, ? ,?,?)', [username, password, email, created, userhash], function (error, results, fields) {
+        con.query('INSERT INTO users (username, password, email, created, userhash,level) VALUES (?,?, ? ,?,?,?)', [username, password, email, created, userhash,level], function (error, results, fields) {
             if (error) {
                 throw error.message
             }

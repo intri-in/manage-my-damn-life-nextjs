@@ -64,7 +64,7 @@ class Register extends Component{
         {
 
             toast.error(this.i18next.t("INVALID_EMAIL"))
-            isValid(false)
+            isValid =false
             return false
         }
         if((this.state.passwordconfirm!=null && this.state.passwordconfirm.trim()=="") || this.state.passwordconfirm==null)

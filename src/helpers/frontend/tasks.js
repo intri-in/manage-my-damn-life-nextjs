@@ -1,6 +1,9 @@
-import { ISODatetoHuman } from "./general"
+import { ISODatetoHuman, getI18nObject } from "./general"
 import * as moment from 'moment';
 import { majorTaskFilter } from "./events";
+import { getAuthenticationHeadersforUser } from "./user";
+import { toast } from "react-toastify";
+import VTodoGenerator from "@/external/VTODOGenerator";
 export function sortTaskListbyDue(list, todoList)
 {
     var sortedList= []
@@ -76,4 +79,43 @@ export function generateNewTaskObject(currenTaskObject, oldData)
 
     return newTaskObject
 
+}
+
+export async function updateTodo(calendar_id, url, etag, dataObj) {
+
+    var todo = new VTodoGenerator(dataObj)
+    var data = todo.generate()
+    console.log(data)
+    const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
+    var i18next = getI18nObject()
+    const authorisationData = await getAuthenticationHeadersforUser()
+    var updated = Math.floor(Date.now() / 1000)
+    const requestOptions =
+    {
+        method: 'POST',
+        body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+        mode: 'cors',
+        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    }
+
+    return new Promise( (resolve, reject) => {
+        try {
+
+            fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) => {
+                   
+            resolve(body)
+    
+                });
+
+        }
+        catch (e) {
+            toast.error(e.message)
+            resolve(null)
+
+        }
+    
+    
+    })
 }

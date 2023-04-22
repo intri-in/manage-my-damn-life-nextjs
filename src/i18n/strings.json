@@ -8,11 +8,13 @@
         "LOGIN": "Login",
         "EMAIL": "Email",
         "REGISTER": "Register",
+        "USERS": "Users",
         "USERNAME": "Username",
         "CREATED_ON": "Created On",
         "ENTER_USERNAME": "Enter username",
         "ADMIN": "Admin",
         "YES": "Yes",
+        "NO": "No",
         "INVALID_USERNAME":"Invalid username.",
         "ENTER_EMAIL": "Enter email",
         "INVALID_EMAIL": "Invalid email.",
@@ -28,6 +30,7 @@
         "DELETE_OK": "Deleted successfully.",
         "DELETE": "Delete",
         "DELETE_CALDAV_ACCOUNT_CONFIRMATION": "Are you sure you want to delete the following CalDAV account?",
+        "DELETE_USER_CONFIRMATION": "Are you sure you want to delete this user?",
         "ERROR_GENERIC": "Something went wrong. Please try again later.",
         "NO_RESPONSE_FROM_SERVER":"Couldn't reach server.",
         "MY_DAY": "My day",
@@ -132,7 +135,8 @@
         "MINUTES_BEFORE": "minutes before",
         "START":"Start",
         "END": "End",
-        "SETTINGS": "Settings",        
+        "SETTINGS": "Settings",
+        "ALLOW_REGISTRATION": "Allow user registration",        
         "RRULE_EMPTY_FREQ": "Please select a frequency of recurrence.",
         "ERROR_RRULE_UNTIL_BEFORE_START": "Until date cannot be before start date.",
         "DELETE_EVENT_CONFIRMATION": "Are you sure you want to delete this event?",
@@ -143,8 +147,10 @@
         "ERROR_NO_ACCESS_TO_CALENDAR": "No access to the calendar.",
         "CANT_CREATE_EMPTY_TASK": "Can't submit an event or a task with no summary.",
         "EVENT_NEEDS_BOTH_FROM_AND_TO": "Event needs both a 'From' and 'To' date.",
-        "ERROR_PICK_A_CALENDAR": "Please pick a calendar for the events.",
-        "ERROR_ENDDATE_SMALLER_THAN_START": "End date and due date must be after start date. "
+        "ERROR_PICK_A_CALENDAR": "Please pick a calendar for the event.",
+        "ERROR_ENDDATE_SMALLER_THAN_START": "End date and due date must be after start date. ",
+        "ERROR_GETTING_SETTINGS": "Error getting settings. See console logs.",
+        "USER_REG_DISABLED_FROM_ENV": "User registration is disabled from env variable. You'll need to change the value there to enable it."
 
         }
     }

@@ -1,4 +1,7 @@
 import Cookies from 'js-cookie'
+import { getAuthenticationHeadersforUser } from './user'
+import { varNotEmpty } from '../general'
+import { getMessageFromAPIResponse } from './response'
 
 export function setCookie(cname, cvalue, exdays)
 {
@@ -7,10 +10,37 @@ export function setCookie(cname, cvalue, exdays)
 
 }
 
-export function getDefaultCalendarID()
+export async function getDefaultCalendarID()
 {
-    Cookies.get("DEFAULT_CALENDAR_ID")
-    return "2";
+    //Cookies.get("DEFAULT_CALENDAR_ID")
+    const url_api=process.env.NEXT_PUBLIC_API_URL+"settings/getone?name=DEFAULT_CALENDAR"
+    const authorisationData=await getAuthenticationHeadersforUser()
+
+    const requestOptions =
+    {
+        method: 'GET',
+        mode: 'cors',
+        headers: new Headers({'authorization': authorisationData}),
+
+    }
+
+    return new Promise( (resolve, reject) => {
+        fetch(url_api, requestOptions)
+        .then(response =>{
+            return response.json()
+        } )
+        .then((body) =>{
+            if(varNotEmpty(body) && varNotEmpty(body.success))
+            {
+                var message= getMessageFromAPIResponse(body)
+                resolve(message)
+            }else{
+                resolve('')
+            }
+        })
+
+    })
+
 }
 
 export function setDefaultCalendarID(calendars_id)

@@ -125,10 +125,6 @@ class VTodoGenerator{
             finalVTODO +="DESCRIPTION:"+description+"\n"
 
         }
-        if(this.lastmodified!=null && this.lastmodified!="")
-        {
-            finalVTODO +="LAST-MODIFIED:"+this.getISO8601Date(this.lastmodified)+"\n"
-        }
         if(this.start!=null && this.start!="")
         {
             finalVTODO +="START:"+this.getISO8601Date(this.start)+"\n"
@@ -153,6 +149,10 @@ class VTodoGenerator{
         }else{
             finalVTODO +="LAST-MODIFIED:"+dtstamp+"\n"
 
+        }
+        if(this.lastmodified!=null && this.lastmodified!="")
+        {
+            finalVTODO +="LAST-MODIFIED:"+this.getISO8601Date(this.lastmodified)+"\n"
         }
 
         if(this.location!=null && this.location!="" && this.location!=undefined)

@@ -16,6 +16,7 @@ import { ContextMenuTrigger, ContextMenu, ContextMenuItem } from 'rctx-contextme
 import { RightclickContextMenu } from "./RightclickContextMenu";
 import { MYDAY_LABEL } from "@/config/constants";
 import Draggable from 'react-draggable'; 
+import { updateTodo } from "@/helpers/frontend/tasks";
 
 export default class TaskUI extends Component{
 
@@ -119,11 +120,10 @@ export default class TaskUI extends Component{
         this.setState({showTaskEditor: true, })
 
     }
-    onAddtoMyday(input)
+    async onAddtoMyday(input)
     {
         // first check if the task already has label for my day.
         var newDataArray= this.state.data
-
         if(this.state.data.category!=null && Array.isArray(this.state.data.category))
         {
             var found=false
@@ -138,8 +138,13 @@ export default class TaskUI extends Component{
 
             if(found==false)
             {
-                newDataArray.category.push(MYDAY_LABEL)
-                this.setState({data: newDataArray, showTaskEditor: true, })
+                newDataArray["categories"]=newDataArray.category
+                newDataArray.categories.push(MYDAY_LABEL)
+                //this.setState({data: newDataArray, showTaskEditor: true, })
+                var body = await updateTodo(this.state.data.calendar_id, this.state.data.url, this.state.data.etag, newDataArray)
+                this.onTaskSubmittoServer(body)
+                console.log(newDataArray)
+
 
             }
             else{
@@ -150,14 +155,19 @@ export default class TaskUI extends Component{
         }
         else
         {
-            newDataArray.category=[]
-            newDataArray.category.push(MYDAY_LABEL)
-            this.setState({data: newDataArray, showTaskEditor: true, })
+            newDataArray.categories=[]
+            newDataArray.categories.push(MYDAY_LABEL)
+            console.log(newDataArray)
+
+            //this.setState({data: newDataArray, showTaskEditor: true, })
+            var body = await updateTodo(this.state.data.calendar_id, this.state.data.url, this.state.data.etag, newDataArray)
+            this.onTaskSubmittoServer(body)
+
 
         }
     }
 
-    removeFromMyDay()
+    async removeFromMyDay()
     {
         if(this.state.data.category!=null && Array.isArray(this.state.data.category))
         {
@@ -166,8 +176,11 @@ export default class TaskUI extends Component{
             {
                 var newCategoryArray=removeMyDayLabelFromArray(this.state.data.category)
                 var newData= this.state.data
-                newData.category= newCategoryArray
-                this.setState({data: newData, showTaskEditor: true})
+                newData.categories= newCategoryArray
+                //this.setState({data: newData, showTaskEditor: true})
+                var body = await updateTodo(this.props.data.calendar_id, this.props.data.url, this.props.data.etag, newData)
+                this.onTaskSubmittoServer(body)
+    
             }
 
         }

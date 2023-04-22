@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import { getAllEvents, getParsedTodoList, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
+import { getAllEvents, getCaldavAccountsfromServer, getParsedTodoList, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import Form from 'react-bootstrap/Form';
@@ -21,7 +21,8 @@ import { getObjectForAPICall, makeGenerateICSRequest } from "@/helpers/frontend/
 import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { FULLCALENDAR_BUSINESS_HOURS } from "@/config/constants";
-export default class DashboardView extends Component {
+import { withRouter } from "next/router";
+class DashboardView extends Component {
     calendarRef = React.createRef()
     constructor(props) {
 
@@ -41,8 +42,9 @@ export default class DashboardView extends Component {
 
     componentDidMount() {
 
-       
+        this.getCaldavAccountsfromDB()
         this.getAllEventsfromServer()
+    
         //dayGridMonth
         let calendarApi = this.calendarRef.current.getApi()
         calendarApi.eventDragStart = this.eventDrag
@@ -50,6 +52,22 @@ export default class DashboardView extends Component {
 
     }
 
+    async getCaldavAccountsfromDB()
+    {
+        var caldav_accounts= await getCaldavAccountsfromServer()
+        if(caldav_accounts!=null && caldav_accounts.success==true)
+        {
+            if(caldav_accounts.data.message.length>0)
+            {
+
+            }else{
+                this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
+            }
+           
+        }
+
+
+    }
     componentDidUpdate(prevProps, prevState)
     {
         if(this.props.scheduleItem!=prevProps.scheduleItem)
@@ -445,3 +463,5 @@ export default class DashboardView extends Component {
         </>)
     }
 }
+
+export default withRouter(DashboardView)

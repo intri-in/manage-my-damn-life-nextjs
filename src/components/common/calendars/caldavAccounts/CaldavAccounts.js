@@ -180,7 +180,6 @@ export default class CaldavAccounts extends Component{
     {
 
         toast.success(this.i18next.t("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY"))
-        toast.info("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY")
         this.getCaldavAccountsfromDB()
         fetchLatestEvents()
         this.setState({ addAccountScreenisVisible: false})

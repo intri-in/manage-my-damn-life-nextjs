@@ -51,7 +51,7 @@ export default class TaskEditor extends Component {
         if (props.data.taskDone != null && props.data.taskDone != "") {
             taskDone = props.data.taskDone
         }
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto }
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [] }
 
 
         this.i18next = getI18nObject()
@@ -75,6 +75,9 @@ export default class TaskEditor extends Component {
         this.statusValueChanged = this.statusValueChanged.bind(this)
         this.removeParentClicked = this.removeParentClicked.bind(this)
         this.onParentSelect = this.onParentSelect.bind(this)
+        this.setCalendarID= this.setCalendarID.bind(this)
+        this.checkifValid = this.checkifValid.bind(this)
+        this.getCalendarDDL = this.getCalendarDDL.bind(this)
     }
 
     componentDidMount() {
@@ -92,12 +95,11 @@ export default class TaskEditor extends Component {
         }
 
         if (this.props.data.calendar_id != null && this.props.data.calendar_id != "") {
-            this.setState({ calendar: this.props.data.calendar_id })
+            this.setState({ calendar_id: this.props.data.calendar_id })
 
         }
         else {
-            this.setState({ calendar: getDefaultCalendarID() })
-
+            this.setCalendarID()
         }
 
 
@@ -112,6 +114,12 @@ export default class TaskEditor extends Component {
         })
     }
 
+    async setCalendarID()
+    {
+        var calendar = await getDefaultCalendarID()
+        this.setState({ calendar_id:  calendar})
+
+    }
     componentDidUpdate(prevProps, prevState) {
 
         if (this.props.calendar_id !== prevProps.calendar_id) {
@@ -141,9 +149,7 @@ export default class TaskEditor extends Component {
         this.setState({ status: e.target.value })
     }
     calendarSelected(e) {
-        if (this.props.data.calendar_id == null) {
-            this.setState({ calendar: e.target.value })
-        }
+        this.setState({ calendar_id: e.target.value })   
 
     }
     removeParentClicked() {
@@ -167,8 +173,15 @@ export default class TaskEditor extends Component {
         this.getLabels()
     }
     async generateCalendarName() {
-        var calendarOutput = null
         var calendarsFromServer = await caldavAccountsfromServer()
+        this.setState({calendarsFromServer: calendarsFromServer})
+    }
+
+    getCalendarDDL()
+    {
+        var calendarOutput = null
+
+        var calendarsFromServer = this.state.calendarsFromServer
         if (isValidResultArray(calendarsFromServer)) {
             calendarOutput = []
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
@@ -196,9 +209,9 @@ export default class TaskEditor extends Component {
         else {
             var disabled = false
         }
-        this.setState({ calendarOptions: (<Form.Select key="calendarOptions" onChange={this.calendarSelected} disabled={disabled} value={this.props.data.calendar_id}>{calendarOutput}</Form.Select>) })
-    }
+        return(<Form.Select key="calendarOptions" onChange={this.calendarSelected} disabled={disabled} value={this.state.calendar_id}>{calendarOutput}</Form.Select>) 
 
+    }
     taskSummaryChanged(e) {
         this.setState({ summary: e.target.value })
         this.props.onChange();
@@ -285,7 +298,7 @@ export default class TaskEditor extends Component {
         this.props.onChange();
 
     }
-    deleteTask() {
+    deleteTask() {this.state.calendar
         this.setState({ showTaskDeleteModal: true })
     }
     onDismissDeleteDialog() {
@@ -299,7 +312,7 @@ export default class TaskEditor extends Component {
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url, "calendar_id": this.state.calendar }),
+            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url, "calendar_id": this.state.calendar_id }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -318,6 +331,27 @@ export default class TaskEditor extends Component {
         }
 
     }
+    checkifValid()
+    {
+        var dueDateUnix = moment(this.state.dueDate).unix()
+        var startDateUnix = moment(this.state.start).unix()
+
+        if (startDateUnix > dueDateUnix) {
+            if (this.state.start.toString().trim() != "" && varNotEmpty(this.state.start) && this.state.dueDate.toString().trim() != "" && varNotEmpty(this.state.dueDate)) {
+                toast.error(this.i18next.t("ERROR_ENDDATE_SMALLER_THAN_START"))
+
+                return false
+            }
+
+        }
+        if(varNotEmpty(this.state.calendar_id)==false || (varNotEmpty(this.state.calendar_id) && this.state.calendar_id.toString().trim()==""))
+        {
+            toast.error(this.i18next.t("ERROR_PICK_A_CALENDAR"))
+            return false
+        }
+
+        return true
+    }
     async saveTask() {
         if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
             var dueDate = ""
@@ -331,14 +365,7 @@ export default class TaskEditor extends Component {
             var dueDateUnix = moment(dueDate).unix()
             var startDateUnix = moment(this.state.start).unix()
             //console.log(startDateUnix, dueDateUnix, dueDateUnix - startDateUnix)
-            var valid = true
-            if (startDateUnix > dueDateUnix) {
-                if (this.state.start.toString().trim() != "" && varNotEmpty(this.state.start) && dueDate.toString().trim() != "" && varNotEmpty(dueDate)) {
-                    valid = false
-                }
-
-
-            }
+            var valid = this.checkifValid()
             if (valid) {
                 this.setState({ saveButton: <Loading /> })
 
@@ -350,16 +377,14 @@ export default class TaskEditor extends Component {
                 //console.log(finalVTODO)
                 var etag = getRandomString(32)
                 if (this.props.data.url == null) {
-                    var resultsofPost= await this.postNewTodo(this.state.calendar, finalVTODO, etag, this.processResult)
+                    var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
 
                 }
                 else {
-                    var resultofEdit  = await this.updateTodo(this.state.calendar,this.props.data.url, this.props.data.etag, finalVTODO)
+                    var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url, this.props.data.etag, finalVTODO)
                 }
 
-            } else {
-                toast.error(this.i18next.t("ERROR_ENDDATE_SMALLER_THAN_START"))
-            }
+            } 
 
         } else {
             toast.error(this.i18next.t("CANT_CREATE_EMPTY_TASK"))
@@ -443,6 +468,7 @@ export default class TaskEditor extends Component {
             parentTask = (<ParentTaskSearch onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
         }
 
+        var calendarOptions = this.getCalendarDDL()
         return (
             <div key={this.props.data.uid}>
                 <Row style={{ marginBottom: 10, }}>
@@ -460,7 +486,7 @@ export default class TaskEditor extends Component {
                 <div style={{ marginBottom: 10 }}><Form.Control onChange={this.taskSummaryChanged} autoFocus={true} value={this.state.summary} placeholder="Enter a summary" /></div>
 
                 <h4>Calendar</h4>
-                <div style={{ marginBottom: 10 }}>{this.state.calendarOptions}</div>
+                <div style={{ marginBottom: 10 }}>{calendarOptions}</div>
 
                 <h4>Parent Task</h4>
                 <div style={{ marginBottom: 10 }}>{parentTask}</div>

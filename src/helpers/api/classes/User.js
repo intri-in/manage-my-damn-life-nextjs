@@ -4,6 +4,7 @@ import crypto from "crypto"
 import { CaldavAccount } from "./CaldavAccount";
 import { varNotEmpty } from "@/helpers/general";
 import { Calendars } from "./Calendars";
+import Settings from "@/helpers/api/classes/Settings"
 
 export class User{
 
@@ -17,6 +18,19 @@ export class User{
     }
 
 
+    static async getAll()
+    {
+        var con = getConnectionVar()
+        return new Promise( (resolve, reject) => {
+            con.query("SELECT username, email, created, level,users_id FROM users ", [ ], function (err, result, fields) {
+                if (err) throw err;
+                con.end()
+                resolve(Object.values(JSON.parse(JSON.stringify(result))));
+    
+            })
+        })
+  
+    }
 
     static async getDatafromUsername(username)
     {
@@ -45,11 +59,67 @@ export class User{
       return userid
 
     }
+    async delete()
+    {
+        var con = getConnectionVar()
 
+        return new Promise( (resolve, reject) => {
+            con.query('DELETE FROM users WHERE users_id=?', [this.userid], function (error, results, fields) {
+            con.end()
+            if (error) {
+                console.log(error.message)
+                resolve(false)
+            }
+    
+            resolve(true)
+            });
+        })
+    
+    
+    }
+
+    async deleteAllSessions()
+    {
+        var userHash = await this.getHash()
+        if(varNotEmpty(userHash))
+        {
+            var con = getConnectionVar()
+
+            return new Promise( (resolve, reject) => {
+                con.query('DELETE FROM ssid_table WHERE userhash=? ', [userHash], function (error, results, fields) {
+                    con.end()
+                    if (error) {
+                        console.log(error.message)
+                        resolve(false)
+                    }
+            
+                    resolve(true)
+                    });
+        
+            })
+    
+        }else{
+            return false
+        }
+    
+    
+    }
+
+    async getHash()
+    {
+        var allInfo = await this.getInfo()
+
+        if(varNotEmpty(allInfo) && varNotEmpty(allInfo.userHash))
+        {
+            return allInfo.userhash
+        }else{
+            return null
+        }
+        
+    }
     async getInfo()
     {
         var con = getConnectionVar()
-        console.log("this.userid", this.userid)
         return new Promise( (resolve, reject) => {
             con.query("SELECT users_id,username,email,created,level,userhash,mobile FROM users WHERE users_id= ? ", [this.userid], function (err, result, fields) {
                 con.end()
@@ -260,6 +330,18 @@ export class User{
 
    }
 
+   /**
+    * All functions related to Settings
+    */
   
 
+   async getSetting(name)
+   {
+        return await Settings.getForUser(this.userid, name)
+   }
+
+   async modifySetting(name, value, isGlobal)
+   {
+        return await Settings.modifyForUser(this.userid, name, value, isGlobal)
+   }
 }

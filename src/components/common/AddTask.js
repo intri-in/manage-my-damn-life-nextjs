@@ -83,7 +83,7 @@ export default class AddTask extends Component{
                 {
                     toast.error("Error. Check logs")
                 }
-                
+                console.log(body)
 
             }
         }

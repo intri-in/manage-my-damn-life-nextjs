@@ -32,9 +32,12 @@ export async function userRegistrationAllowed()
     {
         // Not disabled in database
         fromDB=false
-    }else
+    }else if(fromDB!=null)
     {
+    
         fromDB = true
+    }else{
+        fromDB=false
     }
     var fromEnv = process.env.NEXT_PUBLIC_DISABLE_USER_REGISTRATION
 
