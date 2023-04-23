@@ -1,2 +1,5 @@
 site_name: MMDL Docs
 repo_url: https://github.com/intri-in/manage-my-damn-life-nextjs
+theme:
+  name: null
+  custom_dir: 'docs/cinder'

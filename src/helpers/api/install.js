@@ -3,7 +3,16 @@ import { getConnectionVar } from "./db_test"
 
 export const FINAL_TABLES=["caldav_accounts", "calendar_events" , "calendars", "custom_filters", "labels", "otp_table", "settings", "ssid_table", "users"]
 
+export async function testDBConnection(){
+    var con = getConnectionVar()
+    return new Promise( (resolve, reject) => {
+       
+     con.ping( err=>{
+        resolve(err)
 
+     })
+    })
+}
 export async function isInstalled()
 {
     var allTables = await getListofTables()
@@ -14,7 +23,7 @@ export async function isInstalled()
         return false
     }
 }
-export function getListofTables()
+export async function getListofTables()
 {
 
     var con = getConnectionVar()
@@ -36,7 +45,7 @@ export function installTables(table_name)
     var query=""
     switch(table_name) {
         case "caldav_accounts":
-          query="CREATE TABLE IF NOT EXISTS caldav_accounts (caldav_accounts_id int NOT NULL AUTO_INCREMENT,username varchar(45) DEFAULT NULL,password varchar(3000) DEFAULT NULL,url varchar(1000) DEFAULT NULL,userid varchar(45) DEFAULT NULL,name varchar(100) DEFAULT NULL , PRIMARY KEY (caldav_accounts_id)) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+          query="CREATE TABLE IF NOT EXISTS caldav_accounts (caldav_accounts_id int NOT NULL AUTO_INCREMENT,username varchar(45) DEFAULT NULL,password varchar(3000) DEFAULT NULL,url varchar(1000) DEFAULT NULL,userid varchar(45) DEFAULT NULL,name varchar(100) DEFAULT NULL ,  authMethod varchar(45) DEFAULT NULL, PRIMARY KEY (caldav_accounts_id)) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
         break;
         case "calendar_events":
             query="CREATE TABLE IF NOT EXISTS calendar_events (calendar_events_id int NOT NULL AUTO_INCREMENT,url varchar(3000) DEFAULT NULL,etag varchar(1000) DEFAULT NULL,data varchar(5000) DEFAULT NULL,updated varchar(45) DEFAULT NULL,type varchar(45) DEFAULT NULL,calendar_id varchar(45) DEFAULT NULL,deleted varchar(45) DEFAULT NULL,PRIMARY KEY (calendar_events_id)) ENGINE=InnoDB AUTO_INCREMENT=448 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"

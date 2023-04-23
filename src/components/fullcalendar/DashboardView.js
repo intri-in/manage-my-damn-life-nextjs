@@ -137,7 +137,7 @@ class DashboardView extends Component {
     handleDateClick(e) {
         var eventData = getEmptyEventDataObject()
         eventData.data["start"] = e.date
-        eventData.data["end"] = new Date(moment(e.date).unix() * 1000 + 86400 * 1000)
+        eventData.data["end"] = new Date(moment(e.date).unix() * 1000 + 3600 * 1000)
 
 
         this.setState({ showEventEditor: true, eventDataDashBoard: eventData })

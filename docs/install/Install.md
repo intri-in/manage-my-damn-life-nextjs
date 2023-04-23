@@ -10,6 +10,8 @@
 
     ``` npm install```
 
+1. Install mysql and create a database.
+
 1. Copy the env file, and make desired changes to configuration. For more details see [Configuration](Configuration.md)
 
     ``` cp .env.local.sample .env.local```
@@ -30,8 +32,16 @@
 
     ``` nohup npm run start &```
 
+    To see the started node process you can run
+
+    ```ps aux | grep node```
+
 1. Your server is now up and running. 
     
-    For virtual host configuration see [Virtual Host Configuration](Configuration/VirtualHost.md)
+    For virtual host configuration see [Virtual Host Configuration](VirtualHost.md)
 
 1. Visit ```https://localhost:3000/install``` to run the installation process.
+
+1. Post install, register for a new account. Login to your new account.
+
+1. If not automatically redirected to "Add CalDAV Account" page, visit ```http://localhost:3000/accounts/caldav``` to add your first CalDAV account. 
