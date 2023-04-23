@@ -14,7 +14,7 @@
 
 1. Copy the env file, and make desired changes to configuration. For more details see [Configuration](Configuration.md)
 
-    ``` cp .env.local.sample .env.local```
+    ``` cp sample.env.local .env.local```
 
 1. Run the build command:
 
