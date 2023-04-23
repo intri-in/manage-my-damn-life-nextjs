@@ -39,6 +39,7 @@ export default async function handler(req, res) {
                         var found =false
                         for(const i in listTbls)
                         {
+                            
                             if(listTbls[i]["Tables_in_local_mmdm"]==FINAL_TABLES[k])
                             {
                                 found=true
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
                         for(const tbl in toInstall)
                         {
                             var response= await installTables(toInstall[tbl])
-                            finalReponse.push(response)
+                            finalReponse.push([toInstall[tbl], response])
                         }
                     
                     }

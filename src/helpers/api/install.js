@@ -69,6 +69,7 @@ export function installTables(table_name)
             break;
         case "ssid_table":
             query="CREATE TABLE IF NOT EXISTS ssid_table (ssid_table_id int NOT NULL AUTO_INCREMENT,userhash varchar(1000) DEFAULT NULL,ssid varchar(1000) DEFAULT NULL,created varchar(45) DEFAULT NULL,PRIMARY KEY (ssid_table_id)) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET="+process.env.DB_CHARSET+" COLLATE="+process.env.DB_COLLATE+";"
+            break;
         case "users":
             query="CREATE TABLE IF NOT EXISTS users (users_id int NOT NULL AUTO_INCREMENT,  username varchar(45) DEFAULT NULL, email varchar(45) DEFAULT NULL,            password varchar(1000) DEFAULT NULL,created varchar(45) DEFAULT NULL,level varchar(45) DEFAULT NULL, userhash varchar(1000) DEFAULT NULL,mobile varchar(45) DEFAULT NULL, PRIMARY KEY (users_id)) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET="+process.env.DB_CHARSET+" COLLATE="+process.env.DB_COLLATE+";"
             break;
