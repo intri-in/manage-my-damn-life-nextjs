@@ -7,9 +7,12 @@ Manage my Damn Life (MMDL) is a self hosted front end for managing your CalDAV t
 ![Task View!](/docs/pics/screenshots/TaskView.png "Task View")
 ![Home !](/docs/pics/screenshots/HomeView.png "Task View")
 
+More screenshots are availabe in '/docs/pics/screenshots/'
+
+
 ## Features
 
-1. Manange your CalDAV tasks.
+1. Manage your CalDAV tasks.
     - Supports sub tasks.
 2. Manage calendar events.  
 3. Supports multiple CalDAV accounts, and mutiple user accounts.
@@ -33,4 +36,4 @@ As of now, it only supports basic authentication, and not OAUTH.
 
 ## Getting Started
 
-To get started, you can checkout installation documentation [here](docs/install/Install.md).
+To get started, you can checkout full documentation [here](https://manage-my-damn-life-nextjs.readthedocs.io).
