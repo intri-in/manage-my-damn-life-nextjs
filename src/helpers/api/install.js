@@ -1,5 +1,5 @@
 import { varNotEmpty } from "../general"
-import { getConnectionVar } from "./db_test"
+import { getConnectionVar } from "./db"
 
 export const FINAL_TABLES=["caldav_accounts", "calendar_events" , "calendars", "custom_filters", "labels", "otp_table", "settings", "ssid_table", "users"]
 
