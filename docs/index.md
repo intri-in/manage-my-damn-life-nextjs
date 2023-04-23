@@ -12,11 +12,11 @@ More screenshots are available in the director '/docs/pics/screenshots'
 
 ## Features
 
-1. Manange your CalDAV tasks.
+1. Manage your CalDAV tasks.
     - Supports sub tasks.
 2. Manage calendar events.  
 3. Supports multiple CalDAV accounts, and mutiple user accounts.
-4. View your tasks as a list, in a gantt view or on a calendar.  
+4. View your tasks as a list, in a gantt view, or on a calendar.  
 1. Create and manage task filters to view your tasks as you see fit.
 1. "Reponsive-ish" view. This is a desktop first project, as mutiple clients like JTX Boards, OpenTasks exist for mobile.
 
