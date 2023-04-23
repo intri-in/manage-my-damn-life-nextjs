@@ -1,0 +1,56 @@
+.extra-padding {
+    padding: 50 !important
+}
+
+h1{
+    font-size: 18px;
+}
+h2{
+    font-size: 16px;
+}
+
+h3{
+    font-size: 14px;
+}
+h4{
+    font-size: 12px;
+}
+
+p{
+    font-size: 12px;
+
+}
+
+.textDefault{
+    font-size: 12px;
+
+}
+
+.badge{
+    background-color: green;
+}
+
+.taskDoneCheckbox{
+    height: 40px;
+}
+
+.btn-primary{
+    background-color: #881be4;
+    border-color: #881be4;
+}
+.btn-primary:hover{
+    background-color: #cfa3f4;
+    border-color: #cfa3f4;
+    color: black;
+}
+.btn-primary::active{
+    background-color: #881be4;
+
+}
+
+a{
+    color:  #881be4;
+}
+a:hover{
+    color: #cfa3f4;
+}
