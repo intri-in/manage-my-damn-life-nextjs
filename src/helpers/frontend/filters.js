@@ -1,6 +1,7 @@
 import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
+import { varNotEmpty } from "../general"
 
 export async function saveFiltertoServer(name, filter)
 {
@@ -91,7 +92,7 @@ export function checkifFilterValid(filter)
 
     if(filter.filter.due!=null && filter.filter.due!=undefined)
     {
-        if((filter.filter.due[0]=="" || filter.filter.due[0]==null) &&  (filter.filter.due[1]=="" || filter.filter.due[1]==null))
+        if((filter.filter.due[0]=="" || filter.filter.due[0]==null) &&  (filter.filter.due[1]=="" || filter.filter.due[1]==""))
         {
             hasValidDueFilter=false
         }else
@@ -168,7 +169,7 @@ export function filtertoWords(filter)
     var toReturnArray=[]
     var toReturnFinal = []
 
-    if(filter.filter.due!=null&& filter.filter.due!=undefined)
+    if(filter.filter.due!=null&& filter.filter.due!=undefined && varNotEmpty(filter.filter.due[0]) && varNotEmpty(filter.filter.due[1]) &&(filter.filter.due[0]!="" || filter.filter.due[1]!="" ))
     {
         var dueBefore="End of the universe"
         var dueAfter ="Beginning of the universe"
@@ -393,4 +394,63 @@ function filterbyPriority(priorityFilter, priority)
 
     return toReturn
 
+}
+
+export function getFilterReadytoPost(filter)
+{
+    var newFilter = {}
+    if(varNotEmpty(filter) && varNotEmpty(filter.logic) && varNotEmpty(filter.filter))
+    {
+        newFilter = {logic: filter.logic, filter:{}}
+        
+        if(varNotEmpty(filter.filter.due) && Array.isArray(filter.filter.due) && (filter.filter.due[0]!="" || filter.filter.due[1]!=""))
+        {
+            newFilter.filter.due = filter.filter.due
+        }
+
+        if(varNotEmpty(filter.filter.priority) &&filter.filter.priority!="")
+        {
+            newFilter.filter.priority = filter.filter.priority
+        }
+
+        if(varNotEmpty(filter.filter.label) && Array.isArray(filter.filter.label) && filter.filter.label.length>0)
+        {
+            newFilter.filter.label = filter.filter.label
+        }
+        
+
+    }
+
+    return newFilter
+
+
+}
+
+export function filterDueIsValid(due)
+{
+    var isValid = false
+    if(varNotEmpty(due) && Array.isArray(due) && due.length==2 )
+    {
+        var dueFromValid=false
+        if(varNotEmpty(due[0]) && due[0]!="")
+        {
+            dueFromValid = true
+        }
+
+        var dueToValid = false
+
+        if(varNotEmpty(due[1]) && due[1]!="")
+        {
+            dueToValid = true
+        }
+
+        if(dueFromValid==false && dueToValid==false)
+        {
+            isValid= false
+        }else{
+            isValid = true
+        }
+    }
+
+    return isValid
 }

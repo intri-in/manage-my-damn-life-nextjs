@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { getRandomColourCode, dueDatetoUnixStamp, ISODatetoHuman, timeDifferencefromNowinWords } from '../../helpers/frontend/general';
+import { getRandomColourCode, dueDatetoUnixStamp, ISODatetoHuman, timeDifferencefromNowinWords, getI18nObject } from '../../helpers/frontend/general';
 import Chip from '@mui/material/Chip';
 import * as React from 'react';
 import { getLabelColourFromDB, saveLabeltoDB } from '../../helpers/frontend/labels';
@@ -10,27 +10,70 @@ import Collapse from 'react-bootstrap/Collapse';
 import { TaskWithFilters } from './TaskWithFilters';
 import { varNotEmpty } from "@/helpers/general";
 import { majorTaskFilter } from "@/helpers/frontend/events";
+import { TaskPending } from "@/helpers/api/tasks";
 export default class GenerateTaskUIList extends Component{
     constructor(props)
     {
         super(props)
-        var newCollapsed={}
-        for (const i in props.todoList[1]) {
-            newCollapsed[i]={collapsed: false}
-        }
-    
         
-
-        this.state={collapsed: newCollapsed}
+        this.i18next=getI18nObject()
+        this.state={collapsed: props.collapsed, showDone:false, output: null}
         this.collapseButtonClicked= this.collapseButtonClicked.bind(this)
+        this.getTaskstoRender = this.getTaskstoRender.bind(this)
     }
 
     componentDidMount(){
+        this.setState({showDone: this.props.showDone, })
+        
+
     }
 
+    componentDidUpdate(prevProps, prevState)
+    {
+        var same = true
+        if(varNotEmpty(prevProps.collapsed))
+        {
+            for (const i in prevProps.collapsed){
+                if(prevProps.collapsed[i].collapsed!=this.props.collapsed[i].collapsed)
+                {
+                    same =false
+                    break;
+                }
+            }
+            if(same==false)
+            {
+                this.setState({collapsed: this.props.collapsed})
+            }
+        }
+
+        if(prevProps.showDone!=this.props.showDone)
+        {
+            this.setState({showDone: !prevState.showDone})
+        }
+        
+    }
     collapseButtonClicked(key)
     {
 
+        
+        //This doesn't work and I have no idea why.
+
+        /*
+        this.setState(function (previousState, currentProps){
+            if(previousState.collapsed[key]!=undefined && varNotEmpty(previousState.collapsed[key]))
+            {
+                var newCollapsed = previousState.collapsed
+                var collapsedValue = !previousState.collapsed[key].collapsed
+                newCollapsed[key].collapsed={collapsed: collapsedValue}            
+                return({collpased: newCollapsed})
+
+            }
+            
+    
+        })
+        */
+       /*
+        //This works and I have no idea why. The collapse is choopy, but hey it works. 
         if(this.state.collapsed[key]!=undefined)
         {
             var newCollapsed = this.state.collapsed
@@ -48,8 +91,11 @@ export default class GenerateTaskUIList extends Component{
         
 
         }
-        
-        
+        */
+
+        // Now we raise the state, and deal with collapse in parent component.
+        this.props.collapseButtonClicked(key)
+
     }
     checkifTaskCollapsed(key)
     {
@@ -84,7 +130,8 @@ export default class GenerateTaskUIList extends Component{
         return children
 
     }
-    render(){
+
+    getTaskstoRender(){
         var list = this.props.list
         var todoList= this.props.todoList
         var level = this.props.level
@@ -100,8 +147,25 @@ export default class GenerateTaskUIList extends Component{
             {
                 continue;
             }
-        if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
+
+            var pending = TaskPending(todoList[1][key].todo) 
+            var hardFilter= todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == "")
+            var showTask = false
+            const showDone= this.state.showDone
+            if(showDone)
             {
+                showTask=true
+             
+            }else{
+                if(pending)
+                {
+                    showTask = true
+
+                }
+            }
+        if(hardFilter && showTask)
+            {
+
                 var listitem = null
                 var pl = 4 * level
                 var tempToReturn = []
@@ -127,18 +191,23 @@ export default class GenerateTaskUIList extends Component{
                 if (noOfChildren> 0) {
                     hasChildren=true
                 }
-    
-                var collapsed=this.state.collapsed[key].collapsed
+                if(this.state.collapsed!=undefined && this.state.collapsed[key]!=undefined)
+                {
+                    var  collapsed=this.state.collapsed[key].collapsed
+                }else{
+                    var collapsed=false
+                }
+
                 listitem=(
                 <div key={key}  style={{marginTop: marginTop}}> <TaskUI scheduleItem={this.props.scheduleItem} id={key} key={key} collapseButtonClicked={this.collapseButtonClicked} collapsed={collapsed} hasChildren={hasChildren} unparsedData={todoList[2]} data={todoList[1][key].todo} todoList={todoList} fetchEvents={this.props.fetchEvents}  title={todoList[1][key].todo.summary} dueDate={dueDate} dueDateinWords="Words" level={level} priority={todoList[1][key].todo.priority} listColor={listColor} completion={todoList[1][key].todo.completion} labels={todoList[1][key].todo.category}/>
                     </div>
                 )
                 tempToReturn.push(listitem)
                 if (list[i].length> 2) {
-                    if(this.state.collapsed[key].collapsed==false)
+                    if(collapsed==false)
                     {
         
-                        listitem=( <GenerateTaskUIList scheduleItem={this.props.scheduleItem} collpased={this.state.collapsed} key={"LIST_"+key} fetchEvents={this.props.fetchEvents} list={list[i][2]} todoList={todoList} level={level} context={context} listColor={listColor} />)
+                        listitem=( <GenerateTaskUIList showDone={this.state.showDone}collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.state.collapsed} scheduleItem={this.props.scheduleItem} collpased={this.state.collapsed} key={"LIST_"+key} fetchEvents={this.props.fetchEvents} list={list[i][2]} todoList={todoList} level={level} context={context} listColor={listColor} />)
                         tempToReturn.push(listitem)
             
                     }
@@ -151,15 +220,22 @@ export default class GenerateTaskUIList extends Component{
             }
     
         }
-        if (toReturn != []) {
+
+        if (toReturn != [] && toReturn.length>0) {
             
-            return (<div key={getRandomString(5)} style={{marginBottom: 5}}>
+            return( <div key={getRandomString(5)} style={{marginBottom: 5}}>
     
                 {toReturn}
     
-            </div>)
+            </div>) 
     
+        }else{
+            return(<div style={{margin: 20}}>{this.i18next.t("NOTHING_TO_SHOW")}</div>)
         }
-    
+
+    }
+    render(){
+        var output = this.getTaskstoRender()
+        return(output)
     }
 }

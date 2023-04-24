@@ -4,7 +4,7 @@ import { getConnectionVar } from "@/helpers/api/db"
 import { getICS } from "@/helpers/api/ical"
 import { FINAL_TABLES, getInstallDateFromDB, getListofTables, installTables, isInstalled } from "@/helpers/api/install"
 import { middleWareForAuthorisation } from "@/helpers/api/user"
-import { varNotEmpty } from "@/helpers/general"
+import { logVar, varNotEmpty } from "@/helpers/general"
 import moment from "moment"
 
 export default async function handler(req, res) {
@@ -39,10 +39,13 @@ export default async function handler(req, res) {
                         var found =false
                         for(const i in listTbls)
                         {
-                            
-                            if(listTbls[i]["Tables_in_local_mmdm"]==FINAL_TABLES[k])
+                            for (const m in listTbls[i])
                             {
-                                found=true
+                                if(listTbls[i][m]==FINAL_TABLES[k])
+                                {
+                                    found=true
+                                }
+    
                             }
         
                         }
@@ -52,6 +55,7 @@ export default async function handler(req, res) {
                         }
         
                     }
+                    logVar(toInstall, "Tables to Install>>")
                     var finalReponse = []
                     if(toInstall.length>0)
                     {

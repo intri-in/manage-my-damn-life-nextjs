@@ -11,11 +11,11 @@ import moment from "moment"
 import { Loading } from "@/components/common/Loading"
 import { getLabelsFromServer } from "@/helpers/frontend/labels"
 import { isValid } from "js-base64"
-import { isValidResultArray } from "@/helpers/general"
+import { isValidResultArray, varNotEmpty } from "@/helpers/general"
 import { Toastify } from "@/components/Generic"
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
-import { checkifFilterValid, makeFilterEditRequest, saveFiltertoServer } from "@/helpers/frontend/filters"
+import { checkifFilterValid, filterDueIsValid, getFilterReadytoPost, makeFilterEditRequest, saveFiltertoServer } from "@/helpers/frontend/filters"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { filtertoWords } from "@/helpers/frontend/filters"
 class AddFilters extends Component {
@@ -25,7 +25,7 @@ class AddFilters extends Component {
         super(props)
         this.i18next = getI18nObject()
 
-        this.state={output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom:null, dueDateBefore: null, selectedFilters: {logic : "OR", filter: {due: ["", ""], label:[], priority:""}}, filterResultinWords:"", filterbyLabelChecked:false, labelNamesChecklist: <Loading /> ,filterbyPriority : false, priorityValue: "", filternameInvalid: false, filterName:"", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList : {}, labelList: [] }
+        this.state={output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom:null, dueDateBefore: null, selectedFilters: {logic : "and", filter: {due: ["", ""], label:[], priority:""}}, filterResultinWords:"", filterbyLabelChecked:false, labelNamesChecklist: <Loading /> ,filterbyPriority : false, priorityValue: "", filternameInvalid: false, filterName:"", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList : {}, labelList: [] }
         this.filterbyDueChanged = this.filterbyDueChanged.bind(this)
         this.dueFromDateChanged = this.dueFromDateChanged.bind(this)
         this.dueBeforeDateChanged = this.dueBeforeDateChanged.bind(this)
@@ -59,36 +59,46 @@ class AddFilters extends Component {
             //Now we need to process the incoming filter.
             if(this.props.filter!=null && this.props.filter!=undefined){
                 var newFilter = this.props.filter
-                
-                if(this.props.filter.filter.due!=null && this.props.filter.filter.due!=undefined &&  Array.isArray(this.props.filter.filter.due) )
-                {
-                  newFilter.filter.due[0]=new Date(this.props.filter.filter.due[0])
-                  newFilter.filter.due[1]=new Date(this.props.filter.filter.due[1])
-
-                }
-
-                this.setState({selectedFilters: newFilter})
-
-                
-                if(this.props.filter.filter.due!=null && this.props.filter.filter.due!=undefined &&  Array.isArray(this.props.filter.filter.due) )
+                console.log("Incoming filter props", JSON.stringify(newFilter))
+                if(filterDueIsValid(this.props.filter.filter.due) )
                 {
                     //Filter has a due filter.
+
+                    newFilter.filter.due[0]=new Date(this.props.filter.filter.due[0])
+                    newFilter.filter.due[1]=new Date(this.props.filter.filter.due[1])
                     var dueFrom = new Date(this.props.filter.filter.due[0])
                     
                     var dueBefore= new Date(this.props.filter.filter.due[1])
                     this.setState({filterbyDueChecked: true, dueDateFrom: dueFrom, dueDateBefore: dueBefore})
+
+                }else{
+                    newFilter.filter.due=[]
                 }
 
-                if(this.props.filter.filter.label!=null && this.props.filter.filter.label!=undefined )
+               
+                if(varNotEmpty(this.props.filter.filter.label)==false)
+                {
+                  
+                }
+
+                
+               
+
+                if(this.props.filter.filter.label!=null && this.props.filter.filter.label!=undefined && Array.isArray(this.props.filter.filter.label) && this.props.filter.filter.label.length>0 )
                 {
                     
                     this.setState({filterbyLabelChecked: true,  })
 
+                }else{
+                    newFilter.filter.label=[]
                 }
 
-                if(this.props.filter.filter.priority!=null && this.props.filter.filter.priority!=undefined )
+                if(this.props.filter.filter.priority!=null && this.props.filter.filter.priority!=undefined && this.props.filter.filter.priority!="")
                 {
                     this.setState({filterbyPriority: true, priorityValue: this.props.filter.filter.priority})
+
+                }else{
+                    newFilter.filter.priority=""
 
                 }
 
@@ -97,8 +107,9 @@ class AddFilters extends Component {
                     this.setState({filterLogic:  this.props.filter.logic})
 
                 }
+                
 
-                this.setState({filterResultinWords: filtertoWords(this.props.filter)})
+                this.setState({selectedFilters:newFilter})
 
             }
     
@@ -235,12 +246,30 @@ class AddFilters extends Component {
 
     filterbyDueChanged(e)
     {
-        this.setState({filterbyDueChecked: e.target.checked,filterResultinWords: this.getFilterResult() })
+        var filter= this.state.selectedFilters
+        if(e.target.checked==false)
+        {
+                //remove due array values
+                filter.filter.due[0]=""
+                filter.filter.due[1]=""
+        }
+        this.setState({filterbyDueChecked: e.target.checked,filterResultinWords: this.getFilterResult(),selectedFilters:filter, dueDateBefore:"", dueDateFrom:"" })
     }
 
     filterbyPriorityCheckboxChanged(e)
     {
-        this.setState({filterbyPriority: e.target.checked,filterResultinWords: this.getFilterResult() })
+        this.setState(function(previousState, currentProps) {
+            var newFilters= previousState.selectedFilters
+
+            if(e.target.checked==false)
+            {
+                newFilters.filter["priority"]=""
+    
+            }
+            return({filterbyPriority: e.target.checked,filterResultinWords: this.getFilterResult(), selectedFilters: newFilters })
+
+        })
+        
 
     }
     priorityMinimumSelected(e)
@@ -396,7 +425,7 @@ class AddFilters extends Component {
     }
     async submitFilterToServer(){
 
-        console.log(this.state.selectedFilters)
+        
 
     
       if(this.state.filterName!="" && this.state.filterName!=null)
@@ -405,20 +434,22 @@ class AddFilters extends Component {
 
         // Name is valid. Proceed to submit.
         //Check if user has selected anything.
-        if(checkifFilterValid(this.state.selectedFilters)==true)
+        //console.log(this.state.selectedFilters)
+
+        if(checkifFilterValid(this.state.selectedFilters)==true )
         {
             if(this.props.filterid!=null && this.props.filterid!=undefined && this.props.filterid!="" && this.props.mode=="edit"    )
             {
                 // Edit mode. Send an edit request.
 
-                var response = await makeFilterEditRequest(this.props.filterid, this.state.filterName, this.state.selectedFilters)
+                var response = await makeFilterEditRequest(this.props.filterid, this.state.filterName, getFilterReadytoPost(this.state.selectedFilters))
 
 
             }
             else
             {
                 // New filter. Make an add request.
-                var response = await saveFiltertoServer(this.state.filterName, this.state.selectedFilters)
+                var response = await saveFiltertoServer(this.state.filterName, getFilterReadytoPost(this.state.selectedFilters))
 
             }
     
@@ -511,6 +542,7 @@ class AddFilters extends Component {
             <Button variant="secondary" onClick={()=>this.props.onAdd(false)} >{this.i18next.t("BACK")}</Button>
             </Col><Col><Button onClick={this.submitFilterToServer} >{this.i18next.t("SAVE")}</Button></Col></Row>)
 
+        var filterResultinWords=filtertoWords(this.state.selectedFilters)
         return (
             <>
 
@@ -557,7 +589,7 @@ class AddFilters extends Component {
                 <br />
                 {filterbyPriorityForm}
                 <br />
-                <Alert variant="info"><b>{this.i18next.t("FILTER_RESULT")}</b> {this.i18next.t("FILTER_RESULT_DESC")} <br/ > <br/ > {this.state.filterResultinWords}</Alert>
+                <Alert variant="info"><b>{this.i18next.t("FILTER_RESULT")}</b> {this.i18next.t("FILTER_RESULT_DESC")} <br/ > <br/ > {filterResultinWords}</Alert>
 
 
                 {submitButton}

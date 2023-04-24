@@ -1,4 +1,4 @@
-import { isValidResultArray, varNotEmpty } from "../general"
+import { isValidResultArray, logError, varNotEmpty } from "../general"
 import { arrangeTodoListbyHierarchy, getParsedTodoList, getUnparsedEventData, returnGetParsedVTODO } from "./calendar"
 import { dueDatetoUnixStamp, getI18nObject, ISODatetoHuman, ISODatetoHumanISO } from "./general"
 import ical from '@/../ical/ical'
@@ -216,7 +216,15 @@ function filterbyPriority(priorityFilter, priority)
 
 export function getParsedEvent(data)
 {
-    var data= ical.parseICS(data)
+    var data=null
+    try{
+        data= ical.parseICS(data)
+
+    }catch(e)
+    {
+        logError(e, data)
+
+    }
 
     if(data!=null )
     {

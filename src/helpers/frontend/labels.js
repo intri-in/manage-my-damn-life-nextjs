@@ -1,8 +1,9 @@
 import { MYDAY_LABEL } from '@/config/constants';
-import { isValidObject } from '../general';
+import { isValidObject, isValidResultArray } from '../general';
 import { getUserDB } from './db';
 import { objectArrayHasKey, getRandomColourCode} from './general';
 import { getAuthenticationHeadersforUser } from './user';
+import { getLabelArrayFromCookie, saveLabelArrayToCookie } from './settings';
 
 export async function saveLabeltoDB(label)
 {
@@ -84,7 +85,7 @@ export async function getLabelsFromServer()
             if(body!=null && body.data.message!=null)
             {
                 var labels= body.data.message
-
+                saveLabelArrayToCookie(labels)
                 resolve (labels)
             }
             else
@@ -184,5 +185,23 @@ export function removeMyDayLabelFromArray(categoryArray)
 
     return newArray
 
+
+}
+
+export function labelIndexInCookie(labelName)
+{
+    var labelArrayFromCookie = getLabelArrayFromCookie()
+
+    if(isValidResultArray(labelArrayFromCookie))
+    {
+        for(const i in labelArrayFromCookie)
+        {
+            if(labelArrayFromCookie[i].name==labelName)
+            {
+                return i
+            }
+        }
+    }
+    return -1
 
 }

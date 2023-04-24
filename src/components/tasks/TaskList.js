@@ -10,13 +10,14 @@ import { saveLabeltoDB } from '@/helpers/frontend/labels';
 import { getEvents } from '@/helpers/frontend/events';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { withRouter } from 'next/router';
+import { Loading } from '../common/Loading';
  class TaskList extends Component {
     constructor(props) {
         super(props)
         var i18next = getI18nObject()
         this.i18next = i18next
         this.refreshCalendars = this.refreshCalendars.bind(this)
-        this.state = { i18next: i18next, toast_placeholder: null, taskList: null, caldav_accounts_id: this.props.caldav_accounts_id, calendars_id: this.props.calendars_id, taskListName: "", taskListColor: '', view:props.view }
+        this.state = { i18next: i18next, toast_placeholder: null, taskList: <div style={{margin:20}}><Loading centered={true} /></div>, caldav_accounts_id: this.props.caldav_accounts_id, calendars_id: this.props.calendars_id, taskListName: "", taskListColor: '', view:props.view }
         this.renderTaskListUI = this.renderTaskListUI.bind(this)
         this.asyncSaveLabelstoDB = this.asyncSaveLabelstoDB.bind(this)
         this.getCalendarName = this.getCalendarName.bind(this)
@@ -60,7 +61,7 @@ import { withRouter } from 'next/router';
     async getAllTodosfromServer() {
         var responseFromServer = await getAllEvents("todo")
         var output = []
-        output.push(<h3 key={this.props.title} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.props.title}</h3>)
+        output.push(<h2 key={this.props.title} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.props.title}</h2>)
         var combinedTodoList = [{}, {}, {}, {}]
         if (responseFromServer != null && responseFromServer.success == true && responseFromServer.data.message != null) {
             for (const i in responseFromServer.data.message) {
@@ -72,7 +73,7 @@ import { withRouter } from 'next/router';
                 if (todoListSorted[0]!=null && Object.keys(todoListSorted[0]).length>0) {
                     if(this.props.view=="tasklist")
                     {
-                        output.push(<div key={taskListName}><h4  autoFocus style={{ paddingTop: 10, paddingBottom: 10,  }}>{taskListName}</h4><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoListSorted} context={this} filter={this.props.filter} view={this.props.view} listName={taskListName} listColor={responseFromServer.data.message[i].info.color} /></div>)
+                        output.push(<div key={taskListName}><h4  autoFocus style={{ paddingTop: 30,  }}>{taskListName}</h4><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoListSorted} context={this} filter={this.props.filter} view={this.props.view} listName={taskListName} listColor={responseFromServer.data.message[i].info.color} /></div>)
 
                     }else{
                         for(const k in todoListSorted[0])
@@ -141,6 +142,12 @@ import { withRouter } from 'next/router';
         {
         output.push(<TaskView fetchEvents={this.props.fetchEvents} todoList={combinedTodoList} context={this} filter={this.props.filter} view={this.props.view} listName={""}  />)
         }
+        if(output.length==1)
+        {
+            output=[]
+            output.push(<h2 key={this.props.title} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.props.title}</h2>)
+            output.push(<div style={{margin: 20}}>{this.i18next.t("NOTHING_TO_SHOW")}</div>)
+        }
         this.setState({ taskList: output })
 
 
@@ -197,7 +204,7 @@ import { withRouter } from 'next/router';
         })
 
         */
-        this.setState({taskList: (<> <h4 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h4><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
+        this.setState({taskList: (<> <h2 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
 
     }
 
@@ -210,6 +217,7 @@ import { withRouter } from 'next/router';
 
             if (response.success == true) {
                 const todoList = await getEvents(response.data.message, this.props.filter)
+                console.log("todoList.length", todoList.length)
                 if (todoList != null && Array.isArray(todoList) && todoList.length > 0) {
                     this.renderTaskListUI(todoList)
                 }
