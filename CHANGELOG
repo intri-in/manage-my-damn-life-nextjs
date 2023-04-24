@@ -1,0 +1,5 @@
+- Fixed bug with filters not working properly as intended, and bugs with editing/adding filters.
+- Now marking task as done should work better.
+- If no tasks are rendered, a message is displayed.
+- Minor UI fixes
+- Ability to view done tasks

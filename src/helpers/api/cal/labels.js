@@ -1,5 +1,5 @@
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
-import { getRandomColourCode, isValidResultArray } from "@/helpers/general";
+import { getRandomColourCode, isValidResultArray, logVar } from "@/helpers/general";
 import { getConnectionVar } from "../db";
 import { getAllCalendarEvents } from "./caldav";
 import { majorTaskFilter } from "@/helpers/frontend/events";
@@ -91,7 +91,7 @@ export async function updateLabels(userid)
         }
 
     }
-    console.log(newLabelList)
+    logVar(newLabelList)
     // Now we have the new list of Labels. We delete the extra ones.
     allLabelsInDB= await getAllLablesFromDB(userid) //Refresh List
     var toDelete = []

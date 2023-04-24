@@ -1,23 +1,26 @@
 import { Component } from "react";
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from "@/config/style"
 import { t } from "i18next";
 import { applyTaskFilter } from "@/helpers/frontend/events";
 import GenerateTaskUIList from "./GenerateTaskUIList";
 import { MdCancel } from "react-icons/md";
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
+import { getI18nObject } from "@/helpers/frontend/general";
 export class TaskWithFilters extends Component{
     constructor(props)
     {
         super(props)
-        this.state ={list: this.props.list, isFiltered: false, taskList: null}
+        this.i18next= getI18nObject()
+        this.state ={list: this.props.list, isFiltered: false, taskList: null, showAllChecked:false}
         this.getLabels = this.getLabels.bind(this)
         this.childlessList
         this.filterByLabelClicked = this.filterByLabelClicked.bind(this)
         this.recursivelyFilterTask = this.recursivelyFilterTask.bind(this)
         this.removeFilter = this.removeFilter.bind(this)
         this.setLabelMenu = this.setLabelMenu.bind(this)
+        this.showAllChanged= this.showAllChanged.bind(this)
     }
 
     componentDidMount(){
@@ -30,10 +33,15 @@ export class TaskWithFilters extends Component{
      
     }
 
+    showAllChanged(e)
+    {
+      
+      this.setState({showAllChecked: e.target.checked})
+    }
     setLabelMenu()
     {
       var labelList = this.getLabels(this.props.list, [])
-      if(Array.isArray(labelList))
+      if(Array.isArray(labelList) && labelList.length>0)
       {
         var outputArray=[]
         for (const i in labelList)
@@ -167,10 +175,22 @@ export class TaskWithFilters extends Component{
       return(
       <>
     
-        {this.state.labelMenu}
+        <Row>
+          <Col>
+          {this.state.labelMenu}
+          </Col>
+          <Col>
+              <Form.Check 
+            type="switch"
+            checked={this.state.showAllChecked}
+            onChange={this.showAllChanged}
+            label={this.i18next.t("SHOW_DONE_TASKS")}
+          />          
+          </Col>
+        </Row>
       
       {this.state.appliedFilters}
-      <GenerateTaskUIList fetchEvents={this.props.fetchEvents} list={this.state.list} todoList={this.props.todoList} level={-1} context={this.props.context} listColor={this.props.listColor}  />      </>
+      <GenerateTaskUIList showDone={this.state.showAllChecked} collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.props.collapsed} fetchEvents={this.props.fetchEvents} list={this.state.list} todoList={this.props.todoList} level={-1} context={this.props.context} listColor={this.props.listColor}  />      </>
         )
     }
 }

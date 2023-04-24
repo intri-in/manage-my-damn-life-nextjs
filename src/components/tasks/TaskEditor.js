@@ -547,6 +547,10 @@ export default class TaskEditor extends Component {
                     onDeleteOK={this.deleteTheTaskFromServer}
 
                 />
+                <br />
+                <br />
+                <br />
+                <br />
 
             </div>
 

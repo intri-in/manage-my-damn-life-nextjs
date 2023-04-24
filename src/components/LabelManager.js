@@ -11,6 +11,7 @@ import reactCSS from 'reactcss'
 import { toast } from "react-toastify";
 import { Toastify, nothingToShow } from "./Generic";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+import { saveLabelArrayToCookie } from "@/helpers/frontend/settings";
 class LabelManager extends Component{
     constructor(props)
     {
@@ -133,7 +134,6 @@ class LabelManager extends Component{
             return response.json()
         } )
         .then((body) =>{
-            console.log(body)
             if(body!=null && body.success!=null)
             {
                 if(body.success.toString()=="true")
@@ -141,7 +141,8 @@ class LabelManager extends Component{
                     //Save the events to db.
                     var labels= body.data.message
                     if(labels!=null)
-                    {
+                    {   
+                        saveLabelArrayToCookie(labels)
                         this.setState({labels: labels})
                         var displayColorPicker ={}
                         var color ={}

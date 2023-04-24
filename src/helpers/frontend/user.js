@@ -20,6 +20,8 @@ export function logoutUser()
     // Just deleted the cookies. 
     Cookies.remove("USERHASH")
     Cookies.remove("SSID")
+    Cookies.remove("USER_DATA_LABELS")
+    Cookies.remove("USER_SETTING_SYNCTIMEOUT")
 }
 export function getUserDataFromCookies() {
     return ({

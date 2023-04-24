@@ -113,4 +113,37 @@ export function isNumber(value) {
     }
 }
 
+export function logError(error, additionalDetails)
+{
+    if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
+    {
+        console.log("=====================")
+        console.log(error)
+        console.log(additionalDetails)
+        console.log("=====================")
+    
+    }
+
+}
+
+export function logVar(variable,tag)
+{
+    if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
+    {
+        console.log("=====================")
+        if(varNotEmpty(tag)) console.log(tag)
+        if(varNotEmpty(variable)) console.log(variable)
+        console.log("=====================")
+    
+    }
+}
+export function debugging()
+{
+    if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
+    {
+        return true
+    }else{
+        return false
+    }
+}
 

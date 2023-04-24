@@ -2,10 +2,10 @@ import { dueDatetoUnixStamp, getI18nObject, timeDifferencefromNowinWords } from 
 import { Component } from "react";
 import {AiOutlineStar, AiFillStar} from 'react-icons/ai'
 import {FcCollapse, FcExpand} from 'react-icons/fc'
-import { categoryArrayHasMyDayLabel, getLabelColourFromDB, getLabelsFromServer, removeMyDayLabelFromArray, saveLabeltoDB } from "@/helpers/frontend/labels";
+import { categoryArrayHasMyDayLabel, getLabelColourFromDB, getLabelsFromServer,  labelIndexInCookie, removeMyDayLabelFromArray, saveLabeltoDB } from "@/helpers/frontend/labels";
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { Badge, Col, Row } from "react-bootstrap";
-import { isValidResultArray } from "@/helpers/general";
+import { debugging, isValidResultArray, varNotEmpty } from "@/helpers/general";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import TaskEditor from "./TaskEditor";
 import Modal from 'react-bootstrap/Modal';
@@ -17,6 +17,7 @@ import { RightclickContextMenu } from "./RightclickContextMenu";
 import { MYDAY_LABEL } from "@/config/constants";
 import Draggable from 'react-draggable'; 
 import { updateTodo } from "@/helpers/frontend/tasks";
+import { getLabelArrayFromCookie, saveLabelArrayToCookie } from "@/helpers/frontend/settings";
 
 export default class TaskUI extends Component{
 
@@ -26,14 +27,19 @@ export default class TaskUI extends Component{
         super(props)
         if(this.props.data!=null)
         {
-            var data= this.props.data
+            var data= JSON.parse(JSON.stringify(this.props.data))
         }
         else{
             data={}
         }
-        
+        var taskChecked=false
+        if((varNotEmpty(props.data.completed) && props.data.completed!="") || (varNotEmpty(props.data.status) && props.data.status=="COMPLETED"))
+        {
+            taskChecked=true
+        }
+        data.taskDone=taskChecked
         this.i18next = getI18nObject()
-        this.state={labelColours: {}, labelArray: [], labelNames: [], showTaskEditor:false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false,showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder:null, showSubtaskEditor: false, subtaskData:{}, collapseButton: "", isCollapsed:this.props.collapsed}
+        this.state={labelColours: {}, labelArray: [], labelNames: [], showTaskEditor:false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false,showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder:null, showSubtaskEditor: false, subtaskData:{}, collapseButton: "", isCollapsed:props.collapsed, taskChecked:taskChecked}
         this.taskClicked= this.taskClicked.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
@@ -53,8 +59,7 @@ export default class TaskUI extends Component{
     }
 
     componentDidMount(){
-        this.getLabelsInfoFromServer()
-
+        this.generateInitialLabelList()
         if(this.props.todoList!=null && this.props.data.relatedto!=null && this.props.data.relatedto!=""&&this.props.level==0)
         {
             var parentID= this.props.data.relatedto
@@ -83,20 +88,20 @@ export default class TaskUI extends Component{
     }
     collapseButtonClicked(e)
     {
-        this.setState(function(previousState, currentProps) {
 
+        this.setState(function(previousState, currentProps) {
             return({
                 isCollapsed: !previousState.isCollapsed
             })
         })
-
         this.props.collapseButtonClicked(e.target.id)
+
 
     }
     componentDidUpdate(prevProps, prevState) {
 
         if (this.props.collapsed !== prevProps.collapsed) {
-          console.log("this.props.isCollapsed", this.props.isCollapsed)
+          if(debugging()) console.log("this.props.`isCollapsed`", this.props.isCollapsed)
             if(this.props.isCollapsed==true)
             {
                 this.setState({collapseButton: <FcExpand value={this.props.data.uid} key={this.props.data.uid} id={this.props.data.uid} onClick={this.collapseButtonClicked}/>})
@@ -143,7 +148,7 @@ export default class TaskUI extends Component{
                 //this.setState({data: newDataArray, showTaskEditor: true, })
                 var body = await updateTodo(this.state.data.calendar_id, this.state.data.url, this.state.data.etag, newDataArray)
                 this.onTaskSubmittoServer(body)
-                console.log(newDataArray)
+                //console.log(newDataArray)
 
 
             }
@@ -157,7 +162,7 @@ export default class TaskUI extends Component{
         {
             newDataArray.categories=[]
             newDataArray.categories.push(MYDAY_LABEL)
-            console.log(newDataArray)
+            //console.log(newDataArray)
 
             //this.setState({data: newDataArray, showTaskEditor: true, })
             var body = await updateTodo(this.state.data.calendar_id, this.state.data.url, this.state.data.etag, newDataArray)
@@ -201,11 +206,22 @@ export default class TaskUI extends Component{
     }
     checkBoxClicked()
     {
-        this.setState(function(previousState, currentProps) {
-            var newData= previousState.data
-            newData.taskDone=true
+              
+        
+            this.setState(function(previousState, currentProps) {
+
+            var newData= JSON.parse(JSON.stringify(previousState.data))
+            
+            var taskChecked=false
+            if(varNotEmpty(currentProps.data.completed) && currentProps.data.completed!="" || (varNotEmpty(currentProps.data.status) && currentProps.data.status=="COMPLETED"))
+            {
+                taskChecked=true
+            }  
+            newData.taskDone=!taskChecked
             return {
-                data: newData
+                data: newData,
+                taskChecked: !previousState.taskChecked,
+                taskDataChanged:true
               };
             }
         )
@@ -215,9 +231,10 @@ export default class TaskUI extends Component{
     }
     taskEditorClosed(){
         this.clearCheckMarkState()
+    
         if(this.state.taskDataChanged==false)
         {
-            this.setState({showTaskEditor: false, taskEditor: null, taskChecked: false})
+            this.setState({showTaskEditor: false, taskEditor: null, })
 
         }
         else
@@ -234,7 +251,7 @@ export default class TaskUI extends Component{
     }
     taskEditModalDiscardChanges(){
         this.clearCheckMarkState()
-        this.setState({showTaskEditModal: false, showTaskEditor:false, taskChecked: false})
+        this.setState({showTaskEditModal: false, showTaskEditor:false, })
         /*this.setState(function(previousState, currentProps) {
             return(
             {
@@ -291,15 +308,70 @@ export default class TaskUI extends Component{
     }
     clearCheckMarkState()
     {
-      
+        
+        
+
         this.setState(function(previousState, currentProps) {
+            var taskChecked=false
+
             var newData= previousState.data
-            newData.taskDone=false
+            if(varNotEmpty(currentProps.data.completed) && currentProps.data.completed!="" || (varNotEmpty(currentProps.data.status) && currentProps.data.status=="COMPLETED"))
+            {
+                taskChecked=true
+            }  
+            newData.taskDone=taskChecked
+
+           // console.log(currentProps.data)
+
             return({
                 data: newData,
-                taskChecked: false
+                taskChecked: taskChecked
             })
         })
+  
+
+    }
+    generateInitialLabelList()
+    {
+        var labelArray=[]
+        var labelColour="black"
+        var labelArrayFromCookie = getLabelArrayFromCookie()
+        if(varNotEmpty(this.props.labels) && isValidResultArray(this.props.labels))
+        {
+            
+                if(isValidResultArray(labelArrayFromCookie))
+                {
+                    var notFound =0
+                    for(const i in this.props.labels)
+                    {
+                        labelColour="black"
+                        var labelIndex =  labelIndexInCookie(this.props.labels[i])
+                        if(labelIndex!=-1)
+                        {
+                            labelColour=labelArrayFromCookie[labelIndex].colour
+                            //console.log(labelColour)
+                        }else{
+                            //console.log("notfound:", this.props.labels[i])
+                            notFound +=1
+                        }
+                        labelArray.push(<span key={"labels"+i} className="badge rounded-pill textDefault" style={{marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white"}}>{this.props.labels[i]}</span>)
+                    }
+
+                    if(notFound>0)
+                    {
+                        this.getLabelsInfoFromServer()
+
+                    }
+                    this.setState({labelArray: labelArray, labelNames: this.props.labels})
+
+                }else{
+                    this.getLabelsInfoFromServer()
+
+                }
+            
+
+        }
+
 
     }
     async getLabelsInfoFromServer()
@@ -415,7 +487,7 @@ export default class TaskUI extends Component{
                 <div  style={{marginLeft: marginLevel, marginRight: 20, }}>
                     <div style={{border: '1px solid  gray', borderLeft:borderLeft , borderRadius: 20, padding: 5, justifyContent: 'center', display: 'flex', lineHeight: '12px',}} className="row">
                         <div style={{justifyContent: 'center', display: 'flex',}} className="col-1">
-                            <input onChange={this.checkBoxClicked} className="" type="checkbox" checked={this.state.taskChecked} aria-label="Checkbox for following text input" />
+                            <input onChange={this.checkBoxClicked} className="" type="checkbox" checked={this.state.taskChecked}  />
                         </div>
                         <div onClick={this.taskClicked} style={{justifyContent: 'center', alignItems:'center', verticalAlign: 'middle',  padding: 0 }} className="col-8">
                             <div className="row">

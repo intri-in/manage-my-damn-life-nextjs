@@ -180,6 +180,12 @@ class TaskViewList extends Component {
               {expandColButton}
               <TaskViewOptions changeView={this.taskViewChanged} />
               <TaskList view={this.state.taskView} fetchEvents={this.onSynComplete} updated={this.state.updated} router={this.props.router} title={this.state.title} filter={this.state.filter} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
+
+              <br />
+                <br />
+                <br />
+                <br />
+
             </Col>
           </div>
           <Offcanvas placement='start' show={this.state.showLeftColumnOffcanvas} onHide={this.handleCloseOffcanvas}>

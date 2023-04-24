@@ -2,7 +2,7 @@ import { checkifUserisInDB, startLoginRequest } from '@/helpers/api/user';
 import validator from 'validator';
 //import { checkifUserisInDB, startLoginRequest } from '@/helpers/user';
 export default async function handler(req, res) {
-    console.log("req.body.username", req.body.username, "req.body.password", req.body.password)
+   // console.log("req.body.username", req.body.username, "req.body.password", req.body.password)
     if (req.method === 'POST') {
         if(req.body.username!=null)
         {

@@ -6,6 +6,7 @@ import { getRandomString } from '@/helpers/crypto';
 import { syncEventsWithCaldlav } from './object';
 import { AES } from 'crypto-js';
 import CryptoJS from "crypto-js"
+import { logError } from '@/helpers/general';
 
 /**
  * 
@@ -162,10 +163,16 @@ export async function getAllCalendarEvents()
 
 export function checkifObjectisVTODO(data)
 {
-    const ical = require('ical');
-    const  parsedData = ical.parseICS(data);
-    for (let k in parsedData) {
-        return parsedData[k].type
+    try{
+        const ical = require('ical');
+        const  parsedData = ical.parseICS(data);
+        for (let k in parsedData) {
+            return parsedData[k].type
+        }
+    
+    }catch(e){
+        logError(e, data)
+        return ""
     }
     
 }

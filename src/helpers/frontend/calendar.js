@@ -1,7 +1,7 @@
 import { getcalendarDB } from "./db";
 import ical from '@/../ical/ical'
 import { getAuthenticationHeadersforUser } from "./user";
-import { isValidObject, isValidResultArray } from "../general";
+import { isValidObject, isValidResultArray, logError } from "../general";
 import { majorTaskFilter } from "./events";
 
 export async function getCaldavAccountsfromServer()
@@ -216,9 +216,17 @@ export async function saveEventstoDB(data, caldav_accounts_id, calendar_id)
 
 export function returnEventType(data)
 {
-    const  parsedData = ical.parseICS(data);
-    for (let k in parsedData) {
-        return parsedData[k].type
+    try{
+        const  parsedData = ical.parseICS(data);
+        for (let k in parsedData) {
+            return parsedData[k].type
+        }
+    
+    }
+    catch(e)
+    {
+        logError(e, data)
+        return ""
     }
     
 }

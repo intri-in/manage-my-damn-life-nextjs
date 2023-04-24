@@ -9,29 +9,67 @@ import Collapse from 'react-bootstrap/Collapse';
 import { TaskWithFilters } from './TaskWithFilters';
 import GenerateTaskUIList from './GenerateTaskUIList';
 import GanttView from './GanttView';
+import { toast } from 'react-toastify';
 export function TaskView(props)
 {
     var sortedList = sortTaskListbyDue(props.todoList[0],props.todoList)
     var view=props.view
-
     if(props.view==undefined || props.view=="" || props.view==null)
     {
         view ="tasklist"
     }
-   // const output_list = recursivelyGetListItemforTask(sortedList, props.todoList, -1, props.context, props.filter, props.listColor )
+    var newCollapsed ={}
+    for (const i in props.todoList[1]) {
+        newCollapsed[i]={collapsed: false}
+    }
+
+    const [collapsedArray, setCollapse] = React.useState(newCollapsed)
+
+    const collapseButtonClicked = (id, )=>{
+       
+        var updatedCollapsed ={}
+        for (const i in collapsedArray)
+        {
+            if(i==id)
+            {
+                updatedCollapsed[i]={collapsed: !collapsedArray[i].collapsed}
+            }else{
+                updatedCollapsed[i]=collapsedArray[i]
+            }
+        }
+        setCollapse(updatedCollapsed)
+        /*
+        setCollapse((previous) =>{
+            var updatedCollapsed ={}
+            for (const i in previous)
+            {
+                if(i==id)
+                {
+                    updatedCollapsed[i]={collapsed: !previous[i].collapsed}
+                }else{
+                    updatedCollapsed[i]=previous[i]
+                }
+            }
+            return updatedCollapsed
+    
+        }
+        )
+        */
+    }
+   
    if(view=="tasklist")
    {
     if(props.filter!=null && props.filter!={} && Object.keys(props.filter).length>0)
     {
      var output_list=(
         
-        <GenerateTaskUIList scheduleItem={props.scheduleItem} fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context} listColor={props.listColor}  />)
+        <GenerateTaskUIList collapseButtonClicked={collapseButtonClicked} collapsed={collapsedArray} key="1" scheduleItem={props.scheduleItem} fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context} listColor={props.listColor}  />)
      
     } 
     else
     {
      var output_list=(
-         <><TaskWithFilters fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context}  listColor={props.listColor} />
+         <><TaskWithFilters collapseButtonClicked={collapseButtonClicked} collapsed={collapsedArray} fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context}  listColor={props.listColor} />
        </>)
  
     }
@@ -63,8 +101,8 @@ export function RecursivelyGetListItemforTask(props) {
         {
             continue;
         }
-    if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
-       {
+    //if((todoList[1][key].todo.completed==null || todoList[1][key].todo.completed=="")&& todoList[1][key].todo.completion!="100"&&todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == ""))
+      if(1==1) {
             var listitem = null
             var pl = 4 * level
             var tempToReturn = []
