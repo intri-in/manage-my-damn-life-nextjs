@@ -3,7 +3,7 @@ import { getParsedEvent } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { haystackHasNeedle, isValidResultArray } from "@/helpers/general";
+import { getAPIURL, haystackHasNeedle, isValidResultArray } from "@/helpers/general";
 import { Component } from "react"
 import { Button, Col, Row } from "react-bootstrap"
 import Form from 'react-bootstrap/Form';
@@ -38,7 +38,7 @@ export default class ParentTaskSearch extends Component{
         if(searchTerm!=null && searchTerm.trim()!="")
         {
         // Make search Request to server.
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"events/search?calendar_id="+this.props.calendar_id+"&&type=VTODO&&search_term="+searchTerm.trim()
+        const url_api=getAPIURL()+"events/search?calendar_id="+this.props.calendar_id+"&&type=VTODO&&search_term="+searchTerm.trim()
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =
@@ -58,13 +58,18 @@ export default class ParentTaskSearch extends Component{
                     var results = body.data.message
                     if(isValidResultArray(results))
                     {
-                        console.log("results.length", results.length)
+                        //console.log("results.length", results.length)
                         for (const i in results)
                         {
                             var parsedToDo = returnGetParsedVTODO(results[i].data)
-                            console.log(parsedToDo.summary)
-                            finalOutput.push(
-                                (<ListGroup.Item action key={parsedToDo.uid} style={{padding: 10}} onClick={() => this.parentTaskClicked(parsedToDo.uid)}>{parsedToDo.summary}</ListGroup.Item>) )
+
+                            if(parsedToDo.uid!=this.props.currentID)
+                            {
+                                //We only show the result if it isn't the same as the task currently being edited.
+                               
+                                finalOutput.push(
+                                    (<ListGroup.Item action key={parsedToDo.uid} style={{padding: 10}} onClick={() => this.parentTaskClicked(parsedToDo.uid)}>{parsedToDo.summary}</ListGroup.Item>) )
+                            }
                         }
                         this.setState({searchOutput: (<ListGroup flush style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>)})
 

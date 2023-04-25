@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import Link from "next/link";
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
+import { getAPIURL } from "@/helpers/general";
 
 class GenericLists extends Component{
     constructor(props)
@@ -51,7 +52,7 @@ class GenericLists extends Component{
     }
     async generateLabelList()
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/labels"
+        const url_api=getAPIURL()+"caldav/calendars/labels"
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =

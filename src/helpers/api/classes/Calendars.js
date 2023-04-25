@@ -99,8 +99,8 @@ export class Calendars{
             return new Promise( (resolve, reject) => {
                 con.query('DELETE FROM calendar_events WHERE calendar_id=?', [calendar_id], function (error, results, fields) {
                     if (error) {
-                        throw error.message
-                    }
+                        console.log(error)
+                    }                    
                     con.end()
                     resolve(null)
                     });    
@@ -131,7 +131,7 @@ export class Calendars{
             return new Promise( (resolve, reject) => {
                 con.query('DELETE FROM calendars WHERE calendars_id=?', [calendar_id], function (error, results, fields) {
                     if (error) {
-                        throw error.message
+                        console.log(error)
                     }
                     con.end()
 

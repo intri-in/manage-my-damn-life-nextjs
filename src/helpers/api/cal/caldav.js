@@ -52,7 +52,9 @@ export async function getCaldavAccountDetailsfromId(caldav_account_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ?", [ caldav_account_id], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -86,7 +88,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
                         //Update. Event might have been wrongly deleted. Might be required for nextcloud.
                         con.query('UPDATE calendar_events SET ? WHERE url = ?',[{etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated, type:type,deleted: "" }, calendarObjects[i].url], function (error, results, fields) {
                             if (error) {
-                                throw error.message
+                                console.log(error.message)
                             }
                 
                         })
@@ -103,7 +105,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
 
                     con.query('UPDATE calendar_events SET ? WHERE url = ?',[{etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated, type:type }, calendarObjects[i].url], function (error, results, fields) {
                         if (error) {
-                            throw error.message
+                            console.log(error.message)
                         }
             
                     })
@@ -116,7 +118,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
     
                 con.query('INSERT INTO calendar_events (url, etag, data, updated, calendar_id, type) VALUES (?,? ,?,?,?,?)', [calendarObjects[i].url, calendarObjects[i].etag, calendarObjects[i].data, updated, calendar_id, type], function (error, results, fields) {
                     if (error) {
-                        throw error.message
+                        console.log(error)
                     }
         
                 });
@@ -138,7 +140,9 @@ export async function getCalendarEventbyURL(url,calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events WHERE url= ? AND calendar_id=?", [url, calendar_id], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -152,7 +156,9 @@ export async function getAllCalendarEvents()
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events", [], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
     

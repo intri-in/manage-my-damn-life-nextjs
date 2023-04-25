@@ -23,7 +23,9 @@ export class User{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT username, email, created, level,users_id FROM users ", [ ], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }                
                 con.end()
                 resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
@@ -38,7 +40,9 @@ export class User{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM users WHERE username= ?", [ username], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }                
                 con.end()
                 resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
@@ -182,7 +186,9 @@ export class User{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ? AND userid=?", [caldav_accounts_id, this.userid], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }                
                 con.end()
                 var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
     
@@ -206,7 +212,9 @@ export class User{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ? AND userid=?", [caldav_accounts_id, this.userid], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }
                 con.end()
                 var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
     
@@ -236,8 +244,10 @@ export class User{
        var con = getConnectionVar()
        return new Promise( (resolve, reject) => {
            con.query("SELECT * FROM users WHERE userhash=? ", [ userhash], function (err, result, fields) {
-               if (err) throw err;
-               con.end()
+                if (err) {
+                    console.log(err);
+                }               
+                con.end()
                var resultfromDB = Object.values(JSON.parse(JSON.stringify(result)))
    
                if(resultfromDB!=null&&Array.isArray(resultfromDB)&&resultfromDB.length>0)
@@ -307,9 +317,11 @@ export class User{
       var con = getConnectionVar()
       return new Promise( (resolve, reject) => {
           con.query("SELECT caldav_accounts_id,username,url,name FROM caldav_accounts WHERE userid= ?", [ this.userid], function (err, result, fields) {
-              if (err) throw err;
-              con.end()
-              resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            if (err) {
+                console.log(err);
+            }             
+            con.end()
+            resolve(Object.values(JSON.parse(JSON.stringify(result))));
   
           })
       })
@@ -321,8 +333,10 @@ export class User{
       var con = getConnectionVar()
       return new Promise( (resolve, reject) => {
           con.query("SELECT * FROM caldav_accounts WHERE userid= ?", [ this.userid], function (err, result, fields) {
-              if (err) throw err;
-              con.end()
+            if (err) {
+                console.log(err);
+            }              
+            con.end()
               resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
           })

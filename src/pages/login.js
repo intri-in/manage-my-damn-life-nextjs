@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuthenticationHeadersforUser, setLoginCookie } from '@/helpers/frontend/user';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
+import { getAPIURL } from '@/helpers/general';
 class Login extends Component{
 
     constructor(props)
@@ -58,7 +59,7 @@ class Login extends Component{
       })
     }
     async getRegistrationStatusFromServer(){
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"users/settings/registrationstatus"
+        const url_api=getAPIURL()+"users/settings/registrationstatus"
     
         const requestOptions =
         {
@@ -101,7 +102,7 @@ class Login extends Component{
 
         if(isValid)
         {
-            const url_api=process.env.NEXT_PUBLIC_API_URL+"login/"
+            const url_api=getAPIURL()+"login/"
 
             const requestOptions =
             {

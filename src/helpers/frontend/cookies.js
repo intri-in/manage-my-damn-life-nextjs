@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 import { getAuthenticationHeadersforUser } from './user'
-import { varNotEmpty } from '../general'
+import { getAPIURL, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
 
 export function setCookie(cname, cvalue, exdays)
@@ -13,7 +13,7 @@ export function setCookie(cname, cvalue, exdays)
 export async function getDefaultCalendarID()
 {
     //Cookies.get("DEFAULT_CALENDAR_ID")
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"settings/getone?name=DEFAULT_CALENDAR"
+    const url_api=getAPIURL+"settings/getone?name=DEFAULT_CALENDAR"
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =

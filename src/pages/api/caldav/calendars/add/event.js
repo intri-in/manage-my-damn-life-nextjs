@@ -12,7 +12,7 @@ export default async function handler(req, res) {
             //console.log(req.body)
             if(req.body.etag!=null && req.body.etag.trim()!="" && req.body.data!=null && req.body.data.trim()!="" && req.body.updated!=null && req.body.updated.toString().trim()!="" && req.body.type!=null && req.body.type.trim()!="" && req.body.calendar_id!=null && req.body.calendar_id.toString().trim()!="")
             {
-                logVar(req.body.data, typeof(req.body.data))
+                logVar(req.body.data, '/api/caldav/calendars/add/event')
                 var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
                 var userid = await getUseridFromUserhash(userHash[0])

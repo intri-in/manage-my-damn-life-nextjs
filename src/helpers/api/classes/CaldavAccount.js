@@ -23,7 +23,9 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM calendars WHERE caldav_accounts_id= ? AND url =? AND displayName =?", [ this.caldav_accounts_id, calendar.url,  calendar.displayName], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }
                 con.end()
                 var toReturn = Object.values(JSON.parse(JSON.stringify(result)));
                 if(toReturn!=null&&toReturn.length>=1)
@@ -87,8 +89,10 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM calendars WHERE caldav_accounts_id= ?", [ this.caldav_accounts_id], function (err, result, fields) {
-                if (err) throw err;
-                con.end()
+                if (err) {
+                    console.log(err);
+                }
+                    con.end()
                 resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
             })
@@ -119,7 +123,9 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ?", [ caldav_accounts_id], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }
                 con.end()
                 resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
@@ -133,7 +139,9 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM calendars WHERE calendars_id=?", [calendarObject.calendars_id], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }                
                 con.end()
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
                 if(isValidResultArray(resultFromDB))

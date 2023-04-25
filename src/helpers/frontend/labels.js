@@ -1,5 +1,5 @@
 import { MYDAY_LABEL } from '@/config/constants';
-import { isValidObject, isValidResultArray } from '../general';
+import { getAPIURL, isValidObject, isValidResultArray } from '../general';
 import { getUserDB } from './db';
 import { objectArrayHasKey, getRandomColourCode} from './general';
 import { getAuthenticationHeadersforUser } from './user';
@@ -66,7 +66,7 @@ export async function getAllLablesFromDB()
 
 export async function getLabelsFromServer()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/labels"
+    const url_api=getAPIURL()+"caldav/calendars/labels"
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =
@@ -99,7 +99,7 @@ export async function getLabelsFromServer()
 } 
 export async function makeUpdateLabelRequest()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"labels/updatecache"
+    const url_api=getAPIURL()+"labels/updatecache"
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =

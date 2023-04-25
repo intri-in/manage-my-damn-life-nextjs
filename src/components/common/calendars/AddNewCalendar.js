@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { Loading } from "../Loading";
 import { getI18nObject } from "@/helpers/frontend/general";
+import { getAPIURL } from "@/helpers/general";
 export default class AddNewCalendar extends Component{
 
     constructor(props)
@@ -18,7 +19,7 @@ export default class AddNewCalendar extends Component{
     }
     async makeCalendarCreateRequest(){
         this.setState({submitting: true})
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"calendars/create"
+        const url_api=getAPIURL()+"calendars/create"
 
         const authorisationData=await getAuthenticationHeadersforUser()
         const requestOptions =

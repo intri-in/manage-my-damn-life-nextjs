@@ -1,6 +1,7 @@
 import { Toastify } from '@/components/Generic';
 import { getI18nObject } from '@/helpers/frontend/general';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
+import { getAPIURL } from '@/helpers/general';
 import Head from 'next/head';
 import Image from 'next/image';
 import { withRouter } from 'next/router';
@@ -99,7 +100,7 @@ class Register extends Component{
 
     }
     async makeRequesttoServer(){
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"users/register"
+        const url_api=getAPIURL()+"users/register"
 
         const requestOptions =
         {

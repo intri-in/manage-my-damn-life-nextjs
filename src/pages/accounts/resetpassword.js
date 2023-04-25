@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { Loading } from "@/components/common/Loading";
+import { getAPIURL } from "@/helpers/general";
 
 class ResetPassword extends Component{
 
@@ -40,7 +41,7 @@ class ResetPassword extends Component{
         if(isValid){
             this.setState({isWaiting: true})
             // Make a request to server and process the response.
-            const url_api=process.env.NEXT_PUBLIC_API_URL+"users/requestotp?username="+this.state.username
+            const url_api=getAPIURL()+"users/requestotp?username="+this.state.username
             const requestOptions =
             {
                 method: 'GET',
@@ -144,7 +145,7 @@ class ResetPassword extends Component{
         {
             // Make request to server.
             this.setState({isWaiting: true})
-            const url_api=process.env.NEXT_PUBLIC_API_URL+"users/modifypassword"
+            const url_api=getAPIURL()+"users/modifypassword"
 
         
         

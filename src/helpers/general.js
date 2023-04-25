@@ -147,3 +147,7 @@ export function debugging()
     }
 }
 
+export function getAPIURL()
+{
+    return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_API_URL)
+}

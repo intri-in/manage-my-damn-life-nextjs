@@ -1,12 +1,12 @@
 import { getcalendarDB } from "./db";
 import ical from '@/../ical/ical'
 import { getAuthenticationHeadersforUser } from "./user";
-import { isValidObject, isValidResultArray, logError } from "../general";
+import { getAPIURL, isValidObject, isValidResultArray, logError } from "../general";
 import { majorTaskFilter } from "./events";
 
 export async function getCaldavAccountsfromServer()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars" 
+    const url_api=getAPIURL()+"caldav/calendars" 
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =
@@ -30,7 +30,7 @@ export async function getCaldavAccountsfromServer()
 }
 export async function caldavAccountsfromServer()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars" 
+    const url_api=getAPIURL()+"caldav/calendars" 
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =
@@ -69,7 +69,7 @@ export async function caldavAccountsfromServer()
 
 export async function getLatestCalendarEvents(caldav_accounts_id, calendars_id, filters)
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/events/db/?caldav_accounts_id="+caldav_accounts_id+"&&calendars_id="+ calendars_id+"&&filter="+filters
+    const url_api=getAPIURL()+"caldav/calendars/events/db/?caldav_accounts_id="+caldav_accounts_id+"&&calendars_id="+ calendars_id+"&&filter="+filters
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =
@@ -96,10 +96,10 @@ export async function getAllEvents(filters)
 {
     if(filters!=null)
     {
-        var url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/events/db/all?&&filter="+filters
+        var url_api=getAPIURL()+"caldav/calendars/events/db/all?&&filter="+filters
 
     }else{
-        var url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/events/db/all"
+        var url_api=getAPIURL()+"caldav/calendars/events/db/all"
 
     }
     const authorisationData=await getAuthenticationHeadersforUser()

@@ -8,7 +8,9 @@ export async function getUserDetailsfromUsername(username)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users WHERE username= ?", [ username], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -22,7 +24,9 @@ export async function getTotalNumberofUsers()
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users", [], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var allUsers=Object.values(JSON.parse(JSON.stringify(result)))
             resolve(result.length);
@@ -90,7 +94,7 @@ export async function forceInsertUserIntoDB(username,password,email,level)
 
         con.query('INSERT INTO users (username, password, email, created, userhash,level) VALUES (?,?, ? ,?,?,?)', [username, password, email, created, userhash,level], function (error, results, fields) {
             if (error) {
-                throw error.message
+                console.log(error.message)
             }
             con.end()
             });
@@ -105,7 +109,9 @@ export function checkCredentialsinDB(username, password)
     var passwordHash = crypto.createHash('sha512').update(password).digest('hex')
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users WHERE username= ? AND password = ?", [ username, passwordHash], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -143,7 +149,7 @@ export async function generateSSID(userhash)
     return new Promise( (resolve, reject) => {
         con.query('INSERT INTO ssid_table (userhash, ssid, created) VALUES (?,? ,?)', [userhash, token, created], function (error, results, fields) {
             if (error) {
-                throw error.message
+                console.log(error.message)
             }
             con.end()
             resolve(token);
@@ -173,7 +179,7 @@ export async function deleteSSIDbyID(ssid_table_id, userhash)
 
     con.query('DELETE FROM ssid_table WHERE ssid_table_id=? AND userhash=?', [ssid_table_id,  userhash], function (error, results, fields) {
         if (error) {
-            throw error.message
+            console.log(error.message)
         }
         con.end()
         });
@@ -184,7 +190,9 @@ export async  function getAllSSIDFromDB(userhash)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM ssid_table WHERE userhash= ?", [userhash], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -297,7 +305,9 @@ export function getUseridFromUserhash(userhash)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users WHERE userhash=? ", [ userhash], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var resultfromDB = Object.values(JSON.parse(JSON.stringify(result)))
 

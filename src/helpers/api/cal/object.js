@@ -7,7 +7,9 @@ export async function getCalendarObjectsFromCalendar(calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events WHERE calendar_id=?", [calendar_id], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -32,7 +34,7 @@ export async function syncEventsWithCaldlav(calDavCalendarObjects, calendar_id)
 
                 con.query('UPDATE calendar_events SET ? WHERE calendar_events_id = ?',[{deleted :"1" }, alLObjectsFromDB[i].calendar_events_id], function (error, results, fields) {
                     if (error) {
-                        throw error.message
+                        console.log(error)
                     }
         
                 })
@@ -72,7 +74,7 @@ export async function deleteCalendarObjectsFromCalendarDB(calendar_id)
     return new Promise( (resolve, reject) => {
         con.query('DELETE FROM calendar_events WHERE calendar_id=?', [calendar_id], function (error, results, fields) {
             if (error) {
-                throw error.message
+                console.log(error)
             }
             con.end()
             });    
@@ -93,7 +95,9 @@ export async function getCalendarObjectsFromCalendarbyType(calendar_id, filter)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query(query, [calendar_id], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -124,7 +128,9 @@ export async function getObjectFromDB(url, calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events WHERE calendar_id=? AND url=?", [calendar_id, url], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var resultFromDB = Object.values(JSON.parse(JSON.stringify(result)))
             if(isValidResultArray(resultFromDB))
@@ -167,7 +173,6 @@ export async function insertObjectIntoDB(url, etag, data, calendar_id, type)
 
 export async function deleteCalendarObjectsFromDB(url, calendar_id)
 {
-    console.log(url)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query('UPDATE calendar_events SET ? WHERE url=? AND calendar_id=?',[{deleted: "1" },url, calendar_id], function (error, results, fields) {

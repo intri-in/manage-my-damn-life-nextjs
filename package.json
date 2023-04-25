@@ -1,5 +1,5 @@
 {
-  "name": "manage-my-damn-life-frontend",
+  "name": "manage-my-damn-life-nextjs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -18,7 +18,7 @@
     "@fullcalendar/interaction": "6.1.5",
     "@fullcalendar/list": "6.1.5",
     "@fullcalendar/react": "6.1.5",
-    "@fullcalendar/rrule": "6.1.5",
+    "@fullcalendar/rrule": "6.1.6",
     "@fullcalendar/timegrid": "6.1.5",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",

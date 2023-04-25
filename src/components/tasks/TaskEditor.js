@@ -7,7 +7,7 @@ import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
 import { Row, Col, Button } from "react-bootstrap";
 import * as moment from 'moment';
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
-import { isValidResultArray, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, isValidResultArray, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
 import VTodoGenerator from "@/external/VTODOGenerator";
 import { getRandomString } from "@/helpers/crypto";
@@ -306,7 +306,7 @@ export default class TaskEditor extends Component {
 
     }
     async deleteTheTaskFromServer() {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/event/delete"
+        const url_api = getAPIURL() + "caldav/event/delete"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         const requestOptions =
@@ -395,7 +395,7 @@ export default class TaskEditor extends Component {
     }
 
     async postNewTodo(calendar_id, data, etag) {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/add/event"
+        const url_api = getAPIURL() + "caldav/calendars/add/event"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
@@ -421,7 +421,7 @@ export default class TaskEditor extends Component {
         }
     }
     async updateTodo(calendar_id, url, etag, data) {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
+        const url_api = getAPIURL() + "caldav/calendars/modify/object"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
@@ -465,7 +465,7 @@ export default class TaskEditor extends Component {
                     </Row>
                 </div>)
         } else {
-            parentTask = (<ParentTaskSearch onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
+            parentTask = (<ParentTaskSearch currentID={this.props.data.uid} onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
         }
 
         var calendarOptions = this.getCalendarDDL()

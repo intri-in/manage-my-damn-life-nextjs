@@ -28,7 +28,16 @@ export default async function handler(req, res) {
                     obj["end"] = new Date(req.body.obj["obj"]["end"]) 
                     if(varNotEmpty(req.body.obj["obj"].repeating) && varNotEmpty(req.body.obj["obj"].repeating.until))
                     {
-                        obj.repeating.until = new Date(moment(req.body.obj["obj"]["repeating"]["until"]))
+                        if(req.body.obj["obj"].repeating.until.toString().trim()=="")
+                        {
+                            //Enter until date as 1year from now. Just a random default value.
+                            var timetoRepeat = Date.now()+(86400*365*1)*1000
+                            obj.repeating.until = new Date(moment(timetoRepeat))
+
+                        }else{
+                            obj.repeating.until = new Date(moment(req.body.obj["obj"]["repeating"]["until"]))
+
+                        }
 
                     }
                     if(varNotEmpty(obj.stamp))
