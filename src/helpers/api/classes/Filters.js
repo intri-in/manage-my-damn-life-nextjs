@@ -40,7 +40,9 @@ export class Filters{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT name, filtervalue,custom_filters_id FROM custom_filters WHERE userid= ?", [userid], function (err, result, fields) {
-                if (err) throw err;
+                if (err) {
+                    console.log(err);
+                }                
                 con.end()
                 resolve(Object.values(JSON.parse(JSON.stringify(result))));
 

@@ -51,7 +51,7 @@ export async function deleteAllOTPs_passwordReset(userid)
     return new Promise( (resolve, reject) => {
         con.query('DELETE FROM otp_table WHERE userid=? AND type=?', [userid,  'PASSWORD_RESET'], function (error, results, fields) {
         if (error) {
-            throw error.message
+            console.log(error.message)
         }
         con.end()
 

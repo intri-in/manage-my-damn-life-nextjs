@@ -33,7 +33,7 @@ export async function updateLabelsOld()
                                 con.end()
                                 
                                 if (error) {
-                                    throw error.message
+                                    console.log(error.message)
                                 }
                     
                             });
@@ -168,7 +168,7 @@ export async function insertLabelIntoDB(name, userid)
             con.end()
             
             if (error) {
-                throw error.message
+                console.log(error.message)
             }
             resolve (null)
 
@@ -181,7 +181,9 @@ export async function checkifLabelExistsinDB(label,userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM labels WHERE name=? AND userid=?", [label, userid], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var result = Object.values(JSON.parse(JSON.stringify(result)))
             if(result!=null && Object.keys(result).length>0)
@@ -203,7 +205,9 @@ export async function getAllLablesFromDB(userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM labels WHERE userid=?", [userid], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))))
     

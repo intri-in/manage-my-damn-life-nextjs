@@ -2,7 +2,7 @@ import { BACKGROUND_GRAY } from "@/config/style";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { varNotEmpty } from "@/helpers/general";
+import { getAPIURL, varNotEmpty } from "@/helpers/general";
 import moment from "moment";
 import { Component } from "react";
 import { Col, Row } from "react-bootstrap";
@@ -30,7 +30,7 @@ export default class ManageUsers extends Component{
 
     async getUsersFromDB()
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"admin/getusers"
+        const url_api=getAPIURL()+"admin/getusers"
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =
@@ -101,7 +101,7 @@ export default class ManageUsers extends Component{
     }
     async makeDeleteRequesttoServer()
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"admin/deleteuser?userid="+this.state.userIDToDelete
+        const url_api=getAPIURL()+"admin/deleteuser?userid="+this.state.userIDToDelete
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =

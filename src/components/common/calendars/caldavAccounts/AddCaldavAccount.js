@@ -8,7 +8,7 @@ import {toast } from 'react-toastify';
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import Spinner from 'react-bootstrap/Spinner';
-import { addTrailingSlashtoURL } from "@/helpers/general";
+import { addTrailingSlashtoURL, getAPIURL } from "@/helpers/general";
 export default class AddCaldavAccount extends Component{
     constructor(props)
     {
@@ -58,7 +58,7 @@ export default class AddCaldavAccount extends Component{
     async makeServerRequest()
     {
         this.setState({requestPending: true})
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/register?url="+ addTrailingSlashtoURL(this.state.serverURL)+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
+        const url_api=getAPIURL()+"caldav/register?url="+ addTrailingSlashtoURL(this.state.serverURL)+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =

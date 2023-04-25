@@ -13,6 +13,7 @@ import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { BiTask } from "react-icons/bi";
+import rrulePlugin from '@fullcalendar/rrule'
 import { ISODatetoHuman, ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
 import EventEditor from "../events/EventEditor";
 import moment from "moment";
@@ -22,6 +23,7 @@ import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { FULLCALENDAR_BUSINESS_HOURS } from "@/config/constants";
 import { withRouter } from "next/router";
+import RRule from '@/external/rrule.min.js'
 class DashboardView extends Component {
     calendarRef = React.createRef()
     constructor(props) {
@@ -174,7 +176,7 @@ class DashboardView extends Component {
             var ics = await makeGenerateICSRequest({ obj })
             if (varNotEmpty(ics)) {
                 const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics)
-
+                console.log(response)
                 if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
                     toast.success(this.i18next.t("UPDATE_OK"))
                     this.getAllEventsfromServer()
@@ -183,7 +185,7 @@ class DashboardView extends Component {
                     var message = getMessageFromAPIResponse(response)
                     if (message != "" && varNotEmpty(message)) {
                         toast.error(this.i18next.t(message.toString()))
-
+                        console.log(response)
                     }else{
                         toast.error((this.i18next.t("ERROR_GENERIC")))
 
@@ -272,9 +274,15 @@ class DashboardView extends Component {
                     }
                     if (event.type != "VTODO" && event.type != "VTIMEZONE") {
                         var data = getParsedEvent(allEvents.data.message[i].events[j].data)
-                        if (varNotEmpty(data.summary) == false || varNotEmpty(data.summary) && data.summary == "") {
+                        if (varNotEmpty(data)==false){
                             continue
                         }
+                        if (varNotEmpty(data.summary)==false ||(varNotEmpty(data.summary) && data.summary.toString().trim()=="")){
+                            continue
+                        }
+    
+
+                     
                         var allDay = isAllDayEvent(data.start, data.end)
                         var eventObject = {
                             id: data.uid,
@@ -286,16 +294,14 @@ class DashboardView extends Component {
                             draggable: true,
                             backgroundColor: allEvents.data.message[i].info.color
                         }
-                        finalEvents.push(eventObject)
+                        //finalEvents.push(eventObject)
 
-
+                        var rrule = rruleToObject(data.rrule)
                         //Check if the event has a recurrence rule.
-                        if (varNotEmpty(data.rrule) && data.rrule != '') {
-                            /** Depends on rrule, doesn't work for now. 
+                        if (varNotEmpty(data.rrule) && data.rrule != '' &&varNotEmpty(rrule["FREQ"]) &&rrule["FREQ"]!="") {
 
-                            var dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
-                            var until =new Date(moment(ISODatetoHumanISO(rrule["UNTIL"])).unix()*1000+86400*1000)
-
+                            //var dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
+                            var until =rrule["UNTIL"]
                             var  eventObject = {
                                 id: data.uid,
                                 title: data.summary,
@@ -306,13 +312,13 @@ class DashboardView extends Component {
                                 draggable: true,
                                 rrule: {
                                     freq: rrule["FREQ"].toLowerCase(),
-                                    interval: rrule["INTERVAL"],
-                                    dtstart:dtstart,
+                                    interval: parseInt(rrule["INTERVAL"]),
+                                    dtstart:data.start.toISOString(),
                                     until: until
                                 },
                                 backgroundColor: allEvents.data.message[i].info.color
                                 }
-                                console.log(eventObject.title, eventObject.rrule)
+                               // console.log(eventObject.title, eventObject.rrule)
                                 finalEvents.push(eventObject)
 
                             }
@@ -329,23 +335,23 @@ class DashboardView extends Component {
                                 }
                                 finalEvents.push(eventObject)
         
-                            } */
+                            } 
 
-
-                            var rrule = rruleToObject(data.rrule)
-
+                            
+                            /*
                             if (varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
                                 var step = 86400 * 1000
                                 if (rrule["FREQ"] == "WEEKLY") {
                                     step = step * 7
                                 }
+                              
                                 if (rrule["FREQ"] == "MONTHLY") {
                                     step = step * 30
                                 }
                                 if (rrule["FREQ"] == "YEARLY") {
                                     step = step * 365
                                 }
-
+                               
                                 if (varNotEmpty(rrule["INTERVAL"]) && rrule["INTERVAL"] != "") {
                                     step = step * rrule["INTERVAL"]
                                 }
@@ -359,36 +365,42 @@ class DashboardView extends Component {
                                 var newStart = moment(data.start).unix() * 1000 + step
                                 var newEnd = moment(data.end).unix() * 1000 + step
                                 var newMap = this.state.recurMap
-                                while (newStart < maxTime) {
-                                    var recurId = getRandomString(10)
-                                    newMap[recurId] = data.uid
-                                    this.state.recurMap = newMap
-
-                                    eventObject = {
-                                        id: recurId,
-                                        title: data.summary,
-                                        start: new Date(newStart),
-                                        end: new Date(newEnd),
-                                        allDay: allDay,
-                                        editable: true,
-                                        draggable: true,
-                                        backgroundColor: allEvents.data.message[i].info.color
+                                
+                                    while (newStart < maxTime) {
+                                        var recurId = getRandomString(10)
+                                        newMap[recurId] = data.uid
+                                        this.setState({recurMap:newMap})
+    
+                                        eventObject = {
+                                            id: recurId,
+                                            title: data.summary,
+                                            start: new Date(newStart),
+                                            end: new Date(newEnd),
+                                            allDay: allDay,
+                                            editable: true,
+                                            draggable: true,
+                                            backgroundColor: allEvents.data.message[i].info.color
+                                        }
+                                        finalEvents.push(eventObject)
+                                        newStart += step
+                                        newEnd += step
                                     }
-                                    finalEvents.push(eventObject)
-                                    newStart += step
-                                    newEnd += step
-                                }
+                                
+                                
 
                             }
-                        } else {
-
-                        }
-
+                            
+                        } 
+                        */
                         this.state.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
 
                     }
                     else if (event.type == "VTODO") {
                         var data = returnGetParsedVTODO(allEvents.data.message[i].events[j].data)
+                        if (varNotEmpty(data)==false){
+                            continue
+                        }
+    
 
                         if(majorTaskFilter(data))
                         {
@@ -432,10 +444,10 @@ class DashboardView extends Component {
                 </Col>
             </Row>
             <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin]}
+                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
                 ref={this.calendarRef}
                 initialView='timeGridDay'
-                themeSystem='standard'
+                themeSystem='bootstrap5'
                 events={this.state.events}
                 editable={true}
                 aspectRatio={this.state.calendarAR}

@@ -8,7 +8,7 @@ const { withRouter } = require("next/router");
 const { Component } = require("react");
 import Card from 'react-bootstrap/Card';
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { isValidResultArray, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, isValidResultArray, varNotEmpty } from "@/helpers/general";
 import { BACKGROUND_GRAY } from "@/config/style";
 import moment from "moment";
 import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
@@ -35,7 +35,7 @@ class Settings extends Component {
         this.getAllUserSettings()
     }
     async getAllUserSettings(){
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "settings/get"
+        const url_api = getAPIURL() + "settings/get"
 
         const authorisationData = await getAuthenticationHeadersforUser()
 
@@ -87,7 +87,7 @@ class Settings extends Component {
 
     }
     async getUserInfo() {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "users/info"
+        const url_api = getAPIURL() + "users/info"
 
         const authorisationData = await getAuthenticationHeadersforUser()
 
@@ -185,7 +185,7 @@ class Settings extends Component {
         const authorisationData = await getAuthenticationHeadersforUser()
 
         //Make change settings request.
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "settings/modify"
+        const url_api = getAPIURL() + "settings/modify"
         const requestOptions =
         {
             method: 'POST',
@@ -234,7 +234,7 @@ class Settings extends Component {
 
         
         //Make change settings request.
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "settings/modify"
+        const url_api = getAPIURL() + "settings/modify"
         const requestOptions =
         {
             method: 'POST',

@@ -4,6 +4,7 @@ import { majorTaskFilter } from "./events";
 import { getAuthenticationHeadersforUser } from "./user";
 import { toast } from "react-toastify";
 import VTodoGenerator from "@/external/VTODOGenerator";
+import { getAPIURL } from "../general";
 export function sortTaskListbyDue(list, todoList)
 {
     var sortedList= []
@@ -86,7 +87,7 @@ export async function updateTodo(calendar_id, url, etag, dataObj) {
     var todo = new VTodoGenerator(dataObj)
     var data = todo.generate()
     console.log(data)
-    const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
+    const url_api = getAPIURL() + "caldav/calendars/modify/object"
     var i18next = getI18nObject()
     const authorisationData = await getAuthenticationHeadersforUser()
     var updated = Math.floor(Date.now() / 1000)

@@ -16,6 +16,7 @@ import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import AddNewCalendar from "../AddNewCalendar";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+import { getAPIURL } from "@/helpers/general";
 
 export default class CaldavAccounts extends Component{
     constructor(props)
@@ -194,7 +195,7 @@ export default class CaldavAccounts extends Component{
     }
     async makeDeleteRequest(caldav_account_id)
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/delete?caldav_account_id="+caldav_account_id
+        const url_api=getAPIURL()+"caldav/delete?caldav_account_id="+caldav_account_id
 
         const authorisationData=await getAuthenticationHeadersforUser()
         const requestOptions =

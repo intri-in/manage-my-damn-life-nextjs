@@ -1,11 +1,11 @@
 import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
-import { varNotEmpty } from "../general"
+import { getAPIURL, varNotEmpty } from "../general"
 
 export async function saveFiltertoServer(name, filter)
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"filters/add"
+    const url_api=getAPIURL()+"filters/add"
 
     const authorisationData=await getAuthenticationHeadersforUser()
 
@@ -42,7 +42,7 @@ export async function saveFiltertoServer(name, filter)
 
 export async function makeFilterEditRequest(filterid, name, finalFilter)
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"filters/modify"
+    const url_api=getAPIURL()+"filters/modify"
 
     const authorisationData=await getAuthenticationHeadersforUser()
 
@@ -140,7 +140,7 @@ export function checkifFilterValid(filter)
 }
 export async function getFiltersFromServer()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"filters/get"
+    const url_api=getAPIURL()+"filters/get"
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =

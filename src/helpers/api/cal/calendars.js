@@ -9,7 +9,9 @@ export async function getCaldavAccountfromDetails(username, url)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM caldav_accounts WHERE username= ? AND url =?", [ username, url], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -23,7 +25,9 @@ export async function getCaldavAccountfromUserID(userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT caldav_accounts_id,username,url,name FROM caldav_accounts WHERE userid= ?", [userid], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -39,7 +43,9 @@ export async function getCaldavAccountsfromUserid(userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT caldav_accounts_id,username,url,name FROM caldav_accounts WHERE userid= ?", [ userid], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -54,7 +60,9 @@ export async function getCaldavAccountsAllData(userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM caldav_accounts WHERE userid= ?", [ userid], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
@@ -102,7 +110,9 @@ export async function checkifCalendarExistforUser(calendar, caldav_accounts_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendars WHERE caldav_accounts_id= ? AND url =? AND displayName =?", [ caldav_accounts_id, calendar.url,  calendar.displayName], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var toReturn = Object.values(JSON.parse(JSON.stringify(result)));
             if(toReturn!=null&&toReturn.length>=1)
@@ -195,7 +205,7 @@ export async function deleteCalendarFromDB(calendar ,caldav_accounts_id)
 
         con.query('DELETE FROM calendars WHERE url=?', [calendar.url], function (error, results, fields) {
             if (error) {
-                throw error.message
+                console.log(error)
             }
             con.end()
             });    
@@ -215,7 +225,9 @@ export async function getCaldavAccountIDFromCalendarID(calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendars WHERE calendars_id=?", [calendar_id], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
             if(isValidResultArray(resultFromDB))
@@ -236,7 +248,9 @@ export async function checkifUserhasAccesstoCaldavAccount(userid, caldav_account
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ? AND userid=?", [caldav_accounts_id, userid], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
 
@@ -290,7 +304,9 @@ export async function getCalendarsfromCaldavAccountsID(caldav_accounts_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendars WHERE caldav_accounts_id= ?", [ caldav_accounts_id], function (err, result, fields) {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+            }
             con.end()
             resolve(Object.values(JSON.parse(JSON.stringify(result))));
 

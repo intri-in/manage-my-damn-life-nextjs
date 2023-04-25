@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { Toastify, nothingToShow } from "./Generic";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { saveLabelArrayToCookie } from "@/helpers/frontend/settings";
+import { getAPIURL } from "@/helpers/general";
 class LabelManager extends Component{
     constructor(props)
     {
@@ -63,7 +64,7 @@ class LabelManager extends Component{
 
     async makeModifyLabelRequest(labelName, color)
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"labels/modifycolor"
+        const url_api=getAPIURL()+"labels/modifycolor"
 
         const authorisationData=await getAuthenticationHeadersforUser()
         const requestOptions =
@@ -118,7 +119,7 @@ class LabelManager extends Component{
     };
     async getLabelsFromServer()
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/labels"
+        const url_api=getAPIURL()+"caldav/calendars/labels"
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =

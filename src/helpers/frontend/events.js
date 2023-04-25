@@ -1,4 +1,4 @@
-import { isValidResultArray, logError, varNotEmpty } from "../general"
+import { getAPIURL, isValidResultArray, logError, logVar, varNotEmpty } from "../general"
 import { arrangeTodoListbyHierarchy, getParsedTodoList, getUnparsedEventData, returnGetParsedVTODO } from "./calendar"
 import { dueDatetoUnixStamp, getI18nObject, ISODatetoHuman, ISODatetoHumanISO } from "./general"
 import ical from '@/../ical/ical'
@@ -214,15 +214,17 @@ function filterbyPriority(priorityFilter, priority)
 
 }
 
-export function getParsedEvent(data)
+export function getParsedEvent(dataInput)
 {
+
     var data=null
     try{
-        data= ical.parseICS(data)
+        data= ical.parseICS(dataInput)
 
     }catch(e)
     {
-        logError(e, data)
+        
+        //logError(e, data)
 
     }
 
@@ -256,7 +258,7 @@ export function isAllDayEvent(start, end)
 export function rruleToObject(rrule)
 {
     var objectToReturn = {"FREQ": "", "INTERVAL":"", "UNTIL":""}
-    if(varNotEmpty(rrule))
+    if(varNotEmpty(rrule) && rrule!="" &&typeof(rrule)=="string")
     {
         var burst = rrule.split(';')
 
@@ -310,7 +312,7 @@ export function rruleObjecttoWords(rrule)
                     words+=i18next.t("EVERY")+" "+i18next.t("DAY").toLowerCase()
                 }
 
-                if(rrule["FREQ"]=="WEELY")
+                if(rrule["FREQ"]=="WEEKLY")
                 {
                     words+=i18next.t("EVERY")+" "+i18next.t("WEEK").toLowerCase()
 
@@ -357,22 +359,27 @@ export function rruleObjectToString(rrule)
     if(varNotEmpty(rrule) && rrule["FREQ"]!=""){
         for (const key in rrule)
         {
-            if(varNotEmpty(rrule[key])&&rrule[key]!="")
-            {
                 if(key=="UNTIL")
                 {
-                    toReturn+=key+"="+moment(rrule[key]).toISOString()+";"
+                    if(varNotEmpty(rrule[key]) &&rrule[key].toString().trim()!="")
+                    {
+                        toReturn+=key+"="+moment(rrule[key]).toISOString()+";"
+
+                    }
 
                 }else
                 {
-                    toReturn+=key+"="+rrule[key]+";"
+                    if(varNotEmpty(rrule[key]) &&rrule[key]!="")
+                    {
+                        toReturn+=key+"="+rrule[key]+";"
+
+                    }
 
                 }
 
-            }
+            
         }
     }
-
     return toReturn
 }
 
@@ -467,7 +474,7 @@ export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
 
 
 export async function updateEvent(calendar_id, url, etag, data) {
-    const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
+    const url_api = getAPIURL() + "caldav/calendars/modify/object"
 
     const authorisationData = await getAuthenticationHeadersforUser()
     var updated = Math.floor(Date.now() / 1000)
@@ -488,6 +495,7 @@ export async function updateEvent(calendar_id, url, etag, data) {
                 });
         }
         catch (e) {
+            logVar(e)
             resolve({success: false, data:{message: e.message}})
         }
     

@@ -1,3 +1,4 @@
+import { getAPIURL } from "@/helpers/general";
 import { getAuthenticationHeadersforUser } from "../user";
 
 export class FilterHelper{
@@ -9,7 +10,7 @@ export class FilterHelper{
      */
     static async deleteFromServer(filter_id)
     {
-        const url_api=process.env.NEXT_PUBLIC_API_URL+"filters/delete?filterid="+filter_id
+        const url_api=getAPIURL()+"filters/delete?filterid="+filter_id
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =

@@ -1,10 +1,10 @@
-import { isValidResultArray } from "../general"
+import { getAPIURL, isValidResultArray } from "../general"
 import { caldavAccountsfromServer } from "./calendar"
 import { getAuthenticationHeadersforUser } from "./user"
 
 export async function makeSyncRequest()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/sync/all"
+    const url_api=getAPIURL()+"caldav/calendars/sync/all"
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =
@@ -56,7 +56,7 @@ export async function fetchLatestEventsWithoutCalendarRefresh()
 
 export async function refreshEventsinDB(caldav_accounts_id)
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"caldav/calendars/events/all?caldav_accounts_id="+caldav_accounts_id
+    const url_api=getAPIURL()+"caldav/calendars/events/all?caldav_accounts_id="+caldav_accounts_id
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =
@@ -79,7 +79,7 @@ export async function refreshEventsinDB(caldav_accounts_id)
 
 export async function refreshCalendarList()
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"calendars/refresh"
+    const url_api=getAPIURL()+"calendars/refresh"
 
     const authorisationData=await getAuthenticationHeadersforUser()
 

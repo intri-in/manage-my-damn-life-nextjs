@@ -11,6 +11,7 @@ import { getEvents } from '@/helpers/frontend/events';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { withRouter } from 'next/router';
 import { Loading } from '../common/Loading';
+import { getAPIURL } from '@/helpers/general';
  class TaskList extends Component {
     constructor(props) {
         super(props)
@@ -172,7 +173,7 @@ import { Loading } from '../common/Loading';
 
     async getCalendarName() {
         if (this.props.calendars_id != null && this.props.caldav_accounts_id != null) {
-            const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/name?caldav_accounts_id=" + this.props.caldav_accounts_id + "&&calendars_id=" + this.props.calendars_id
+            const url_api = getAPIURL() + "caldav/calendars/name?caldav_accounts_id=" + this.props.caldav_accounts_id + "&&calendars_id=" + this.props.calendars_id
             const authorisationData = await getAuthenticationHeadersforUser()
 
             const requestOptions =

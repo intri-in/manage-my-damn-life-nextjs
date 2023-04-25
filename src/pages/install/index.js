@@ -2,7 +2,7 @@ import { Loading } from "@/components/common/Loading";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { varNotEmpty } from "@/helpers/general";
+import { getAPIURL, varNotEmpty } from "@/helpers/general";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -46,7 +46,7 @@ class StartInstall extends Component{
     installButtonClicked()
     {
         this.setState({output: <Loading centered={true} />})
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "install/go"
+        const url_api = getAPIURL() + "install/go"
 
 
         const requestOptions =
@@ -92,7 +92,7 @@ class StartInstall extends Component{
         )
     }
     async checkifInstalled(){
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "install/check"
+        const url_api = getAPIURL() + "install/check"
 
 
         const requestOptions =

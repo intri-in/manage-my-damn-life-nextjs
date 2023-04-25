@@ -2,7 +2,7 @@ import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
 import { addAdditionalFieldsFromOldEvent, getEmptyEventDataObject, getEmptyRecurrenceObject, isAllDayEvent, reccurence_torrule, rruleObjectToString, rruleObjecttoWords, rruleToObject, rrule_DataToFormData } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getObjectForAPICall, makeGenerateICSRequest } from "@/helpers/frontend/ics";
-import { isValidResultArray, replaceNewLineCharacters, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, isValidResultArray, replaceNewLineCharacters, varNotEmpty } from "@/helpers/general";
 import { Component } from "react";
 import { Col, Row } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
@@ -121,7 +121,7 @@ export default class EventEditor extends Component {
 
     async getVAlarms(data)
     {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "misc/parseics"
+        const url_api = getAPIURL() + "misc/parseics"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
@@ -253,6 +253,7 @@ export default class EventEditor extends Component {
     }
     addRecurrenceClicked() {
 
+        console.log(this.state.recurrence)
         if(varNotEmpty(this.state.recurrence["FREQ"])==false || varNotEmpty(this.state.recurrence["FREQ"]) && this.state.recurrence["FREQ"].trim()=="")
         {
             toast.error(this.i18next.t("RRULE_EMPTY_FREQ"))
@@ -280,7 +281,6 @@ export default class EventEditor extends Component {
     goSetRRule()
     {
         var newRRule = rruleObjectToString(reccurence_torrule(this.state.recurrence))
-        //console.log(newRRule)
         if (varNotEmpty(newRRule) && newRRule.trim() != "") {
 
             this.setState({ rrule: newRRule })
@@ -290,7 +290,6 @@ export default class EventEditor extends Component {
     }
     getRepeatInfo() {
         var toWords = rruleObjecttoWords(rruleToObject(this.state.rrule))
-
         var toReturn = []
         if (toWords != "" && varNotEmpty(toWords)) {
             toReturn.push(<Row key={this.props.eventData.data.uid} style={{ marginBottom: 20 }} >
@@ -434,7 +433,7 @@ export default class EventEditor extends Component {
             var obj = getObjectForAPICall(eventData.data)
             //console.log("obj", obj)
             var ics = await makeGenerateICSRequest({ obj })
-            //console.log(ics)
+            //console.log(eventData, ics)
             if (varNotEmpty(ics)) {
 
                 //Make add request if new, edit request otherwise.
@@ -473,7 +472,7 @@ export default class EventEditor extends Component {
     }
 
     async postNewEvent(calendar_id, data, etag) {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/add/event"
+        const url_api = getAPIURL() + "caldav/calendars/add/event"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
@@ -492,8 +491,7 @@ export default class EventEditor extends Component {
                     if (varNotEmpty(body)) {
                         var message = getMessageFromAPIResponse(body)
                         if (varNotEmpty(body.success) && body.success == true) {
-                            //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
-                            console.log("EVENT_SUBMIT_OK")
+                            toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
                         } else {
                             toast.error(this.i18next.t(message.toString()))
                         }
@@ -511,10 +509,11 @@ export default class EventEditor extends Component {
     }
 
     async updateEvent(calendar_id, url, etag, data) {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/calendars/modify/object"
+        const url_api = getAPIURL() + "caldav/calendars/modify/object"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
+        console.log(data)
         const requestOptions =
         {
             method: 'POST',
@@ -529,8 +528,7 @@ export default class EventEditor extends Component {
                     if (varNotEmpty(body)) {
                         var message = getMessageFromAPIResponse(body)
                         if (varNotEmpty(body.success) && body.success == true) {
-                            //toast.success(this.i18next.t("UPDATE_OK"))
-                            console.log("UPDATE_OK")
+                            toast.success(this.i18next.t("UPDATE_OK"))
 
                         } else {
                             toast.error(this.i18next.t(message.toString()))
@@ -551,7 +549,7 @@ export default class EventEditor extends Component {
     }
 
     async deleteEventFromServer() {
-        const url_api = process.env.NEXT_PUBLIC_API_URL + "caldav/event/delete"
+        const url_api = getAPIURL() + "caldav/event/delete"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         const requestOptions =

@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { getRandomString } from "../crypto";
-import { isNumber, varNotEmpty } from "../general";
+import { getAPIURL, isNumber, varNotEmpty } from "../general";
 import { rruleToObject } from "./events";
 import { getMessageFromAPIResponse } from "./response";
 import { getAuthenticationHeadersforUser } from "./user";
@@ -8,7 +8,7 @@ import { getI18nObject } from "./general";
 
 export async function makeGenerateICSRequest(eventObj)
 {
-    const url_api=process.env.NEXT_PUBLIC_API_URL+"misc/generateics"
+    const url_api=getAPIURL()+"misc/generateics"
 
     const authorisationData=await getAuthenticationHeadersforUser()
     const requestOptions =
