@@ -207,7 +207,7 @@ class LabelManager extends Component{
             
             var border="1px solid "+this.state.color[labels[key].name]
                 temp_Labelcomponent.push(<Row key={labels[key].name+"_ROW"} style={{background: BACKGROUND_GRAY, margin: 20, padding:20}}>
-                    <Col><Badge key={labels[key].name} value={labels[key].name}  bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: this.state.color[labels[key].name],  textDecorationColor : 'white'}} >{this.state.labels[key].name}</Badge></Col>
+                    <Col><Badge key={labels[key].name} value={labels[key].name}  bg="light" pill text="dark" style={{margin: 5, borderColor:"pink", border:border, color: this.state.color[labels[key].name],  textDecorationColor : 'white'}} >{this.state.labels[key].name}</Badge></Col>
                     <Col>
                     <div style={{                    padding: '5px',
                     background: '#fff',

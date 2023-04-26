@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Badge } from "react-bootstrap";
 import Form from 'react-bootstrap/Form';
 import { MdOutlineAddCircle } from "react-icons/md";
 import Button from 'react-bootstrap/Button';
@@ -10,14 +10,17 @@ import TaskEditor from "../tasks/TaskEditor";
 import { toast } from "react-toastify";
 import { Toastify } from "../Generic";
 import { fetchLatestEvents, fetchLatestEventsWithoutCalendarRefresh } from "@/helpers/frontend/sync";
-import { getI18nObject } from "@/helpers/frontend/general";
+import { ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
+import QuickAdd from "@/helpers/frontend/classes/QuickAdd";
+import { logError, logVar, varNotEmpty } from "@/helpers/general";
+import moment from "moment";
 
 export default class AddTask extends Component{
     constructor(props)
     {
         super(props)
         this.i18next = getI18nObject()
-        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false, calendar_id: props.calendars_id}
+        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: []}
         this.addTask = this.addTask.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
@@ -27,6 +30,7 @@ export default class AddTask extends Component{
         this.taskEditorDismissed = this.taskEditorDismissed.bind(this)
         this.refreshDataWithNewCalendarID = this.refreshDataWithNewCalendarID.bind(this)
         this.onKeyDown = this.onKeyDown.bind(this)
+        this.processQuickAddResults = this.processQuickAddResults.bind(this)
 
     }
     componentDidMount()
@@ -65,6 +69,10 @@ export default class AddTask extends Component{
 
             var newData= previousState.data
             newData["summary"]=''
+            newData["due"]=""
+            newData["category"]=[]
+            newData["priority"]=""
+
             return({newTaskSummary: '', data:newData}
                 )
         })
@@ -83,7 +91,7 @@ export default class AddTask extends Component{
                 {
                     toast.error("Error. Check logs")
                 }
-                console.log(body)
+                logError(body, "AddTask.taskEditorDismissed")
 
             }
         }
@@ -125,6 +133,10 @@ export default class AddTask extends Component{
 
             var newData= previousState.data
             newData["summary"]=''
+            newData["due"]=""
+            newData["category"]=[]
+            newData["priority"]=""
+
             return({newTaskSummary: '', data:newData}
                 )
         })
@@ -132,12 +144,54 @@ export default class AddTask extends Component{
 
     }
 
+    processQuickAddResults(newTask, dueDate)
+    {
+        var output = []
+        if(varNotEmpty(dueDate) && dueDate!="" && dueDate.isValid() && varNotEmpty(dueDate._i) &&dueDate._i!="")
+        {
+            output.push(<div > <Badge key="QUICK_ADD_DUE" pill bg="warning" text="dark">{this.i18next.t("DUE")+": "+dueDate._i.toString()}</Badge></div>)
+        }
+
+        if(varNotEmpty(newTask.label) && newTask.label.length>0)
+        {
+            var labelNames= ""
+            for (const k in newTask.label)
+            {
+                labelNames+=newTask.label[k]+" "
+            }
+            labelNames= labelNames.trim()
+            output.push(<div > <Badge pill bg="warning" text="dark">{this.i18next.t("LABEL")+": ["+labelNames+"]"}</Badge></div>)
+        }
+
+        if(varNotEmpty(newTask.priority) && newTask.priority!="")
+        {
+            output.push(<div > <Badge key="QUICK_ADD_PRIORITY" pill bg="warning" text="dark">{this.i18next.t("PRIORITY")+": "+newTask.priority}</Badge></div>)
+
+        }
+
+        this.setState({quickAddResults: (<div style={{margin: 5}}>{output}</div>)})
+    }
     taskSummaryChanged(e)
     {
+        var newTask = QuickAdd.parseSummary(e.target.value)
+        var dueDate = ""
+        try{
+            dueDate = moment(newTask.due, 'DD/MM/YYYY H:mm')
+        }
+        catch(e)
+        {
+            logVar(e, "taskSummaryChanged, QuickAdd")
+        }
+        this.processQuickAddResults(newTask, dueDate)
+
         this.setState(function(previousState, currentProps) {
 
             var newData= previousState.data
-            newData["summary"]=e.target.value
+            newData["summary"]=newTask.summary
+            newData["due"]=dueDate,
+            newData["category"]=newTask.label,
+            newData["priority"]=newTask.priority
+
             return({newTaskSummary: e.target.value, data:newData}
                 )
         })
@@ -155,6 +209,11 @@ export default class AddTask extends Component{
 
                 var newData= previousState.data
                 newData["summary"]=''
+                newData["due"]=""
+                newData["category"]=[]
+                newData["priority"]=""
+    
+    
                 return({newTaskSummary: '', data:newData}
                     )
             })
@@ -172,18 +231,23 @@ export default class AddTask extends Component{
         var borderColor='2px solid '+SECONDARY_COLOUR
         return(
         <>
-            <Row style={{padding: 20, textAlign:"center", borderBottom:borderColor}}>
+            <div style={{padding: 20, textAlign:"center", borderBottom:borderColor}}> 
+            <Row >
             <Col xs={10}> 
                     <Form.Control value={this.state.newTaskSummary} onChange={this.taskSummaryChanged} onKeyDown={this.onKeyDown} type="text" placeholder="Add a task" />
                 </Col>
+
             <Col xs={2}><Button onClick={this.addTask}>Add</Button></Col>
             </Row>
+            {this.state.quickAddResults}
+            </div>
+         
             <Offcanvas placement='end' show={this.state.showTaskEditor} onHide={this.taskEditorClosed}>
                 <Offcanvas.Header closeButton>
                      <Offcanvas.Title>Edit Task</Offcanvas.Title>
                 </Offcanvas.Header>
                     <Offcanvas.Body>
-                        <TaskEditor onChange={this.taskDataChanged} onDismiss={this.taskEditorDismissed} calendar_id={this.state.calendar_id}  data={this.state.data} />
+                        <TaskEditor onChange={this.taskDataChanged} onDismiss={this.taskEditorDismissed} newTask={true} calendar_id={this.state.calendar_id}  data={this.state.data} />
                     </Offcanvas.Body>
             </Offcanvas>
 

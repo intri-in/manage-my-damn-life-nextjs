@@ -23,7 +23,6 @@ import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { FULLCALENDAR_BUSINESS_HOURS } from "@/config/constants";
 import { withRouter } from "next/router";
-import RRule from '@/external/rrule.min.js'
 class DashboardView extends Component {
     calendarRef = React.createRef()
     constructor(props) {
@@ -444,10 +443,10 @@ class DashboardView extends Component {
                 </Col>
             </Row>
             <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
+                plugins={[dayGridPlugin,timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
                 ref={this.calendarRef}
                 initialView='timeGridDay'
-                themeSystem='bootstrap5'
+                themeSystem="standard"
                 events={this.state.events}
                 editable={true}
                 aspectRatio={this.state.calendarAR}
@@ -457,7 +456,6 @@ class DashboardView extends Component {
                 selectable={true}
                 nowIndicator={true}
                 rerenderEvents={this.rerenderEvents}
-                businessHours={FULLCALENDAR_BUSINESS_HOURS}
                 eventDrop={this.eventDrop}
                 eventResize={this.eventResize}
             />
