@@ -73,6 +73,7 @@ export default class AddTask extends Component{
             newData["category"]=[]
             newData["priority"]=""
 
+            this.processQuickAddResults(newData)
             return({newTaskSummary: '', data:newData}
                 )
         })
@@ -136,6 +137,7 @@ export default class AddTask extends Component{
             newData["due"]=""
             newData["category"]=[]
             newData["priority"]=""
+            this.processQuickAddResults(newData)
 
             return({newTaskSummary: '', data:newData}
                 )
