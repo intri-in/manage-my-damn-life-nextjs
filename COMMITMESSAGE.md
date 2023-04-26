@@ -4,4 +4,3 @@ v0.1.1
 
 - Added quick add shortcuts. More info in docs/Feature Guide/QuickAdd.md
 
--
