@@ -2,7 +2,7 @@
 import i18next from 'i18next';
 import *  as translations from '@/i18n/strings.json'
 import * as moment from 'moment';
-import { varNotEmpty } from '../general';
+import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
 
 export function getI18nObject()
@@ -57,6 +57,24 @@ export function ISODatetoHuman(date)
             
         }
      
+    }
+    else
+    {
+    }
+    return ""
+}
+
+export function ISODatetoHumanWithoutTime(date)
+{
+    if(date!=null && date!=undefined && typeof(date)=="string")
+    {
+        var isoDate = ISODatetoHuman(date)
+        var splitDate = isoDate.split(' ')
+        if(isValidResultArray(splitDate) && splitDate.length==2)
+        {
+            return splitDate[0]
+        }
+        
     }
     else
     {
@@ -208,4 +226,16 @@ export const findPath = (ob, key) => {
         toast.error(this.state.i18next.t("ERROR_GENERIC"))
     }
     
+  }
+
+  export function getTomorrow()
+  {
+    var currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1);
+    return currentDate
+  }
+
+  export function isValidTime(time)
+  {
+    return (moment(time, 'HH:mm', true).isValid() || moment(time, 'H:m', true).isValid() || moment(time, 'H:mm', true).isValid() || moment(time, 'H:mm', true).isValid())
   }

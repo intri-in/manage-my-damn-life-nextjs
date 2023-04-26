@@ -94,6 +94,7 @@ export default class Home extends Component {
           <title>{this.i18next.t("APP_NAME_TITLE")} - {this.i18next.t("TASKS")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
+          <script src='/fullcalendar/index.global.min.js'></script>
         </Head>
         <AppBarGeneric  onSynComplete={this.onSynComplete} />
         <div className='container-fluid'>

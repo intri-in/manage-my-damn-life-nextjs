@@ -13,7 +13,7 @@ export function setCookie(cname, cvalue, exdays)
 export async function getDefaultCalendarID()
 {
     //Cookies.get("DEFAULT_CALENDAR_ID")
-    const url_api=getAPIURL+"settings/getone?name=DEFAULT_CALENDAR"
+    const url_api=getAPIURL()+"settings/getone?name=DEFAULT_CALENDAR"
     const authorisationData=await getAuthenticationHeadersforUser()
 
     const requestOptions =

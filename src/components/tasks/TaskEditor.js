@@ -7,7 +7,7 @@ import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
 import { Row, Col, Button } from "react-bootstrap";
 import * as moment from 'moment';
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
-import { getAPIURL, isValidResultArray, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
 import VTodoGenerator from "@/external/VTODOGenerator";
 import { getRandomString } from "@/helpers/crypto";
@@ -26,13 +26,18 @@ import { generateNewTaskObject } from "@/helpers/frontend/tasks";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
+        var dueDate = ""
+
         if (props.data.due != null && props.data != null && props != null) {
-            var dueDate = ISODatetoHuman(props.data.due)
+          if(varNotEmpty(props.newTask) && props.newTask==true){
+            dueDate = props.data.due
+          } else{
+            dueDate = ISODatetoHuman(props.data.due)
+          } 
 
         }
-        else {
-            var dueDate = ""
-        }
+       
+        logVar(dueDate, "TaskEditor")
         var startDate = ""
         if (props.data.start != null && props.data.start != "") {
             startDate = ISODatetoHuman(props.data.start)
@@ -51,7 +56,22 @@ export default class TaskEditor extends Component {
         if (props.data.taskDone != null && props.data.taskDone != "") {
             taskDone = props.data.taskDone
         }
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: props.data.status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: props.calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [] }
+        var calendar_id=""
+        if(varNotEmpty(calendar_id))
+        {
+            calendar_id=props.calendar_id
+        }
+        var status=''
+        if(varNotEmpty(props.data.status))
+        {
+            status=props.data.status
+        }
+        var priority=""
+        if(varNotEmpty(props.data.priority))
+        {
+            priority = props.data.priority
+        }
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [] }
 
 
         this.i18next = getI18nObject()
@@ -274,7 +294,7 @@ export default class TaskEditor extends Component {
                     }
                 }
 
-                labelArray.push(<span onClick={this.removeLabel} id={this.state.category[i]} key={this.state.category[i]} className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{this.state.category[i]}</span>)
+                labelArray.push(<span onClick={this.removeLabel} id={this.state.category[i]} key={this.state.category[i]}  className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{this.state.category[i]}</span>)
 
             }
         }

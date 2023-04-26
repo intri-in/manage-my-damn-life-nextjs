@@ -85,7 +85,7 @@ class GenericLists extends Component{
                                 var border="1px solid "+labels[key].colour
                                 if(!labels[key].name.startsWith(SYSTEM_DEFAULT_LABEL_PREFIX+"-"))
                                 {
-                                    temp_Labelcomponent.push(<Badge key={labels[key].name} value={labels[key].name} onClick={this.props.labelClicked} bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: labels[key].colour,  textDecorationColor : 'white'}} >{labels[key].name}</Badge>)
+                                    temp_Labelcomponent.push(<Badge text="dark" key={labels[key].name} value={labels[key].name} onClick={this.props.labelClicked} bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: labels[key].colour,  textDecorationColor : 'white'}} >{labels[key].name}</Badge>)
 
                                 }
                             }
