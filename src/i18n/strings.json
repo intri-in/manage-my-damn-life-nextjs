@@ -158,6 +158,7 @@
         "CANT_CREATE_EMPTY_TASK": "Can't submit an event or a task with no summary.",
         "EVENT_NEEDS_BOTH_FROM_AND_TO": "Event needs both a 'From' and 'To' date.",
         "ERROR_PICK_A_CALENDAR": "Please pick a calendar for the event.",
+        "ERROR_START_DATE_REQUIRED_FOR_RECCURENCE":"Start date is required with recurrence rules.",
         "ERROR_ENDDATE_SMALLER_THAN_START": "End date and due date must be after start date. ",
         "ERROR_GETTING_SETTINGS": "Error getting settings. See console logs.",
         "USER_REG_DISABLED_FROM_ENV": "User registration is disabled from env variable. You'll need to change the value there to enable it."

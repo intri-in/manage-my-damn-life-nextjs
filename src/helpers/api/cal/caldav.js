@@ -6,7 +6,9 @@ import { getRandomString } from '@/helpers/crypto';
 import { syncEventsWithCaldlav } from './object';
 import { AES } from 'crypto-js';
 import CryptoJS from "crypto-js"
-import { logError } from '@/helpers/general';
+import { logError, varNotEmpty } from '@/helpers/general';
+import ical from '@/../ical/ical'
+import { parseICSWithICALJS } from '../ical';
 
 /**
  * 
@@ -169,8 +171,8 @@ export async function getAllCalendarEvents()
 
 export function checkifObjectisVTODO(data)
 {
+    var type=""
     try{
-        const ical = require('ical');
         const  parsedData = ical.parseICS(data);
         for (let k in parsedData) {
             return parsedData[k].type
@@ -178,7 +180,25 @@ export function checkifObjectisVTODO(data)
     
     }catch(e){
         logError(e, data)
-        return ""
+        
+    }
+
+    // We fall back to other parse to get type.
+    if(type=="")
+    {
+        const  parsedData = parseICSWithICALJS(data, "VTODO");
+        if(varNotEmpty(parsedData) && parsedData!={})
+        {
+            return "VTODO"
+        }else{
+            const  parsedDataTry2 = parseICSWithICALJS(data, "VEVENT");
+            if(varNotEmpty(parsedDataTry2) && parsedDataTry2!={})
+            {
+                return "VEVENT"
+            }else{
+                return ""
+            }
+        }
     }
     
 }

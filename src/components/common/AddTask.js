@@ -176,7 +176,7 @@ export default class AddTask extends Component{
     taskSummaryChanged(e)
     {
         var newTask = QuickAdd.parseSummary(e.target.value)
-        var dueDate = ""
+        var dueDate = null
         try{
             dueDate = moment(newTask.due, 'DD/MM/YYYY H:mm')
         }
@@ -190,10 +190,12 @@ export default class AddTask extends Component{
 
             var newData= previousState.data
             newData["summary"]=newTask.summary
-            newData["due"]=dueDate,
-            newData["category"]=newTask.label,
+            newData["category"]=newTask.label
             newData["priority"]=newTask.priority
-
+            if(dueDate!=null && dueDate.isValid()==true)
+            {
+                newData["due"]=dueDate
+            }
             return({newTaskSummary: e.target.value, data:newData}
                 )
         })

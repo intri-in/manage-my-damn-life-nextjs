@@ -18,6 +18,8 @@ import { MYDAY_LABEL } from "@/config/constants";
 import Draggable from 'react-draggable'; 
 import { updateTodo } from "@/helpers/frontend/tasks";
 import { getLabelArrayFromCookie, saveLabelArrayToCookie } from "@/helpers/frontend/settings";
+import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
+import { MdRepeatOn, MdRepeatOne, MdSpeakerNotes } from "react-icons/md";
 
 export default class TaskUI extends Component{
 
@@ -39,7 +41,7 @@ export default class TaskUI extends Component{
         }
         data.taskDone=taskChecked
         this.i18next = getI18nObject()
-        this.state={labelColours: {}, labelArray: [], labelNames: [], showTaskEditor:false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false,showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder:null, showSubtaskEditor: false, subtaskData:{}, collapseButton: "", isCollapsed:props.collapsed, taskChecked:taskChecked}
+        this.state={labelColours: {}, labelArray: [], labelNames: [], showTaskEditor:false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false,showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder:null, showSubtaskEditor: false, subtaskData:{}, collapseButton: "", isCollapsed:props.collapsed, taskChecked:taskChecked, repeatingTask:false}
         this.taskClicked= this.taskClicked.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
@@ -56,10 +58,12 @@ export default class TaskUI extends Component{
         this.collapseButtonClicked = this.collapseButtonClicked.bind(this)
         this.priorityStarClicked = this.priorityStarClicked.bind(this)
         this.onEditTask = this.onEditTask.bind(this)
+        this.isRepeatingTask = this.isRepeatingTask.bind(this)
     }
 
     componentDidMount(){
         this.generateInitialLabelList()
+        this.isRepeatingTask()
         if(this.props.todoList!=null && this.props.data.relatedto!=null && this.props.data.relatedto!=""&&this.props.level==0)
         {
             var parentID= this.props.data.relatedto
@@ -77,6 +81,13 @@ export default class TaskUI extends Component{
                 this.setState({collapseButton: <FcCollapse value={this.props.data.uid} key={this.props.data.uid} id={this.props.data.uid} onClick={this.collapseButtonClicked}/>})
 
             }
+        }
+    }
+    isRepeatingTask()
+    {
+        if(varNotEmpty(this.state.data.rrule) && this.state.data.rrule!="")
+        {
+            this.setState({repeatingTask: true})
         }
     }
     priorityStarClicked()
@@ -431,20 +442,28 @@ export default class TaskUI extends Component{
             }
 
         }
+        var dueDateText = this.props.dueDate+" "+timeDifferenceinWords
+
+        if (window != undefined) {
+            // window.addEventListener('resize', this.updateDimensions);
+       
+             if (window.innerWidth < 900) {
+                dueDateText=timeDifferenceinWords
+             }
+        }       
         var priorityStar =(<AiOutlineStar color={priorityColor} size={12} />)
         if(this.props.priority!=null)
         {
-            if(this.props.priority<3)
+            if(this.props.priority<3 && this.props.priority>0)
             {
                 priorityColor="red"
                 priorityStar=(<AiFillStar color={priorityColor} size={12} />)
             }
-            else if(this.props.priority<7)
+            else if(this.props.priority<7 && this.props.priority>0)
             {
                 priorityColor="gold"
                 priorityStar=(
-                <AiFillStar color={priorityColor} size={12} />
-          )
+                <AiFillStar color={priorityColor} size={12} />)
             }
             else
             {
@@ -481,6 +500,18 @@ export default class TaskUI extends Component{
             borderLeft = "10px solid "+this.props.listColor
         }
 
+        var repeatingTaskIcon = null
+
+        if(this.state.repeatingTask==true)
+        {
+            repeatingTaskIcon=<MdRepeatOne size={16} />
+        }
+        var hasDescriptionIcon = null
+        if(varNotEmpty(this.state.data.description) && this.state.data.description.toString().trim()!="")
+        {
+            hasDescriptionIcon =<MdSpeakerNotes />
+        }
+
         return(
             <div>
                 <ContextMenuTrigger id={this.state.data.uid} >
@@ -492,17 +523,20 @@ export default class TaskUI extends Component{
                         <div onClick={this.taskClicked} style={{justifyContent: 'center', alignItems:'center', verticalAlign: 'middle',  padding: 0 }} className="col-8">
                             <div className="row">
                                 <div className="col-9" style={{}}>
-                                    <div className="textDefault">{this.state.taskTitle} {this.state.labelArray} </div>
+                                    <div className="textDefault"><span style={{textOverflow: "ellipsis"}}>{this.state.taskTitle} {this.state.labelArray}</span> </div>
                                 </div>
                                 <div className="col-3">
-                                <div className="defaultText" style={{color: dueDateColor, fontSize: 10 }}>{this.props.dueDate} {timeDifferenceinWords}</div>
-
+                                <div className="defaultText" style={{color: dueDateColor, fontSize: 10 }}>{dueDateText}</div>
                                 </div>
                             </div>
                             {progressBar}
                             
                         </div>
-                        <div  style={{padding: 0, position:'relative', verticalAlign: 'middle',  textAlign: 'right', }} className="col-2">
+                        <div onClick={this.taskClicked} className="col-1">
+                                {repeatingTaskIcon} {hasDescriptionIcon}
+                        </div>
+
+                        <div style={{padding: 0, position:'relative', verticalAlign: 'middle',  textAlign: 'right', }} className="col-1">
                         <div className="row">
                                 <div className="col">
                                 {this.state.collapseButton}

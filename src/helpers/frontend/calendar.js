@@ -281,8 +281,17 @@ export function returnGetParsedVTODO(vtodo)
             lastmodified:parsedData[k].lastmodified,
             dtstamp: parsedData[k].dtstamp,
             description: parsedData[k].description,
+            rrule: parsedData[k].rrule
 
 
+        }
+
+        for (const key in parsedData[k])
+        {
+            if(!(key in toReturn))
+            {
+                toReturn[key]=parsedData[k][key]
+            }
         }
         return toReturn
     }
@@ -395,7 +404,7 @@ export function getParsedTodoList(todoList)
         for(let i=0; i<todoList.length; i++)
         {
             var todo = returnGetParsedVTODO(todoList[i].data)
-            todo["url"]=todoList[i].url
+            todo["url_internal"]=todoList[i].url
             todo["etag"]=todoList[i].etag
             todo["calendar_id"]=todoList[i].calendar_id
             todo["deleted"]=todoList[i].deleted

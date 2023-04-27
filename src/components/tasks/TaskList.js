@@ -218,7 +218,6 @@ import { getAPIURL } from '@/helpers/general';
 
             if (response.success == true) {
                 const todoList = await getEvents(response.data.message, this.props.filter)
-                console.log("todoList.length", todoList.length)
                 if (todoList != null && Array.isArray(todoList) && todoList.length > 0) {
                     this.renderTaskListUI(todoList)
                 }

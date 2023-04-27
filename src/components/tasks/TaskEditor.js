@@ -22,6 +22,9 @@ import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { Loading } from "../common/Loading";
 import ParentTaskSearch from "./ParentTaskSearch";
 import { generateNewTaskObject } from "@/helpers/frontend/tasks";
+import Recurrence from "../common/Recurrence";
+import { rruleToObject } from "@/helpers/frontend/events";
+import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 
 export default class TaskEditor extends Component {
     constructor(props) {
@@ -37,10 +40,9 @@ export default class TaskEditor extends Component {
 
         }
        
-        logVar(dueDate, "TaskEditor")
         var startDate = ""
         if (props.data.start != null && props.data.start != "") {
-            startDate = ISODatetoHuman(props.data.start)
+            startDate = moment(props.data.start)
         }
 
         if (this.props.data.completion == null) {
@@ -71,7 +73,13 @@ export default class TaskEditor extends Component {
         {
             priority = props.data.priority
         }
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [] }
+
+        var rrule =[]
+        if(props.data.rrule!=null)
+        {
+            rrule=rruleToObject(props.data.rrule)
+        }
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [],rrule:rrule }
 
 
         this.i18next = getI18nObject()
@@ -98,12 +106,13 @@ export default class TaskEditor extends Component {
         this.setCalendarID= this.setCalendarID.bind(this)
         this.checkifValid = this.checkifValid.bind(this)
         this.getCalendarDDL = this.getCalendarDDL.bind(this)
+        this.onRruleSet = this.onRruleSet.bind(this)
     }
 
     componentDidMount() {
         this.getLabels()
         this.generateCalendarName()
-        if (this.props.data.url == null) {
+        if (this.props.data.url_internal == null) {
             //Probably a new task.
             this.props.onChange()
 
@@ -218,11 +227,11 @@ export default class TaskEditor extends Component {
 
             }
         }
-        if (this.props.data.calendar_id != null && this.props.data.url != null) {
+        if (this.props.data.calendar_id != null && this.props.data.url_internal != null) {
             //Change of calendar disabled for old tasks. 
             var disabled = true
         }
-        else if (this.props.data.calendar_id != null && this.props.data.url == null && this.props.data.isSubtask != null) {
+        else if (this.props.data.calendar_id != null && this.props.data.url_internal == null && this.props.data.isSubtask != null) {
             var disabled = true
 
         }
@@ -332,7 +341,7 @@ export default class TaskEditor extends Component {
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url, "calendar_id": this.state.calendar_id }),
+            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url_internal, "calendar_id": this.state.calendar_id }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -370,6 +379,15 @@ export default class TaskEditor extends Component {
             return false
         }
 
+        if(varNotEmpty(this.state.rrule) && RRuleHelper.isValidObject(this.state.rrule))
+        {
+            if(varNotEmpty(this.state.start) ==false || (varNotEmpty(this.state.start) && this.state.start.toString().trim()==""))
+            {
+                toast.error(this.i18next.t("ERROR_START_DATE_REQUIRED_FOR_RECCURENCE"))
+                return false
+    
+            }
+        }
         return true
     }
     async saveTask() {
@@ -389,19 +407,28 @@ export default class TaskEditor extends Component {
             if (valid) {
                 this.setState({ saveButton: <Loading /> })
 
-                var todoData = { due: dueDate, start: this.state.start, summary: this.state.summary, created: this.props.data.created, completion: this.state.completion, completed: this.state.completed, status: this.state.status, uid: this.props.data.uid, categories: this.state.category, priority: this.state.priority, relatedto: this.state.relatedto, lastmodified: "", dtstamp: this.props.data.dtstamp, description: this.state.description, }
+                var todoData = { due: dueDate, start: this.state.start, summary: this.state.summary, created: this.props.data.created, completion: this.state.completion, completed: this.state.completed, status: this.state.status, uid: this.props.data.uid, categories: this.state.category, priority: this.state.priority, relatedto: this.state.relatedto, lastmodified: "", dtstamp: this.props.data.dtstamp, description: this.state.description, rrule: this.state.rrule}
 
-                var finalTodoData = generateNewTaskObject(todoData, this.props.data)
-                var todo = new VTodoGenerator(todoData)
+                var oldUnparsedData = null
+                if(varNotEmpty(this.props.todoList) && Array.isArray(this.props.todoList) && this.props.todoList.length>3 && varNotEmpty(this.props.data.uid) && varNotEmpty(this.props.todoList[2][this.props.data.uid]) && varNotEmpty(this.props.todoList[2][this.props.data.uid].data))
+                {
+                    oldUnparsedData=this.props.todoList[2][this.props.data.uid].data
+                }
+                //console.log(this.props.todoList[2][this.props.data.uid].data)
+                var finalTodoData = await generateNewTaskObject(todoData, this.props.data, oldUnparsedData)
+                console.log(finalTodoData)
+                var todo = new VTodoGenerator(finalTodoData)
+               
+                //console.log(finalTodoData)
                 var finalVTODO = todo.generate()
-                //console.log(finalVTODO)
+                logVar(finalVTODO, "Final Generated TODO")
                 var etag = getRandomString(32)
-                if (this.props.data.url == null) {
-                    var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
+                if (this.props.data.url_internal == null) {
+                   var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
 
                 }
                 else {
-                    var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url, this.props.data.etag, finalVTODO)
+                    var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url_internal, this.props.data.etag, finalVTODO)
                 }
 
             } 
@@ -469,6 +496,12 @@ export default class TaskEditor extends Component {
     onParentSelect(uid) {
         this.setState({ relatedto: uid })
     }
+    onRruleSet(rrule)
+    {
+        var newRRULE = RRuleHelper.parseObject(rrule)
+        this.setState({rrule: newRRULE})
+    }
+
     render() {
 
         var parentTask = ""
@@ -556,6 +589,8 @@ export default class TaskEditor extends Component {
                 <Form.Range onChange={this.completionChanged} value={this.state.completion} />
                 <h4>Notes</h4>
                 <Form.Control as="textarea" onChange={this.descriptionChanged} value={this.state.description} placeholder="Enter your notes here." />
+                <br />
+                <Recurrence onRruleSet={this.onRruleSet} rrule={this.state.rrule} />
                 <div style={{ marginTop: 40, textAlign: "center" }}>
                     {this.state.saveButton}
                 </div>

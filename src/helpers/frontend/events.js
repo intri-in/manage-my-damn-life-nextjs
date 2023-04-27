@@ -431,7 +431,7 @@ export function reccurence_torrule(formDataRRule)
         toReturn["FREQ"] = "MONTHLY"
     }
     toReturn["INTERVAL"] = formDataRRule["INTERVAL"]
-
+    
     return toReturn
 }
 

@@ -1,6 +1,10 @@
-v0.1.1
+v0.1.20-dev
 
-- Added import of Fullcalendar's script. Now calendar is rendering perfectly.
+- Ganttview, improved date parsing
 
-- Added quick add shortcuts. More info in docs/Feature Guide/QuickAdd.md
+- Taskeditor - Now supports more values so there's no data loss even if other clients are used.
+    - Now supports tasks recurrence, atleast for editing and viewing
+
+- Minor UI changes.
+
 
