@@ -28,6 +28,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Tooltip from 'react-bootstrap/Tooltip';
 import SimpleOverlay from "../bootstrap/SimpleOverlay";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
+import VTodoGenerator from "@/external/VTODOGenerator";
 export default class TaskUI extends Component {
 
     constructor(props) {
@@ -163,6 +164,15 @@ export default class TaskUI extends Component {
     async onAddtoMyday(input) {
         // first check if the task already has label for my day.
         var newDataArray = _.cloneDeep(this.state.data)
+        //change Rrule to RruleObject
+        if(varNotEmpty(this.state.data.rrule) && this.state.data.rrule!="")
+        {
+            newDataArray["rrule"]= RRuleHelper.rruleToObject(newDataArray.rrule)
+        }
+/*         console.log(newDataArray)
+        var todo = new VTodoGenerator(newDataArray)
+        console.log(todo.generate())
+ */
         if (this.state.data.category != null && Array.isArray(this.state.data.category)) {
             var found = false
 
@@ -194,7 +204,10 @@ export default class TaskUI extends Component {
             newDataArray.categories = []
             newDataArray.categories.push(MYDAY_LABEL)
             //console.log(newDataArray)
-
+            console.log(newDataArray)
+            var todo = new VTodoGenerator(newDataArray)
+            console.log(todo.generate())
+    
             //this.setState({data: newDataArray, showTaskEditor: true, })
             var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
             this.onTaskSubmittoServer(body)
@@ -208,8 +221,13 @@ export default class TaskUI extends Component {
 
             if (categoryArrayHasMyDayLabel(this.state.data.category)) {
                 var newCategoryArray = removeMyDayLabelFromArray(this.state.data.category)
-                var newData = this.state.data
+                var newData = _.cloneDeep(this.state.data)
                 newData.categories = newCategoryArray
+                if(varNotEmpty(this.state.data.rrule) && this.state.data.rrule!="")
+                {
+                    newData["rrule"]= RRuleHelper.rruleToObject(newData.rrule)
+                }
+        
                 //this.setState({data: newData, showTaskEditor: true})
                 var body = await updateTodo(this.props.data.calendar_id, this.props.data.url_internal, this.props.data.etag, newData)
                 this.onTaskSubmittoServer(body)
@@ -232,7 +250,7 @@ export default class TaskUI extends Component {
     }
     checkBoxClicked() {
 
-
+        
         this.setState(function (previousState, currentProps) {
 
             var newData = JSON.parse(JSON.stringify(previousState.data))

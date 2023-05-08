@@ -151,25 +151,37 @@ export default class TaskEditor extends Component {
         }
 
 
-        if (this.props.data.taskDone != null && this.props.data.taskDone != "") {
-            var completed = Math.floor(Date.now() / 1000)
-
-            this.setState({ completed: completed, })
-        }
         this.setState({
             saveButton: (<Button onClick={this.saveTask} style={{ width: "90%" }}>Save</Button>
             )
         })
 
+        var isRepeatingTask = false
+        var nextupKey=null
         if(varNotEmpty(this.state.repeatInfo) && varNotEmpty(this.state.repeatInfo.newObj))
         {
             if( Object.keys(this.state.repeatInfo.newObj).length>0 && varNotEmpty(this.props.data.rrule) )
             {
-                var nextupKey = this.getNextUpKey()
+                nextupKey = this.getNextUpKey()
+                isRepeatingTask=true
                 this.setState({isRepeatingTask: true, nextUpRepeatingInstance: nextupKey})
     
             }
         }
+
+        if (this.props.data.taskDone != null && this.props.data.taskDone != "") {
+            var completed = Math.floor(Date.now() / 1000)
+
+            if(isRepeatingTask==false)
+            {
+
+                this.setState({ completed: completed, })
+    
+            }else{
+                this.state.repeatInfo.setPropertyOfInstance("completed",completed, nextupKey)
+            }
+        }
+
     }
 
     /**
@@ -211,6 +223,11 @@ export default class TaskEditor extends Component {
             this.setState({todoList: _.cloneDeep(this.props.todoList)})
         }
 
+        if(this.props.data!= prevProps.data)
+        {
+            var newCalendarID = this.props.data.calendar_id
+            this.setState({calendar_id: newCalendarID})
+        }
 
     }
 
@@ -517,7 +534,7 @@ export default class TaskEditor extends Component {
                 logVar(finalVTODO, "Final Generated TODO")
                 var etag = getRandomString(32)
                 if (this.props.data.url_internal == null || this.props.data.url_internal == "") {
-                    var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
+                   var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
 
                 }
                 else {

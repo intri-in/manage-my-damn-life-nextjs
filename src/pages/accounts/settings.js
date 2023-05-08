@@ -15,6 +15,7 @@ import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
 import { Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import ManageUsers from "@/components/admin/ManageUsers";
+import Button from "react-bootstrap/Button";
 class Settings extends Component {
 
     constructor(props) {
@@ -28,6 +29,7 @@ class Settings extends Component {
         this.calendarSelected = this.calendarSelected.bind(this)
         this.getCalendarOutput = this.getCalendarOutput.bind(this)
         this.allowRegChanged = this.allowRegChanged.bind(this)
+        this.caldavAccountButtonClicked = this.caldavAccountButtonClicked.bind(this)
     }
     componentDidMount() {
         this.getUserInfo()
@@ -85,6 +87,10 @@ class Settings extends Component {
                 }
             })
 
+    }
+    caldavAccountButtonClicked()
+    {
+        this.props.router.push("/accounts/caldav")
     }
     async getUserInfo() {
         const url_api = getAPIURL() + "users/info"
@@ -337,6 +343,7 @@ class Settings extends Component {
                 <Container fluid>
                     <div style={{ padding: 20 }}>
                         <h1>{this.i18next.t("SETTINGS")}</h1>
+                        <div style={{textAlign: "right"}}><Button onClick={this.caldavAccountButtonClicked} variant="outline-info">{this.i18next.t("MANAGE")+" "+this.i18next.t("CALDAV_ACCOUNTS")}</Button>{' '}</div>
                         <br />
                         <h2>{this.i18next.t("ACCOUNT_INFO")}</h2>
                         {this.state.userInfo}

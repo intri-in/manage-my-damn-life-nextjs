@@ -16,13 +16,14 @@ import { logError, logVar, varNotEmpty } from "@/helpers/general";
 import moment from "moment";
 import { APIRequests } from "@/helpers/frontend/classes/APIRequests";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
+import { withRouter } from "next/router";
 
-export default class AddTask extends Component{
+class AddTask extends Component{
     constructor(props)
     {
         super(props)
         this.i18next = getI18nObject()
-        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: [], todoList: null,}
+        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{calendar_id: props.calendar_id}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: [], todoList: null}
         this.addTask = this.addTask.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
@@ -58,9 +59,9 @@ export default class AddTask extends Component{
     
     componentDidUpdate(prevProps, prevState) {
 
-        if (this.props.calendars_id !== prevProps.calendars_id) {
-            this.setState({calendar_id: this.props.calendar_id})
-            this.refreshDataWithNewCalendarID()
+        if (this.props.calendars_id !== prevProps.calendars_id || this.props.caldav_accounts_id!=prevProps.caldav_accounts_id) {
+            this.setState({calendar_id: this.props.calendar_id, newTaskSummary: ""})
+            this.refreshDataWithNewCalendarID(this.props.calendar_id)
             
         }
 
@@ -68,17 +69,16 @@ export default class AddTask extends Component{
     }
 
 
-    refreshDataWithNewCalendarID()
+    refreshDataWithNewCalendarID(calendar_id)
     {
-        if(this.state.calendars_id!=null&&this.state.calendars_id!="")
-        {
-            this.setState(function(previousState, currentProps) {
+       
+        this.setState(function(previousState, currentProps) {
 
-                var newData = previousState.data
-                newData["calendar_id"]=this.props.calendars_id
-                return({data: newData, calendar_id:this.props.calendars_id})
-            })
-        }
+            var newData = _.cloneDeep(previousState.data)
+            newData["calendar_id"]=calendar_id
+            return({data: newData, calendar_id:calendar_id})
+        })
+        
         
     }
     async taskEditorDismissed(body)
@@ -86,16 +86,15 @@ export default class AddTask extends Component{
         this.setState({showTaskEditor: false, taskDataChanged: false, } )
         this.setState(function(previousState, currentProps) {
 
-            var newData= previousState.data
+            var newData= _.cloneDeep(previousState.data)
             newData["summary"]=''
             newData["due"]=""
             newData["category"]=[]
             newData["priority"]=""
-            newData["calendar_id"]=this.props.calendars_id
+            newData["calendar_id"]=_.cloneDeep(this.props.calendars_id)
 
             this.processQuickAddResults(newData)
-            return({newTaskSummary: '', data:newData}
-                )
+            return({newTaskSummary: '', data:newData})
         })
 
         if(body!=null)
@@ -152,7 +151,7 @@ export default class AddTask extends Component{
         this.setState({showTaskEditModal: false, showTaskEditor:false})
         this.setState(function(previousState, currentProps) {
 
-            var newData= previousState.data
+            var newData= _.cloneDeep(previousState.data)
             newData["summary"]=''
             newData["due"]=""
             newData["category"]=[]
@@ -210,7 +209,7 @@ export default class AddTask extends Component{
 
         this.setState(function(previousState, currentProps) {
 
-            var newData= previousState.data
+            var newData= _.cloneDeep(previousState.data)
             newData["summary"]=newTask.summary
             newData["category"]=newTask.label
             newData["priority"]=newTask.priority
@@ -233,7 +232,7 @@ export default class AddTask extends Component{
         {
             this.setState(function(previousState, currentProps) {
 
-                var newData= previousState.data
+                var newData= _.cloneDeep(previousState.data)
                 newData["summary"]=''
                 newData["due"]=""
                 newData["category"]=[]
@@ -287,3 +286,5 @@ export default class AddTask extends Component{
         )
     }
 }
+
+export default withRouter(AddTask)
