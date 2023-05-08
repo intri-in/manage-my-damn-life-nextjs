@@ -469,10 +469,12 @@ export default class TaskEditor extends Component {
         return true
     }
     async saveTask() {
-        var recurrences = _.cloneDeep(this.state.repeatInfo.newRecurrence)
         //console.log(recurrences)
+        var recurrences = null
         if(this.state.isRepeatingTask == true )
         {
+            recurrences = _.cloneDeep(this.state.repeatInfo.newRecurrence)
+
             recurrences[this.state.nextUpRepeatingInstance]=this.state.repeatInfo.newObj[this.state.nextUpRepeatingInstance]
 
             if(varNotEmpty(recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"])==false || (varNotEmpty(recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]) && recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]==""))

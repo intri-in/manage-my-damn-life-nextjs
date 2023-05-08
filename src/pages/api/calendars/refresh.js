@@ -2,11 +2,11 @@ import { CaldavAccount } from "@/helpers/api/classes/CaldavAccount"
 import { Calendars } from "@/helpers/api/classes/Calendars"
 import { User } from "@/helpers/api/classes/User"
 import { middleWareForAuthorisation } from "@/helpers/api/user"
-import { isValidResultArray } from "@/helpers/general"
+import { isValidResultArray, logVar } from "@/helpers/general"
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
-
+const LOGTAG = "api/calendars/refresh"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
         if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
@@ -22,7 +22,6 @@ export default async function handler(req, res) {
                 for(const i in caldav_accounts)
                 {
                     var caldavAccount = new CaldavAccount(caldav_accounts[i])
-                  
                     const client =  await createDAVClient({
                         serverUrl: caldav_accounts[i].url,
                         credentials: {
@@ -33,12 +32,17 @@ export default async function handler(req, res) {
                         defaultAccountType: 'caldav',
                     }).catch((reason) =>
                     {
+                        logVar(reason, "api/calendars/refresh")
                         // Invalid calDAV account. Client is null.
                     })
+                    logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
+                    logVar(client, "client: api/calendars/refresh")
 
                     if(client!=null && typeof(client)== 'object')
                     {
                         const calendars = await client.fetchCalendars()
+                        logVar(calendars, "calendars: "+LOGTAG)
+
                         if(isValidResultArray(calendars))
                         {
                             for (const j in calendars)
@@ -88,16 +92,16 @@ export default async function handler(req, res) {
                             }
                         }
 
-                        res.status(200).json({ success: true, data: { message: "REFRESH_OK" }})
 
                     }else{
                         res.status(401).json({ success: false, data: { message: "INVALID_CALDAV_ACCOUNT" }})
     
                     }    
 
-                    
+  
                 }
-                
+                res.status(200).json({ success: true, data: { message: "REFRESH_OK" }})
+
                
 
             }
