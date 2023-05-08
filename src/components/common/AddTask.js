@@ -14,13 +14,15 @@ import { ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
 import QuickAdd from "@/helpers/frontend/classes/QuickAdd";
 import { logError, logVar, varNotEmpty } from "@/helpers/general";
 import moment from "moment";
+import { APIRequests } from "@/helpers/frontend/classes/APIRequests";
+import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 
 export default class AddTask extends Component{
     constructor(props)
     {
         super(props)
         this.i18next = getI18nObject()
-        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: []}
+        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: [], todoList: null,}
         this.addTask = this.addTask.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
@@ -33,14 +35,31 @@ export default class AddTask extends Component{
         this.processQuickAddResults = this.processQuickAddResults.bind(this)
 
     }
-    componentDidMount()
+    async componentDidMount()
     {
         this.refreshDataWithNewCalendarID()
-        
+        var apiReq = new APIRequests(this.props)
+        var response = await apiReq.getAllTodosFromServer()
+        if(varNotEmpty(response))
+        {
+          this.setState({todoList: response})
+        }
+
+        if(this.state.calendar_id=="" || this.state.calendar_id==null)
+        {
+            var calendar = await getDefaultCalendarID()
+            this.setState({ calendar_id:  calendar})
+
+        }
+    
+    
     }
+
+    
     componentDidUpdate(prevProps, prevState) {
 
         if (this.props.calendars_id !== prevProps.calendars_id) {
+            this.setState({calendar_id: this.props.calendar_id})
             this.refreshDataWithNewCalendarID()
             
         }
@@ -51,7 +70,7 @@ export default class AddTask extends Component{
 
     refreshDataWithNewCalendarID()
     {
-        if(this.props.calendars_id!=null&&this.props.calendars_id!="")
+        if(this.state.calendars_id!=null&&this.state.calendars_id!="")
         {
             this.setState(function(previousState, currentProps) {
 
@@ -251,7 +270,7 @@ export default class AddTask extends Component{
                      <Offcanvas.Title>Edit Task</Offcanvas.Title>
                 </Offcanvas.Header>
                     <Offcanvas.Body>
-                        <TaskEditor onChange={this.taskDataChanged} onDismiss={this.taskEditorDismissed} newTask={true} calendar_id={this.state.calendar_id}  data={this.state.data} />
+                        <TaskEditor todoList={this.state.todoList} onChange={this.taskDataChanged} onDismiss={this.taskEditorDismissed} newTask={true} calendar_id={this.state.calendar_id}  data={this.state.data} />
                     </Offcanvas.Body>
             </Offcanvas>
 

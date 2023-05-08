@@ -1,9 +1,14 @@
-import { varNotEmpty } from "@/helpers/general";
+import { getAPIURL, varNotEmpty } from "@/helpers/general";
 import { getI18nObject } from "../general";
 import moment from "moment";
+import { getAuthenticationHeadersforUser } from "../user";
 
 export class RRuleHelper{
 
+    constructor()
+    {
+        
+    }
     static isValidObject(rruleObject)
     {
         if(varNotEmpty(rruleObject) && varNotEmpty(rruleObject.FREQ) && varNotEmpty(rruleObject.INTERVAL) && rruleObject.FREQ!="" && rruleObject.INTERVAL!="")
@@ -22,6 +27,48 @@ export class RRuleHelper{
         return toReturn
     }
 
+    static rruleToObject(rrule)
+    {
+        var objectToReturn = {"FREQ": "", "INTERVAL":"", "UNTIL":""}
+        if(varNotEmpty(rrule) && rrule!="" &&typeof(rrule)=="string")
+        {
+            var burst = rrule.split(';')
+    
+            if(varNotEmpty(burst) && Array.isArray(burst))
+            {
+                for(const i in burst)
+                {
+                    if(burst[i].startsWith("FREQ="))
+                    {
+                        var freq = burst[i].split('=')[1]
+                        objectToReturn["FREQ"]=freq
+                    }
+    
+                    if(burst[i].startsWith("INTERVAL="))
+                    {
+                        var interval = burst[i].split('=')[1]
+                        objectToReturn["INTERVAL"]=interval
+    
+                    }
+                    if(burst[i].startsWith("UNTIL="))
+                    {
+                        var interval = burst[i].split('=')[1]
+                        objectToReturn["UNTIL"]=interval
+    
+                    }
+    
+                }
+            }
+        }
+    
+        if(objectToReturn["INTERVAL"]=="" && objectToReturn["FREQ"]!="" )
+        {
+            objectToReturn["INTERVAL"]=1
+        }
+        return objectToReturn
+    
+    }
+    
     static stringToObject(rrule)
     {
         var objectToReturn = this.getEmptyObject()
@@ -166,4 +213,6 @@ export class RRuleHelper{
         }
         return words
     }
+
+
 }

@@ -14,3 +14,4 @@ export function getMessageFromAPIResponse(body)
         return null
     }
 }
+

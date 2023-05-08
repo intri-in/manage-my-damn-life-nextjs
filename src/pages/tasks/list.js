@@ -5,7 +5,7 @@ import '@/../bootstrap/dist/css/bootstrap.min.css'
 import GenericLists from '@/components/common/GenericLists'
 import { Component } from 'react'
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from '@/config/style'
-import { getTodaysDateUnixTimeStamp } from '@/helpers/general'
+import { getTodaysDateUnixTimeStamp, varNotEmpty } from '@/helpers/general'
 import { Col, Row } from 'react-bootstrap'
 import AddTask from '@/components/common/AddTask'
 import { Toastify } from '@/components/Generic'
@@ -17,13 +17,14 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import { withRouter } from 'next/router'
 import { MYDAY_LABEL } from '@/config/constants'
 import { getI18nObject } from '@/helpers/frontend/general'
+import { APIRequests } from '@/helpers/frontend/classes/APIRequests'
 
 class TaskViewList extends Component {
 
   constructor(props) {
     super(props)
     this.i18next = getI18nObject()
-    this.state = { showTaskEditor: true, caldav_accounts_id: null, calendars_id: null, filter: { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }, title: "My Day", updated: "", isSyncing: false, taskView: "tasklist", showLeftColumnOffcanvas: false, showListColumn: true }
+    this.state = { showTaskEditor: true, caldav_accounts_id: null, calendars_id: null, filter: { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }, title: "My Day", updated: "", isSyncing: false, taskView: "tasklist", showLeftColumnOffcanvas: false, showListColumn: true, todoList: [] }
     this.getParamsFromURL = this.getParamsFromURL.bind(this)
     this.calendarNameClicked = this.calendarNameClicked.bind(this)
     this.labelClicked = this.labelClicked.bind(this)
@@ -67,6 +68,7 @@ class TaskViewList extends Component {
     }
   };
 
+  
   getParamsFromURL() {
     if (typeof window !== 'undefined') {
       var url = new URL(window.location.href);
@@ -136,7 +138,6 @@ class TaskViewList extends Component {
   filterClicked(filter, name) {
 
     var newFilter = filter
-    console.log(newFilter)
     if (newFilter.filter.due != null && newFilter.filter.due != undefined && newFilter.filter.due.length > 1) {
       //newFilter.due[0] = moment(new Date(filter.due[0])).unix().toString()
       //newFilter.due[1] = moment(new Date(filter.due[1])).unix().toString()
@@ -176,12 +177,12 @@ class TaskViewList extends Component {
           <div className='row'>
             {listColumn}
             <Col lg={9} style={{ borderLeft: borderRight, }}>
-              <AddTask onSuccessAddTask={this.onSynComplete} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
+              <AddTask  onSuccessAddTask={this.onSynComplete} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
               {expandColButton}
               <TaskViewOptions changeView={this.taskViewChanged} />
               <TaskList view={this.state.taskView} fetchEvents={this.onSynComplete} updated={this.state.updated} router={this.props.router} title={this.state.title} filter={this.state.filter} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
 
-              <br />
+                <br />
                 <br />
                 <br />
                 <br />

@@ -4,8 +4,10 @@ import { checkifUserHasAccesstoRequestedCalendar, getCaldavAccountIDFromCalendar
 import { getRandomString } from '@/helpers/crypto';
 import { updateEventinCalDAVAccount } from '@/helpers/api/cal/caldav';
 import { fetchCalendarObjects } from 'tsdav';
+import { logVar } from '@/helpers/general';
 
 export default async function handler(req, res) {
+    logVar(req.body, "modify object API CALL")
     if (req.method === 'POST') {
         if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
         {

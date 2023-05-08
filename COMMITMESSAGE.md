@@ -1,10 +1,6 @@
-v0.1.20-dev
+v0.1.2.1-dev
 
-- Ganttview, improved date parsing
-
-- Taskeditor - Now supports more values so there's no data loss even if other clients are used.
-    - Now supports tasks recurrence, atleast for editing and viewing
-
-- Minor UI changes.
-
-
+- Changes to docs folder structure.
+- Fixed bug with task relations. Now MMDL is more compatible with other apps like JTX Board.
+- Repeating task support added. 
+- Added dedicated calendar view.

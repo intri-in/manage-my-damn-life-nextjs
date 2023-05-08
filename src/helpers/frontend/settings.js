@@ -35,3 +35,8 @@ export function getLabelArrayFromCookie()
     return array
 
 }
+
+export function getStandardDateFormat()
+{
+    return "DD/MM/YYYY HH:mm"
+}

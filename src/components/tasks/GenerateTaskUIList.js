@@ -147,7 +147,6 @@ export default class GenerateTaskUIList extends Component{
             {
                 continue;
             }
-
             var pending = TaskPending(todoList[1][key].todo) 
             var hardFilter= todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == "")
             var showTask = false
@@ -230,7 +229,11 @@ export default class GenerateTaskUIList extends Component{
             </div>) 
     
         }else{
-            return(<div style={{margin: 20}}>{this.i18next.t("NOTHING_TO_SHOW")}</div>)
+            if(level==0)
+            {
+                return(<p style={{margin: 20}}>{this.i18next.t("NOTHING_TO_SHOW")}</p>)
+
+            }
         }
 
     }

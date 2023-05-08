@@ -181,6 +181,7 @@ export async function makeParseICSRequest(data,type)
                 fetch(url_api, requestOptions)
                     .then(response => response.json())
                     .then((body) => {
+                        console.log("body", body)
                         resolve(body)
                     })
                 }

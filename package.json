@@ -24,6 +24,7 @@
     "@fullcalendar/timegrid": "6.1.5",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
+    "axios": "1.4.0",
     "bootstrap": "5.2.3",
     "bootstrap-icons": "1.10.3",
     "bootstrap-icons-react": "1.0.0",

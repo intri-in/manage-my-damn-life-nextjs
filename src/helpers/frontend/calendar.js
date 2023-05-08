@@ -1,9 +1,10 @@
 import { getcalendarDB } from "./db";
 import ical from '@/../ical/ical'
 import { getAuthenticationHeadersforUser } from "./user";
-import { getAPIURL, isValidObject, isValidResultArray, logError } from "../general";
+import { getAPIURL, isValidObject, isValidResultArray, logError, varNotEmpty } from "../general";
 import { majorTaskFilter } from "./events";
-
+import * as _ from 'lodash'
+import { VTODO } from "./classes/VTODO";
 export async function getCaldavAccountsfromServer()
 {
     const url_api=getAPIURL()+"caldav/calendars" 
@@ -237,7 +238,7 @@ export function returnGetParsedVTODO(vtodo)
     for (let k in parsedData) {
         
         var entries = Object.entries(parsedData[k])
-        
+        //console.log(parsedData[k].recurrences)
         var relatedto =""
         var percentcomplete=""
 
@@ -266,6 +267,17 @@ export function returnGetParsedVTODO(vtodo)
                     duedate=""
                 }
         }
+        var recurrences ={}
+        if(varNotEmpty(parsedData[k].recurrences))
+        {
+            for(const i in parsedData[k].recurrences)
+            {
+                recurrences[i]=parsedData[k].recurrences[i]
+            }
+    
+        }
+
+        //console.log("recurrences", recurrences, typeof(parsedData[k].recurrences))
         var toReturn= {
             summary:parsedData[k].summary,
             created: parsedData[k].created,
@@ -281,8 +293,8 @@ export function returnGetParsedVTODO(vtodo)
             lastmodified:parsedData[k].lastmodified,
             dtstamp: parsedData[k].dtstamp,
             description: parsedData[k].description,
-            rrule: parsedData[k].rrule
-
+            rrule: parsedData[k].rrule,
+            recurrences: recurrences
 
         }
 
@@ -290,9 +302,10 @@ export function returnGetParsedVTODO(vtodo)
         {
             if(!(key in toReturn))
             {
-                toReturn[key]=parsedData[k][key]
+                toReturn[key]=_.cloneDeep(parsedData[k][key])
             }
         }
+        //console.log(toReturn)
         return toReturn
     }
 
@@ -301,6 +314,7 @@ export function returnGetParsedVTODO(vtodo)
 export function arrangeTodoListbyHierarchy(todoList, filter, allEvents)
 {
     var listofTasks= getTopLevelUID(todoList, filter)
+    //console.log("listofTasks", listofTasks)
     recursivelyAddChildren(listofTasks, allEvents, 0)
 
     return listofTasks
@@ -355,12 +369,15 @@ function getTopLevelUID(todoList, filter)
         for(let i=0; i<todoList.length; i++)
         {
             var todo = returnGetParsedVTODO(todoList[i].data)
+            //console.log("parsed todo", todo)
+            var todoObj = new VTODO(todoList[i])
+           // console.log(todoObj.parsedData.summary, todoObj.hasNoRelatedParent(), todoObj.parsedData.relatedto)
             todo.deleted= todoList[i].deleted
             if(majorTaskFilter(todo)==true)
             {
                 if(isValidObject(filter))
                 {
-                    if(todo.relatedto!=null && todo.relatedto!="")
+                    if(todoObj.hasNoRelatedParent()==true)
                     {
                         // Task is a sub task. If parent is in todoList, then we don't add it at top level. If the parent is not here, we add.
                         if(findIDinFilteredList(todo.relatedto, todoList)==false)
@@ -381,8 +398,9 @@ function getTopLevelUID(todoList, filter)
     
                 }else
                 {
-                    if(todo.relatedto==null || (todo.relatedto!=null && todo.relatedto==""))
+                    if(todoObj.hasNoRelatedParent()==true)
                     {
+                        //Probably a parent task with no relations to anyone.
                         finalArray[todo.uid]={}             
                     }
                 }
@@ -408,6 +426,7 @@ export function getParsedTodoList(todoList)
             todo["etag"]=todoList[i].etag
             todo["calendar_id"]=todoList[i].calendar_id
             todo["deleted"]=todoList[i].deleted
+            todo["calendar_events_id"] = todoList[i]["calendar_events_id"]
             
             finalArray[todo.uid]={todo}
             
@@ -428,6 +447,8 @@ export function getUnparsedEventData(todoList)
             todo["url"]=todoList[i].url
             todo["etag"]=todoList[i].etag
             todo["calendar_id"]=todoList[i].calendar_id
+            todo["deleted"]=todoList[i].deleted
+            todo["calendar_events_id"] = todoList[i]["calendar_events_id"]
 
             finalArray[todo.uid]={data: todoList[i].data}
         }
@@ -435,7 +456,7 @@ export function getUnparsedEventData(todoList)
     return finalArray
 
 }
-function findChildren(id, todoList)
+function findChildrenOld(id, todoList)
 {
     var children=[]
     for(let i=0; i<todoList.length; i++)
@@ -452,6 +473,21 @@ function findChildren(id, todoList)
     }
     return children
 }
+
+function findChildren(id, todoList)
+{
+    var children=[]
+    for(let i=0; i<todoList.length; i++)
+    {
+        var todo = new VTODO(todoList[i])
+        if(todo.getParent()==id)
+        {
+            children.push(todo.parsedData.uid)
+        }
+    }
+    return children
+}
+
 
 function findIDinFilteredList(id, todoList)
 {

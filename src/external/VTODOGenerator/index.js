@@ -1,8 +1,9 @@
+import { varNotEmpty } from '@/helpers/general';
 import * as moment from 'moment';
 
 class VTodoGenerator{
 
-    constructor(todoObject)
+    constructor(todoObject, skipVCALENDAR=false)
     {
         if(todoObject!=null && Object.keys(todoObject).length>0)
         {
@@ -14,6 +15,7 @@ class VTodoGenerator{
             throw new Error("No valid task object provided.")
         }
         this.oldData= null
+        this.skipVCALENDAR = skipVCALENDAR
     }
 
     generate()
@@ -53,7 +55,12 @@ class VTodoGenerator{
                 }
             }
         }
-        var finalVTODO="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Manage my Damn Life Tasks v0.1\n"
+        var finalVTODO=""
+        if(this.skipVCALENDAR==null || this.skipVCALENDAR==undefined || this.skipVCALENDAR==false)
+        {
+            finalVTODO+="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Manage my Damn Life Tasks v0.1\n"
+
+        }
         finalVTODO +="BEGIN:VTODO\nUID:"+uid+"\n"
         finalVTODO +="DTSTAMP:"+dtstamp+"\n"
 
@@ -110,7 +117,26 @@ class VTodoGenerator{
         }
         if(this.relatedto!=null && this.relatedto!="")
         {
-            finalVTODO +="RELATED-TO:"+this.relatedto+"\n"
+            if(typeof(this.relatedto)=="string")
+            {
+                finalVTODO +="RELATED-TO:"+this.relatedto+"\n"
+            }else
+            {
+                if(Array.isArray(this.relatedto) )
+                {
+                    for(const i in this.relatedto)
+                    {
+                        if(varNotEmpty(this.relatedto[i].params) && varNotEmpty(this.relatedto[i].params.RELTYPE) && varNotEmpty(this.relatedto[i].val)){
+                            var relatedOutput="RELATED-TO;RELTYPE="+this.relatedto[i].params.RELTYPE.toString().toUpperCase()+":"+this.relatedto[i].val+"\n"
+                            finalVTODO+=relatedOutput
+    
+                        }
+                    }
+                }else{
+                    var relatedOutput="RELATED-TO;RELTYPE="+this.relatedto.params.RELTYPE.toString().toUpperCase()+":"+this.relatedto.val+"\n"
+                    finalVTODO+=relatedOutput
+                }
+            }
 
         }
         if(this.priority!=null && this.priority!="")
@@ -154,10 +180,8 @@ class VTodoGenerator{
 
         }
         */
-        if(this.lastmodified!=null && this.lastmodified!="")
-        {
-            finalVTODO +="LAST-MODIFIED:"+this.getISO8601Date(this.lastmodified)+"\n"
-        }
+        finalVTODO +="LAST-MODIFIED:"+this.getISO8601Date(Date.now())+"\n"
+        
 
         if(this.location!=null && this.location!="" && this.location!=undefined)
         {
@@ -172,7 +196,7 @@ class VTodoGenerator{
 
         if(this.sequence!=null && this.sequence!="" && this.sequence!=undefined)
         {
-            finalVTODO +="SEQUENCE:"+this.sequence+"\n"
+            finalVTODO +="SEQUENCE:"+parseInt(this.sequence)+1+"\n"
 
         }
 
@@ -238,8 +262,32 @@ class VTodoGenerator{
         {
             finalVTODO +="URL:"+this.url+"\n"
         }
+        if(this.recurrenceid!="" && this.recurrenceid!=null)
+        {
+            finalVTODO +="RECURRENCE-ID:"+this.getISO8601Date(this.recurrenceid)+"\n"
+        }
 
-        finalVTODO +="END:VTODO\nEND:VCALENDAR"
+
+        finalVTODO +="END:VTODO\n"
+        if(this.recurrences!=null)
+        {
+           
+            for(const i in this.recurrences)
+            {
+                //console.log(this.recurrences[i])
+                var newVTODO = new VTodoGenerator(this.recurrences[i], true)
+                finalVTODO += newVTODO.generate()
+            }
+           
+
+        }
+
+        if(this.skipVCALENDAR==null || this.skipVCALENDAR==undefined || this.skipVCALENDAR==false)
+        {
+            finalVTODO+="END:VCALENDAR\n"
+
+        }
+
 
         return finalVTODO
     }
@@ -266,7 +314,7 @@ class VTodoGenerator{
     {
         var crypto = require("crypto");
         var id = crypto.randomBytes(32).toString('hex');
-        return id
+        return id+"@intri"
     }
 
     static getValidStatusValues()

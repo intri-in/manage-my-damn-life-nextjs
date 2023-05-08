@@ -13,9 +13,8 @@ export function sortTaskListbyDue(list, todoList)
     {
         var sortedChildren = null
         var dueDate= ISODatetoHuman(todoList[1][key].todo.due)
-        var unixTimestamp = moment(dueDate, 'D/M/YYYY H:mm').unix();
+        var unixTimestamp = moment(dueDate).unix();
         
-
         if(Object.keys(list[key]).length>0 )
         {
             //Has children. Sort the children.
