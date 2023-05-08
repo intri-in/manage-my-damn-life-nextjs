@@ -1,6 +1,6 @@
-v0.1.1
+v0.1.2.1-dev
 
-- Added import of Fullcalendar's script. Now calendar is rendering perfectly.
-
-- Added quick add shortcuts. More info in docs/Feature Guide/QuickAdd.md
-
+- Changes to docs folder structure.
+- Fixed bug with task relations. Now MMDL is more compatible with other apps like JTX Board.
+- Repeating task support added. 
+- Added dedicated calendar view.

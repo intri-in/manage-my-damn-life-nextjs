@@ -163,3 +163,35 @@ export  function getObjectForAPICall(eventData)
     return obj
     
 }
+
+export async function makeParseICSRequest(data,type)
+    {
+        const url_api = getAPIURL() + "misc/parseics_ical"
+
+        const authorisationData = await getAuthenticationHeadersforUser()
+        const requestOptions =
+        {
+            method: 'POST',
+            body: JSON.stringify({ "ics": data, "type":type}),
+            mode: 'cors',
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        }
+        return new Promise( (resolve, reject) => {
+            try {
+                fetch(url_api, requestOptions)
+                    .then(response => response.json())
+                    .then((body) => {
+                        console.log("body", body)
+                        resolve(body)
+                    })
+                }
+                catch(e)
+                {
+                    resolve({
+                        success:false,
+                        data:{message:e.message, details:e}
+                    })
+                }
+    
+        })
+    }

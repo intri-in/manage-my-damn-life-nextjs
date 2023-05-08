@@ -4,10 +4,10 @@ import Form from 'react-bootstrap/Form';
 import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
-import { Row, Col, Button } from "react-bootstrap";
+import { Row, Col, Button, Alert } from "react-bootstrap";
 import * as moment from 'moment';
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
-import { getAPIURL, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, getISO8601Date, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
 import VTodoGenerator from "@/external/VTODOGenerator";
 import { getRandomString } from "@/helpers/crypto";
@@ -22,7 +22,14 @@ import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { Loading } from "../common/Loading";
 import ParentTaskSearch from "./ParentTaskSearch";
 import { generateNewTaskObject } from "@/helpers/frontend/tasks";
-
+import Recurrence from "../common/Recurrence";
+import { rruleToObject } from "@/helpers/frontend/events";
+import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
+import * as _ from 'lodash'
+import { makeParseICSRequest } from "@/helpers/frontend/ics";
+import { VTODO } from "@/helpers/frontend/classes/VTODO";
+import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
+import { getStandardDateFormat } from "@/helpers/frontend/settings";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
@@ -36,11 +43,9 @@ export default class TaskEditor extends Component {
           } 
 
         }
-       
-        logVar(dueDate, "TaskEditor")
         var startDate = ""
         if (props.data.start != null && props.data.start != "") {
-            startDate = ISODatetoHuman(props.data.start)
+            startDate = moment(props.data.start)
         }
 
         if (this.props.data.completion == null) {
@@ -71,9 +76,30 @@ export default class TaskEditor extends Component {
         {
             priority = props.data.priority
         }
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: props.data.description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [] }
 
+        var rrule =[]
+        if(props.data.rrule!=null)
+        {
+            rrule=rruleToObject(props.data.rrule)
+        }
+        var description = ""
+        if(varNotEmpty(props.data.description))
+        {
+            if(typeof(props.data.description)=="string")
+            {
+                description = props.data.description
+            }else{
+                if(varNotEmpty(props.data.description.val))
+                {
+                    description= props.data.description.val
+                }
+            }
+    
+        }
 
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [],rrule:rrule, repeatInfo: _.cloneDeep(props.repeatInfo), todoList: _.cloneDeep(props.todoList), recurrences: props.data.recurrences, isRepeatingTask: false, nextUpRepeatingInstance: null}
+
+        //console.log("props.data.recurrences", props.data.recurrences)
         this.i18next = getI18nObject()
         this.dueDateChanged = this.dueDateChanged.bind(this)
         this.completionChanged = this.completionChanged.bind(this)
@@ -98,12 +124,14 @@ export default class TaskEditor extends Component {
         this.setCalendarID= this.setCalendarID.bind(this)
         this.checkifValid = this.checkifValid.bind(this)
         this.getCalendarDDL = this.getCalendarDDL.bind(this)
+        this.onRruleSet = this.onRruleSet.bind(this)
+        this.getNextUpKey = this.getNextUpKey.bind(this)
     }
 
     componentDidMount() {
         this.getLabels()
         this.generateCalendarName()
-        if (this.props.data.url == null) {
+        if (this.props.data.url_internal == null) {
             //Probably a new task.
             this.props.onChange()
 
@@ -132,8 +160,38 @@ export default class TaskEditor extends Component {
             saveButton: (<Button onClick={this.saveTask} style={{ width: "90%" }}>Save</Button>
             )
         })
+
+        if(varNotEmpty(this.state.repeatInfo) && varNotEmpty(this.state.repeatInfo.newObj))
+        {
+            if( Object.keys(this.state.repeatInfo.newObj).length>0 && varNotEmpty(this.props.data.rrule) )
+            {
+                var nextupKey = this.getNextUpKey()
+                this.setState({isRepeatingTask: true, nextUpRepeatingInstance: nextupKey})
+    
+            }
+        }
     }
 
+    /**
+     * Key of the next up repeating instance of the tasks
+     * @returns String key
+     */
+    getNextUpKey()
+    {
+
+        for(const i in this.props.repeatInfo.newObj)
+        {
+            //console.log(this.state.repeatInfo.newObj[i])
+
+            if((this.props.repeatInfo.newObj[i].completed=="" || this.props.repeatInfo.newObj[i].completed==null) && this.props.repeatInfo.newObj[i].status!="COMPLETED")
+            {
+                return i
+            }
+        }
+
+        return ""
+
+    }
     async setCalendarID()
     {
         var calendar = await getDefaultCalendarID()
@@ -147,6 +205,12 @@ export default class TaskEditor extends Component {
             this.setState({ calendar_id: this.props.calendar_id, calendar: this.props.calendar_id })
         }
 
+        if(this.props.todoList != prevProps.todoList)
+        {
+            //console.log("update", this.props.todoList)
+            this.setState({todoList: _.cloneDeep(this.props.todoList)})
+        }
+
 
     }
 
@@ -155,7 +219,7 @@ export default class TaskEditor extends Component {
         var finalOutput = []
         finalOutput.push(<option value=""></option>)
         for (const i in validStatuses) {
-            finalOutput.push(<option value={validStatuses[i]}>{validStatuses[i]}</option>)
+            finalOutput.push(<option key={validStatuses[i]} value={validStatuses[i]}>{validStatuses[i]}</option>)
         }
 
         var finalOutput = (<Form.Select value={this.state.status} onChange={this.statusValueChanged} >
@@ -173,8 +237,12 @@ export default class TaskEditor extends Component {
 
     }
     removeParentClicked() {
-        this.props.onChange();
-        this.setState({ relatedto: "" })
+        this.setState(function(previousState, currentProps) {
+            var newRelatedTo = _.cloneDeep(previousState.relatedto)
+            newRelatedTo = VTODO.removeParentFromRelatedTo(newRelatedTo)
+            return({relatedto: newRelatedTo})
+        })
+            this.props.onChange();
     }
 
     removeLabel(e) {
@@ -218,11 +286,11 @@ export default class TaskEditor extends Component {
 
             }
         }
-        if (this.props.data.calendar_id != null && this.props.data.url != null) {
+        if (this.props.data.calendar_id != null && this.props.data.url_internal != null) {
             //Change of calendar disabled for old tasks. 
             var disabled = true
         }
-        else if (this.props.data.calendar_id != null && this.props.data.url == null && this.props.data.isSubtask != null) {
+        else if (this.props.data.calendar_id != null && this.props.data.url_internal == null && this.props.data.isSubtask != null) {
             var disabled = true
 
         }
@@ -238,14 +306,33 @@ export default class TaskEditor extends Component {
     }
     taskCheckBoxClicked(e) {
         var completed = ""
+        //console.log(this.state.nextUpRepeatingInstance)
         if (e.target.checked == true) {
-            var completed = Math.floor(Date.now() / 1000)
+                var completed = new Date(Math.floor(Date.now()))
 
-            this.setState({ taskDone: e.target.checked, completed: completed })
+                if(this.state.isRepeatingTask==true)
+                {
+                    this.state.repeatInfo.setPropertyOfInstance("completed",completed, this.state.nextUpRepeatingInstance)
+                    this.setState({ taskDone: e.target.checked})
+                }else{
 
-        } else {
-            completed = null
-            this.setState({ taskDone: e.target.checked, completed: completed })
+                    this.setState({ taskDone: e.target.checked, completed: completed })
+        
+                }
+
+            } else {
+                if(this.state.isRepeatingTask==true)
+                {
+                    var completed = null
+
+                    this.state.repeatInfo.setPropertyOfInstance("completed",completed, this.state.nextUpRepeatingInstance)
+                    this.setState({ taskDone: e.target.checked })
+
+                }
+                else{
+                var completed = null
+                    this.setState({ taskDone: e.target.checked, completed: completed })
+                }
 
         }
 
@@ -332,7 +419,7 @@ export default class TaskEditor extends Component {
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url, "calendar_id": this.state.calendar_id }),
+            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url_internal, "calendar_id": this.state.calendar_id }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -370,18 +457,40 @@ export default class TaskEditor extends Component {
             return false
         }
 
+        if(varNotEmpty(this.state.rrule) && RRuleHelper.isValidObject(this.state.rrule))
+        {
+            if(varNotEmpty(this.state.start) ==false || (varNotEmpty(this.state.start) && this.state.start.toString().trim()==""))
+            {
+                toast.error(this.i18next.t("ERROR_START_DATE_REQUIRED_FOR_RECCURENCE"))
+                return false
+    
+            }
+        }
         return true
     }
     async saveTask() {
-        if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
-            var dueDate = ""
-            if (this.state.dueDate != null && this.state.dueDate != "") {
-                var dueDateUnix = moment(this.state.dueDate, 'D/M/YYYY H:mm').unix() * 1000;
-                dueDate = moment(dueDateUnix).format('YYYYMMDD');
-                dueDate += "T" + moment(dueDateUnix).format('HHmmss');
+        var recurrences = _.cloneDeep(this.state.repeatInfo.newRecurrence)
+        //console.log(recurrences)
+        if(this.state.isRepeatingTask == true )
+        {
+            recurrences[this.state.nextUpRepeatingInstance]=this.state.repeatInfo.newObj[this.state.nextUpRepeatingInstance]
 
+            if(varNotEmpty(recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"])==false || (varNotEmpty(recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]) && recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]==""))
+            {
+                recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]=getISO8601Date(this.state.nextUpRepeatingInstance)
             }
+        }
 
+
+            if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
+                var dueDate = ""
+                if (this.state.dueDate != null && this.state.dueDate != "") {
+                    var dueDateUnix = moment(this.state.dueDate, 'D/M/YYYY H:mm').unix() * 1000;
+                    dueDate = moment(dueDateUnix).format('YYYYMMDD');
+                    dueDate += "T" + moment(dueDateUnix).format('HHmmss');
+    
+                }
+    
             var dueDateUnix = moment(dueDate).unix()
             var startDateUnix = moment(this.state.start).unix()
             //console.log(startDateUnix, dueDateUnix, dueDateUnix - startDateUnix)
@@ -389,19 +498,28 @@ export default class TaskEditor extends Component {
             if (valid) {
                 this.setState({ saveButton: <Loading /> })
 
-                var todoData = { due: dueDate, start: this.state.start, summary: this.state.summary, created: this.props.data.created, completion: this.state.completion, completed: this.state.completed, status: this.state.status, uid: this.props.data.uid, categories: this.state.category, priority: this.state.priority, relatedto: this.state.relatedto, lastmodified: "", dtstamp: this.props.data.dtstamp, description: this.state.description, }
+                var todoData = { due: dueDate, start: this.state.start, summary: this.state.summary, created: this.props.data.created, completion: this.state.completion, completed: this.state.completed, status: this.state.status, uid: this.props.data.uid, categories: this.state.category, priority: this.state.priority, relatedto: this.state.relatedto, lastmodified: "", dtstamp: this.props.data.dtstamp, description: this.state.description, rrule: this.state.rrule, recurrences: recurrences}
 
-                var finalTodoData = generateNewTaskObject(todoData, this.props.data)
-                var todo = new VTodoGenerator(todoData)
+                var oldUnparsedData = null
+                if(varNotEmpty(this.state.todoList) && Array.isArray(this.state.todoList) && this.state.todoList.length>3 && varNotEmpty(this.props.data.uid) && varNotEmpty(this.state.todoList[2][this.props.data.uid]) && varNotEmpty(this.state.todoList[2][this.props.data.uid].data))
+                {
+                    oldUnparsedData=this.state.todoList[2][this.props.data.uid].data
+                }
+                //console.log(this.state.todoList[2][this.props.data.uid].data)
+                var finalTodoData = await generateNewTaskObject(todoData, this.props.data, oldUnparsedData)
+                //console.log(finalTodoData)
+                var todo = new VTodoGenerator(finalTodoData)
+                
+                console.log(finalTodoData)
                 var finalVTODO = todo.generate()
-                //console.log(finalVTODO)
+                logVar(finalVTODO, "Final Generated TODO")
                 var etag = getRandomString(32)
-                if (this.props.data.url == null) {
+                if (this.props.data.url_internal == null || this.props.data.url_internal == "") {
                     var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
 
                 }
                 else {
-                    var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url, this.props.data.etag, finalVTODO)
+                    var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url_internal, this.props.data.etag, finalVTODO)
                 }
 
             } 
@@ -409,6 +527,13 @@ export default class TaskEditor extends Component {
         } else {
             toast.error(this.i18next.t("CANT_CREATE_EMPTY_TASK"))
         }
+    
+        
+    }
+
+    async updateRepeatingTask()
+    {
+
     }
     processResult(result) {
         this.props.onDismiss()
@@ -467,17 +592,29 @@ export default class TaskEditor extends Component {
 
     }
     onParentSelect(uid) {
-        this.setState({ relatedto: uid })
-    }
-    render() {
+        console.log("uid", uid)
+        this.setState(function(previousState, currentProps) {
+            var newRelatedTo = _.cloneDeep(previousState.relatedto)
+            newRelatedTo = VTODO.addParentToRelatedTo(uid, newRelatedTo)
+            return({ relatedto: newRelatedTo })
 
+        })
+    }
+    onRruleSet(rrule)
+    {
+        var newRRULE = RRuleHelper.parseObject(rrule)
+        this.setState({rrule: newRRULE})
+    }
+
+    render() {
         var parentTask = ""
-        if (this.state.relatedto != null && this.state.relatedto != "") {
+        var parentID = VTODO.getParentIDFromRelatedTo(this.state.relatedto)
+        if (varNotEmpty(parentID) && parentID!="" && this.state.todoList!=undefined && this.state.todoList.length>1) {
             parentTask = (
                 <div >
                     <Row style={{ justifyContent: 'center', display: 'flex', alignItems: "center", }}>
                         <Col>
-                            <p>{this.props.todoList[1][this.state.relatedto].todo.summary}</p>
+                            <p>{this.state.todoList[1][parentID].todo.summary}</p>
                         </Col>
                         <Col>
                             <p style={{ textAlign: "right", color: "red" }}><AiOutlineDelete onClick={this.removeParentClicked} /></p>
@@ -485,10 +622,28 @@ export default class TaskEditor extends Component {
                     </Row>
                 </div>)
         } else {
-            parentTask = (<ParentTaskSearch currentID={this.props.data.uid} onParentSelect={this.onParentSelect} calendar_id={this.props.data.calendar_id} data={this.props.todoList} />)
+            parentTask = (<ParentTaskSearch currentID={this.props.data.uid} onParentSelect={this.onParentSelect} calendar_id={this.state.calendar_id} data={this.state.todoList} />)
         }
 
         var calendarOptions = this.getCalendarDDL()
+
+        var dueDate = (<Datetime value={this.state.dueDate} onChange={this.dueDateChanged} dateFormat="D/M/YYYY" timeFormat="HH:mm" closeOnSelect={true} />)
+
+        var repeatInfoMessage = null
+        if(this.state.isRepeatingTask)
+        {
+            //Repeating Task
+            if(varNotEmpty(this.state.repeatInfo) && varNotEmpty(this.state.repeatInfo.newObj[this.state.nextUpRepeatingInstance]))
+            {
+                //console.log("this.state.repeatInfo.newObj[this.state.nextUpRepeatingInstance].due", this.state.repeatInfo.newObj[this.state.nextUpRepeatingInstance].due)
+
+                dueDate=(<p>{moment(this.state.repeatInfo.newObj[this.state.nextUpRepeatingInstance].due).format("DD/MM/YYYY HH:mm")}</p>)
+                
+            }
+
+            repeatInfoMessage =( <Alert  variant="warning">{this.i18next.t("REPEAT_TASK_MESSAGE")+this.state.nextUpRepeatingInstance}</Alert>)
+        }
+
         return (
             <div key={this.props.data.uid}>
                 <Row style={{ marginBottom: 10, }}>
@@ -504,7 +659,7 @@ export default class TaskEditor extends Component {
                 </Row>
                 <h4>Task Summary</h4>
                 <div style={{ marginBottom: 10 }}><Form.Control onChange={this.taskSummaryChanged} autoFocus={true} value={this.state.summary} placeholder="Enter a summary" /></div>
-
+                {repeatInfoMessage}
                 <h4>Calendar</h4>
                 <div style={{ marginBottom: 10 }}>{calendarOptions}</div>
 
@@ -517,7 +672,7 @@ export default class TaskEditor extends Component {
 
                 <h4>Due Date</h4>
                 <Row style={{ marginBottom: 10 }}>
-                    <Datetime value={this.state.dueDate} onChange={this.dueDateChanged} dateFormat="D/M/YYYY" timeFormat="HH:mm" closeOnSelect={true} />
+                    {dueDate}
                 </Row>
 
                 <h4>Labels</h4>
@@ -556,6 +711,8 @@ export default class TaskEditor extends Component {
                 <Form.Range onChange={this.completionChanged} value={this.state.completion} />
                 <h4>Notes</h4>
                 <Form.Control as="textarea" onChange={this.descriptionChanged} value={this.state.description} placeholder="Enter your notes here." />
+                <br />
+                <Recurrence onRruleSet={this.onRruleSet} rrule={this.state.rrule} />
                 <div style={{ marginTop: 40, textAlign: "center" }}>
                     {this.state.saveButton}
                 </div>
@@ -569,6 +726,7 @@ export default class TaskEditor extends Component {
                 />
                 <br />
                 <br />
+                <p style={{textAlign: "center"}}><b>{this.i18next.t('LAST_MODIFIED')+": "}</b>{moment(this.props.data.lastmodified).format(getStandardDateFormat())}</p>
                 <br />
                 <br />
 

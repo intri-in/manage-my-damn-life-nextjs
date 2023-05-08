@@ -79,12 +79,12 @@ export default class GanttView extends Component {
 
                     var dueDate = new Date(Date.now())
                     if (todoList[1][key].todo.due != null && todoList[1][key].todo.due != "" && todoList[1][key].todo.due != undefined) {
-                        dueDate = new Date(ISODatetoHumanISO(todoList[1][key].todo.due))
+                        dueDate = new Date(moment(todoList[1][key].todo.due))
                     }
 
                     var startDate = ""
                     if (todoList[1][key].todo.start != null && todoList[1][key].todo.start != "" && todoList[1][key].todo.start != undefined) {
-                        startDate = new Date(ISODatetoHumanISO(todoList[1][key].todo.start))
+                        startDate = new Date(moment(todoList[1][key].todo.start))
                     }else{
                        if(new Date(dueDate).getTime() < Date.now())
                        {

@@ -1,3 +1,7 @@
+import ICAL from '@/../ical.js/build/ical'
+import { isValidResultArray, logError, varNotEmpty } from "@/helpers/general";
+
+
 export function getICS(obj)
 {
     var icalToolkit = require('ical-toolkit');
@@ -12,4 +16,47 @@ export function getICS(obj)
     var icsFileContent = builder.toString();
 
     return icsFileContent
+}
+
+export function parseICSWithICALJS(dataICS, type)
+{
+    var json={}
+    try{
+        var jcalData= ICAL.parse(dataICS);
+        var comp = new ICAL.Component(jcalData);
+        var vevent = comp.getFirstSubcomponent(type);
+        var veventJSON = vevent.toJSON()
+
+        if(isValidResultArray(veventJSON) && veventJSON.length>=2)
+        {
+            var data = veventJSON[1]
+            for( const i in data)
+            {
+                if(isValidResultArray(data[i]) && data[i].length>=4)
+                {
+                    var arrayValue = []
+                    var value = data[i][3]
+                    var additional = data[i][1]
+                    console.log(data[i].length, data[i][0])
+                    if(data[i].length>4)
+                    {
+                        for (let j=3;j<data[i].length; j++)
+                        {
+                            arrayValue.push(data[i][j])
+                        }
+
+                        value = ""
+                        additional=arrayValue
+
+                    }
+                    json[data[i][0]]={value: value, additional: additional}
+                }
+            }
+        }
+
+        }catch(e){
+
+        }
+
+        return json
 }

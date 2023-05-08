@@ -159,6 +159,33 @@ export function timeDifferencefromNowinWords(date)
     return timeDifferenceStatement
 
 }
+
+export function timeDifferencefromNowinWords_Generic(date)
+{
+    var timeDifference=Math.floor((moment(date).unix() - Math.floor(Date.now() / 1000))/86400)
+    var timeDifferenceStatement=""
+    if(isNaN(timeDifference))
+    {
+        timeDifferenceStatement =""
+    }
+    else
+    {
+        if(timeDifference<0)
+        {
+            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+        }else if(timeDifference ==0 ){
+            timeDifferenceStatement="(today)"
+        }
+        else{
+            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+        }
+        
+    }
+
+    return timeDifferenceStatement
+
+}
+
 export function getRandomColourCode()
 {
     var colour_code="#"+Math.floor(Math.random()*16777215).toString(16)

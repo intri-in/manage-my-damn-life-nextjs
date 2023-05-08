@@ -1,3 +1,4 @@
+import moment from "moment"
 import { dueDatetoUnixStamp } from "./frontend/general"
 
 export function isValidResultArray(array)
@@ -74,13 +75,14 @@ export function dateTimeReviver(key, value) {
 
 export function haystackHasNeedle(needle, haystack)
 {
+    console.log(haystack)
     if(haystack==null || haystack==undefined)
     {
         return false
     }
         const regex = new RegExp(needle+"*");
 
-         var toSearch = haystack.toLowerCase()
+         var toSearch = haystack.toString().toLowerCase()
 
             if(toSearch.includes(needle.toLowerCase()))
             {
@@ -150,4 +152,23 @@ export function debugging()
 export function getAPIURL()
 {
     return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_API_URL)
+}
+
+export function getISO8601Date(date, skipTime)
+{
+    var toReturn = ""
+    if(date!=null)
+    {
+        var dueDateUnix= moment(date).unix()*1000;
+        toReturn =  moment(dueDateUnix).format('YYYYMMDD');
+        if(skipTime==null || skipTime!="null" && skipTime==false)
+        {
+            toReturn +=  "T"+moment(dueDateUnix).format('HHmmss');
+
+        }
+    }
+    else{
+        return null
+    }
+    return toReturn
 }

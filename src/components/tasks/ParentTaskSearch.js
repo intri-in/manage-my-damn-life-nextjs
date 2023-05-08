@@ -1,5 +1,5 @@
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
-import { getParsedEvent } from "@/helpers/frontend/events";
+import { getParsedEvent, majorTaskFilter } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
@@ -10,6 +10,7 @@ import Form from 'react-bootstrap/Form';
 import { Toastify } from "../Generic";
 import { toast } from "react-toastify";
 import ListGroup from 'react-bootstrap/ListGroup';
+import { Loading } from "../common/Loading";
 export default class ParentTaskSearch extends Component{
 
     constructor(props)
@@ -27,10 +28,11 @@ export default class ParentTaskSearch extends Component{
         this.setState({searchTerm: e.target.value})
         this.searchForTasks(e.target.value)
     }
-    parentTaskClicked(uid)
+    parentTaskClicked(e)
     {
+
         this.setState({searchOutput: null})
-        this.props.onParentSelect(uid)
+        this.props.onParentSelect(e.target.id)
     }
 
     async searchForTasks(searchTerm)
@@ -38,6 +40,7 @@ export default class ParentTaskSearch extends Component{
         if(searchTerm!=null && searchTerm.trim()!="")
         {
         // Make search Request to server.
+        this.setState({finalOutput: <Loading centered={true} />})
         const url_api=getAPIURL()+"events/search?calendar_id="+this.props.calendar_id+"&&type=VTODO&&search_term="+searchTerm.trim()
         const authorisationData=await getAuthenticationHeadersforUser()
     
@@ -61,17 +64,23 @@ export default class ParentTaskSearch extends Component{
                         //console.log("results.length", results.length)
                         for (const i in results)
                         {
-                            var parsedToDo = returnGetParsedVTODO(results[i].data)
-
-                            if(parsedToDo.uid!=this.props.currentID)
+                            var parsedToDo = _.cloneDeep(returnGetParsedVTODO(results[i].data))
+                            if(parsedToDo.uid!=this.props.currentID && majorTaskFilter(parsedToDo) && results[i].deleted!="1")
                             {
                                 //We only show the result if it isn't the same as the task currently being edited.
                                
                                 finalOutput.push(
-                                    (<ListGroup.Item action key={parsedToDo.uid} style={{padding: 10}} onClick={() => this.parentTaskClicked(parsedToDo.uid)}>{parsedToDo.summary}</ListGroup.Item>) )
+                                    (<ListGroup.Item action id={parsedToDo.uid} key={parsedToDo.uid} style={{padding: 10}} onClick={this.parentTaskClicked}>{parsedToDo.summary}</ListGroup.Item>) )
                             }
                         }
-                        this.setState({searchOutput: (<ListGroup flush style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>)})
+                        if(finalOutput.length>0)
+                        {
+                            this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>)})
+
+                        }else{
+                            this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid", padding: 10}}>{this.i18next.t("NOTHING_TO_SHOW")}</ListGroup>)})
+
+                        }
 
                     }
                 }else{
@@ -81,8 +90,9 @@ export default class ParentTaskSearch extends Component{
     
                 }
             )
-                console.log(finalOutput)
 
+        }else{
+            this.setState({searchOutput: null})
         }
        
 

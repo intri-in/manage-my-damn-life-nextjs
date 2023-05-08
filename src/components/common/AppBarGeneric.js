@@ -108,7 +108,10 @@ async syncButtonClicked() {
                 <Navbar.Collapse  id="basic-navbar-nav">
                 <Nav className="me-auto">
                     <Link style={{color: "white", textDecoration: "none"}} href="/"> {this.i18next.t("HOME")}</Link> &nbsp; &nbsp;
-                    <Link style={{color: "white", textDecoration: "none"}} href="/tasks/list"> Task View</Link>
+                    <Link style={{color: "white", textDecoration: "none"}} href="/tasks/list"> {this.i18next.t("TASK_VIEW")}</Link>&nbsp; &nbsp;
+                  <Link style={{color: "white", textDecoration: "none"}} href="/calendar/view"> {this.i18next.t("CALENDAR_VIEW")}</Link>
+
+                    
                 </Nav>
                 <Nav>
 

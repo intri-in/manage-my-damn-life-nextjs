@@ -1,8 +1,9 @@
+import { varNotEmpty } from '@/helpers/general';
 import * as moment from 'moment';
 
 class VTodoGenerator{
 
-    constructor(todoObject)
+    constructor(todoObject, skipVCALENDAR=false)
     {
         if(todoObject!=null && Object.keys(todoObject).length>0)
         {
@@ -13,6 +14,8 @@ class VTodoGenerator{
         }else{
             throw new Error("No valid task object provided.")
         }
+        this.oldData= null
+        this.skipVCALENDAR = skipVCALENDAR
     }
 
     generate()
@@ -52,7 +55,12 @@ class VTodoGenerator{
                 }
             }
         }
-        var finalVTODO="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Manage my Damn Life Tasks v0.1\n"
+        var finalVTODO=""
+        if(this.skipVCALENDAR==null || this.skipVCALENDAR==undefined || this.skipVCALENDAR==false)
+        {
+            finalVTODO+="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Manage my Damn Life Tasks v0.1\n"
+
+        }
         finalVTODO +="BEGIN:VTODO\nUID:"+uid+"\n"
         finalVTODO +="DTSTAMP:"+dtstamp+"\n"
 
@@ -109,7 +117,26 @@ class VTodoGenerator{
         }
         if(this.relatedto!=null && this.relatedto!="")
         {
-            finalVTODO +="RELATED-TO:"+this.relatedto+"\n"
+            if(typeof(this.relatedto)=="string")
+            {
+                finalVTODO +="RELATED-TO:"+this.relatedto+"\n"
+            }else
+            {
+                if(Array.isArray(this.relatedto) )
+                {
+                    for(const i in this.relatedto)
+                    {
+                        if(varNotEmpty(this.relatedto[i].params) && varNotEmpty(this.relatedto[i].params.RELTYPE) && varNotEmpty(this.relatedto[i].val)){
+                            var relatedOutput="RELATED-TO;RELTYPE="+this.relatedto[i].params.RELTYPE.toString().toUpperCase()+":"+this.relatedto[i].val+"\n"
+                            finalVTODO+=relatedOutput
+    
+                        }
+                    }
+                }else{
+                    var relatedOutput="RELATED-TO;RELTYPE="+this.relatedto.params.RELTYPE.toString().toUpperCase()+":"+this.relatedto.val+"\n"
+                    finalVTODO+=relatedOutput
+                }
+            }
 
         }
         if(this.priority!=null && this.priority!="")
@@ -127,7 +154,8 @@ class VTodoGenerator{
         }
         if(this.start!=null && this.start!="")
         {
-            finalVTODO +="START:"+this.getISO8601Date(this.start)+"\n"
+            finalVTODO +="DTSTART:"+this.getISO8601Date(this.start)+"\n"
+
         }
 
         if(this.class!=null && this.class!="" && this.class!=undefined)
@@ -142,6 +170,7 @@ class VTodoGenerator{
 
         }
 
+        /*
         if(this.lastmod!=null && this.lastmod!="" && this.lastmod!=undefined)
         {
             finalVTODO +="LAST-MODIFIED:"+this.lastmod+"\n"
@@ -150,10 +179,9 @@ class VTodoGenerator{
             finalVTODO +="LAST-MODIFIED:"+dtstamp+"\n"
 
         }
-        if(this.lastmodified!=null && this.lastmodified!="")
-        {
-            finalVTODO +="LAST-MODIFIED:"+this.getISO8601Date(this.lastmodified)+"\n"
-        }
+        */
+        finalVTODO +="LAST-MODIFIED:"+this.getISO8601Date(Date.now())+"\n"
+        
 
         if(this.location!=null && this.location!="" && this.location!=undefined)
         {
@@ -168,26 +196,114 @@ class VTodoGenerator{
 
         if(this.sequence!=null && this.sequence!="" && this.sequence!=undefined)
         {
-            finalVTODO +="SEQUENCE:"+this.sequence+"\n"
+            finalVTODO +="SEQUENCE:"+parseInt(this.sequence)+1+"\n"
 
         }
 
-        
-        
-        
-        finalVTODO +="END:VTODO\nEND:VCALENDAR"
+        if(this.resources!=null && this.resources!="" && Array.isArray(this.resources) && this.resources.length>0)
+        {
+            var resourcesOutput="RESOURCES:"
+
+            for(const i in this.resources)
+            {
+                if(i!=0)
+                {
+                    resourcesOutput+=","
+                }
+                resourcesOutput+=this.resources[i]
+            }
+            finalVTODO +=resourcesOutput+"\n"
+
+
+        }
+        if(this.rrule!=null && this.rrule!="" && this.rrule["FREQ"]!="" && this.rrule["FREQ"]!=null && this.rrule["INTERVAL"]!="" && this.rrule.INTERVAL!="" )
+        {
+
+            var rruleOutput="RRULE:FREQ="+this.rrule.FREQ+";INTERVAL="+this.rrule.INTERVAL+";"
+
+            if(this.rrule.COUNT!=null && this.rrule.COUNT!="")
+            {
+                rruleOutput+="COUNT="+this.rrule.COUNT+";"
+            }
+
+            if(this.rrule.UNTIL!="" && this.rrule.UNTIL!=null)
+            {
+                rruleOutput+="UNTIL="+this.getISO8601Date(this.rrule.UNTIL, true)+";"
+
+            }
+            finalVTODO +=rruleOutput+"\n"
+
+        }
+
+        /*
+
+        // Adding attendee info as of now breaks calendar (not the todo, but the entire calendar in Nextcloud client for some reason.)
+        // Another reason for skipping is that RFC5545 mentions that attendee must not be included in a todo, but rather in a group calendar object (Section 3.8.4.1).
+
+
+        if(this.attendee!="" && this.attendee!=null && Array.isArray(this.attendee))
+        {
+            var attendeeOutput ="ATTENDEE"
+            
+            for (const i in this.attendee)
+            {
+                if(i.toUpperCase()!="ROLE")
+                {
+                    attendeeOutput+=i.toString().toUpperCase()+"="+this.attendee[i]+";"
+
+                }
+            }
+
+            finalVTODO +=attendeeOutput+":\n"
+
+        }
+        */
+        if(this.url!="" && this.url!=null)
+        {
+            finalVTODO +="URL:"+this.url+"\n"
+        }
+        if(this.recurrenceid!="" && this.recurrenceid!=null)
+        {
+            finalVTODO +="RECURRENCE-ID:"+this.getISO8601Date(this.recurrenceid)+"\n"
+        }
+
+
+        finalVTODO +="END:VTODO\n"
+        if(this.recurrences!=null)
+        {
+           
+            for(const i in this.recurrences)
+            {
+                //console.log(this.recurrences[i])
+                var newVTODO = new VTodoGenerator(this.recurrences[i], true)
+                finalVTODO += newVTODO.generate()
+            }
+           
+
+        }
+
+        if(this.skipVCALENDAR==null || this.skipVCALENDAR==undefined || this.skipVCALENDAR==false)
+        {
+            finalVTODO+="END:VCALENDAR\n"
+
+        }
+
 
         return finalVTODO
     }
 
-    getISO8601Date(date)
+    getISO8601Date(date, skipTime)
     {
         var toReturn = ""
         if(date!=null)
         {
             var dueDateUnix= moment(date).unix()*1000;
             toReturn =  moment(dueDateUnix).format('YYYYMMDD');
-            toReturn +=  "T"+moment(dueDateUnix).format('HHmmss');
+            if(skipTime==null || skipTime!="null" && skipTime==false)
+            {
+                toReturn +=  "T"+moment(dueDateUnix).format('HHmmss');
+
+            }
         }
         else{
             return null
@@ -198,7 +314,7 @@ class VTodoGenerator{
     {
         var crypto = require("crypto");
         var id = crypto.randomBytes(32).toString('hex');
-        return id
+        return id+"@intri"
     }
 
     static getValidStatusValues()
@@ -221,6 +337,12 @@ class VTodoGenerator{
         }
 
         return found
+
+    }
+
+    setOldData(oldData)
+    {
+        this.oldData = oldData
 
     }
 

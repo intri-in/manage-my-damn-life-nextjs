@@ -5,16 +5,16 @@ import ical from '@/../ical/ical'
 import { applyEventFilter } from "./filters"
 import moment from "moment"
 import { getAuthenticationHeadersforUser } from "./user"
+import * as _ from 'lodash'
 export async function getEvents(calendarEvents, filter)
 {
-    var filteredEvents= calendarEvents
+    var filteredEvents= _.cloneDeep(calendarEvents)
     if(filter!=null && filter.filter!=null && Object.keys(filter.filter).length>0)
     {
         filteredEvents = filterEvents(calendarEvents, filter)
     }
     var unparsedData= getUnparsedEventData(calendarEvents)
     var listofTodos= arrangeTodoListbyHierarchy(filteredEvents, filter, calendarEvents )
-
     return [listofTodos, getParsedTodoList(calendarEvents), unparsedData]
 
 }
@@ -431,7 +431,7 @@ export function reccurence_torrule(formDataRRule)
         toReturn["FREQ"] = "MONTHLY"
     }
     toReturn["INTERVAL"] = formDataRRule["INTERVAL"]
-
+    
     return toReturn
 }
 

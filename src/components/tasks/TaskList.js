@@ -213,12 +213,11 @@ import { getAPIURL } from '@/helpers/general';
     async refreshCalendars() {
         var userArray = await getUserData()
         var response = await getLatestCalendarEvents(this.props.caldav_accounts_id, this.props.calendars_id, "")
-
         if (response != null) {
 
             if (response.success == true) {
+                //console.log(response.data.message)
                 const todoList = await getEvents(response.data.message, this.props.filter)
-                console.log("todoList.length", todoList.length)
                 if (todoList != null && Array.isArray(todoList) && todoList.length > 0) {
                     this.renderTaskListUI(todoList)
                 }

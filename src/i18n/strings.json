@@ -60,6 +60,7 @@
         "CALDAV_ACCOUNT_DELETED": "CalDAV account deleted successfully.",
         "INVALID_CALDAV_DETAILS": "Invalid CalDAV account details.",
         "TASK_VIEW":"Task View",
+        "CALENDAR_VIEW": "Calendar View",
         "GANTT_VIEW": "Gantt View",
         "MANAGE_FILTERS": "Manage Filters",
         "MANAGE_FILTERS_DESC": "You can manage your filters here.",
@@ -135,6 +136,7 @@
         "REMOVE_FROM_MY_DAY" : "Remove from My Day",
         "ADD_TO_MY_DAY": "Add to My Day",
         "ALARMS": "Alarms",
+        "REPEAT_TASK_MESSAGE": "This is a repeating task. Any change you make will affect all instances. Current instance being edited: ",
         "ALARM_DESCRIPTION_BEFORE_START": "minutes before event start",
         "ALARM_DESCRIPTION_BEFORE_END":"minutes before event ends",
         "MINUTES_BEFORE": "minutes before",
@@ -158,6 +160,7 @@
         "CANT_CREATE_EMPTY_TASK": "Can't submit an event or a task with no summary.",
         "EVENT_NEEDS_BOTH_FROM_AND_TO": "Event needs both a 'From' and 'To' date.",
         "ERROR_PICK_A_CALENDAR": "Please pick a calendar for the event.",
+        "ERROR_START_DATE_REQUIRED_FOR_RECCURENCE":"Start date is required with recurrence rules.",
         "ERROR_ENDDATE_SMALLER_THAN_START": "End date and due date must be after start date. ",
         "ERROR_GETTING_SETTINGS": "Error getting settings. See console logs.",
         "USER_REG_DISABLED_FROM_ENV": "User registration is disabled from env variable. You'll need to change the value there to enable it."

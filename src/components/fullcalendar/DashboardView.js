@@ -29,7 +29,12 @@ class DashboardView extends Component {
 
         super(props)
         this.i18next = getI18nObject()
-        this.state = { showEventEditor: false, viewValue: 0, events: null, eventEdited: false, eventDataDashBoard: {}, allEvents: {}, recurMap: {}, selectedID: "", calendarAR:props.calendarAR }
+        var initialViewCalendar="timeGridDay"
+        if(varNotEmpty(props.initialView))
+        {
+            initialViewCalendar= props.initialView
+        }
+        this.state = { showEventEditor: false, viewValue: this.getViewValueFromName(initialViewCalendar), events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR:props.calendarAR }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -119,6 +124,24 @@ class DashboardView extends Component {
 
         //calendarApi.addEventSource({events})
         this.setState({ viewValue: e.target.value, })
+    }
+
+    getViewValueFromName(viewName)
+    {
+        if(viewName=="timeGridDay")
+        {
+            return '1'
+        }
+        else if(viewName =="timeGridWeek")
+        {
+            return '2'
+        }
+        else if(viewName =="dayGridMonth")
+        {
+            return '3'
+        }
+
+        return '1'
     }
     eventClick = (e) => {
         var newID = e.event.id
@@ -445,7 +468,7 @@ class DashboardView extends Component {
             <FullCalendar
                 plugins={[dayGridPlugin,timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
                 ref={this.calendarRef}
-                initialView='timeGridDay'
+                initialView={this.state.initialViewCalendar}
                 themeSystem="standard"
                 events={this.state.events}
                 editable={true}
