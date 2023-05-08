@@ -1,3 +1,7 @@
+v0.1.2.2
+
+- Fixed tasks not being fetched for Radicale.
+
 v0.1.2.1-dev
 
 - Changes to docs folder structure.

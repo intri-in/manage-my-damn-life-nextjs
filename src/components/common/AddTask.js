@@ -91,6 +91,7 @@ export default class AddTask extends Component{
             newData["due"]=""
             newData["category"]=[]
             newData["priority"]=""
+            newData["calendar_id"]=this.props.calendars_id
 
             this.processQuickAddResults(newData)
             return({newTaskSummary: '', data:newData}
@@ -156,6 +157,8 @@ export default class AddTask extends Component{
             newData["due"]=""
             newData["category"]=[]
             newData["priority"]=""
+            newData["calendar_id"]=this.props.calendars_id
+
             this.processQuickAddResults(newData)
 
             return({newTaskSummary: '', data:newData}
