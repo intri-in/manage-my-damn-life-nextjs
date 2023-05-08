@@ -145,9 +145,9 @@ export async function generateSSID(userhash)
     var token = crypto.randomBytes(64).toString('hex');
     var con = getConnectionVar()
     var created=Math.floor(Date.now() / 1000)
-
+    var tokenHash = crypto.createHash('sha512').update(token).digest('hex')
     return new Promise( (resolve, reject) => {
-        con.query('INSERT INTO ssid_table (userhash, ssid, created) VALUES (?,? ,?)', [userhash, token, created], function (error, results, fields) {
+        con.query('INSERT INTO ssid_table (userhash, ssid, created) VALUES (?,? ,?)', [userhash, tokenHash, created], function (error, results, fields) {
             if (error) {
                 console.log(error.message)
             }
@@ -250,10 +250,10 @@ export async function middleWareForAuthorisation(authHeaders)
 export async function checkSSIDValidity(userhash, ssid)
 {
     var con = getConnectionVar()
-    
+    var ssidHash = crypto.createHash('sha512').update(ssid).digest('hex')
+
     return new Promise( (resolve, reject) => {
- 
-        con.query("SELECT * FROM ssid_table WHERE userhash= ? AND ssid=?", [userhash, ssid], function (err, result, fields) {
+        con.query("SELECT * FROM ssid_table WHERE userhash= ? AND ssid=?", [userhash, ssidHash], function (err, result, fields) {
             
             if (err){
                 con.end()
