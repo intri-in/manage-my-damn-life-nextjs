@@ -265,6 +265,18 @@ Example:
 
 NEXT_PUBLIC_TEST_MODE=false
 ```
+### DOCKER_INSTALL
+> Required to Change From Default: **Maybe**
+
+Whether the user is running a docker image or not.
+
+This is important for installation, and **must** be set true for Docker installation.
+
+```
+Example:
+
+NEXT_PUBLIC_TEST_MODE=true
+```
 
 
 

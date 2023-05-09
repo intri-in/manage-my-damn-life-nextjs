@@ -143,6 +143,7 @@
         "MINUTES_BEFORE": "minutes before",
         "START":"Start",
         "END": "End",
+        "NO_ACCESS_TO_DB": "You don't have access to database specified in your configuration. Check your database settings in your .env file.",
         "INSTALL": "Install",
         "INSTALL_SUCESSFUL": "MMDL was installed successfully! You can now proceed to create your first account, which would be the default admin account.",
         "ALREADY_INSTALLED": "MMDL has already been installed. Redirecting...",

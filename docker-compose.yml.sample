@@ -1,0 +1,75 @@
+
+networks:
+  app-tier:
+    driver: bridge
+
+
+services:
+  app:
+    image: node:18-alpine
+    command: sh -c "npm install && npm run build && npm run start"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+    networks:
+      - app-tier   
+    environment:
+      NEXT_PUBLIC_BASE_URL: "http://localhost:3000/"
+      NEXT_PUBLIC_API_URL: "http://localhost:3000/api/"
+      NEXT_PUBLIC_DEBUG_MODE: "true"
+      DB_HOST: db
+      DB_USER: "root"
+      DB_PASS: "root"
+      DB_NAME: sample_install_mmdm
+      DB_CHARSET: "utf8mb4"
+      DB_COLLATE: "utf8mb4_0900_ai_ci"
+      AES_PASSWORD : samplepassword
+      SMTP_HOST : smtp.host
+      SMTP_USERNAME :  test@example.com
+      SMTP_PASSWORD :  smtp_password
+      SMTP_FROMEMAIL :  test@example.com
+      SMTP_PORT :  25
+      SMTP_USESECURE :  "false"
+      
+      # User Config
+      NEXT_PUBLIC_DISABLE_USER_REGISTRATION: "false"
+
+      # After this value, old ssid will be deleted.
+      MAX_CONCURRENT_LOGINS_ALLOWED: 5
+
+      # Maxium length of OTP validity, in seconds.
+      MAX_OTP_VALIDITY:  1800
+
+      # Maximum length of a login session in seconds.
+      MAX_SESSION_LENGTH: 2592000
+
+      # Enforce max length of session.
+      ENFORCE_SESSION_TIMEOUT: "true"
+
+      #Max number of recursions for finding subtasks. Included so the recursive function doesn't go haywire.
+      #If subtasks are not being rendered properly, try increasing the value.
+      NEXT_PUBLIC_SUBTASK_RECURSION_CONTROL_VAR: 100
+
+      # Whether user is running install from a docker image.
+      DOCKER_INSTALL: "true"
+
+      ## Test Mode
+      NEXT_PUBLIC_TEST_MODE: "false"
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3306:3306"    
+    networks:
+      - app-tier      
+    environment:
+      MYSQL_DATABASE: sample_install_mmdm
+      MYSQL_ALLOW_EMPTY_PASSWORD: ok
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'

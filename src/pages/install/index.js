@@ -66,7 +66,12 @@ class StartInstall extends Component{
                     {
                         this.setState({output: this.getInstallFinishedOKForm()})
                     }else{
-                        this.setState({output: ( <Alert variant="danger">
+                        var message = getMessageFromAPIResponse(body)
+                        this.setState({output: (
+                        <Alert variant="danger">
+                        {this.i18next.t(message)}
+                        <br />
+                        <br />
                         {this.i18next.t("ERROR_GENERIC")}
                       </Alert>)})
                         }

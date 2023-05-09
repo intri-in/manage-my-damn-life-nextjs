@@ -36,7 +36,7 @@ As of now, it only supports basic authentication, and not OAUTH.
 
 ## Getting Started
 
-To get started, you can checkout installation documentation [here](install/Install.md).
+To get started, you can checkout installation documentation [here](install/index.md).
 
 
 
