@@ -1,4 +1,6 @@
-import { varNotEmpty } from "../general"
+import { TbRuler2Off } from "react-icons/tb"
+import { logVar, varNotEmpty } from "../general"
+import { getSimpleConnectionVar } from "./db"
 import { getConnectionVar } from "./db"
 
 export const FINAL_TABLES=["caldav_accounts", "calendar_events" , "calendars", "custom_filters", "labels", "otp_table", "settings", "ssid_table", "users"]
@@ -12,6 +14,62 @@ export async function testDBConnection(){
 
      })
     })
+}
+
+export async function checkifDBExists()
+{
+    var con = getSimpleConnectionVar()
+    var query="SHOW DATABASES LIKE ?"
+    return new Promise( (resolve, reject) => {
+        con.query(query, [process.env.DB_NAME], function (err, result, fields) {
+            if (err) {
+                console.log(err);
+                resolve(false)
+            }
+            con.end()
+            var resultfromDB=Object.values(JSON.parse(JSON.stringify(result)))
+            logVar(resultfromDB, "resultfromDB:checkifDBExists")
+            console.log( Array.isArray(resultfromDB), resultfromDB.length)
+            if(Array.isArray(resultfromDB) && resultfromDB.length>0)
+            {
+                resolve(true)
+            } else{
+                resolve(false)
+            }
+
+        })
+
+    })
+}
+
+export async function createMMDL_DB()
+{
+    var con = getSimpleConnectionVar()
+    var query="CREATE DATABASE IF NOT EXISTS "+process.env.DB_NAME
+    return new Promise( (resolve, reject) => {
+        con.query(query, [], function (err, result, fields) {
+            if (err) {
+                console.log(err);
+                resolve(false)
+            }
+            con.end()
+            resolve(true)
+        })
+
+    })
+
+}
+export async function testDBConnectionSimple()
+{
+    var con = getSimpleConnectionVar()
+    return new Promise( (resolve, reject) => {
+       
+     con.ping( err=>{
+        resolve(err)
+
+     })
+    })
+
 }
 export async function isInstalled()
 {

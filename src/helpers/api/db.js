@@ -17,3 +17,17 @@ export function getConnectionVar()
       return con;
 }
 
+export function getSimpleConnectionVar()
+{
+  var db = require('mysql');
+
+  var con = db.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS
+  });
+  
+
+  return con
+}
+

@@ -1,7 +1,6 @@
-v0.1.2.3
-- Fixed "Add to my day" removing recurrence information from task.
-- Improved handling of "task done" checkbox click for recurrence tasks.
-    - Only the current instance is now marked as done.
-- Minor UI changes and improvements
-    - Added a link to manage Caldav accounts in Settings page.
-
+v0.1.2.4
+    - First attempt at having a docker image.
+        - Docker image is now available.
+        - Docs have been updated to reflect the same.
+    - Minor fixes to installation process
+        - Now the installer check whether user has the database installed or not.

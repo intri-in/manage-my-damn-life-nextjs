@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+yarn.lock
 
 # testing
 /coverage
@@ -38,3 +39,4 @@ yarn-error.log*
 #MMDL
 INSTALLED
 COMMITMESSAGE.md
+docker-compose.yml

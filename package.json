@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@babel/core": "7.21.8",
     "@babel/preset-react": "7.18.6",
     "@emotion/react": "11.10.6",
     "@emotion/styled": "11.10.6",
@@ -27,7 +28,6 @@
     "axios": "1.4.0",
     "bootstrap": "5.2.3",
     "bootstrap-icons": "1.10.3",
-    "bootstrap-icons-react": "1.0.0",
     "crypto-js": "4.1.1",
     "dexie": "3.2.3",
     "dexie-react-hooks": "1.1.3",
