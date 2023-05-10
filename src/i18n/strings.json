@@ -51,6 +51,8 @@
         "ACCOUNT_INFO" : "Account Information",
         "DESCRIPTION":"Description",
         "CALDAV_ACCOUNTS": "Caldav Accounts",
+        "CALDAV_USERNAME_PLACEHOLDER": "Enter your CalDAV username.",
+        "CALDAV_PASSWORD_PLACEHOLDER": "Enter your CalDAV password.",
         "MANAGE":"Manage",
         "NO_CALDAV_ACCOUNTS_TO_SHOW": "No CalDAV accounts to show.",
         "ENTER_A_SERVER_NAME": "Enter a valid server URL.",

@@ -150,7 +150,7 @@ export default class AddCaldavAccount extends Component{
             <>
             <Row>
                     <Col>
-                    <h1>Add Caldav Account</h1>
+                    <h1>Add CalDAV Account</h1>
                     </Col>
             </Row>
             <br />
@@ -160,10 +160,10 @@ export default class AddCaldavAccount extends Component{
                 <Form.Label style={{marginTop: 30}}>Server URL</Form.Label>
                 <Form.Control disabled={this.state.requestPending} onChange={this.serverURLValueChanged} type="URL" placeholder="Enter CalDAV server URL" />
                 <Form.Label style={{marginTop: 30}}>CalDAV Username</Form.Label>
-                <Form.Control disabled={this.state.requestPending} onChange={this.serverUsernameValueChanged} type="URL" placeholder="Enter server URL" />
+                <Form.Control disabled={this.state.requestPending} onChange={this.serverUsernameValueChanged} type="URL" placeholder={this.state.i18next.t("CALDAV_USERNAME_PLACEHOLDER")}/>
 
                 <Form.Label style={{marginTop: 30}}>CalDAV Password</Form.Label>
-                <Form.Control disabled={this.state.requestPending} onChange={this.serverPasswordValueChanged} type="password" placeholder="Enter server URL" />
+                <Form.Control disabled={this.state.requestPending} onChange={this.serverPasswordValueChanged} type="password" placeholder={this.state.i18next.t("CALDAV_PASSWORD_PLACEHOLDER")} />
 
                 <div style={{marginTop: 30, textAlign: 'center'}}>{button}</div>
 
