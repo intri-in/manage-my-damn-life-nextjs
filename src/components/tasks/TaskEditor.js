@@ -6,10 +6,10 @@ import "react-datetime/css/react-datetime.css";
 import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
 import { Row, Col, Button, Alert } from "react-bootstrap";
 import * as moment from 'moment';
+import VTodoGenerator from "vtodogenerator";
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
 import { getAPIURL, getISO8601Date, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
-import VTodoGenerator from "@/external/VTODOGenerator";
 import { getRandomString } from "@/helpers/crypto";
 import { postNewTodo } from "@/helpers/frontend/eventmodifier";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
@@ -527,18 +527,20 @@ export default class TaskEditor extends Component {
                 //console.log(this.state.todoList[2][this.props.data.uid].data)
                 var finalTodoData = await generateNewTaskObject(todoData, this.props.data, oldUnparsedData)
                 //console.log(finalTodoData)
+
+
                 var todo = new VTodoGenerator(finalTodoData)
                 
-                console.log(finalTodoData)
+                console.log(todo, finalTodoData)
                 var finalVTODO = todo.generate()
                 logVar(finalVTODO, "Final Generated TODO")
                 var etag = getRandomString(32)
                 if (this.props.data.url_internal == null || this.props.data.url_internal == "") {
-                   var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
+                  var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
 
                 }
                 else {
-                    var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url_internal, this.props.data.etag, finalVTODO)
+                   var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url_internal, this.props.data.etag, finalVTODO)
                 }
 
             } 

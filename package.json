@@ -60,6 +60,7 @@
     "sharp": "0.32.0",
     "timezone-validator": "1.0.3",
     "tsdav": "2.0.3",
-    "validator": "13.9.0"
+    "validator": "13.9.0",
+    "vtodogenerator": "1.1.1"
   }
 }

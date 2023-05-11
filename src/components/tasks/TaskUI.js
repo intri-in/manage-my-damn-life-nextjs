@@ -28,7 +28,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Tooltip from 'react-bootstrap/Tooltip';
 import SimpleOverlay from "../bootstrap/SimpleOverlay";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
-import VTodoGenerator from "@/external/VTODOGenerator";
+import VTodoGenerator from "vtodogenerator";
 export default class TaskUI extends Component {
 
     constructor(props) {

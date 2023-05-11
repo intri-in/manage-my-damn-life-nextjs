@@ -23,18 +23,18 @@ import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { FULLCALENDAR_BUSINESS_HOURS } from "@/config/constants";
 import { withRouter } from "next/router";
+import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 class DashboardView extends Component {
     calendarRef = React.createRef()
     constructor(props) {
 
         super(props)
         this.i18next = getI18nObject()
-        var initialViewCalendar="timeGridDay"
-        if(varNotEmpty(props.initialView))
-        {
-            initialViewCalendar= props.initialView
+        var initialViewCalendar = "timeGridDay"
+        if (varNotEmpty(props.initialView)) {
+            initialViewCalendar = props.initialView
         }
-        this.state = { showEventEditor: false, viewValue: this.getViewValueFromName(initialViewCalendar), events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR:props.calendarAR }
+        this.state = { showEventEditor: false, viewValue: this.getViewValueFromName(initialViewCalendar), events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -50,7 +50,7 @@ class DashboardView extends Component {
 
         this.getCaldavAccountsfromDB()
         this.getAllEventsfromServer()
-    
+
         //dayGridMonth
         let calendarApi = this.calendarRef.current.getApi()
         calendarApi.eventDragStart = this.eventDrag
@@ -58,49 +58,41 @@ class DashboardView extends Component {
 
     }
 
-    async getCaldavAccountsfromDB()
-    {
-        var caldav_accounts= await getCaldavAccountsfromServer()
-        if(caldav_accounts!=null && caldav_accounts.success==true)
-        {
-            if(caldav_accounts.data.message.length>0)
-            {
+    async getCaldavAccountsfromDB() {
+        var caldav_accounts = await getCaldavAccountsfromServer()
+        if (caldav_accounts != null && caldav_accounts.success == true) {
+            if (caldav_accounts.data.message.length > 0) {
 
-            }else{
+            } else {
                 this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
             }
-           
+
         }
 
 
     }
-    componentDidUpdate(prevProps, prevState)
-    {
-        if(this.props.scheduleItem!=prevProps.scheduleItem)
-        {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.scheduleItem != prevProps.scheduleItem) {
             console.log('here')
-            if(varNotEmpty(this.props.scheduleItem))
-            {
+            if (varNotEmpty(this.props.scheduleItem)) {
                 this.scheduleEvent(this.props.scheduleItem)
             }
         }
 
-        if(this.props.calendarAR!= prevProps.calendarAR)
-        {
-            this.setState({calendarAR: this.props.calendarAR})
+        if (this.props.calendarAR != prevProps.calendarAR) {
+            this.setState({ calendarAR: this.props.calendarAR })
         }
     }
 
-    scheduleEvent(data)
-    {
+    scheduleEvent(data) {
         var eventData = getEmptyEventDataObject()
-        var end = Date.now()+60*1000*60
+        var end = Date.now() + 60 * 1000 * 60
 
         eventData.data["start"] = new Date(Date.now())
         eventData.data["end"] = new Date(end)
         eventData.data["summary"] = data.summary
 
-        eventData.event["calendar_id"]=data.calendar_id
+        eventData.event["calendar_id"] = data.calendar_id
 
         this.setState({ showEventEditor: true, eventDataDashBoard: eventData })
 
@@ -126,18 +118,14 @@ class DashboardView extends Component {
         this.setState({ viewValue: e.target.value, })
     }
 
-    getViewValueFromName(viewName)
-    {
-        if(viewName=="timeGridDay")
-        {
+    getViewValueFromName(viewName) {
+        if (viewName == "timeGridDay") {
             return '1'
         }
-        else if(viewName =="timeGridWeek")
-        {
+        else if (viewName == "timeGridWeek") {
             return '2'
         }
-        else if(viewName =="dayGridMonth")
-        {
+        else if (viewName == "dayGridMonth") {
             return '3'
         }
 
@@ -208,7 +196,7 @@ class DashboardView extends Component {
                     if (message != "" && varNotEmpty(message)) {
                         toast.error(this.i18next.t(message.toString()))
                         console.log(response)
-                    }else{
+                    } else {
                         toast.error((this.i18next.t("ERROR_GENERIC")))
 
                     }
@@ -254,8 +242,8 @@ class DashboardView extends Component {
             var obj = getObjectForAPICall(eventData.data)
             var ics = await makeGenerateICSRequest({ obj })
             console.log(ics)
-            if (varNotEmpty(ics) ) {
-                const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics )
+            if (varNotEmpty(ics)) {
+                const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics)
 
                 if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
                     toast.success(this.i18next.t("UPDATE_OK"))
@@ -267,7 +255,7 @@ class DashboardView extends Component {
 
 
                     }
-                    else{
+                    else {
                         toast.error((this.i18next.t("ERROR_GENERIC")))
 
                     }
@@ -296,16 +284,17 @@ class DashboardView extends Component {
                     }
                     if (event.type != "VTODO" && event.type != "VTIMEZONE") {
                         var data = getParsedEvent(allEvents.data.message[i].events[j].data)
-                        if (varNotEmpty(data)==false){
+                        if (varNotEmpty(data) == false) {
                             continue
                         }
-                        if (varNotEmpty(data.summary)==false ||(varNotEmpty(data.summary) && data.summary.toString().trim()=="")){
+                        if (varNotEmpty(data.summary) == false || (varNotEmpty(data.summary) && data.summary.toString().trim() == "")) {
                             continue
                         }
-    
 
-                     
+
+
                         var allDay = isAllDayEvent(data.start, data.end)
+                        console.log(data.end, data.summary )
                         var eventObject = {
                             id: data.uid,
                             title: data.summary,
@@ -320,11 +309,11 @@ class DashboardView extends Component {
 
                         var rrule = rruleToObject(data.rrule)
                         //Check if the event has a recurrence rule.
-                        if (varNotEmpty(data.rrule) && data.rrule != '' &&varNotEmpty(rrule["FREQ"]) &&rrule["FREQ"]!="") {
+                        if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
 
                             //var dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
-                            var until =rrule["UNTIL"]
-                            var  eventObject = {
+                            var until = rrule["UNTIL"]
+                            var eventObject = {
                                 id: data.uid,
                                 title: data.summary,
                                 start: data.start,
@@ -335,110 +324,152 @@ class DashboardView extends Component {
                                 rrule: {
                                     freq: rrule["FREQ"].toLowerCase(),
                                     interval: parseInt(rrule["INTERVAL"]),
-                                    dtstart:data.start.toISOString(),
+                                    dtstart: data.start.toISOString(),
                                     until: until
                                 },
                                 backgroundColor: allEvents.data.message[i].info.color
-                                }
-                               // console.log(eventObject.title, eventObject.rrule)
-                                finalEvents.push(eventObject)
-
                             }
-                            else{
-                                var eventObject = {
-                                    id: data.uid,
-                                    title: data.summary,
-                                    start: data.start,
-                                    end: data.end,
-                                    allDay: allDay,
-                                    editable: true,
-                                    draggable: true,
-                                    backgroundColor: allEvents.data.message[i].info.color
-                                }
-                                finalEvents.push(eventObject)
-        
-                            } 
+                            // console.log(eventObject.title, eventObject.rrule)
+                            finalEvents.push(eventObject)
 
+                        }
+                        else {
+                            var eventObject = {
+                                id: data.uid,
+                                title: data.summary,
+                                start: data.start,
+                                end: data.end,
+                                allDay: allDay,
+                                editable: true,
+                                draggable: true,
+                                backgroundColor: allEvents.data.message[i].info.color,
+                            }
+                            finalEvents.push(eventObject)
+
+                        }
+
+
+                        /*
+                        if (varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
+                            var step = 86400 * 1000
+                            if (rrule["FREQ"] == "WEEKLY") {
+                                step = step * 7
+                            }
+                          
+                            if (rrule["FREQ"] == "MONTHLY") {
+                                step = step * 30
+                            }
+                            if (rrule["FREQ"] == "YEARLY") {
+                                step = step * 365
+                            }
+                           
+                            if (varNotEmpty(rrule["INTERVAL"]) && rrule["INTERVAL"] != "") {
+                                step = step * rrule["INTERVAL"]
+                            }
+
+                            var maxTime = Date.now() + 1000 * 86400 * 180
+
+                            if (varNotEmpty(rrule["UNTIL"]) && rrule["UNTIL"] != "") {
+                                maxTime = moment(rrule["UNTIL"]).unix() * 1000
+                            }
+
+                            var newStart = moment(data.start).unix() * 1000 + step
+                            var newEnd = moment(data.end).unix() * 1000 + step
+                            var newMap = this.state.recurMap
                             
-                            /*
-                            if (varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
-                                var step = 86400 * 1000
-                                if (rrule["FREQ"] == "WEEKLY") {
-                                    step = step * 7
-                                }
-                              
-                                if (rrule["FREQ"] == "MONTHLY") {
-                                    step = step * 30
-                                }
-                                if (rrule["FREQ"] == "YEARLY") {
-                                    step = step * 365
-                                }
-                               
-                                if (varNotEmpty(rrule["INTERVAL"]) && rrule["INTERVAL"] != "") {
-                                    step = step * rrule["INTERVAL"]
-                                }
-
-                                var maxTime = Date.now() + 1000 * 86400 * 180
-
-                                if (varNotEmpty(rrule["UNTIL"]) && rrule["UNTIL"] != "") {
-                                    maxTime = moment(rrule["UNTIL"]).unix() * 1000
-                                }
-
-                                var newStart = moment(data.start).unix() * 1000 + step
-                                var newEnd = moment(data.end).unix() * 1000 + step
-                                var newMap = this.state.recurMap
-                                
-                                    while (newStart < maxTime) {
-                                        var recurId = getRandomString(10)
-                                        newMap[recurId] = data.uid
-                                        this.setState({recurMap:newMap})
-    
-                                        eventObject = {
-                                            id: recurId,
-                                            title: data.summary,
-                                            start: new Date(newStart),
-                                            end: new Date(newEnd),
-                                            allDay: allDay,
-                                            editable: true,
-                                            draggable: true,
-                                            backgroundColor: allEvents.data.message[i].info.color
-                                        }
-                                        finalEvents.push(eventObject)
-                                        newStart += step
-                                        newEnd += step
+                                while (newStart < maxTime) {
+                                    var recurId = getRandomString(10)
+                                    newMap[recurId] = data.uid
+                                    this.setState({recurMap:newMap})
+ 
+                                    eventObject = {
+                                        id: recurId,
+                                        title: data.summary,
+                                        start: new Date(newStart),
+                                        end: new Date(newEnd),
+                                        allDay: allDay,
+                                        editable: true,
+                                        draggable: true,
+                                        backgroundColor: allEvents.data.message[i].info.color
                                     }
-                                
-                                
-
-                            }
+                                    finalEvents.push(eventObject)
+                                    newStart += step
+                                    newEnd += step
+                                }
                             
-                        } 
-                        */
+                            
+
+                        }
+                        
+                    } 
+                    */
                         this.state.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
 
                     }
                     else if (event.type == "VTODO") {
                         var data = returnGetParsedVTODO(allEvents.data.message[i].events[j].data)
-                        if (varNotEmpty(data)==false){
+                        if (varNotEmpty(data) == false) {
                             continue
                         }
-    
 
-                        if(majorTaskFilter(data))
-                        {
+
+                        if (majorTaskFilter(data)) {
                             var title = "[" + this.i18next.t("TASK") + "] " + data.summary
-                            var eventObject = {
-                                id: data.uid,
-                                title: title,
-                                allDay: false,
-                                start: data.due,
-                                end: data.due,
-                                editable: false,
-                                draggable: true,
-                                backgroundColor: allEvents.data.message[i].info.color
+
+                            var rrule = rruleToObject(data.rrule)
+
+                            //Check if the event has a recurrence rule.
+                            if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
+
+                                var recurrenceObj = new RecurrenceHelper(data)
+                                var dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
+                                var startDate = moment.unix(moment(dueDate).unix() - (60*60)).toISOString()
+                                console.log("REPEATING", startDate, title, dueDate)
+
+                                var eventObject = {
+                                    id: data.uid,
+                                    title: title,
+                                    allDay: false,
+                                    end: dueDate,
+                                    displayEventEnd: false,
+                                    editable: false,
+                                    draggable: true,
+                                    backgroundColor: allEvents.data.message[i].info.color,
+                                    rrule: {
+                                        freq: rrule["FREQ"].toLowerCase(),
+                                        interval: parseInt(rrule["INTERVAL"]),
+                                        dtstart: data.start.toISOString(),
+                                        until: rrule["UNTIL"]
+                                    },
+                                }
+
+                            } else {
+                                if (varNotEmpty(data.due) && data.due != "") {
+
+                                    var dueDate = moment(data.due).toISOString()
+                                    var startDate = moment.unix(moment(data.due).unix() - (10*60)).toISOString()
+                                    console.log(startDate, title, dueDate)
+
+                                    var eventObject = {
+                                        id: data.uid,
+                                        title: title,
+                                        allDay: false,
+                                        start: startDate,
+                                        end: dueDate,
+                                        editable: false,
+                                        draggable: true,
+                                        displayEventStart: false,
+                                        backgroundColor: allEvents.data.message[i].info.color
+                                    }
+                                }
+
+
                             }
-                            finalEvents.push(eventObject)
-    
+                            if (varNotEmpty(eventObject)) {
+                                finalEvents.push(eventObject)
+
+                            }
+
                         }
 
                     }
@@ -455,10 +486,10 @@ class DashboardView extends Component {
         const eventDataDashBoard = this.state.eventDataDashBoard
         var eventEditor = this.state.showEventEditor ? (<EventEditor key={this.state.selectedID} onDismiss={this.eventEditorDismissed} eventData={eventDataDashBoard} />
         ) : (null)
-        return  (<>
-            <Row style={{padding: 20}} >
+        return (<>
+            <Row style={{ padding: 20 }} >
                 <Col>
-                    <Form.Select  value={this.state.viewValue} onChange={this.viewChanged}>
+                    <Form.Select value={this.state.viewValue} onChange={this.viewChanged}>
                         <option value="1">View: Day</option>
                         <option value="2">View: Week</option>
                         <option value="3">View: Month</option>
@@ -466,7 +497,7 @@ class DashboardView extends Component {
                 </Col>
             </Row>
             <FullCalendar
-                plugins={[dayGridPlugin,timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
+                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
                 ref={this.calendarRef}
                 initialView={this.state.initialViewCalendar}
                 themeSystem="standard"

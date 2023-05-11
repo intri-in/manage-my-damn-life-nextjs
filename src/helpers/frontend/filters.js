@@ -2,6 +2,8 @@ import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
 import { getAPIURL, varNotEmpty } from "../general"
+import { RRuleHelper } from "./classes/RRuleHelper"
+import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 
 export async function saveFiltertoServer(name, filter)
 {
@@ -259,7 +261,15 @@ export function applyEventFilter(event, filter)
         var filterByDueResult= false
         if(filter.filter.due!=null)
         {
-            filterByDueResult = filterbyDue(filter.filter.due, event.due)
+            var dueDate = event.due
+
+            if (varNotEmpty(event.rrule) && event.rrule != "") {
+                //Repeating Object
+                var recurrenceObj = new RecurrenceHelper(event)
+                dueDate= recurrenceObj.getNextDueDate()
+            }
+    
+            filterByDueResult = filterbyDue(filter.filter.due, dueDate)
            
            
         }
@@ -294,9 +304,18 @@ export function applyEventFilter(event, filter)
             }
         }
         var filterByDueResult= null
-        if(filter.filter.due!=null && filterbyDue(filter.filter.due, event.due)==false)
+        if(filter.filter.due!=null)
         {
-            filterByDueResult = false
+            var dueDate = event.due
+
+            if (varNotEmpty(event.rrule) && event.rrule != "") {
+                //Repeating Object
+                var recurrenceObj = new RecurrenceHelper(event)
+                dueDate= recurrenceObj.getNextDueDate()
+            }
+    
+            filterByDueResult = filterbyDue(filter.filter.due, dueDate)
+
             return filterByDueResult
            
         }
@@ -356,7 +375,7 @@ function filterbyDue(filterdueArray, dueDate)
     {
         if(dueDate!=null && dueDate!="")
         {
-            var dueUnixStamp= dueDatetoUnixStamp(ISODatetoHuman(dueDate))
+            var dueUnixStamp= moment(dueDate).unix()
             if(dueUnixStamp>=filterdueArray[0] && dueUnixStamp <= filterdueArray[1])
             {
                 return true

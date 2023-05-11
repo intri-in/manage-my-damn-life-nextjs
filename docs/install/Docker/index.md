@@ -35,7 +35,7 @@ Open your browser and go to ```http://localhost:3000/install``` to start the ins
 Get the latest docker image
 
 ```
-docker pull intriin/mmdl-vxxxxx:latest
+docker pull intriin/mmdl
 ```
 
 ### Configuration

@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import { majorTaskFilter } from "./events";
 import { getAuthenticationHeadersforUser } from "./user";
 import { toast } from "react-toastify";
-import VTodoGenerator from "@/external/VTODOGenerator";
+import VTodoGenerator from "vtodogenerator";
 import { getAPIURL, varNotEmpty } from "../general";
 import { makeParseICSRequest } from "./ics";
 export function sortTaskListbyDue(list, todoList)
