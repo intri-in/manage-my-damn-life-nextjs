@@ -82,7 +82,8 @@ export default class GanttView extends Component {
                     if (varNotEmpty(todoList[1][key].todo.rrule) && todoList[1][key].todo.rrule != "") {
                         //Repeating Object
                         var recurrenceObj = new RecurrenceHelper(todoList[1][key].todo)
-                        dueDate= recurrenceObj.getNextDueDate()
+                        //console.log(todoList[1][key].todo.summary, new Date(moment(recurrenceObj.getNextDueDate())), recurrenceObj.getNextDueDate())
+                        dueDate= new Date(moment(recurrenceObj.getNextDueDate()))
                     }else{
                         if (todoList[1][key].todo.due != null && todoList[1][key].todo.due != "" && todoList[1][key].todo.due != undefined) {
                             dueDate = new Date(moment(todoList[1][key].todo.due))
@@ -95,6 +96,8 @@ export default class GanttView extends Component {
                     var startDate = ""
                     if (todoList[1][key].todo.start != null && todoList[1][key].todo.start != "" && todoList[1][key].todo.start != undefined) {
                         startDate = new Date(moment(todoList[1][key].todo.start))
+
+                    
                     }else{
                        if(new Date(dueDate).getTime() < Date.now())
                        {
@@ -107,6 +110,7 @@ export default class GanttView extends Component {
                         startDate = new Date(Date.now())
                        }
                     }
+                   // console.log(todoList[1][key].todo.summary, "dueDate, startdate", dueDate, startDate, )
                     var type = "task"
     
                     if (todoList[1][key].todo.category != null && Array.isArray(todoList[1][key].todo.category) && todoList[1][key].todo.category.length > 0) {
