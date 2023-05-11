@@ -2,7 +2,7 @@ import { Component } from "react";
 import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { ISODatetoHuman, ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
-import { getRandomColourCode } from "@/helpers/general";
+import { getRandomColourCode, varNotEmpty } from "@/helpers/general";
 import moment from "moment";
 import { categoryArrayHasLabel } from "@/helpers/frontend/labels";
 import { DummyTaskListComponent } from "./gantt_Dummy/DummyTaskListComponent";
@@ -11,6 +11,7 @@ import Form from 'react-bootstrap/Form';
 import { Col, Row } from "react-bootstrap";
 import { Loading } from "../common/Loading";
 import { PRIMARY_COLOUR } from "@/config/style";
+import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 export default class GanttView extends Component {
     constructor(props) {
         super(props)
@@ -78,9 +79,18 @@ export default class GanttView extends Component {
             if ((todoList[1][key].todo.completed == null || todoList[1][key].todo.completed == "") && todoList[1][key].todo.completion != "100" && todoList[1][key].todo.summary != null && todoList[1][key].todo.summary != undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == "")) {
 
                     var dueDate = new Date(Date.now())
-                    if (todoList[1][key].todo.due != null && todoList[1][key].todo.due != "" && todoList[1][key].todo.due != undefined) {
-                        dueDate = new Date(moment(todoList[1][key].todo.due))
+                    if (varNotEmpty(todoList[1][key].todo.rrule) && todoList[1][key].todo.rrule != "") {
+                        //Repeating Object
+                        var recurrenceObj = new RecurrenceHelper(todoList[1][key].todo)
+                        dueDate= recurrenceObj.getNextDueDate()
+                    }else{
+                        if (todoList[1][key].todo.due != null && todoList[1][key].todo.due != "" && todoList[1][key].todo.due != undefined) {
+                            dueDate = new Date(moment(todoList[1][key].todo.due))
+                        }
+    
                     }
+            
+        
 
                     var startDate = ""
                     if (todoList[1][key].todo.start != null && todoList[1][key].todo.start != "" && todoList[1][key].todo.start != undefined) {

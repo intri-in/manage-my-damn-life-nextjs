@@ -404,11 +404,20 @@ export default class EventEditor extends Component {
         this.setState({ description: e.target.value })
     }
     fromDateChanged(e) {
-        this.setState({ fromDate: e._d })
+        var fromDate = e._d
+
+        this.setState({ fromDate:fromDate})
 
     }
     endDateChanged(e) {
-        this.setState({ toDate: e._d })
+        var toDate = e._d
+        /*
+        if(this.state.allDay==true)
+        {
+            toDate=new Date((moment(e._d).unix()+86000)*1000)
+        }
+        */
+        this.setState({ toDate:toDate })
 
 
     }
@@ -433,7 +442,7 @@ export default class EventEditor extends Component {
             var obj = getObjectForAPICall(eventData.data)
             //console.log("obj", obj)
             var ics = await makeGenerateICSRequest({ obj })
-            //console.log(eventData, ics)
+            console.log(eventData, ics)
             if (varNotEmpty(ics)) {
 
                 //Make add request if new, edit request otherwise.
