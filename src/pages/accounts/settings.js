@@ -8,7 +8,7 @@ const { withRouter } = require("next/router");
 const { Component } = require("react");
 import Card from 'react-bootstrap/Card';
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { getAPIURL, isValidResultArray, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import { BACKGROUND_GRAY } from "@/config/style";
 import moment from "moment";
 import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
@@ -47,7 +47,8 @@ class Settings extends Component {
             headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        fetch(url_api, requestOptions)
+        try{
+            fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) => {
                 if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true)
@@ -87,6 +88,14 @@ class Settings extends Component {
                 }
             })
 
+        }catch(e)
+        {
+            logVar(e, "getAllUserSettings")
+            toast.error(this.state.i18next.t("ERROR_GETTING_SETTINGS"))
+
+        }
+
+
     }
     caldavAccountButtonClicked()
     {
@@ -103,7 +112,8 @@ class Settings extends Component {
             headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        fetch(url_api, requestOptions)
+        try{
+            fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) => {
                 if (varNotEmpty(body)) {
@@ -164,6 +174,13 @@ class Settings extends Component {
 
 
             });
+
+        }
+        catch(e)
+        {
+            toast.error(this.state.i18next.t("ERROR_GENERIC"))
+            logVar(e, "getUserInfo")
+        }
 
 
      

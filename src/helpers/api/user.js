@@ -8,11 +8,12 @@ export async function getUserDetailsfromUsername(username)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users WHERE username= ?", [ username], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
         
@@ -24,12 +25,13 @@ export async function getTotalNumberofUsers()
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users", [], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
             var allUsers=Object.values(JSON.parse(JSON.stringify(result)))
-            resolve(result.length);
+            return resolve(result.length);
 
         })
     })
@@ -109,11 +111,12 @@ export function checkCredentialsinDB(username, password)
     var passwordHash = crypto.createHash('sha512').update(password).digest('hex')
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users WHERE username= ? AND password = ?", [ username, passwordHash], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
     })
@@ -152,7 +155,7 @@ export async function generateSSID(userhash)
                 console.log(error.message)
             }
             con.end()
-            resolve(token);
+            return resolve(token);
 
         });
 
@@ -190,11 +193,12 @@ export async  function getAllSSIDFromDB(userhash)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM ssid_table WHERE userhash= ?", [userhash], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
     })
@@ -254,14 +258,13 @@ export async function checkSSIDValidity(userhash, ssid)
 
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM ssid_table WHERE userhash= ? AND ssid=?", [userhash, ssidHash], function (err, result, fields) {
-            
+            con.end()
+
             if (err){
-                con.end()
                 console.log("checkSSIDValidity"+ err)
-                resolve(false)
+                return resolve(false)
 
             } 
-            con.end()
             var resultfromDB= Object.values(JSON.parse(JSON.stringify(result)))
             if(resultfromDB!=null && Array.isArray(resultfromDB)&&resultfromDB.length>0)
             {
@@ -271,27 +274,27 @@ export async function checkSSIDValidity(userhash, ssid)
                     var maxValidityTinme=resultfromDB[0].created+process.env.MAX_SESSION_LENGTH
                     if(currenttime>maxValidityTinme)
                     {
-                        resolve(false)
+                        return resolve(false)
                     }
                     else
                     {
-                        resolve(true)
+                        return resolve(true)
                     }
 
                 }
                 else
                 {
                     //SSID is valid.
-                    resolve(true)
+                    return resolve(true)
                 }
 
             }
             else
             {
-                resolve(false);
+                return resolve(false);
             }
             
-            resolve(false)
+            return resolve(false)
         })
     }).catch((reason) =>{
         console.log(reason)
@@ -305,22 +308,23 @@ export function getUseridFromUserhash(userhash)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM users WHERE userhash=? ", [ userhash], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve("")
             }
-            con.end()
             var resultfromDB = Object.values(JSON.parse(JSON.stringify(result)))
 
             if(resultfromDB!=null&&Array.isArray(resultfromDB)&&resultfromDB.length>0)
             {
-                resolve(resultfromDB[0].users_id)
+                return resolve(resultfromDB[0].users_id)
 
             }
             else
             {
-                resolve("")
+                return resolve("")
             }
-            resolve("");
+            return resolve("");
 
         })
     })

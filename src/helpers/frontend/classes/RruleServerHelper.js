@@ -6,6 +6,7 @@ import * as _ from 'lodash'
 import { getMessageFromAPIResponse } from "../response"
 import axios from "axios"
 import { headers } from "../../../../next.config"
+import { getErrorResponse } from "@/helpers/errros"
 
 
 const default_RepeatMeta_instance = { done: false, due: "" }
@@ -83,13 +84,21 @@ export default class RruleServerHelper extends RRuleHelper {
         }
 
         return new Promise((resolve, reject) => {
-            const response = fetch(url_api, requestOptions)
+            try{
+                const response = fetch(url_api, requestOptions)
                 .then(response => {
                     return response.json()
                 })
                 .then((body) => {
-                    resolve(body)
+                    return resolve(body)
                 })
+
+            }catch(e)
+            {
+                logVar(e, "getRepeatRuleFromServer")
+                return resolve(getErrorResponse(e))
+            }
+
         })
 
 
@@ -124,6 +133,7 @@ export default class RruleServerHelper extends RRuleHelper {
 
 
         */
+       try{
         axios({
             method: 'post',
             url: getAPIURL() + "tasks/rrule/postrepeatobj",
@@ -138,6 +148,13 @@ export default class RruleServerHelper extends RRuleHelper {
           })  .catch(function (error) {
             console.log(error);
           });
+
+       }
+       catch(e)
+       {
+        logVar(e, "postRepeatRule")
+        return (getErrorResponse(e))
+       }
 
     }
 

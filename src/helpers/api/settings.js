@@ -6,17 +6,17 @@ export async function getRegistrationStatus()
 
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM settings WHERE name=?", ["GLOBAL_DISABLE_USER_REGISTRATION"], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err)
-                resolve(null)
+                return resolve(null)
             }
-            con.end()
             var result = Object.values(JSON.parse(JSON.stringify(result)))
             if(result!=null && Array.isArray(result) && result.length>0 && result[0].name!=null && result[0].name!=undefined && result[0].global!=null && result[0].name!="" && result[0].global!="false"   && result[0].global!="0"  )
             {
-                resolve(result[0].value)
+                return resolve(result[0].value)
             }else{
-                resolve(0)
+                return resolve(0)
             }
 
         })

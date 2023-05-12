@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 import { getAuthenticationHeadersforUser } from './user'
-import { getAPIURL, varNotEmpty } from '../general'
+import { getAPIURL, logVar, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
 
 export function setCookie(cname, cvalue, exdays)
@@ -25,19 +25,28 @@ export async function getDefaultCalendarID()
     }
 
     return new Promise( (resolve, reject) => {
-        fetch(url_api, requestOptions)
-        .then(response =>{
-            return response.json()
-        } )
-        .then((body) =>{
-            if(varNotEmpty(body) && varNotEmpty(body.success))
-            {
-                var message= getMessageFromAPIResponse(body)
-                resolve(message)
-            }else{
-                resolve('')
-            }
-        })
+
+        try{
+            fetch(url_api, requestOptions)
+            .then(response =>{
+                return response.json()
+            } )
+            .then((body) =>{
+                if(varNotEmpty(body) && varNotEmpty(body.success))
+                {
+                    var message= getMessageFromAPIResponse(body)
+                    return resolve(message)
+                }else{
+                    return resolve('')
+                }
+            })
+    
+        }
+        catch(e)
+        {
+            logVar(e, "getDefaultCalendarID")
+            return resolve('')
+        }
 
     })
 

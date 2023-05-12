@@ -10,7 +10,7 @@ export async function testDBConnection(){
     return new Promise( (resolve, reject) => {
        
      con.ping( err=>{
-        resolve(err)
+        return resolve(err)
 
      })
     })
@@ -22,19 +22,19 @@ export async function checkifDBExists()
     var query="SHOW DATABASES LIKE ?"
     return new Promise( (resolve, reject) => {
         con.query(query, [process.env.DB_NAME], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
-                resolve(false)
+                return resolve(false)
             }
-            con.end()
             var resultfromDB=Object.values(JSON.parse(JSON.stringify(result)))
             logVar(resultfromDB, "resultfromDB:checkifDBExists")
             console.log( Array.isArray(resultfromDB), resultfromDB.length)
             if(Array.isArray(resultfromDB) && resultfromDB.length>0)
             {
-                resolve(true)
+                return resolve(true)
             } else{
-                resolve(false)
+                return resolve(false)
             }
 
         })
@@ -50,10 +50,10 @@ export async function createMMDL_DB()
         con.query(query, [], function (err, result, fields) {
             if (err) {
                 console.log(err);
-                resolve(false)
+                return resolve(false)
             }
             con.end()
-            resolve(true)
+            return resolve(true)
         })
 
     })
@@ -65,7 +65,7 @@ export async function testDBConnectionSimple()
     return new Promise( (resolve, reject) => {
        
      con.ping( err=>{
-        resolve(err)
+        return resolve(err)
 
      })
     })
@@ -89,9 +89,9 @@ export async function getListofTables()
         con.query("SHOW TABLES", [], function (err, result, fields) {
             con.end()
             if (err){
-                resolve(err)
+                return resolve(err)
             }
-            resolve(result)
+            return resolve(result)
         })
         
     })
@@ -141,10 +141,10 @@ export function installTables(table_name)
           con.query(query, [], function (err, result, fields) {
               con.end()
               if (err){
-                  resolve(err)
+                  return resolve(err)
                   console.log(err)
               }
-              resolve(result)
+              return resolve(result)
           })
           
       })

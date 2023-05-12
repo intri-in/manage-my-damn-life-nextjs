@@ -11,7 +11,7 @@ export async function getAllAddedCaldavAccounts(){
             if(caldav_accounts!=null && caldav_accounts.length >0)
             {
 
-                resolve({success: true, data: {message: caldav_accounts}})
+                return resolve({success: true, data: {message: caldav_accounts}})
             }
             else
             {
@@ -23,7 +23,7 @@ export async function getAllAddedCaldavAccounts(){
                     }
                     else
                     {
-                        resolve({success: false, data: {message: response.data.message}})
+                        return resolve({success: false, data: {message: response.data.message}})
                     }
 
                 })

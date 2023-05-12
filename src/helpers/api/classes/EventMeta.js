@@ -27,10 +27,10 @@ export default class EventMeta extends Events {
                 con.end()
                 if (err) {
                     logError(err, "Events.getMeta") 
-                    resolve(null)
+                    return resolve(null)
                 }
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
-                resolve(resultFromDB[0]);
+                return resolve(resultFromDB[0]);
 
                 
             })
@@ -47,15 +47,15 @@ export default class EventMeta extends Events {
                 con.end()
                 if (err) {
                     logError(err, "Events.getMeta") 
-                    resolve(null)
+                    return resolve(null)
                 }
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
                 if(isValidResultArray(resultFromDB) && resultFromDB.length>0)
                 {
-                    resolve(resultFromDB[resultFromDB.length-1]["value"]);
+                    return resolve(resultFromDB[resultFromDB.length-1]["value"]);
 
                 }else{
-                    resolve(null)
+                    return resolve(null)
                 }
 
                 
@@ -82,7 +82,7 @@ export default class EventMeta extends Events {
                         logError(error,"EventMeta.insertEventMeta")
                     }
                     con.end()
-                    resolve(results)
+                    return resolve(results)
                     });
             
             })
@@ -94,10 +94,10 @@ export default class EventMeta extends Events {
                 con.query('UPDATE calendar_events_meta SET ? WHERE property = ? AND calendar_events_id = ?',[{ created: created, value: this.value }, this.property, this.calendar_events_id], function (error, results, fields) {
                     if (error) {
                         console.log("updateCalendarinDB: ",error.message)
-                        resolve(false)
+                        return resolve(false)
                     }
                     con.end()
-                    resolve(true)
+                    return resolve(true)
                 })
             
             })

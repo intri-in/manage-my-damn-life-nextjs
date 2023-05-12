@@ -2,7 +2,7 @@ import { Loading } from "@/components/common/Loading";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { getAPIURL, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,7 +55,8 @@ class StartInstall extends Component{
             //headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        fetch(url_api, requestOptions)
+        try{
+            fetch(url_api, requestOptions)
             .then(response => {
                 return response.json()
 
@@ -82,6 +83,11 @@ class StartInstall extends Component{
 
                 }
             })
+
+        }catch(e)
+        {
+            logVar(e, "installButtonClicked")
+        }
     }
 
     getInstallForm()
@@ -106,7 +112,8 @@ class StartInstall extends Component{
             //headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        fetch(url_api, requestOptions)
+        try{
+            fetch(url_api, requestOptions)
             .then(response => {
                 
                 return response.json()
@@ -149,6 +156,11 @@ class StartInstall extends Component{
 
             })
         
+
+        }catch(e)
+        {
+            logVar(e, "checkifInstalled")
+        }
 
     }
 

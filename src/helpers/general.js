@@ -151,7 +151,21 @@ export function debugging()
 
 export function getAPIURL()
 {
-    return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_API_URL)
+    return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_BASE_URL)+"api/"
+    /*
+    try{
+        if(window!=undefined)
+        {
+            return window.location.href
+        }
+    
+    }
+    catch(e)
+    {
+        logError(e, "getAPIURL")
+    }
+    return "/api/"
+    */
 }
 
 export function getISO8601Date(date, skipTime)

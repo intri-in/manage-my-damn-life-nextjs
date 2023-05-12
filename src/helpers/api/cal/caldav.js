@@ -42,7 +42,7 @@ export async function createCalDAVAccount(accountname, username, password, url, 
             if (error) {
                 console.log(error) 
             }
-            resolve(true)
+            return resolve(true)
             });
 
     })
@@ -54,11 +54,12 @@ export async function getCaldavAccountDetailsfromId(caldav_account_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ?", [ caldav_account_id], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
     })
@@ -142,11 +143,12 @@ export async function getCalendarEventbyURL(url,calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events WHERE url= ? AND calendar_id=?", [url, calendar_id], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
     })
@@ -158,11 +160,12 @@ export async function getAllCalendarEvents()
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events", [], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
         })
         })
@@ -225,7 +228,7 @@ export async function createEventinCalDAVAccount(url, caldav_accounts_id, calend
                 filename: url,
                 iCalString: event,
               }).then((result =>{
-                resolve({result: result, client:client})
+                return resolve({result: result, client:client})
               }))
 
     
@@ -266,13 +269,13 @@ export async function updateEventinCalDAVAccount(caldav_accounts_id,  event)
         
                     })
                   }).then(result =>{
-                    resolve({result: result, client: client})
+                    return resolve({result: result, client: client})
                   })
     
     
         
             }, (rejected) => {
-                resolve(rejected)
+                return resolve(rejected)
             })
         
     
@@ -282,7 +285,7 @@ export async function updateEventinCalDAVAccount(caldav_accounts_id,  event)
         else
         {
             console.log('updateEventinCalDAVAccount: no caldav account.')
-            resolve(null)
+            return resolve(null)
         }
     
     })

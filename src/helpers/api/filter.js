@@ -9,7 +9,7 @@ export async function insertNewFiltertoDB(name, filtervalue, userid)
                 console.log(error.message)
             }
             con.end()
-            resolve(results)
+            return resolve(results)
             });
     
     })
@@ -21,11 +21,13 @@ export async function getFiltersFromDB(userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT name, filtervalue,custom_filters_id FROM custom_filters WHERE userid= ?", [userid], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
         
@@ -39,9 +41,9 @@ export async function updateFilterinDB(custom_filters_id, name, filtervalue)
     return new Promise( (resolve, reject) => {
          con.query('UPDATE custom_filters SET ? WHERE custom_filters_id = ?',[{name :name, filtervalue: filtervalue }, custom_filters_id], function (error, results, fields) {
         if (error) {
-            resolve(error.message)
+            return resolve(error.message)
         }
-        resolve(null)
+        return resolve(null)
         })
     }
     )

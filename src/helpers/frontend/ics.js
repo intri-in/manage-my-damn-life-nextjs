@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { getRandomString } from "../crypto";
-import { getAPIURL, isNumber, varNotEmpty } from "../general";
+import { getAPIURL, isNumber, logVar, varNotEmpty } from "../general";
 import { rruleToObject } from "./events";
 import { getMessageFromAPIResponse } from "./response";
 import { getAuthenticationHeadersforUser } from "./user";
@@ -20,26 +20,34 @@ export async function makeGenerateICSRequest(eventObj)
     }
     return new Promise( (resolve, reject) => {
 
-         fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true )
-            {
-                var message = getMessageFromAPIResponse(body)
-                resolve(message)
-            }else{
-                var message = getMessageFromAPIResponse(body)
-                if(varNotEmpty(message) && message!="")
+        try{
+            fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true )
                 {
-                    toast.error(message)
+                    var message = getMessageFromAPIResponse(body)
+                    return resolve(message)
                 }else{
-                    toast.error(getI18nObject.t("GENERIC_ERROR"))
+                    var message = getMessageFromAPIResponse(body)
+                    if(varNotEmpty(message) && message!="")
+                    {
+                        toast.error(message)
+                    }else{
+                        toast.error(getI18nObject.t("GENERIC_ERROR"))
+                    }
+    
+                    return resolve(null)
                 }
-
-                resolve(null)
-            }
-            
-        })
+                
+            })
+        }
+        catch(e)
+        {
+            return resolve(null)
+            logVar(e, "makeGenerateICSRequest" )
+        }
+         
     })
 
   
@@ -182,12 +190,12 @@ export async function makeParseICSRequest(data,type)
                     .then(response => response.json())
                     .then((body) => {
                         console.log("body", body)
-                        resolve(body)
+                        return resolve(body)
                     })
                 }
                 catch(e)
                 {
-                    resolve({
+                    return resolve({
                         success:false,
                         data:{message:e.message, details:e}
                     })

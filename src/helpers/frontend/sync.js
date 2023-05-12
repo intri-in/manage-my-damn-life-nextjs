@@ -1,4 +1,5 @@
-import { getAPIURL, isValidResultArray } from "../general"
+import { getErrorResponse } from "../errros"
+import { getAPIURL, isValidResultArray, logVar } from "../general"
 import { caldavAccountsfromServer } from "./calendar"
 import { getAuthenticationHeadersforUser } from "./user"
 
@@ -16,11 +17,18 @@ export async function makeSyncRequest()
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            resolve(body)     
-        })
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                return resolve(body)     
+            })
+    
+        }catch(e)
+        {
+            logVar(e, "makeSyncRequest")
+            return resolve(getErrorResponse(e))
+        }
     })
 }
 
@@ -68,11 +76,18 @@ export async function refreshEventsinDB(caldav_accounts_id)
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            resolve(body)     
-        })
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                return resolve(body)     
+            })
+    
+        }catch(e)
+        {
+            logVar(e, "refreshEventsinDB")
+            return resolve(getErrorResponse(e))
+        }
     })
     
 }
@@ -92,11 +107,20 @@ export async function refreshCalendarList()
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            resolve(body)     
-        })
+
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                return resolve(body)     
+            })
+    
+        }catch(e)
+        {
+            logVar(e, "refreshCalendarList")
+            return resolve(getErrorResponse(e))
+        }
+
     })
 
 }

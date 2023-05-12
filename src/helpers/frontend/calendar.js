@@ -1,10 +1,11 @@
 import { getcalendarDB } from "./db";
 import ical from '@/../ical/ical'
 import { getAuthenticationHeadersforUser } from "./user";
-import { getAPIURL, isValidObject, isValidResultArray, logError, varNotEmpty } from "../general";
+import { getAPIURL, isValidObject, isValidResultArray, logError, logVar, varNotEmpty } from "../general";
 import { majorTaskFilter } from "./events";
 import * as _ from 'lodash'
 import { VTODO } from "./classes/VTODO";
+import { getErrorResponse } from "../errros";
 export async function getCaldavAccountsfromServer()
 {
     const url_api=getAPIURL()+"caldav/calendars" 
@@ -18,14 +19,20 @@ export async function getCaldavAccountsfromServer()
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            //Save the events to db.
-            resolve(body)
-            
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                //Save the events to db.
+                return resolve(body)
+                
+    
+            });
+        }catch(e)
+        {
+            return resolve(getErrorResponse(e))
+        }
 
-        });
     })
 
 }
@@ -42,27 +49,35 @@ export async function caldavAccountsfromServer()
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            //Save the events to db.
-            if(body!=null && body.success!=null)
-            {
-                if(body.success==true && body.data!=null && body.data.message!=null)
-                {
-                    resolve(body.data.message)
 
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                //Save the events to db.
+                if(body!=null && body.success!=null)
+                {
+                    if(body.success==true && body.data!=null && body.data.message!=null)
+                    {
+                        return resolve(body.data.message)
+    
+                    }
+                    
+                }
+                else
+                {
+                    return resolve(null)
+    
                 }
                 
-            }
-            else
-            {
-                resolve(null)
-
-            }
-            
-
-        });
+    
+            });
+    
+        }catch(e)
+        {
+            logVar(e, "caldavAccountsfromServer")
+            return resolve(null)
+        }
     })
 
 }
@@ -82,13 +97,20 @@ export async function getLatestCalendarEvents(caldav_accounts_id, calendars_id, 
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            //Save the events to db.
-            resolve(body)
-
-        });
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                //Save the events to db.
+                return resolve(body)
+    
+            });
+    
+        }
+        catch(e)
+        {
+            return resolve(getErrorResponse(e))
+        }
     })
 
 }
@@ -114,14 +136,20 @@ export async function getAllEvents(filters)
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            //Save the events to db.
-            resolve(body)
-            
-
-        });
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                //Save the events to db.
+                return resolve(body)
+                
+    
+            });
+    
+        }catch(e)
+        {
+            return resolve(getErrorResponse(e))
+        }
     })
 
 }

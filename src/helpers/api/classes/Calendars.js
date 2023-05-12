@@ -27,10 +27,10 @@ export class Calendars{
                 con.end()
                 if (err) {
                     console.log("Calendars.getAllEvents: ",err) 
-                    resolve(null)
+                    return resolve(null)
                 }
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
-                resolve(resultFromDB)
+                return resolve(resultFromDB)
             })
         })
 
@@ -74,10 +74,10 @@ export class Calendars{
             con.query('UPDATE calendars SET ? WHERE url = ?',[{displayName: displayName, url:url, ctag: ctag, description: description, calendarColor: calendarColor, resourcetype:resourcetype, timezone:timezone, updated: updated }, calendar.url], function (error, results, fields) {
                 if (error) {
                     console.log("updateCalendarinDB: ",error.message)
-                    resolve(false)
+                    return resolve(false)
                 }
                 con.end()
-                resolve(true)
+                return resolve(true)
             })
         
         })
@@ -102,7 +102,7 @@ export class Calendars{
                         console.log(error)
                     }                    
                     con.end()
-                    resolve(null)
+                    return resolve(null)
                     });    
             })
     
@@ -135,7 +135,7 @@ export class Calendars{
                     }
                     con.end()
 
-                    resolve(null)
+                    return resolve(null)
                     });    
             })
     
@@ -161,12 +161,12 @@ export class Calendars{
                 con.end()
                 if (err) {
                     console.log("getCalendarfromCalendarID: ",err) 
-                    resolve(null)
+                    return resolve(null)
                 }
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
                 if(isValidResultArray(resultFromDB))
                 {
-                    resolve(resultFromDB[0]);
+                    return resolve(resultFromDB[0]);
     
                 }
     

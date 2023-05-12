@@ -43,15 +43,15 @@ export class Events{
                 con.end()
                 if (err) {
                     logError(err, "Events.getMeta") 
-                    resolve(null)
+                    return resolve(null)
                 }
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
                 
                 if(isValidResultArray(resultFromDB))
                 {
-                    resolve(resultFromDB[0]["calendar_id"])
+                    return resolve(resultFromDB[0]["calendar_id"])
                 }else{
-                    resolve(null)
+                    return resolve(null)
                 }
 
                 

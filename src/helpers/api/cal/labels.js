@@ -119,9 +119,9 @@ export async function modifyLabelColour(name, newColour, userid)
     return new Promise( (resolve, reject) => {
          con.query('UPDATE labels SET ? WHERE userid = ? AND name=?',[{colour: newColour }, userid, name], function (error, results, fields) {
         if (error) {
-            resolve(error.message)
+            return resolve(error.message)
         }
-        resolve(null)
+        return resolve(null)
         })
     }
     )
@@ -154,7 +154,7 @@ export async function deleteLabelFromDB(name, userid)
         }
         con.end()
 
-        resolve(true)
+        return resolve(true)
         });
     })
 
@@ -181,18 +181,19 @@ export async function checkifLabelExistsinDB(label,userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM labels WHERE name=? AND userid=?", [label, userid], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
             var result = Object.values(JSON.parse(JSON.stringify(result)))
             if(result!=null && Object.keys(result).length>0)
             {
-                resolve(true);
+                return resolve(true);
 
             }else
             {
-                resolve(false)
+                return resolve(false)
             }
     
         })
@@ -205,11 +206,12 @@ export async function getAllLablesFromDB(userid)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM labels WHERE userid=?", [userid], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))))
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))))
     
         })
         })
