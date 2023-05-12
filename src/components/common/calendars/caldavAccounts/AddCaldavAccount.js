@@ -8,7 +8,7 @@ import {toast } from 'react-toastify';
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import Spinner from 'react-bootstrap/Spinner';
-import { addTrailingSlashtoURL, getAPIURL } from "@/helpers/general";
+import { addTrailingSlashtoURL, getAPIURL, logVar } from "@/helpers/general";
 export default class AddCaldavAccount extends Component{
     constructor(props)
     {
@@ -72,29 +72,37 @@ export default class AddCaldavAccount extends Component{
         }
     
         return new Promise( (resolve, reject) => {
-            const response =  fetch(url_api, requestOptions)
-            .then(response => response.json())
-            .then((body) =>{
-                //Save the events to db.
-                this.setState({requestPending: false})
-                if(body!=null)
-                {
-                    if(body.success==true)
+            try{
+                const response =  fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) =>{
+                    //Save the events to db.
+                    this.setState({requestPending: false})
+                    if(body!=null)
                     {
-                        this.props.onAccoundAddSuccess()
-
-                    }else{
-                        toast.error(this.state.i18next.t(body.data.message))
-                    }
-                }
-                else
-                {
-                    toast.error(this.state.i18next.t("ERROR_GENERIC"))
-
-                }
-                
+                        if(body.success==true)
+                        {
+                            this.props.onAccoundAddSuccess()
     
-            });
+                        }else{
+                            toast.error(this.state.i18next.t(body.data.message))
+                        }
+                    }
+                    else
+                    {
+                        toast.error(this.state.i18next.t("ERROR_GENERIC"))
+    
+                    }
+                    
+        
+                });
+    
+            }
+            catch(e)
+            {
+                logVar(e, "AddCaldavAccount:makeServerRequest")
+                toast.error(e.message)
+            }
         })
 
     }

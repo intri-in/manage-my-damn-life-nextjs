@@ -490,13 +490,13 @@ export async function updateEvent(calendar_id, url, etag, data) {
             fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
-                    resolve(body)
+                    return resolve(body)
     
                 });
         }
         catch (e) {
             logVar(e)
-            resolve({success: false, data:{message: e.message}})
+            return resolve({success: false, data:{message: e.message}})
         }
     
     

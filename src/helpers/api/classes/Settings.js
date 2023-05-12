@@ -14,17 +14,17 @@ export default class Settings{
 
                 if (err) {
                     console.log(err);
-                    resolve(null);
+                    return resolve(null);
                 }
                 var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
     
                 if(resultFromDB!=null&&Array.isArray(resultFromDB)&&resultFromDB.length>0)
                 {
-                    resolve(resultFromDB);
+                    return resolve(resultFromDB);
                 }
                 else
                 {
-                    resolve(null);
+                    return resolve(null);
                 }
                 
     
@@ -46,17 +46,17 @@ export default class Settings{
 
                 if (err) {
                     console.log(err);
-                    resolve(null);
+                    return resolve(null);
                 }
                 var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
     
                 if(resultFromDB!=null&&Array.isArray(resultFromDB)&&resultFromDB.length>0)
                 {
-                    resolve(resultFromDB);
+                    return resolve(resultFromDB);
                 }
                 else
                 {
-                    resolve(null);
+                    return resolve(null);
                 }
                 
     
@@ -74,17 +74,17 @@ export default class Settings{
 
                 if (err) {
                     console.log(err);
-                    resolve(null);
+                    return resolve(null);
                 }
                 var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
     
                 if(resultFromDB!=null&&Array.isArray(resultFromDB)&&resultFromDB.length>0)
                 {
-                    resolve(resultFromDB[resultFromDB.length-1]["value"]);
+                    return resolve(resultFromDB[resultFromDB.length-1]["value"]);
                 }
                 else
                 {
-                    resolve(null);
+                    return resolve(null);
                 }
                 
     
@@ -101,17 +101,17 @@ export default class Settings{
 
                 if (err) {
                     console.log(err);
-                    resolve(null);
+                    return resolve(null);
                 }
                 var resultFromDB=Object.values(JSON.parse(JSON.stringify(result)))
     
                 if(resultFromDB!=null&&Array.isArray(resultFromDB)&&resultFromDB.length>0)
                 {
-                    resolve(resultFromDB[resultFromDB.length-1]["value"]);
+                    return resolve(resultFromDB[resultFromDB.length-1]["value"]);
                 }
                 else
                 {
-                    resolve(null);
+                    return resolve(null);
                 }
                 
     
@@ -146,9 +146,9 @@ export default class Settings{
                 con.query(query,[{value :value }, name, userid], function (error, results, fields) {
                 con.end()
                 if (error) {
-                    resolve(false)
+                    return resolve(false)
                 }
-                resolve(true)
+                return resolve(true)
                 })
            }
            )
@@ -165,10 +165,10 @@ export default class Settings{
                     con.end()
                     if (error) {
                         console.log(error.message)
-                        resolve(false)
+                        return resolve(false)
                     }
                     
-                    resolve(true)
+                    return resolve(true)
                     });
             
             })

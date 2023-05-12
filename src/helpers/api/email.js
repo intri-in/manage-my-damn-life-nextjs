@@ -27,12 +27,12 @@ export function sendEmail( receipt_email, subject, textHTML) {
                 //console.log('Message sent: %s', info);
                 //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 
-                resolve(info)
+                return resolve(info)
             })
            }catch(e)
            {
             console.log(e)
-            resolve(false)
+            return resolve(false)
            }
         
     })

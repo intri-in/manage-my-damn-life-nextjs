@@ -1,9 +1,10 @@
 import { MYDAY_LABEL } from '@/config/constants';
-import { getAPIURL, isValidObject, isValidResultArray } from '../general';
+import { getAPIURL, isValidObject, isValidResultArray, logVar } from '../general';
 import { getUserDB } from './db';
 import { objectArrayHasKey, getRandomColourCode} from './general';
 import { getAuthenticationHeadersforUser } from './user';
 import { getLabelArrayFromCookie, saveLabelArrayToCookie } from './settings';
+import { getErrorResponse } from '../errros';
 
 export async function saveLabeltoDB(label)
 {
@@ -37,7 +38,7 @@ export async function getLabelColourFromDB(label)
 .toArray().then((labelFromDB) =>{
     if(labelFromDB!=null && labelFromDB.length>0 && Array.isArray(labelFromDB))
         {
-            resolve(labelFromDB[0].colour)
+            return resolve(labelFromDB[0].colour)
         }
 })
 
@@ -78,23 +79,32 @@ export async function getLabelsFromServer()
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            //Save the events to db.
-            if(body!=null && body.data.message!=null)
-            {
-                var labels= body.data.message
-                saveLabelArrayToCookie(labels)
-                resolve (labels)
-            }
-            else
-            {
-                resolve(null)
-            }
-                
 
-        });
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                //Save the events to db.
+                if(body!=null && body.data.message!=null)
+                {
+                    var labels= body.data.message
+                    saveLabelArrayToCookie(labels)
+                    resolve (labels)
+                }
+                else
+                {
+                    return resolve(null)
+                }
+                    
+    
+            });
+    
+        }
+        catch(e)
+        {
+            logVar(e, "getLabelsFromServer")
+            return resolve(null)
+        }
     })
 } 
 export async function makeUpdateLabelRequest()
@@ -110,12 +120,19 @@ export async function makeUpdateLabelRequest()
 
     }
     return new Promise( (resolve, reject) => {
-
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            resolve(body)
-        });
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                return resolve(body)
+            });
+    
+        }
+        catch(e)
+        {
+            logVar(e, "makeUpdateLabelRequest")
+            return resolve(getErrorResponse(e))
+        }
     })
 
 }

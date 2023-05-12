@@ -15,10 +15,10 @@ export async function generateOTP_passwordReset(userid)
             con.end()
             if (error) {
                 console.log(error) 
-                resolve(null)
+                return resolve(null)
 
             }
-            resolve({reqid: reqid, otp: otp})
+            return resolve({reqid: reqid, otp: otp})
             });
 
     })
@@ -38,7 +38,7 @@ export async function sendResetPasswordMessage(emailid, otp )
         
         sendEmail(emailid, subject, messageText).then(result =>
             {
-                resolve(result)
+                return resolve(result)
             })
 
         })        
@@ -55,7 +55,7 @@ export async function deleteAllOTPs_passwordReset(userid)
         }
         con.end()
 
-        resolve(true)
+        return resolve(true)
         });
     })
 
@@ -69,7 +69,7 @@ export async function otpIsValid(userid, reqid, otp)
 
             if (err){
                 console.log(err)
-                resolve(false)
+                return resolve(false)
               
             } 
             var resultfromDB = Object.values(JSON.parse(JSON.stringify(result)))
@@ -77,19 +77,19 @@ export async function otpIsValid(userid, reqid, otp)
             {
                 var maxValidity= Math.floor(Date.now()/1000) + process.env.MAX_OTP_VALIDITY
                 if(resultfromDB[0].created < maxValidity){
-                    resolve(true)
+                    return resolve(true)
 
                 }else{
-                    resolve(false)
+                    return resolve(false)
                 }
-                resolve(resultfromDB[0].users_id)
+                return resolve(resultfromDB[0].users_id)
 
             }
             else
             {
-                resolve(false)
+                return resolve(false)
             }
-            resolve(false);
+            return resolve(false);
 
         })
     })

@@ -7,11 +7,12 @@ export async function getCalendarObjectsFromCalendar(calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events WHERE calendar_id=?", [calendar_id], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
     })
@@ -95,11 +96,12 @@ export async function getCalendarObjectsFromCalendarbyType(calendar_id, filter)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query(query, [calendar_id], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
-            resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
         })
     })
@@ -115,9 +117,9 @@ export function updateObjectinDB(url, etag, data, updated, type, calendar_id, de
             
             if (error) {
             console.log(error.message)
-            resolve(false)
+            return resolve(false)
         }
-        resolve(true)
+        return resolve(true)
 
     })
     })
@@ -128,18 +130,19 @@ export async function getObjectFromDB(url, calendar_id)
     var con = getConnectionVar()
     return new Promise( (resolve, reject) => {
         con.query("SELECT * FROM calendar_events WHERE calendar_id=? AND url=?", [calendar_id, url], function (err, result, fields) {
+            con.end()
             if (err) {
                 console.log(err);
+                return resolve(null)
             }
-            con.end()
             var resultFromDB = Object.values(JSON.parse(JSON.stringify(result)))
             if(isValidResultArray(resultFromDB))
             {
-                resolve(resultFromDB[0])
+                return resolve(resultFromDB[0])
             }
             else
             {
-                resolve(null)
+                return resolve(null)
             }
 
         })
@@ -158,10 +161,10 @@ export async function insertObjectIntoDB(url, etag, data, calendar_id, type)
             con.query('INSERT INTO calendar_events (url, etag, data, updated, calendar_id, type) VALUES (?,? ,?,?,?,?)', [url, etag, data, updated, calendar_id, type], function (error, results, fields) {
                 if (error) {
                     console.log("insertObjectIntoDB: ", error.message) 
-                    resolve(false)
+                    return resolve(false)
                 }
     
-                resolve(true)
+                return resolve(true)
         
             });
         
@@ -180,9 +183,9 @@ export async function deleteCalendarObjectsFromDB(url, calendar_id)
             
         if (error) {
         console.log(error.message)
-        resolve(false)
+        return resolve(false)
         }   
-        resolve(true)
+        return resolve(true)
 
     })
     })

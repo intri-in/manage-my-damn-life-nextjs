@@ -2,7 +2,7 @@ import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
 import { addAdditionalFieldsFromOldEvent, getEmptyEventDataObject, getEmptyRecurrenceObject, isAllDayEvent, reccurence_torrule, rruleObjectToString, rruleObjecttoWords, rruleToObject, rrule_DataToFormData } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getObjectForAPICall, makeGenerateICSRequest } from "@/helpers/frontend/ics";
-import { getAPIURL, isValidResultArray, replaceNewLineCharacters, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, isValidResultArray, logVar, replaceNewLineCharacters, varNotEmpty } from "@/helpers/general";
 import { Component } from "react";
 import { Col, Row } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
@@ -154,6 +154,7 @@ export default class EventEditor extends Component {
                 });
         }
         catch (e) {
+            logVar(e, "EventEditor:getVAlarms")
         }
 
     }

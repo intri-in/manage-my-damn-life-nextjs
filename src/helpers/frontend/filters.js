@@ -1,9 +1,10 @@
 import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
-import { getAPIURL, varNotEmpty } from "../general"
+import { getAPIURL, logVar, varNotEmpty } from "../general"
 import { RRuleHelper } from "./classes/RRuleHelper"
 import { RecurrenceHelper } from "./classes/RecurrenceHelper"
+import { getErrorResponse } from "../errros"
 
 export async function saveFiltertoServer(name, filter)
 {
@@ -27,7 +28,7 @@ export async function saveFiltertoServer(name, filter)
         .then(response => response.json())
         .then((body) =>{
             console.log(body)
-            resolve(body)
+            return resolve(body)
            
             
         });
@@ -63,7 +64,7 @@ export async function makeFilterEditRequest(filterid, name, finalFilter)
             fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
-            resolve(body)
+            return resolve(body)
            
             
         });
@@ -71,7 +72,7 @@ export async function makeFilterEditRequest(filterid, name, finalFilter)
         catch(e)
         {
             console.log(e.message)
-            resolve(null)
+            return resolve(null)
         }
     
     
@@ -154,13 +155,20 @@ export async function getFiltersFromServer()
     }
 
     return new Promise( (resolve, reject) => {
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            resolve(body)       
-
-            }
-        )
+        try{
+            const response =  fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) =>{
+                return resolve(body)       
+    
+                }
+            )
+        }catch(e)
+        {
+            logVar(e, "getFiltersFromServer")
+            return resolve(getErrorResponse(e))
+        }
+       
     });
   
 

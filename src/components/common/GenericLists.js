@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import Link from "next/link";
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
-import { getAPIURL } from "@/helpers/general";
+import { getAPIURL, logVar } from "@/helpers/general";
 
 class GenericLists extends Component{
     constructor(props)
@@ -64,70 +64,79 @@ class GenericLists extends Component{
         }
     
         return new Promise( (resolve, reject) => {
-            const response =  fetch(url_api, requestOptions)
-            .then(response =>{
-                return response.json()
-            } )
-            .then((body) =>{
-                if(body!=null && body.success!=null)
-                {
-                    if(body.success.toString()=="true")
+
+            try{
+                const response =  fetch(url_api, requestOptions)
+                .then(response =>{
+                    return response.json()
+                } )
+                .then((body) =>{
+                    if(body!=null && body.success!=null)
                     {
-                        //Save the events to db.
-                        var labels= body.data.message
-                        var temp_Labelcomponent=[]
-                        if(labels!=null)
+                        if(body.success.toString()=="true")
                         {
-                            for (const key in labels)
-                            {      
-                                
-                                //temp_Labelcomponent.push((<><Button size="sm" value={labels[key].name} onClick={this.props.labelClicked} style={{margin: 5, backgroundColor: labels[key].colour, color: 'white'}} >{labels[key].name}</Button>{' '}</>))
-                                var border="1px solid "+labels[key].colour
-                                if(!labels[key].name.startsWith(SYSTEM_DEFAULT_LABEL_PREFIX+"-"))
-                                {
-                                    temp_Labelcomponent.push(<Badge  key={labels[key].name} value={labels[key].name} onClick={this.props.labelClicked} bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: labels[key].colour,  textDecorationColor : 'white'}} >{labels[key].name}</Badge>)
-
-                                }
-                            }
-
-                            this.setState({allFilters: temp_Labelcomponent})
-                        }
-                            
-                    }else{
-                        var message= getMessageFromAPIResponse(body)
-                        if(message!=null)
-                        {
-                            if(message=="PLEASE_LOGIN")
+                            //Save the events to db.
+                            var labels= body.data.message
+                            var temp_Labelcomponent=[]
+                            if(labels!=null)
                             {
-                                // Login required
-                                var redirectURL="/login"
-                                if(window!=undefined)
-                                {
+                                for (const key in labels)
+                                {      
+                                    
+                                    //temp_Labelcomponent.push((<><Button size="sm" value={labels[key].name} onClick={this.props.labelClicked} style={{margin: 5, backgroundColor: labels[key].colour, color: 'white'}} >{labels[key].name}</Button>{' '}</>))
+                                    var border="1px solid "+labels[key].colour
+                                    if(!labels[key].name.startsWith(SYSTEM_DEFAULT_LABEL_PREFIX+"-"))
+                                    {
+                                        temp_Labelcomponent.push(<Badge  key={labels[key].name} value={labels[key].name} onClick={this.props.labelClicked} bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: labels[key].colour,  textDecorationColor : 'white'}} >{labels[key].name}</Badge>)
     
-    
-                                    redirectURL +="?redirect="+window.location.pathname
+                                    }
                                 }
-                                this.props.router.push(redirectURL)
     
-    
+                                this.setState({allFilters: temp_Labelcomponent})
                             }
-                        }
-                        else
-                        {
-                            toast.error(this.i18next.t("ERROR_GENERIC"))
-    
+                                
+                        }else{
+                            var message= getMessageFromAPIResponse(body)
+                            if(message!=null)
+                            {
+                                if(message=="PLEASE_LOGIN")
+                                {
+                                    // Login required
+                                    var redirectURL="/login"
+                                    if(window!=undefined)
+                                    {
+        
+        
+                                        redirectURL +="?redirect="+window.location.pathname
+                                    }
+                                    this.props.router.push(redirectURL)
+        
+        
+                                }
+                            }
+                            else
+                            {
+                                toast.error(this.i18next.t("ERROR_GENERIC"))
+        
+                            }
+        
                         }
     
                     }
-
-                }
-                else{
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
-
-                }
-              
+                    else{
+                        toast.error(this.i18next.t("ERROR_GENERIC"))
     
-            });
+                    }
+                  
+        
+                });
+    
+            }catch(e)
+            {
+                logVar(e,"GenericLists: generateLabelList")
+                toast.error(e.message)
+
+            }
         })
     
     

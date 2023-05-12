@@ -95,7 +95,7 @@ async function syncCalendar(caldav_url, caldav_username, caldav_password, oldCal
                 detailedResult: true,
                 
               }).then((result) =>{
-                resolve(result)
+                return resolve(result)
               }).catch(error => resolve(error))
 
         }, (rejected) => {

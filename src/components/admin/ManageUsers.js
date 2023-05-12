@@ -2,7 +2,7 @@ import { BACKGROUND_GRAY } from "@/config/style";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { getAPIURL, varNotEmpty } from "@/helpers/general";
+import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
 import moment from "moment";
 import { Component } from "react";
 import { Col, Row } from "react-bootstrap";
@@ -25,7 +25,13 @@ export default class ManageUsers extends Component{
     }
 
     componentDidMount(){
-        this.getUsersFromDB()
+        try{
+            this.getUsersFromDB()
+        }catch(e)
+        {
+            toast(e.message)
+            logVar(e, "ManageUsers:componentDidMount")
+        }
     }
 
     async getUsersFromDB()
@@ -120,7 +126,15 @@ export default class ManageUsers extends Component{
                 if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true)
                 {
                     toast.success(this.i18next.t("DELETE_OK"))
-                    this.getUsersFromDB()
+                    
+                    try{
+                        this.getUsersFromDB()
+                    }catch(e)
+                    {
+                        toast(e.message)
+                        logVar(e, "ManageUsers:componentDidMount")
+            
+                    }
 
                 }else{
                     var message = getMessageFromAPIResponse(body)

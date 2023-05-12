@@ -3,7 +3,7 @@ import { getParsedEvent, majorTaskFilter } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { getAPIURL, haystackHasNeedle, isValidResultArray } from "@/helpers/general";
+import { getAPIURL, haystackHasNeedle, isValidResultArray, logVar } from "@/helpers/general";
 import { Component } from "react"
 import { Button, Col, Row } from "react-bootstrap"
 import Form from 'react-bootstrap/Form';
@@ -53,43 +53,51 @@ export default class ParentTaskSearch extends Component{
         }
     
         var finalOutput = []
-            const response =  fetch(url_api, requestOptions)
-            .then(response => response.json())
-            .then((body) =>{
-                if(body!=null && body.success!=null && body.success==true)
-                {
-                    var results = body.data.message
-                    if(isValidResultArray(results))
+
+            try
+            {
+                const response =  fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) =>{
+                    if(body!=null && body.success!=null && body.success==true)
                     {
-                        //console.log("results.length", results.length)
-                        for (const i in results)
+                        var results = body.data.message
+                        if(isValidResultArray(results))
                         {
-                            var parsedToDo = _.cloneDeep(returnGetParsedVTODO(results[i].data))
-                            if(parsedToDo.uid!=this.props.currentID && majorTaskFilter(parsedToDo) && results[i].deleted!="1")
+                            //console.log("results.length", results.length)
+                            for (const i in results)
                             {
-                                //We only show the result if it isn't the same as the task currently being edited.
-                               
-                                finalOutput.push(
-                                    (<ListGroup.Item action id={parsedToDo.uid} key={parsedToDo.uid} style={{padding: 10}} onClick={this.parentTaskClicked}>{parsedToDo.summary}</ListGroup.Item>) )
+                                var parsedToDo = _.cloneDeep(returnGetParsedVTODO(results[i].data))
+                                if(parsedToDo.uid!=this.props.currentID && majorTaskFilter(parsedToDo) && results[i].deleted!="1")
+                                {
+                                    //We only show the result if it isn't the same as the task currently being edited.
+                                   
+                                    finalOutput.push(
+                                        (<ListGroup.Item action id={parsedToDo.uid} key={parsedToDo.uid} style={{padding: 10}} onClick={this.parentTaskClicked}>{parsedToDo.summary}</ListGroup.Item>) )
+                                }
                             }
-                        }
-                        if(finalOutput.length>0)
-                        {
-                            this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>)})
-
-                        }else{
-                            this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid", padding: 10}}>{this.i18next.t("NOTHING_TO_SHOW")}</ListGroup>)})
-
-                        }
-
-                    }
-                }else{
-                    var message = getMessageFromAPIResponse(body)
-                    toast.error(this.i18next.t(message))
-                }
+                            if(finalOutput.length>0)
+                            {
+                                this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>)})
     
-                }
-            )
+                            }else{
+                                this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid", padding: 10}}>{this.i18next.t("NOTHING_TO_SHOW")}</ListGroup>)})
+    
+                            }
+    
+                        }
+                    }else{
+                        var message = getMessageFromAPIResponse(body)
+                        toast.error(this.i18next.t(message))
+                    }
+        
+                    }
+                )
+    
+            }catch(e)
+            {
+                logVar(e, "ParentTaskSearch: searchForTasks")
+            }
 
         }else{
             this.setState({searchOutput: null})

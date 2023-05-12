@@ -19,11 +19,11 @@ export class Filters{
         return new Promise( (resolve, reject) => {
             con.query('DELETE FROM custom_filters WHERE custom_filters_id=?', [this.filterid], function (error, results, fields) {
             if (error) {
-                resolve(error)
+                return resolve(error)
             }
             con.end()
 
-            resolve(null)
+            return resolve(null)
             });
         })
     
@@ -40,11 +40,12 @@ export class Filters{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT name, filtervalue,custom_filters_id FROM custom_filters WHERE userid= ?", [userid], function (err, result, fields) {
+                con.end()
                 if (err) {
                     console.log(err);
+                    return resolve(null)
                 }                
-                con.end()
-                resolve(Object.values(JSON.parse(JSON.stringify(result))));
+                return resolve(Object.values(JSON.parse(JSON.stringify(result))));
 
             })
             

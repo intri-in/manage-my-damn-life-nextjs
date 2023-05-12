@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { Loading } from "@/components/common/Loading";
-import { getAPIURL } from "@/helpers/general";
+import { getAPIURL, logVar } from "@/helpers/general";
 
 class ResetPassword extends Component{
 
@@ -47,43 +47,48 @@ class ResetPassword extends Component{
                 method: 'GET',
             }
     
-
-        const response =  fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            //Save the events to db.
-            console.log(body)
-            if(body!=null)
-            {
-                if(body.success==true)
-                {
-                    var message = getMessageFromAPIResponse(body)
-                    if(message!=null && message.userhash!=undefined && message.reqid!=null)
+            try{
+                const response =  fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) =>{
+                    //Save the events to db.
+                    console.log(body)
+                    if(body!=null)
                     {
-                        this.setState({reqid: message.reqid, userhash: message.userhash, showNewPasswordForm: true})
-                        toast.success(this.i18next.t("OTP_SENT_TO_EMAIL"))
-                     
-
-                    }else{
-                        toast.error(this.i18next.t("ERROR_GENERIC"))
-
+                        if(body.success==true)
+                        {
+                            var message = getMessageFromAPIResponse(body)
+                            if(message!=null && message.userhash!=undefined && message.reqid!=null)
+                            {
+                                this.setState({reqid: message.reqid, userhash: message.userhash, showNewPasswordForm: true})
+                                toast.success(this.i18next.t("OTP_SENT_TO_EMAIL"))
+                             
+        
+                            }else{
+                                toast.error(this.i18next.t("ERROR_GENERIC"))
+        
+                            }
+                            
+                        }else{
+                            var message = getMessageFromAPIResponse(body)
+                            toast.error(this.i18next.t(message.toString()))
+                        }
                     }
-                    
-                }else{
-                    var message = getMessageFromAPIResponse(body)
-                    toast.error(this.i18next.t(message.toString()))
-                }
-            }
-            else
+                    else
+                    {
+                        toast.error(this.i18next.t("ERROR_GENERIC"))
+        
+                    }
+        
+        
+                });
+        
+            }catch(e)
             {
-                toast.error(this.i18next.t("ERROR_GENERIC"))
-
+                logVar(e, "makeGetOTPRequest")
             }
             this.setState({isWaiting: false})
 
-
-        });
-    
         }
 
 

@@ -11,7 +11,7 @@ import { getEvents } from '@/helpers/frontend/events';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { withRouter } from 'next/router';
 import { Loading } from '../common/Loading';
-import { getAPIURL } from '@/helpers/general';
+import { getAPIURL, logVar } from '@/helpers/general';
  class TaskList extends Component {
     constructor(props) {
         super(props)
@@ -184,7 +184,8 @@ import { getAPIURL } from '@/helpers/general';
 
             }
 
-            const response = fetch(url_api, requestOptions)
+            try{
+                const response = fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
                     //Save the events to db.
@@ -193,6 +194,11 @@ import { getAPIURL } from '@/helpers/general';
                     }
                 })
 
+
+            }catch(e)
+            {
+                logVar(e, "TaskList:getCalendarName")
+            }
         }
 
     }

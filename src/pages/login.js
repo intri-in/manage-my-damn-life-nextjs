@@ -13,7 +13,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuthenticationHeadersforUser, setLoginCookie } from '@/helpers/frontend/user';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
-import { getAPIURL } from '@/helpers/general';
+import { getAPIURL, logVar } from '@/helpers/general';
+import { getErrorResponse } from '@/helpers/errros';
 class Login extends Component{
 
     constructor(props)
@@ -69,11 +70,19 @@ class Login extends Component{
         }
     
         return new Promise( (resolve, reject) => {
-            const response =  fetch(url_api, requestOptions)
-            .then(response => response.json())
-            .then((body) =>{
-                resolve(body)     
-            })
+            try{
+                const response =  fetch(url_api, requestOptions)
+                .then(response => response.json())
+                .then((body) =>{
+                    return resolve(body)     
+                })
+    
+            }
+            catch(e)
+            {
+                logVar(e, "getRegistrationStatusFromServer")
+                return resolve(getErrorResponse(e))
+            }
         })
     
     }
@@ -124,7 +133,8 @@ class Login extends Component{
             }
             catch(e)
             {
-                console.log(e.message)
+                this.processReponse(getErrorResponse())
+                logVar(e, "loginButtonClicked")
             }
     
         }

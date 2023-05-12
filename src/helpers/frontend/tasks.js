@@ -135,14 +135,14 @@ export async function updateTodo(calendar_id, url, etag, dataObj) {
                 .then(response => response.json())
                 .then((body) => {
                    
-            resolve(body)
+            return resolve(body)
     
                 });
 
         }
         catch (e) {
             toast.error(e.message)
-            resolve(null)
+            return resolve(null)
 
         }
     

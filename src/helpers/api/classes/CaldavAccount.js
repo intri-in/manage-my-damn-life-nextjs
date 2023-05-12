@@ -23,18 +23,19 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM calendars WHERE caldav_accounts_id= ? AND url =? AND displayName =?", [ this.caldav_accounts_id, calendar.url,  calendar.displayName], function (err, result, fields) {
+                con.end()
                 if (err) {
                     console.log(err);
+                    return resolve(null)
                 }
-                con.end()
                 var toReturn = Object.values(JSON.parse(JSON.stringify(result)));
                 if(toReturn!=null&&toReturn.length>=1)
                 {
-                    resolve(true)
+                    return resolve(true)
                 }
                 else
                 {
-                    resolve(false)
+                    return resolve(false)
                 }
     
             })
@@ -89,11 +90,12 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM calendars WHERE caldav_accounts_id= ?", [ this.caldav_accounts_id], function (err, result, fields) {
+                con.end()
                 if (err) {
                     console.log(err);
+                    return resolve(null)
                 }
-                    con.end()
-                resolve(Object.values(JSON.parse(JSON.stringify(result))));
+                return resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
             })
         })
@@ -107,10 +109,10 @@ export class CaldavAccount{
             con.query('DELETE FROM caldav_accounts WHERE caldav_accounts_id=?', [this.caldav_accounts_id], function (error, results, fields) {
                 con.end()
                 if (error) {
-                    resolve(error.message)
+                    return resolve(error.message)
                 }
 
-                resolve(null)
+                return resolve(null)
                 });    
         })
 
@@ -123,11 +125,12 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM caldav_accounts WHERE caldav_accounts_id= ?", [ caldav_accounts_id], function (err, result, fields) {
+                con.end()
                 if (err) {
                     console.log(err);
+                    return resolve(null)
                 }
-                con.end()
-                resolve(Object.values(JSON.parse(JSON.stringify(result))));
+                return resolve(Object.values(JSON.parse(JSON.stringify(result))));
     
             })
         }) 
@@ -139,18 +142,19 @@ export class CaldavAccount{
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
             con.query("SELECT * FROM calendars WHERE calendars_id=?", [calendarObject.calendars_id], function (err, result, fields) {
+                con.end()
                 if (err) {
                     console.log(err);
+                    return resolve(null)
                 }                
-                con.end()
                 var resultFromDB= Object.values(JSON.parse(JSON.stringify(result)))
                 if(isValidResultArray(resultFromDB))
                 {
-                    resolve(resultFromDB[0].caldav_accounts_id);
+                    return resolve(resultFromDB[0].caldav_accounts_id);
     
                 }else
                 {
-                    resolve(null)
+                    return resolve(null)
                 }
         
             })
