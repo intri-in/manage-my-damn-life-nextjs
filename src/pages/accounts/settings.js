@@ -377,6 +377,9 @@ class Settings extends Component {
                         {adminTable}
                         <br />
                         {this.state.userManager}
+
+                        <p><b>{this.i18next.t("VERSION")}: </b>{process.env.NEXT_PUBLIC_VERSION_NUMBER}</p>
+
                     </div>
 
                 </Container>

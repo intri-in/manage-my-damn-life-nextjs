@@ -4,11 +4,11 @@ import Form from 'react-bootstrap/Form';
 import { MdOutlineAddCircle } from "react-icons/md";
 import Button from 'react-bootstrap/Button';
 import { SECONDARY_COLOUR } from "@/config/style";
-import { TaskEditorExitModal } from "../tasks/TaskEditorExitModal";
+import { TaskEditorExitModal } from "../../tasks/TaskEditorExitModal";
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import TaskEditor from "../tasks/TaskEditor";
+import TaskEditor from "../../tasks/TaskEditor";
 import { toast } from "react-toastify";
-import { Toastify } from "../Generic";
+import { Toastify } from "../../Generic";
 import { fetchLatestEvents, fetchLatestEventsWithoutCalendarRefresh } from "@/helpers/frontend/sync";
 import { ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
 import QuickAdd from "@/helpers/frontend/classes/QuickAdd";
@@ -17,7 +17,7 @@ import moment from "moment";
 import { APIRequests } from "@/helpers/frontend/classes/APIRequests";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { withRouter } from "next/router";
-
+import AddInfo from "./AddInfo";
 class AddTask extends Component{
     constructor(props)
     {
@@ -256,13 +256,13 @@ class AddTask extends Component{
         var borderColor='2px solid '+SECONDARY_COLOUR
         return(
         <>
-            <div style={{padding: 20, textAlign:"center", borderBottom:borderColor}}> 
-            <Row >
-            <Col xs={10}> 
+            <div style={{padding:20, textAlign:"center", borderBottom:borderColor}}> 
+            <Row style={{width: "100%"}}>
+            <Col sm={7} xs={8} lg={10}> 
                     <Form.Control value={this.state.newTaskSummary} onChange={this.taskSummaryChanged} onKeyDown={this.onKeyDown} type="text" placeholder="Add a task" />
                 </Col>
-
-            <Col xs={2}><Button onClick={this.addTask}>Add</Button></Col>
+            <Col sm={2} xs={2} lg={1}><AddInfo /></Col>
+            <Col sm={3} xs={2} lg={1}><Button onClick={this.addTask}>Add</Button></Col>
             </Row>
             {this.state.quickAddResults}
             </div>

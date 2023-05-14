@@ -271,6 +271,29 @@ class DashboardView extends Component {
 
     }
 
+    eventinArray(eventObject, newEntry)
+    {
+        if(varNotEmpty(eventObject) && varNotEmpty(newEntry) && varNotEmpty(newEntry.id))
+        {
+            var found=false
+            for(const i in eventObject){
+
+                if(varNotEmpty(eventObject[i].id))
+                {
+                    if(eventObject[i].id==newEntry.id)
+                    {
+                        return true
+                    }
+                }
+            }
+
+            return found
+
+        }
+
+        return false
+
+    }
     async getAllEventsfromServer() {
         var allEvents = await getAllEvents()
         var finalEvents = []
@@ -412,7 +435,7 @@ class DashboardView extends Component {
                             continue
                         }
 
-
+                        var eventObject=null
                         if (majorTaskFilter(data)) {
                             var title = "[" + this.i18next.t("TASK") + "] " + data.summary
 
@@ -424,7 +447,7 @@ class DashboardView extends Component {
                                 var recurrenceObj = new RecurrenceHelper(data)
                                 var dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
                                 var startDate = moment.unix(moment(dueDate).unix() - (60*60)).toISOString()
-                                console.log("REPEATING", startDate, title, dueDate)
+                               //console.log("REPEATING", startDate, title, dueDate)
 
                                 var eventObject = {
                                     id: data.uid,
@@ -448,7 +471,7 @@ class DashboardView extends Component {
 
                                     var dueDate = moment(data.due).toISOString()
                                     var startDate = moment.unix(moment(data.due).unix() - (10*60)).toISOString()
-                                    console.log(startDate, title, dueDate)
+                                    //console.log(startDate, title, dueDate)
 
                                     var eventObject = {
                                         id: data.uid,
@@ -465,7 +488,7 @@ class DashboardView extends Component {
 
 
                             }
-                            if (varNotEmpty(eventObject)) {
+                            if (varNotEmpty(eventObject) && this.eventinArray(finalEvents, eventObject)==false) {
                                 finalEvents.push(eventObject)
 
                             }
