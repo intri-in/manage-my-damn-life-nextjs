@@ -2,7 +2,7 @@ import { PRIMARY_COLOUR } from "@/config/style"
 import Row from 'react-bootstrap/Row';
 import Col from "react-bootstrap/Col";
 import { useRouter, withRouter } from "next/router";
-import { Button, Spinner } from "react-bootstrap";
+import { Button, NavItem, NavLink, Spinner } from "react-bootstrap";
 import React, { Component, useState } from 'react';
 import { fetchLatestEvents, makeSyncRequest } from "@/helpers/frontend/sync";
 import Navbar from 'react-bootstrap/Navbar';
@@ -15,7 +15,7 @@ import { logoutUser } from "@/helpers/frontend/user";
 import Link from "next/link";
 import { getSyncTimeout } from "@/helpers/frontend/settings";
 import { toast } from "react-toastify";
-
+import Dropdown from 'react-bootstrap/Dropdown';
 class AppBarGeneric extends Component {
 
   constructor(props) {
@@ -27,7 +27,9 @@ class AppBarGeneric extends Component {
     this.syncButtonClicked = this.syncButtonClicked.bind(this)
     this.logOutClicked = this.logOutClicked.bind(this)
     this.settingsClicked = this.settingsClicked.bind(this)
-  
+    this.manageFilterClicked = this.manageFilterClicked.bind(this)
+    this.labelManageClicked = this.labelManageClicked.bind(this)
+    this.manageCaldavClicked = this.manageCaldavClicked.bind(this)
   }
 componentDidMount(){
   this.setState({isSyncing: this.props.isSyncing})
@@ -81,6 +83,19 @@ async syncButtonClicked() {
   {
     this.props.router.push("/accounts/settings")
   }
+  manageFilterClicked()
+  {
+    this.props.router.push("/filters/manage")
+
+  }
+  labelManageClicked(){
+    this.props.router.push("/labels/manage")
+
+  }
+  manageCaldavClicked(){
+        this.props.router.push("/accounts/caldav")
+
+  }
   render() {
   
     var syncButton = this.state.isSyncing ? (   <Spinner
@@ -106,22 +121,36 @@ async syncButtonClicked() {
 
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse  id="basic-navbar-nav">
-                <Nav className="me-auto">
+                <Nav style={{display: "flex", margin:5,justifyContent:"space-evenly", alignItems:"center", }}  className="justify-content-end">
                     <Link style={{color: "white", textDecoration: "none"}} href="/"> {this.i18next.t("HOME")}</Link> &nbsp; &nbsp;
                     <Link style={{color: "white", textDecoration: "none"}} href="/tasks/list"> {this.i18next.t("TASK_VIEW")}</Link>&nbsp; &nbsp;
                   <Link style={{color: "white", textDecoration: "none"}} href="/calendar/view"> {this.i18next.t("CALENDAR_VIEW")}</Link>
+                  <Nav.Item>
+                  <Dropdown style={{color: "white"}} as={NavItem}>
+                    <Dropdown.Toggle  style={{color: "white"}} as={NavLink}>                            
+                      <AiOutlineSetting  size={24} /> 
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={this.labelManageClicked}>{this.i18next.t("LABEL_MANAGER")}</Dropdown.Item>
+                      <Dropdown.Item onClick={this.manageFilterClicked}>{this.i18next.t("MANAGE_FILTERS")}</Dropdown.Item>
+                      <Dropdown.Item onClick={this.manageCaldavClicked}>{this.i18next.t("MANAGE")+" "+this.i18next.t("CALDAV_ACCOUNTS")}</Dropdown.Item>
+                      <Dropdown.Item onClick={this.settingsClicked}>{this.i18next.t("SETTINGS")}</Dropdown.Item>
 
-                    
-                </Nav>
-                <Nav>
 
-                </Nav>
-                <Nav>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  </Nav.Item>
 
                 </Nav>
                 </Navbar.Collapse>
-                <Nav.Link style={{color: "white", textAlign:"center"}}></Nav.Link>
-                <Nav.Link style={{color: "white", textAlign:"right"}}>{syncButton} <AiOutlineSetting onClick={this.settingsClicked} size={24} /> <BiLogOut onClick={this.logOutClicked} size={24} /> </Nav.Link>
+                <Nav style={{display: "flex", justifyContent:"space-evenly", alignItems:"center", }} className="justify-content-end"> 
+                  <Nav.Item style={{}}>
+                    <div style={{color: "white", padding:5,}}>{syncButton} </div>
+                  </Nav.Item>
+                  <Nav.Item style={{ color: "white",  padding:5,}}>
+                      <BiLogOut onClick={this.logOutClicked} size={24} /> 
+                  </Nav.Item>
+                </Nav>
 
 
       </Navbar>

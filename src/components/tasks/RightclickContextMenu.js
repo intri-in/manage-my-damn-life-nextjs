@@ -40,7 +40,7 @@ contextMenuItems.push( <ContextMenuItem key="EDIT_TASK"  onClick={()=>props.onEd
 
   if(varNotEmpty(props.scheduleItem))
   {
-    contextMenuItems.push(  <ContextMenuItem  onClick={()=>props.scheduleItem(props.data)}>
+    contextMenuItems.push(  <ContextMenuItem  key="SCHEDULE_ITEM" onClick={()=>props.scheduleItem(props.data)}>
     <MdSchedule /> &nbsp; {i18next.t("SCHEDULE")}
   </ContextMenuItem>)
 

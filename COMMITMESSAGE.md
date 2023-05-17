@@ -1,7 +1,6 @@
-v0.1.2.9
-    - DashboardView.js -- Make sure tasks are added mutiple times
-    - Added internal .env variable : NEXT_PUBLIC_VERSION_NUMBER
-    - Version number is displayed in Settings page.
-    - Getting project ready to support both JS and TS
-        - Added tsconfig.json
-    - removed npm sharp as a dependency, because with it `npm build` ends up requiring sudo in some cases.
+v0.1.3.0
+- Redesigned home page
+    - It now features a way for user to see all tasks, list, filters
+- Small redesign to top bar
+    - Has more options that were only available in task view
+- Fixed bug while adding task on the Home Page

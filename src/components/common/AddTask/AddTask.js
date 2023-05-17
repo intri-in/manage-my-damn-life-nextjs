@@ -103,7 +103,11 @@ class AddTask extends Component{
             {
                 toast.success(this.i18next.t("INSERT_OK"))
                 //fetchLatestEventsWithoutCalendarRefresh()
-                this.props.onSuccessAddTask()
+                if(varNotEmpty(this.props.onSuccessAddTask))
+                {
+                    this.props.onSuccessAddTask()
+
+                }
 
             }
             else{

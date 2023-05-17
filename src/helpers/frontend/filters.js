@@ -5,6 +5,7 @@ import { getAPIURL, logVar, varNotEmpty } from "../general"
 import { RRuleHelper } from "./classes/RRuleHelper"
 import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 import { getErrorResponse } from "../errros"
+import { getMessageFromAPIResponse } from "./response"
 
 export async function saveFiltertoServer(name, filter)
 {
@@ -140,6 +141,31 @@ export function checkifFilterValid(filter)
     else{
         return false
     }
+}
+
+export function isValidFilter(filter)
+{
+    if(varNotEmpty(filter))
+    {
+        if(("filter" in filter) && ("logic" in filter))
+        {
+            return checkifFilterValid(filter)
+        }else{
+            return false
+        }
+
+    }else{
+        return false
+    }
+}
+
+export async function getAllFilters(){
+    var filtersFromServer = await getFiltersFromServer()
+    if(varNotEmpty(filtersFromServer) && varNotEmpty(filtersFromServer.success) && filtersFromServer.success==true)
+    {
+        return getMessageFromAPIResponse(filtersFromServer)
+    }
+    return []
 }
 export async function getFiltersFromServer()
 {
