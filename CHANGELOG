@@ -1,3 +1,6 @@
+v0.1.4
+- Version number fixed, build sometime fails on node if version follows scheme x.x.x.x.
+
 v0.1.3.0
 - Redesigned home page
     - It now features a way for user to see all tasks, list, filters
