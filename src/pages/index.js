@@ -12,6 +12,7 @@ import { MYDAY_LABEL } from '@/config/constants'
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { AiOutlineMenuUnfold } from 'react-icons/ai'
 import Script from 'next/script'
+import HomeTasks from '@/components/Home/HomeTasks/HomeTasks'
 
 export default class Home extends Component {
   constructor(props)
@@ -78,10 +79,12 @@ export default class Home extends Component {
   render(){
     var borderLeft = this.state.showListColumn ? '3px solid ' + SECONDARY_COLOUR : ""
     var leftColumnMatter = ( <><AddTask  />
-  
+    <HomeTasks scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{}} />
+    
+{/*       
     <h3 style={{marginTop: 30}}>My Day</h3>
-      <TaskList scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{logic: "or", filter: {due:[0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL]}}} />
-      </>)
+<TaskList scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{logic: "or", filter: {due:[0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL]}}} />
+ */}      </>)
       var listColumn = !this.state.showListColumn ? null : (
         <Col lg={4} style={{ paddingTop: 30 }} >
           {leftColumnMatter}

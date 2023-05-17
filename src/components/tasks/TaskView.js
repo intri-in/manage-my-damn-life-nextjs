@@ -69,7 +69,7 @@ export function TaskView(props)
     else
     {
      var output_list=(
-         <><TaskWithFilters collapseButtonClicked={collapseButtonClicked} collapsed={collapsedArray} fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context}  listColor={props.listColor} />
+         <><TaskWithFilters collapseButtonClicked={collapseButtonClicked} collapsed={collapsedArray} scheduleItem={props.scheduleItem} fetchEvents={props.fetchEvents} list={sortedList} todoList={props.todoList} level={-1} context={props.context}  listColor={props.listColor} />
        </>)
  
     }

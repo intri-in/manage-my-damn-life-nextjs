@@ -190,7 +190,7 @@ export class TaskWithFilters extends Component{
         </Row>
       
       {this.state.appliedFilters}
-      <GenerateTaskUIList showDone={this.state.showAllChecked} collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.props.collapsed} fetchEvents={this.props.fetchEvents} list={this.state.list} todoList={this.props.todoList} level={-1} context={this.props.context} listColor={this.props.listColor}  />      </>
+      <GenerateTaskUIList scheduleItem={this.props.scheduleItem} showDone={this.state.showAllChecked} collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.props.collapsed} fetchEvents={this.props.fetchEvents} list={this.state.list} todoList={this.props.todoList} level={-1} context={this.props.context} listColor={this.props.listColor}  />      </>
         )
     }
 }

@@ -73,7 +73,7 @@ class DashboardView extends Component {
     }
     componentDidUpdate(prevProps, prevState) {
         if (this.props.scheduleItem != prevProps.scheduleItem) {
-            console.log('here')
+            //console.log('here')
             if (varNotEmpty(this.props.scheduleItem)) {
                 this.scheduleEvent(this.props.scheduleItem)
             }
@@ -220,7 +220,7 @@ class DashboardView extends Component {
 
     }
     async eventResize(e) {
-        console.log("eventResize", e)
+        //console.log("eventResize", e)
         var newID = e.event.id
         if (varNotEmpty(this.state.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
@@ -232,7 +232,7 @@ class DashboardView extends Component {
         if (this.state.allEvents[newID].type != "VTODO" && this.state.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.state.allEvents[newID])) {
             var delta = e.endDelta.milliseconds + (e.endDelta.days * 86400 * 1000) + (e.endDelta.months * 30 * 86400 * 1000) + (e.endDelta.years * 365 * 86400 * 1000)
 
-            console.log("delta", delta)
+            //console.log("delta", delta)
 
             var newEnd = new Date((moment(eventData.data.end).unix() * 1000) + delta)
             //console.log(newStart, newEnd)
@@ -317,7 +317,7 @@ class DashboardView extends Component {
 
 
                         var allDay = isAllDayEvent(data.start, data.end)
-                        console.log(data.end, data.summary )
+                        //console.log(data.end, data.summary )
                         var eventObject = {
                             id: data.uid,
                             title: data.summary,

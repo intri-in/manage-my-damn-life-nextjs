@@ -211,7 +211,7 @@ import { getAPIURL, logVar } from '@/helpers/general';
         })
 
         */
-        this.setState({taskList: (<> <h2 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
+        this.setState({taskList: (<> <h2 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents}  todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
 
     }
 
