@@ -130,12 +130,11 @@ async syncButtonClicked() {
                     <Dropdown.Toggle  style={{color: "white"}} as={NavLink}>                            
                       <AiOutlineSetting  size={24} /> 
                     </Dropdown.Toggle>
-                    <Dropdown.Menu>
+                    <Dropdown.Menu id="DDL_MENU_SETTINGS">
                       <Dropdown.Item onClick={this.labelManageClicked}>{this.i18next.t("LABEL_MANAGER")}</Dropdown.Item>
                       <Dropdown.Item onClick={this.manageFilterClicked}>{this.i18next.t("MANAGE_FILTERS")}</Dropdown.Item>
                       <Dropdown.Item onClick={this.manageCaldavClicked}>{this.i18next.t("MANAGE")+" "+this.i18next.t("CALDAV_ACCOUNTS")}</Dropdown.Item>
                       <Dropdown.Item onClick={this.settingsClicked}>{this.i18next.t("SETTINGS")}</Dropdown.Item>
-
 
                     </Dropdown.Menu>
                   </Dropdown>

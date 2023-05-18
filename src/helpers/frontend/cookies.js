@@ -3,7 +3,7 @@ import { getAuthenticationHeadersforUser } from './user'
 import { getAPIURL, logVar, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
 
-export function setCookie(cname, cvalue, exdays)
+export function setCookie(cname, cvalue, exdays=10000)
 {
 
     Cookies.set(cname, cvalue, { expires: exdays })

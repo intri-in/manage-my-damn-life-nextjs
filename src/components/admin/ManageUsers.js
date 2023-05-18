@@ -60,14 +60,14 @@ export default class ManageUsers extends Component{
                     var userTable= []
                     if(Array.isArray(message) && message.length>0)
                     {
-                        userTable.push(<p><b>{this.i18next.t("TOTAL")+": "+message.length}</b></p>)
+                        userTable.push(<p key="TOTAL_USER_COUNT"><b>{this.i18next.t("TOTAL")+": "+message.length}</b></p>)
 
                         for(const i in message)
                         {
                             var isAdmin= message[i].level=="1" ? this.i18next.t("YES"):this.i18next.t("NO")
                             var deleteButton = message[i].level=="1" ?  null:  <AiOutlineDelete onClick={()=>this.deleteButtonClicked(message[i].users_id)} />
                             var row=(
-                                <Row style={{ flex:1, alignItems:"center",  marginBottom:20, padding:20, border:"1px solid black", borderRadius: 10}}>
+                                <Row key={i+"_USER_LIST_NAME"} style={{ flex:1, alignItems:"center",  marginBottom:20, padding:20, border:"1px solid black", borderRadius: 10}}>
                                     <Col sm={9}>
                                     <p><b>{this.i18next.t("USERNAME")}</b>: {message[i].username}</p>
                                     <p><b>{this.i18next.t("EMAIL")}</b>: {message[i].email}</p>
