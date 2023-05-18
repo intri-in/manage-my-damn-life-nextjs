@@ -440,13 +440,7 @@ export default class TaskUI extends Component {
         var timeDifferenceinWords = timeDifferencefromNowinWords(this.props.dueDate)
         
         var dueDateColor = "green"
-        if (this.props.dueDate != null) {
-            var timeDifference = Math.floor((dueDatetoUnixStamp(this.props.dueDate) - Math.floor(Date.now() / 1000)) / 86400)
-            if (timeDifference < 0) {
-                dueDateColor = 'red'
-            }
-
-        }
+        
         var dueDateText = ""
 
         if(this.state.repeatingTask==true)
@@ -455,13 +449,24 @@ export default class TaskUI extends Component {
             {
                 var recurrenceObj = new RecurrenceHelper(this.state.data)
                 var newDueDate = recurrenceObj.getNextDueDate()
+                var timeDifference = Math.floor((moment(newDueDate).unix() - Math.floor(Date.now() / 1000)) / 86400)
+                if (timeDifference < 0) {
+                    dueDateColor = 'red'
+                }
+
                 timeDifferenceinWords= timeDifferencefromNowinWords_Generic( newDueDate)
                 dueDateText = moment(newDueDate).format("DD/MM/YYYY HH:mm")+ " " + timeDifferenceinWords
             }
 
         }else{
             dueDateText = this.props.dueDate + " " + timeDifferenceinWords
-           
+            if (this.props.dueDate != null) {
+                var timeDifference = Math.floor((dueDatetoUnixStamp(this.props.dueDate) - Math.floor(Date.now() / 1000)) / 86400)
+                if (timeDifference < 0) {
+                    dueDateColor = 'red'
+                }
+    
+            }
     
         }
         if (window != undefined) {

@@ -13,7 +13,7 @@ interface homeTasksPropsInterface {
     scheduleItem: Function 
     caldav_accounts_id: string | null | undefined | unknown
     calendars_id: string| null | undefined| unknown
-    onSynComplete: Function
+    fetchEvents: Function
     view : string | null
 
 }
@@ -43,13 +43,18 @@ function HomeTasks(props:homeTasksPropsInterface) {
     const [filter, setFilter] = useState<filterInterface | undefined>(defaultFilter)
     const [menuOptions, setMenuOptions]=useState(defaultMenuOptions)
     
+    const fetchEvents =  () =>{
+        var updated = Math.floor(Date.now() / 1000).toString()
+        setUpdated(updated)
+        props.fetchEvents()
+    }
     useEffect( () => {
         const refreshMenuOptions = async () =>{
             const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions)
             setMenuOptions(newMenuOptions)
         }
         refreshMenuOptions()
-      }, [])
+      }, [updated])
     const menuOptionSelected = (e: { target: { value: any; }; }) =>{
         var value = e.target.value
         var filterValue = {logic: "or", filter:{}}
@@ -139,7 +144,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
     <div style={{marginTop: 20}}>
         {menuOptionsSelect}
         <br />
-        <TaskList scheduleItem={props.scheduleItem} view={taskView} fetchEvents={props.onSynComplete} updated={updated} router={props.router} title={title} filter={filter} caldav_accounts_id={caldav_accounts_id} calendars_id={calendars_id} />
+        <TaskList scheduleItem={props.scheduleItem} view={taskView} fetchEvents={fetchEvents} updated={updated} router={props.router} title={title} filter={filter} caldav_accounts_id={caldav_accounts_id} calendars_id={calendars_id} />
 
     </div>
     )

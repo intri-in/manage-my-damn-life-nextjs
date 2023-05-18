@@ -531,7 +531,7 @@ export default class TaskEditor extends Component {
 
                 var todo = new VTodoGenerator(finalTodoData)
                 
-                console.log(todo, finalTodoData)
+                //console.log(todo, finalTodoData)
                 var finalVTODO = todo.generate()
                 logVar(finalVTODO, "Final Generated TODO")
                 var etag = getRandomString(32)

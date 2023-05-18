@@ -119,10 +119,10 @@ export function logError(error, additionalDetails)
 {
     if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
     {
-        console.log("=====================")
-        console.log(error)
-        console.log(additionalDetails)
-        console.log("=====================")
+        console.error("=====================")
+        console.error(error)
+        console.error(additionalDetails)
+        console.error("=====================")
     
     }
 

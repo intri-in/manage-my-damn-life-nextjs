@@ -66,7 +66,7 @@ const AddInfo: FC<ChildProps> = () => {
           </Row>
           </div>
           <br />
-          <Link href="https://manage-my-damn-life-nextjs.readthedocs.io/en/latest/Feature%20Guide/QuickAdd/#priority" target='_blank'>{i18next.t("LEARN_MORE")}</Link>
+          <Link href="https://manage-my-damn-life-nextjs.readthedocs.io/en/latest/Feature%20Guide/QuickAdd/" target='_blank'>{i18next.t("LEARN_MORE")}</Link>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={props.onHide}>{i18next.t("CLOSE")}</Button>

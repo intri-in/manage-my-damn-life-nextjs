@@ -16,6 +16,7 @@ import { Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import ManageUsers from "@/components/admin/ManageUsers";
 import Button from "react-bootstrap/Button";
+import DefaultCalendarViewSelect from "@/components/accounts/DefaultCalendarViewSelect";
 class Settings extends Component {
 
     constructor(props) {
@@ -143,7 +144,7 @@ class Settings extends Component {
                                     </Col>
                                 </Row>
                                 <Row>
-                                    <Col Col xs={3}>
+                                    <Col  xs={3}>
                                         <b>{this.i18next.t("EMAIL")}</b>
                                     </Col>
                                     <Col xs={9}>
@@ -151,7 +152,7 @@ class Settings extends Component {
                                     </Col>
                                 </Row>
                                 <Row>
-                                    <Col Col xs={3}>
+                                    <Col xs={3}>
                                         <b>{this.i18next.t("CREATED_ON")}</b>
                                     </Col>
                                     <Col xs={9}>
@@ -275,7 +276,7 @@ class Settings extends Component {
                     }else{
                         toast.success(this.i18next.t("ERROR_GENERIC"))
                         console.log("Setting update response GLOBAL_DISABLE_USER_REGISTRATION:")                
-                        console.log(body)
+                        console.error(body)
     
 
                     }
@@ -362,9 +363,8 @@ class Settings extends Component {
                         <h1>{this.i18next.t("SETTINGS")}</h1>
                         <div style={{textAlign: "right"}}><Button onClick={this.caldavAccountButtonClicked} variant="outline-info">{this.i18next.t("MANAGE")+" "+this.i18next.t("CALDAV_ACCOUNTS")}</Button>{' '}</div>
                         <br />
-                        <h2>{this.i18next.t("ACCOUNT_INFO")}</h2>
-                        {this.state.userInfo}
-                        <br />
+                        <h2>{this.i18next.t("GENERAL_SETTINGS")}</h2>
+                        <div>
                         <Row style={{display: "flex", alignItems: "center"}}>
                             <Col  xs={3}>
                                 {this.i18next.t("DEFAULT")+ " "+this.i18next.t("CALENDAR")}
@@ -373,6 +373,21 @@ class Settings extends Component {
                                 {this.getCalendarOutput()}
                             </Col>
                         </Row>
+                        <br />
+                        <Row style={{display: "flex", alignItems: "center"}}>
+                            <Col  xs={3}>
+                                {this.i18next.t("CALENDAR_VIEW_DEFAULT")}
+                            </Col>
+                            <Col  xs={9}>
+                                <DefaultCalendarViewSelect />
+                            </Col>
+                        </Row>
+                        </div>
+                        <br />
+                        <br />
+                        <h2>{this.i18next.t("ACCOUNT_INFO")}</h2>
+                        {this.state.userInfo}
+                        <br />
                         <br />
                         {adminTable}
                         <br />

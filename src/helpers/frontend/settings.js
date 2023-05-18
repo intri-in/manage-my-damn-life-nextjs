@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
-import { isValidResultArray, logError } from "../general";
+import { isValidResultArray, logError, varNotEmpty } from "../general";
+import SettingsHelper from "./classes/SettingsHelper";
 
 export function getSyncTimeout()
 {
@@ -39,4 +40,28 @@ export function getLabelArrayFromCookie()
 export function getStandardDateFormat()
 {
     return "DD/MM/YYYY HH:mm"
+}
+
+export async function getDefaultViewForCalendar()
+{
+    return new Promise((resolve, reject) => {
+        
+        var settingValue= Cookies.get("DEFAULT_VIEW_CALENDAR")
+        if(varNotEmpty(settingValue) && settingValue!="")
+        {
+            return resolve(settingValue)
+        }else{
+            //Get from Server.
+            SettingsHelper.getFromServer("DEFAULT_VIEW_CALENDAR").then((fromServer)=>{
+                if(varNotEmpty(fromServer) && fromServer!="")
+                {
+                    return resolve(fromServer)
+                }else{
+                    return resolve(settingValue)
+                }
+    
+            })
+        }
+    
+    })
 }

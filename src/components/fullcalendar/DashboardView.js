@@ -24,6 +24,8 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { FULLCALENDAR_BUSINESS_HOURS } from "@/config/constants";
 import { withRouter } from "next/router";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
+import { FULLCALENDAR_VIEWLIST } from "./FullCalendarHelper";
+import { getDefaultViewForCalendar } from "@/helpers/frontend/settings";
 class DashboardView extends Component {
     calendarRef = React.createRef()
     constructor(props) {
@@ -31,10 +33,7 @@ class DashboardView extends Component {
         super(props)
         this.i18next = getI18nObject()
         var initialViewCalendar = "timeGridDay"
-        if (varNotEmpty(props.initialView)) {
-            initialViewCalendar = props.initialView
-        }
-        this.state = { showEventEditor: false, viewValue: this.getViewValueFromName(initialViewCalendar), events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR }
+        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -46,7 +45,7 @@ class DashboardView extends Component {
     }
 
 
-    componentDidMount() {
+    async componentDidMount() {
 
         this.getCaldavAccountsfromDB()
         this.getAllEventsfromServer()
@@ -55,6 +54,9 @@ class DashboardView extends Component {
         let calendarApi = this.calendarRef.current.getApi()
         calendarApi.eventDragStart = this.eventDrag
 
+        const view = await getDefaultViewForCalendar()
+        calendarApi.changeView(view)
+        this.setState({viewValue: view})
 
     }
 
@@ -100,19 +102,9 @@ class DashboardView extends Component {
     }
     viewChanged(e) {
 
-        var calendarView = "timeGridDay"
-        if (e.target.value == '1') {
-            calendarView = "timeGridDay"
-        }
-        if (e.target.value == '2') {
-            calendarView = 'timeGridWeek'
-        }
-        if (e.target.value == '3') {
-            calendarView = 'dayGridMonth'
-        }
 
         let calendarApi = this.calendarRef.current.getApi()
-        calendarApi.changeView(calendarView)
+        calendarApi.changeView(e.target.value)
 
         //calendarApi.addEventSource({events})
         this.setState({ viewValue: e.target.value, })
@@ -509,18 +501,22 @@ class DashboardView extends Component {
         const eventDataDashBoard = this.state.eventDataDashBoard
         var eventEditor = this.state.showEventEditor ? (<EventEditor key={this.state.selectedID} onDismiss={this.eventEditorDismissed} eventData={eventDataDashBoard} />
         ) : (null)
+
+        var options = []
+        for (const i in FULLCALENDAR_VIEWLIST)
+        {
+            options.push( <option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{this.i18next.t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
+        }
         return (<>
             <Row style={{ padding: 20 }} >
                 <Col>
                     <Form.Select value={this.state.viewValue} onChange={this.viewChanged}>
-                        <option value="1">View: Day</option>
-                        <option value="2">View: Week</option>
-                        <option value="3">View: Month</option>
+                        {options}
                     </Form.Select>
                 </Col>
             </Row>
             <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin]}
+                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin]}
                 ref={this.calendarRef}
                 initialView={this.state.initialViewCalendar}
                 themeSystem="standard"
