@@ -94,7 +94,7 @@ services:
       ## The following variables must not be changed.
       ############################################################
 
-      NEXT_PUBLIC_VERSION_NUMBER: "0.1.4"
+      NEXT_PUBLIC_VERSION_NUMBER: "0.1.5"
   db:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
