@@ -121,7 +121,11 @@ import { getAPIURL, logVar } from '@/helpers/general';
 
                             redirectURL +="?redirect="+window.location.pathname
                         }
-                        this.props.router.push(redirectURL)
+                        if(this.props.router!=undefined)
+                        {
+                            this.props.router.push(redirectURL)
+
+                        }
 
 
                     }else{
