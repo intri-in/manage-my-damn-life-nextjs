@@ -50,17 +50,22 @@ export class RecurrenceHelper extends RRuleHelper{
                 //nextDue.setDate(nextDue.getDate() - 1)
 
                 while(Date.parse(nextDue)<Date.parse(until)){
+                    var interval = 1
+                    if(varNotEmpty(rObj.INTERVAL) && rObj.INTERVAL!="")
+                    {
+                        interval= rObj.INTERVAL
+                    }
                     if (rObj.FREQ == "DAILY") {
-                        nextDue.setDate(nextDue.getDate() + 1)
+                        nextDue.setDate(nextDue.getDate() + (1*interval))
     
                     } else if (rObj.FREQ == "WEEKLY") {
-                        nextDue.setDate(nextDue.getDate() + 7)
+                        nextDue.setDate(nextDue.getDate() + (7*interval))
     
                     } else if (rObj.FREQ == "MONTHLY") {
-                        nextDue.setMonth(nextDue.getMonth() + 1)
+                        nextDue.setMonth(nextDue.getMonth() + (1*interval))
     
                     } else if (rObj.FREQ === "YEARLY") {
-                        nextDue.setFullYear(nextDue.getYear() + 1)
+                        nextDue.setFullYear(nextDue.getYear() + (1*interval))
     
                     }
 
@@ -80,7 +85,7 @@ export class RecurrenceHelper extends RRuleHelper{
             }
         }
 
-        //console.log(newObj)
+        console.log(newObj)
         this.newObj=newObj
     }
 
