@@ -1,2 +1,2 @@
-- Fixed a minor bug with router not being defined in TaskList
-- Bumped up version number
+v0.1.5.3
+- Node v14.x removed from github action
