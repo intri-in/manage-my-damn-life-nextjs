@@ -1,2 +1,2 @@
-v0.1.5.3
-- Node v14.x removed from github action
+v0.1.5.4
+- Added a docker image build Github action
