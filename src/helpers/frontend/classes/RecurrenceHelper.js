@@ -85,7 +85,7 @@ export class RecurrenceHelper extends RRuleHelper{
             }
         }
 
-        console.log(newObj)
+        //console.log(newObj)
         this.newObj=newObj
     }
 
