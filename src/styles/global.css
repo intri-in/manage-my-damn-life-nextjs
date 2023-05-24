@@ -60,9 +60,3 @@ a:hover{
     color: #cfa3f4;
 }
 
-.fc-widget-content {
-    border-right: 2px solid #EE7 !important; /* Line thickness is 2px to better show */
-  }
-  .fc-widget-content:first-child {
-    border-right: inherit !important; /* Revert the first child */
-}
