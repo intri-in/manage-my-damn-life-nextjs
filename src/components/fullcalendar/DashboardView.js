@@ -26,6 +26,7 @@ import { withRouter } from "next/router";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { FULLCALENDAR_VIEWLIST } from "./FullCalendarHelper";
 import { getDefaultViewForCalendar } from "@/helpers/frontend/settings";
+
 class DashboardView extends Component {
     calendarRef = React.createRef()
     constructor(props) {

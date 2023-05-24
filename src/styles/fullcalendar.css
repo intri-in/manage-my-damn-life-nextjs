@@ -1,0 +1,57 @@
+.fc-widget-content {
+  border-right: 2px solid #EE7 !important; /* Line thickness is 2px to better show */
+}
+.fc-widget-content:first-child {
+  border-right: inherit !important; /* Revert the first child */
+}
+
+
+.fc-direction-ltr .fc-timegrid-now-indicator-arrow {
+
+left: 0;
+
+border-width: 10px 33px 10px 11px;
+
+border-radius: 0px 10px 10px 0px;
+
+opacity: .7;
+
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+
+position: absolute;
+
+z-index: 4;
+
+margin-top: -10px;
+
+border-style: solid;
+
+border-color: #F2CB05;
+
+}
+
+.fc .fc-timegrid-now-indicator-line {
+
+opacity: .7;
+
+position: absolute;
+
+z-index: 4;
+
+left: 0;
+
+right: 0;
+
+margin-top: -2px;
+
+border-style: solid;
+
+border-color: #F2CB05;
+
+border-color: var( — fc-now-indicator-color,#F2CB05);
+
+border-width: 5px 0 0;
+
+}
