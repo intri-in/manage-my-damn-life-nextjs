@@ -1,4 +1,7 @@
-v0.1.5.4
+Fixed error reporting in case registering CalDAV account fails. 
+    - Error from tsdav is now shown to userv0.1.5.4
+
+
 - Added a docker image build Github action
 
 v0.1.5.3

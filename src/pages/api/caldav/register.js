@@ -5,6 +5,7 @@ import { getConnectionVar } from '@/helpers/api/db';
 import { middleWareForAuthorisation, getUseridFromUserhash, getUserHashSSIDfromAuthorisation } from '@/helpers/api/user';
 import { createCalDAVAccount } from '@/helpers/api/cal/caldav';
 import { AES } from 'crypto-js';
+import { logError, logVar } from '@/helpers/general';
 export default async function handler(req, res) {
     if (req.method === 'GET') {
 
@@ -31,7 +32,9 @@ export default async function handler(req, res) {
                             authMethod: 'Basic',
                             defaultAccountType: 'caldav',
                         }).catch((reason)=>{
-                            res.status(401).json({ success: false, data: {message: 'INVALID_CALDAV_DETAILS'}})
+                            logError(reason, "api/caldav/register client:")
+                            res.status(401).json({ success: false, data: {message: reason.message}})
+
 
                         })
                         if(client!=null && typeof(client)== 'object')
@@ -52,9 +55,13 @@ export default async function handler(req, res) {
                         }
                         else
                         {
-                            var message = response.message
-                            res.status(401).json({ success: false, data: {message: message}})
-        
+                            if(res.headersSent==false)
+                            {
+                                var message = response.message
+                                res.status(401).json({ success: false, data: {message: message}})
+                            }
+                            
+
                         }
                     }
                     else

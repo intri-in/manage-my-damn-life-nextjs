@@ -1,2 +1,2 @@
-v0.1.5.4
-- Added a docker image build Github action
+Fixed error reporting in case registering CalDAV account fails. 
+    - Error from tsdav is now shown to user
