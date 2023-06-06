@@ -8,28 +8,37 @@ import TaskUI from './TaskUI';
 import { getRandomString } from '@/helpers/crypto';
 import Collapse from 'react-bootstrap/Collapse';
 import { TaskWithFilters } from './TaskWithFilters';
-import { varNotEmpty } from "@/helpers/general";
+import { logError, varNotEmpty } from "@/helpers/general";
 import { majorTaskFilter } from "@/helpers/frontend/events";
 import { TaskPending } from "@/helpers/api/tasks";
+import { Loading } from "../common/Loading";
 export default class GenerateTaskUIList extends Component{
     constructor(props)
     {
         super(props)
         
         this.i18next=getI18nObject()
-        this.state={collapsed: props.collapsed, showDone:false, output: null}
+        this.state={collapsed: props.collapsed, showDone:false, output: <Loading centered={true} padding={10}  />}
         this.collapseButtonClicked= this.collapseButtonClicked.bind(this)
         this.getTaskstoRender = this.getTaskstoRender.bind(this)
+        this.renderTasks = this.renderTasks.bind(this)
     }
 
     componentDidMount(){
         this.setState({showDone: this.props.showDone, })
-        
+        //this.renderTasks(false)
 
+    }
+
+    renderTasks()
+    {
+        var output = this.getTaskstoRender(this.state.showDone)
+        this.setState({output: output})
     }
 
     componentDidUpdate(prevProps, prevState)
     {
+
         var same = true
         if(varNotEmpty(prevProps.collapsed))
         {
@@ -49,8 +58,19 @@ export default class GenerateTaskUIList extends Component{
         if(prevProps.showDone!=this.props.showDone)
         {
             this.setState({showDone: !prevState.showDone})
+
         }
-        
+        // try{
+        //     if(JSON.stringify(this.props)===JSON.stringify(prevProps))
+        //     {
+        //         this.renderTasks()
+        //     }
+
+        // }catch(e)
+        // {
+        //     console.error("GenerateTaskUIList.componentDidUpdate", e)
+        // }
+
     }
     collapseButtonClicked(key)
     {
@@ -199,14 +219,14 @@ export default class GenerateTaskUIList extends Component{
 
                 listitem=(
                 <div key={key}  style={{marginTop: marginTop}}> <TaskUI scheduleItem={this.props.scheduleItem} id={key} key={key} collapseButtonClicked={this.collapseButtonClicked} collapsed={collapsed} hasChildren={hasChildren} unparsedData={todoList[2]} data={todoList[1][key].todo} todoList={todoList} fetchEvents={this.props.fetchEvents}  title={todoList[1][key].todo.summary} dueDate={dueDate} dueDateinWords="Words" level={level} priority={todoList[1][key].todo.priority} listColor={listColor} completion={todoList[1][key].todo.completion} labels={todoList[1][key].todo.category}/>
-                    </div>
+                </div>
                 )
                 tempToReturn.push(listitem)
                 if (list[i].length> 2) {
                     if(collapsed==false)
                     {
         
-                        listitem=( <GenerateTaskUIList showDone={this.state.showDone}collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.state.collapsed} scheduleItem={this.props.scheduleItem} collpased={this.state.collapsed} key={"LIST_"+key} fetchEvents={this.props.fetchEvents} list={list[i][2]} todoList={todoList} level={level} context={context} listColor={listColor} />)
+                        listitem=( <GenerateTaskUIList showDone={this.state.showDone} collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.state.collapsed} scheduleItem={this.props.scheduleItem} collpased={this.state.collapsed} key={"SUBLIST_"+key} fetchEvents={this.props.fetchEvents} list={list[i][2]} todoList={todoList} level={level} context={context} listColor={listColor} />)
                         tempToReturn.push(listitem)
             
                     }
@@ -222,7 +242,7 @@ export default class GenerateTaskUIList extends Component{
 
         if (toReturn != [] && toReturn.length>0) {
             
-            return( <div key={getRandomString(5)} style={{marginBottom: 5}}>
+            return( <div style={{marginBottom: 5}}>
     
                 {toReturn}
     
@@ -239,6 +259,6 @@ export default class GenerateTaskUIList extends Component{
     }
     render(){
         var output = this.getTaskstoRender()
-        return(output)
+        return(output )
     }
 }
