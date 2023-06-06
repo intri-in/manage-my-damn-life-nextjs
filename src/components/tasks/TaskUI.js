@@ -74,11 +74,10 @@ export default class TaskUI extends Component {
         this.isRepeatingTask()
         if (this.props.todoList != null && this.props.data.relatedto != null && this.props.data.relatedto != "" && this.props.level == 0) {
             var parentID = this.taskObj.getParent()
-            if(varNotEmpty(parentID) && parentID!="")
-            {
+            if (varNotEmpty(parentID) && parentID != "") {
                 var newTaskTitle = (<div><span style={{ color: "gray" }}>{this.props.todoList[1][this.taskObj.getParent()].todo.summary + " > "}</span>  {this.props.title}</div>)
                 this.setState({ taskTitle: newTaskTitle })
-    
+
             }
         }
         var collapseButton = null
@@ -116,7 +115,7 @@ export default class TaskUI extends Component {
                 }
             }
             */
-        
+
         }
     }
 
@@ -140,8 +139,8 @@ export default class TaskUI extends Component {
     componentDidUpdate(prevProps, prevState) {
 
         if (this.props.collapsed !== prevProps.collapsed) {
-            if (debugging()) console.log("this.props.`isCollapsed`", this.props.isCollapsed)
-            if (this.props.isCollapsed == true) {
+            if (debugging()) console.log("this.props.`isCollapsed`", this.props.collapsed)
+            if (this.props.collapsed == true) {
                 this.setState({ collapseButton: <FcExpand value={this.props.data.uid} key={this.props.data.uid} id={this.props.data.uid} onClick={this.collapseButtonClicked} /> })
 
             } else {
@@ -165,14 +164,13 @@ export default class TaskUI extends Component {
         // first check if the task already has label for my day.
         var newDataArray = _.cloneDeep(this.state.data)
         //change Rrule to RruleObject
-        if(varNotEmpty(this.state.data.rrule) && this.state.data.rrule!="")
-        {
-            newDataArray["rrule"]= RRuleHelper.rruleToObject(newDataArray.rrule)
+        if (varNotEmpty(this.state.data.rrule) && this.state.data.rrule != "") {
+            newDataArray["rrule"] = RRuleHelper.rruleToObject(newDataArray.rrule)
         }
-/*         console.log(newDataArray)
-        var todo = new VTodoGenerator(newDataArray)
-        console.log(todo.generate())
- */
+        /*         console.log(newDataArray)
+                var todo = new VTodoGenerator(newDataArray)
+                console.log(todo.generate())
+         */
         if (this.state.data.category != null && Array.isArray(this.state.data.category)) {
             var found = false
 
@@ -207,7 +205,7 @@ export default class TaskUI extends Component {
             console.log(newDataArray)
             var todo = new VTodoGenerator(newDataArray)
             console.log(todo.generate())
-    
+
             //this.setState({data: newDataArray, showTaskEditor: true, })
             var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
             this.onTaskSubmittoServer(body)
@@ -223,11 +221,10 @@ export default class TaskUI extends Component {
                 var newCategoryArray = removeMyDayLabelFromArray(this.state.data.category)
                 var newData = _.cloneDeep(this.state.data)
                 newData.categories = newCategoryArray
-                if(varNotEmpty(this.state.data.rrule) && this.state.data.rrule!="")
-                {
-                    newData["rrule"]= RRuleHelper.rruleToObject(newData.rrule)
+                if (varNotEmpty(this.state.data.rrule) && this.state.data.rrule != "") {
+                    newData["rrule"] = RRuleHelper.rruleToObject(newData.rrule)
                 }
-        
+
                 //this.setState({data: newData, showTaskEditor: true})
                 var body = await updateTodo(this.props.data.calendar_id, this.props.data.url_internal, this.props.data.etag, newData)
                 this.onTaskSubmittoServer(body)
@@ -250,7 +247,7 @@ export default class TaskUI extends Component {
     }
     checkBoxClicked() {
 
-        
+
         this.setState(function (previousState, currentProps) {
 
             var newData = JSON.parse(JSON.stringify(previousState.data))
@@ -438,15 +435,13 @@ export default class TaskUI extends Component {
         var priorityColor = ""
 
         var timeDifferenceinWords = timeDifferencefromNowinWords(this.props.dueDate)
-        
+
         var dueDateColor = "green"
-        
+
         var dueDateText = ""
 
-        if(this.state.repeatingTask==true)
-        {
-            if(varNotEmpty(this.state.data.recurrences))
-            {
+        if (this.state.repeatingTask == true) {
+            if (varNotEmpty(this.state.data.recurrences)) {
                 var recurrenceObj = new RecurrenceHelper(this.state.data)
                 var newDueDate = recurrenceObj.getNextDueDate()
                 var timeDifference = Math.floor((moment(newDueDate).unix() - Math.floor(Date.now() / 1000)) / 86400)
@@ -454,20 +449,20 @@ export default class TaskUI extends Component {
                     dueDateColor = 'red'
                 }
 
-                timeDifferenceinWords= timeDifferencefromNowinWords_Generic( newDueDate)
-                dueDateText = moment(newDueDate).format("DD/MM/YYYY HH:mm")+ " " + timeDifferenceinWords
+                timeDifferenceinWords = timeDifferencefromNowinWords_Generic(newDueDate)
+                dueDateText = moment(newDueDate).format("DD/MM/YYYY HH:mm") + " " + timeDifferenceinWords
             }
 
-        }else{
+        } else {
             dueDateText = this.props.dueDate + " " + timeDifferenceinWords
             if (this.props.dueDate != null) {
                 var timeDifference = Math.floor((dueDatetoUnixStamp(this.props.dueDate) - Math.floor(Date.now() / 1000)) / 86400)
                 if (timeDifference < 0) {
                     dueDateColor = 'red'
                 }
-    
+
             }
-    
+
         }
         if (window != undefined) {
             // window.addEventListener('resize', this.updateDimensions);
@@ -525,7 +520,7 @@ export default class TaskUI extends Component {
         }
         var hasDescriptionIcon = null
         if (varNotEmpty(this.state.data.description) && this.state.data.description.toString().trim() != "") {
-        hasDescriptionIcon = (        <MdSpeakerNotes  />)
+            hasDescriptionIcon = (<MdSpeakerNotes />)
 
         }
 
@@ -549,7 +544,7 @@ export default class TaskUI extends Component {
                                 {progressBar}
 
                             </div>
-                            <div  className="col-1">
+                            <div className="col-1">
                                 {repeatingTaskIcon} {hasDescriptionIcon}
                             </div>
 

@@ -32,17 +32,17 @@ services:
 
       ## AES Encryption Password
       ## This is used to encrypt CalDAV passwords in the database.
-      AES_PASSWORD : uqu8aiH9oz7aeB5quiegh6toot0haa0ite9Iedivaej8cuC5fahvoh0aetheeboo
+      AES_PASSWORD : NEW_AES_PASSWORD
 
       ############################################################
       ## The following variables aren't required for basic functionality,
       ## but might be required to be set for some additional features.
       ############################################################
 
-      SMTP_HOST : smtp.ethereal.email
-      SMTP_USERNAME :  matteo.robel@ethereal.email
-      SMTP_PASSWORD :  4TrWWnX7uh1vW3Gmtk
-      SMTP_FROMEMAIL :  matteo.robel@ethereal.email
+      SMTP_HOST : smtp.example.com
+      SMTP_USERNAME :  example@example.comm
+      SMTP_PASSWORD :  password
+      SMTP_FROMEMAIL :  example@example.comm
       SMTP_PORT :  587
       SMTP_USESECURE :  "false"
 
@@ -94,7 +94,7 @@ services:
       ## The following variables must not be changed.
       ############################################################
 
-      NEXT_PUBLIC_VERSION_NUMBER: "0.1.5"
+      NEXT_PUBLIC_VERSION_NUMBER: "0.1.6"
   db:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password

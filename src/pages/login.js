@@ -15,6 +15,7 @@ import { getAuthenticationHeadersforUser, setLoginCookie } from '@/helpers/front
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { getAPIURL, logVar } from '@/helpers/general';
 import { getErrorResponse } from '@/helpers/errros';
+import { fetchLatestEvents } from '@/helpers/frontend/sync';
 class Login extends Component{
 
     constructor(props)
@@ -26,6 +27,7 @@ class Login extends Component{
         this.passWordChanged = this.passWordChanged.bind(this)
         this.loginButtonClicked= this.loginButtonClicked.bind(this)
         this.processReponse = this.processReponse.bind(this)
+        this.onKeyDown = this.onKeyDown.bind(this)
 
     }
     componentDidMount()
@@ -88,7 +90,15 @@ class Login extends Component{
     }
     usernameChanged(e)
     {
+        
         this.setState({username: e.target.value})
+    }
+    onKeyDown(e)
+    {
+        if(e.key=="Enter")
+        {
+            this.loginButtonClicked()
+        }
     }
     passWordChanged(e)
     {
@@ -152,6 +162,7 @@ class Login extends Component{
                 {
                     //Save userhash and SSID 
                     setLoginCookie(message.userhash, message.ssid)
+                    fetchLatestEvents()
                     var redirectURL="/"
                     if(window!=undefined){
                         const queryString = window.location.search;
@@ -202,9 +213,9 @@ class Login extends Component{
             <h2 style={{textAlign:'center', }}>{this.i18next.t("APP_NAME")}</h2>
             <br />
             <h1>{this.i18next.t("LOGIN")}</h1>
-            <Form.Control maxLength={40} value={this.state.username} onChange={this.usernameChanged} placeholder={this.i18next.t("ENTER_USERNAME")} />
+            <Form.Control onKeyDown={this.onKeyDown} maxLength={40} value={this.state.username} onChange={this.usernameChanged} placeholder={this.i18next.t("ENTER_USERNAME")} />
             <br />
-            <Form.Control onChange={this.passWordChanged} value={this.state.password} type="password" maxLength={40} placeholder={this.i18next.t("ENTER_A_PASSWORD")} />
+            <Form.Control onKeyDown={this.onKeyDown} onChange={this.passWordChanged} value={this.state.password} type="password" maxLength={40} placeholder={this.i18next.t("ENTER_A_PASSWORD")} />
             <br />
             <div style={{textAlign:'center',}}><Button onClick={this.loginButtonClicked} > {this.i18next.t("LOGIN")}</Button></div>
             <div style={{marginBottom:20}} />

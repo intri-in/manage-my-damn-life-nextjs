@@ -1,3 +1,7 @@
+v0.1.6
+- Enter now submits login form #36
+- Minor bug fixes
+
 - Bumped up some of packages' version numbers
 
 Fixed error reporting in case registering CalDAV account fails. 
