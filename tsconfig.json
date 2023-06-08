@@ -28,7 +28,7 @@
     "**/*.js",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/pages/index.js.backup", "src/pages/index.js.backup"  ],
   "exclude": [
     "node_modules"
   ],

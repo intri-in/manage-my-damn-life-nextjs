@@ -40,3 +40,6 @@ yarn-error.log*
 INSTALLED
 COMMITMESSAGE.md
 docker-compose.yml
+index.js.backup
+view/
+COMBINEDCOMMITMESSAGE
