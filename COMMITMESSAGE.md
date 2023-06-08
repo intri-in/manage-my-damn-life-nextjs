@@ -1,3 +1,2 @@
-v0.1.6
-- Enter now submits login form #36
-- Minor bug fixes
+- Fixed bug: task list in Home Page not being updated on adding a new task 
+- Bit of rewrite to home page -- getting ready for user to customise home page.

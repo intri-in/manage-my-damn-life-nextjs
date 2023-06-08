@@ -15,6 +15,7 @@ interface homeTasksPropsInterface {
     calendars_id: string| null | undefined| unknown
     fetchEvents: Function
     view : string | null
+    updated: string | null
 
 }
 export interface filterInterface {
@@ -36,7 +37,7 @@ const defaultMenuOptions = {
 }
 function HomeTasks(props:homeTasksPropsInterface) {
     const [taskView, setTaskView ] = useState(props.view)
-    const [updated, setUpdated]  =  useState("")
+    const [updated, setUpdated]  =  useState(props.updated)
     const [title, setTitle] = useState(i18next.t("MY_DAY"))
     const [caldav_accounts_id, setCaldavAccountsId] = useState(props.caldav_accounts_id)
     const [calendars_id, setCalendarsId] = useState(props.calendars_id)
@@ -55,6 +56,11 @@ function HomeTasks(props:homeTasksPropsInterface) {
         }
         refreshMenuOptions()
       }, [updated])
+
+      useEffect(()=> {
+        setUpdated(props.updated)
+      },[props.updated])
+      
     const menuOptionSelected = (e: { target: { value: any; }; }) =>{
         var value = e.target.value
         var filterValue = {logic: "or", filter:{}}
