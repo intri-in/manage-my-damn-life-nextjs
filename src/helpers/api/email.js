@@ -21,8 +21,8 @@ export function sendEmail( receipt_email, subject, textHTML) {
               };
               transporter.sendMail(message, (err, info) => {
                 if (err) {
-                    //console.log('sendEmail Error occurred. ' + err.message);
-                    return info
+                    console.log('sendEmail Error occurred. ' + err.message);
+                    return resolve(false)
                 }
                 //console.log('Message sent: %s', info);
                 //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));

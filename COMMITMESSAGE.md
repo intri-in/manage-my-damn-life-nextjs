@@ -1,4 +1,1 @@
-- Added constant VERSION_NUMBER
-- Breaking change:
-    Changed hashing algorithm for user password to bcrypt instead of sha512.
-    - Reset password if you face trouble logging in after update.
+- Fixed no error being shown if smtp settings incorrect during reset email
