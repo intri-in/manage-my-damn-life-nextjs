@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import ManageUsers from "@/components/admin/ManageUsers";
 import Button from "react-bootstrap/Button";
 import DefaultCalendarViewSelect from "@/components/accounts/DefaultCalendarViewSelect";
+import { VERSION_NUMBER } from "@/config/constants";
 class Settings extends Component {
 
     constructor(props) {
@@ -393,7 +394,7 @@ class Settings extends Component {
                         <br />
                         {this.state.userManager}
 
-                        <p><b>{this.i18next.t("VERSION")}: </b>{process.env.NEXT_PUBLIC_VERSION_NUMBER}</p>
+                        <p><b>{this.i18next.t("VERSION")}: </b>{VERSION_NUMBER}</p>
 
                     </div>
 

@@ -1,11 +1,11 @@
 import validator from 'validator';
-import { checkifUserisInDB } from '@/helpers/api/user';
+import { checkifUserisInDB, deleteAllSSID } from '@/helpers/api/user';
 import { insertUserIntoDB } from '@/helpers/api/user';
 import { User } from '@/helpers/api/classes/User';
 import { deleteAllOTPs_passwordReset, generateOTP_passwordReset, otpIsValid, sendResetPasswordMessage } from '@/helpers/api/otp';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-      console.log(req.body)
+      //console.log(req.body)
         if(req.body.otp!=null&&req.body.otp!=undefined && req.body.otp!="" && req.body.password!=null&&req.body.password!=undefined && req.body.password!="" &&  req.body.reqid!=null&&req.body.reqid!=undefined && req.body.reqid!="" && req.body.userhash!=null&&req.body.userhash!=undefined && req.body.userhash!="")
         {
           var userID = await User.getIDFromUserhash(req.body.userhash)
@@ -20,6 +20,7 @@ export default async function handler(req, res) {
             if(passwordUpdateReponse==null)
             {
                 deleteAllOTPs_passwordReset(userID)
+                deleteAllSSID(req.body.userhash) //Invalidate all SSIDs.
                 res.status(200).json( {success: true, data: {message: "PASSWORD_RESET_OK"}})
 
             }else{

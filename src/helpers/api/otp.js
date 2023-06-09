@@ -1,12 +1,23 @@
 import { getRandomString } from "../crypto"
 import { getConnectionVar } from "./db"
 import { sendEmail } from "./email"
-
+import bcrypt from 'bcryptjs';
 export async function generateOTP_passwordReset(userid)
 {
     var otp= Math.floor(100000 + Math.random() * 900000)
     var created = Math.floor(Date.now()/1000)
     var type = "PASSWORD_RESET"
+
+    /*
+    // TODO
+    As of now, OTP is stored as a plain text (oops, mybad)
+    To change it to a hashed value, a change in database's column length is required, which would require an update page for the end user.
+    I'll leave this as it is for now, but this HAS TO be changed.
+    
+    const salt = await bcrypt.genSalt(10)
+    const otpHash  = await bcrypt.hash(toString(otp), salt)
+    console.log(otpHash)
+    */
     var reqid = getRandomString(16)
     var con = getConnectionVar()
     var deleteResponse = await deleteAllOTPs_passwordReset(userid)

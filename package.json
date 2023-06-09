@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,6 +26,7 @@
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
     "axios": "1.4.0",
+    "bcryptjs": "2.4.3",
     "bootstrap": "5.2.3",
     "bootstrap-icons": "1.10.3",
     "crypto-js": "4.1.1",
