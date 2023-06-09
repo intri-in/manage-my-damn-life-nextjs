@@ -1,2 +1,4 @@
-- Fixed bug: task list in Home Page not being updated on adding a new task 
-- Bit of rewrite to home page -- getting ready for user to customise home page.
+- Added constant VERSION_NUMBER
+- Breaking change:
+    Changed hashing algorithm for user password to bcrypt instead of sha512.
+    - Reset password if you face trouble logging in after update.

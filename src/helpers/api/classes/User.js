@@ -5,6 +5,7 @@ import { CaldavAccount } from "./CaldavAccount";
 import { varNotEmpty } from "@/helpers/general";
 import { Calendars } from "./Calendars";
 import Settings from "@/helpers/api/classes/Settings"
+import bcrypt from 'bcryptjs';
 
 export class User{
 
@@ -273,8 +274,10 @@ export class User{
 
     async updatePassword(newPassword)
     {
-        var password = crypto.createHash('sha512').update(newPassword).digest('hex')
-
+        //var password = crypto.createHash('sha512').update(newPassword).digest('hex')
+        const salt = await bcrypt.genSalt(10)
+        const password  = await bcrypt.hash(newPassword, salt)
+    
         var con = getConnectionVar()
         return new Promise( (resolve, reject) => {
              con.query('UPDATE users SET ? WHERE users_id = ?',[{password :password, }, this.userid], function (error, results, fields) {

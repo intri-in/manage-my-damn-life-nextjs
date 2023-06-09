@@ -32,14 +32,17 @@ class ResetPassword extends Component{
     }
     makeGetOTPRequest(){
         var isValid= true
+        this.setState({isWaiting: true})
+
         if((this.state.username!=null && this.state.username.trim()=="") || this.state.username==null)
         {
             toast.error(this.i18next.t("INVALID_USERNAME"))
             isValid=false
+            this.setState({isWaiting: false})
+
         }
 
         if(isValid){
-            this.setState({isWaiting: true})
             // Make a request to server and process the response.
             const url_api=getAPIURL()+"users/requestotp?username="+this.state.username
             const requestOptions =
@@ -61,23 +64,29 @@ class ResetPassword extends Component{
                             if(message!=null && message.userhash!=undefined && message.reqid!=null)
                             {
                                 this.setState({reqid: message.reqid, userhash: message.userhash, showNewPasswordForm: true})
+                                this.setState({isWaiting: false})
+
                                 toast.success(this.i18next.t("OTP_SENT_TO_EMAIL"))
-                             
+
         
                             }else{
                                 toast.error(this.i18next.t("ERROR_GENERIC"))
-        
+                                this.setState({isWaiting: false})
+
                             }
                             
                         }else{
                             var message = getMessageFromAPIResponse(body)
                             toast.error(this.i18next.t(message.toString()))
+                            this.setState({isWaiting: false})
+
                         }
                     }
                     else
                     {
                         toast.error(this.i18next.t("ERROR_GENERIC"))
-        
+                        this.setState({isWaiting: false})
+
                     }
         
         
@@ -87,7 +96,6 @@ class ResetPassword extends Component{
             {
                 logVar(e, "makeGetOTPRequest")
             }
-            this.setState({isWaiting: false})
 
         }
 
@@ -233,7 +241,7 @@ class ResetPassword extends Component{
 
     }
     render(){
-        var currentForm =  this.state. showNewPasswordForm ? this.getNewPasswordForm(): this.getUsernameForm()
+        var currentForm =  this.state.showNewPasswordForm ? this.getNewPasswordForm(): this.getUsernameForm()
         return(<>
         <Head>
           <title>{this.i18next.t("APP_NAME_TITLE")+" - "+this.i18next.t("RESET_PASSWORD")}</title>

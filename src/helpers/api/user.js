@@ -3,6 +3,8 @@ import crypto from "crypto"
 import { Base64 } from 'js-base64';
 import { getRegistrationStatus, userRegistrationAllowed } from './settings';
 import { varNotEmpty } from '../general';
+import bcrypt from 'bcryptjs';
+
 export async function getUserDetailsfromUsername(username)
 {
     var con = getConnectionVar()
@@ -91,10 +93,13 @@ export async function forceInsertUserIntoDB(username,password,email,level)
     {
         var con = getConnectionVar()
         var userhash= crypto.createHash('sha512').update(username).digest('hex')
-        var password = crypto.createHash('sha512').update(password).digest('hex')
+        //var password = crypto.createHash('sha512').update(password).digest('hex')
+        const salt = await bcrypt.genSalt(10)
+        const passwordHash  = await bcrypt.hash(toString(password), salt)
+
         var created=Math.floor(Date.now() / 1000)
 
-        con.query('INSERT INTO users (username, password, email, created, userhash,level) VALUES (?,?, ? ,?,?,?)', [username, password, email, created, userhash,level], function (error, results, fields) {
+        con.query('INSERT INTO users (username, password, email, created, userhash,level) VALUES (?,?, ? ,?,?,?)', [username, passwordHash, email, created, userhash,level], function (error, results, fields) {
             if (error) {
                 console.log(error.message)
             }
@@ -108,15 +113,30 @@ export async function forceInsertUserIntoDB(username,password,email,level)
 export function checkCredentialsinDB(username, password)
 {
     var con = getConnectionVar()
-    var passwordHash = crypto.createHash('sha512').update(password).digest('hex')
+    //var passwordHash = crypto.createHash('sha512').update(password).digest('hex')
+
     return new Promise( (resolve, reject) => {
-        con.query("SELECT * FROM users WHERE username= ? AND password = ?", [ username, passwordHash], function (err, result, fields) {
+        con.query("SELECT * FROM users WHERE username= ?", [ username], function (err, result, fields) {
             con.end()
             if (err) {
                 console.log(err);
                 return resolve(null)
             }
-            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
+            var result= Object.values(JSON.parse(JSON.stringify(result)))
+            if(Array.isArray(result) && result.length>0 && varNotEmpty(result))
+            {
+                var userPasswordFromDB = result[0].password
+                bcrypt.compare(password,userPasswordFromDB, function(err, compResult) {
+                    if(compResult==true)
+                    {
+                        return resolve(result)
+                    }else{
+                        return resolve(null)
+                    }
+                });            
+            }else{
+                return resolve(null)
+            }
 
         })
     })
@@ -149,6 +169,12 @@ export async function generateSSID(userhash)
     var con = getConnectionVar()
     var created=Math.floor(Date.now() / 1000)
     var tokenHash = crypto.createHash('sha512').update(token).digest('hex')
+    /**
+     * bcrypt is painfully slow for ssid, because we need to check it again and again (with nearly every request). Even if the db is compromised, the ssids could be easily reset.
+     */
+    //const salt = await bcrypt.genSalt(10)
+    //const tokenHash  = await bcrypt.hash(token, salt)
+
     return new Promise( (resolve, reject) => {
         con.query('INSERT INTO ssid_table (userhash, ssid, created) VALUES (?,? ,?)', [userhash, tokenHash, created], function (error, results, fields) {
             if (error) {
@@ -176,6 +202,18 @@ export async function deleteExtraSSID(userhash)
     }
 }
 
+export async function deleteAllSSID(userhash)
+{
+    var con = getConnectionVar()
+
+    con.query('DELETE FROM ssid_table WHERE userhash=?', [ userhash], function (error, results, fields) {
+        if (error) {
+            console.log(error.message)
+        }
+        con.end()
+        });
+
+}
 export async function deleteSSIDbyID(ssid_table_id, userhash)
 {
     var con = getConnectionVar()
@@ -230,7 +268,9 @@ export async function middleWareForAuthorisation(authHeaders)
         if(userssidArray!=null && Array.isArray(userssidArray) && userssidArray.length==2)
         {
            
-                return(await checkSSIDValidity(userssidArray[0], (userssidArray[1])))
+                const isValid= await checkSSIDValidity(userssidArray[0], userssidArray[1])
+                //console.log(isValid)
+                return isValid
                  
             
         }
@@ -248,6 +288,69 @@ export async function middleWareForAuthorisation(authHeaders)
     catch(e)
     {
         //console.log("middleWareForAuthorisation", e)
+        return false
+    }
+}
+
+/**
+ * 
+ * Bcrypt version of checking ssid validity. Unused because it is painfully slow.
+ * @param {string} userhash 
+ * @param {string} ssid 
+ * @returns boolean. True if the userhash, ssid combination is good.
+ */
+export async function checkSSIDValidity_V2(userhash, ssid)
+{
+    var resultfromDB= await getAllSSIDFromDB(userhash)
+    if(resultfromDB!=null && Array.isArray(resultfromDB)&&resultfromDB.length>0)
+    {
+        if(resultfromDB!=null && Array.isArray(resultfromDB)&&resultfromDB.length>0)
+            {
+                var toReturn = false
+                for(const i in resultfromDB)
+                {
+                    var compareResult = await bcrypt.compare(ssid, resultfromDB[i].ssid)
+                    
+                        if(compareResult==true)
+                        {
+                            var currenttime=Math.floor(Date.now() / 1000)
+
+                            if(process.env.ENFORCE_SESSION_TIMEOUT==true)
+                            {
+                                var maxValidityTime=resultfromDB[i].created+process.env.MAX_SESSION_LENGTH
+                                //console.log(currenttime>maxValidityTime, currenttime, maxValidityTime)
+                                if(currenttime>maxValidityTime)
+                                {
+                                    toReturn=false
+                                    break;
+                                }
+                                else
+                                {
+                                    toReturn=true
+                                    break;
+                                }
+            
+                            }
+                            else
+                            {
+                                //SSID is valid.
+                                toReturn=true
+                                break;
+
+                            }
+
+                        }
+                }
+
+
+                return toReturn
+
+            }
+            else
+            {
+                return false;
+            }
+    }else{
         return false
     }
 }
@@ -302,7 +405,6 @@ export async function checkSSIDValidity(userhash, ssid)
        
 
 }
-
 export function getUseridFromUserhash(userhash)
 {
     var con = getConnectionVar()
