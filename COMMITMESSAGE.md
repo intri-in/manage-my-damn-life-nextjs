@@ -1,1 +1,5 @@
-- Fixed no error being shown if smtp settings incorrect during reset email
+- Features added to Gantt view:
+    - Double click edits task 
+    - Drag and drop, expansion/contraction enabled.
+    - Added help option.
+- Fixed type error in HomeTasks.tsx

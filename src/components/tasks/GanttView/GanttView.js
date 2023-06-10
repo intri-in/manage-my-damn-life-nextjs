@@ -5,31 +5,45 @@ import { ISODatetoHuman, ISODatetoHumanISO, getI18nObject } from "@/helpers/fron
 import { getRandomColourCode, varNotEmpty } from "@/helpers/general";
 import moment from "moment";
 import { categoryArrayHasLabel } from "@/helpers/frontend/labels";
-import { DummyTaskListComponent } from "./gantt_Dummy/DummyTaskListComponent";
-import { DummyTaskHeaderComponent } from "./gantt_Dummy/DummyTaskHeaderComponent";
+import { DummyTaskListComponent } from "../gantt_Dummy/DummyTaskListComponent";
+import { DummyTaskHeaderComponent } from "../gantt_Dummy/DummyTaskHeaderComponent";
 import Form from 'react-bootstrap/Form';
-import { Col, Row } from "react-bootstrap";
-import { Loading } from "../common/Loading";
+import { Button, Col, Row } from "react-bootstrap";
+import { Loading } from "../../common/Loading";
 import { PRIMARY_COLOUR } from "@/config/style";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
+import Offcanvas from 'react-bootstrap/Offcanvas';
+import TaskEditor from "../TaskEditor";
+import { taskSubmitted } from "@/helpers/frontend/taskeditor";
+import * as _ from 'lodash'
+import HelpGanttView from "./HelpGanttView";
 export default class GanttView extends Component {
     constructor(props) {
         super(props)
         this.i18next = getI18nObject()
-        this.state = { ganttTasks: [], viewMode: ViewMode.Day, showChildren: true, finalGanttChart: <Loading />, showWithoutDue: true }
+        this.state = { ganttTasks: [], viewMode: ViewMode.Day, showChildren: true, finalGanttChart: <Loading />, showWithoutDue: true, showTaskEditor: false, timeNow: Date.now()-(86400*1000*3), isLoading: false}
         this.generateView = this.generateView.bind(this)
         this.setDueDateforParent = this.setDueDateforParent.bind(this)
         this.viewChanged = this.viewChanged.bind(this)
         this.childrenVisiblityChanged = this.childrenVisiblityChanged.bind(this)
         this.generateTaskArray = this.generateTaskArray.bind(this)
         this.showTaskWithoutDueChanged = this.showTaskWithoutDueChanged.bind(this)
+        this.taskClicked = this.taskClicked.bind(this)
+        this.taskEditorClosed = this.taskEditorClosed.bind(this)
+        this.taskDataChanged = this.taskDataChanged.bind(this)
+        this.onTaskSubmittoServer = this.onTaskSubmittoServer.bind(this)
+        this.jumpToToday = this.jumpToToday.bind(this)
+        this.onDateChange = this.onDateChange.bind(this)
+        this.getMenuBar = this.getMenuBar.bind(this)
     }
 
     componentDidMount() {
         this.generateTaskArray()
-        this.setState({})
     }
-
+    jumpToToday()
+    {
+        this.setState({timeNow: Date.now()-(86400*1000*3)})
+    }
     generateTaskArray() {
         var finalGanttList = []
         this.generateView(this.props.list, this.props.todoList, finalGanttList)
@@ -47,12 +61,12 @@ export default class GanttView extends Component {
     }
     showTaskWithoutDueChanged(e)
     {
-        this.setState({showWithoutDue: e.target.checked})
+        this.setState({showWithoutDue: e.target.checked, timeNow: Date.now()-(86400*1000*3)})
     }
     childrenVisiblityChanged(e) {
 
         this.setState(function(previousState, currentProps) {
-            return { showChildren: !previousState.showChildren }
+            return { showChildren: !previousState.showChildren, timeNow: Date.now()-(86400*1000*3) }
         })
     }
     viewChanged(e) {
@@ -137,7 +151,7 @@ export default class GanttView extends Component {
                         id: key,
                         type: type,
                         progress: todoList[1][key].todo.completion,
-                        isDisabled: true,
+                        isDisabled: false,
                         styles: { backgroundColor: backgroundColor, progressColor: 'white', progressSelectedColor: '#ff9e0d' },
                     }
                     if (todoList[1][key].todo.relatedto != "" && todoList[1][key].todo.relatedto != null && todoList[1][key].todo.relatedto != undefined) {
@@ -206,7 +220,51 @@ export default class GanttView extends Component {
     }
     onDateChange(e)
     {
+        console.log(e)
+        var newData = _.cloneDeep(this.props.todoList[1][e.id].todo)
+        newData.start= moment(e.start).format("YYYYMMDD")
+        newData.due= moment(e.end).format("YYYYMMDD")
+        
+        this.setState({showTaskEditor: true, isLoading: true, currentTaskdata: newData})
 
+    }
+    taskClicked(e)
+    {
+        this.setState({showTaskEditor: true, isLoading: true, currentTaskdata: this.props.todoList[1][e.id].todo, timeNow: Date.now()-(86400*1000*3)})
+        
+    }
+    taskEditorClosed()
+    {
+        this.setState({showTaskEditor: false, isLoading: false, timeNow: Date.now()-(86400*1000*3)})
+
+    }
+    taskDataChanged()
+    {
+
+    }
+    taskEditorClosed(e)
+    {
+        this.setState({showTaskEditor: false,isLoading:false, timeNow: Date.now()-(86400*1000*3)})
+
+    }
+    onTaskSubmittoServer(body)
+    {
+        this.setState({showTaskEditor: false, isLoading:false, timeNow: Date.now()-(86400*1000*3)})
+        taskSubmitted(body, this.props.fetchEvents)
+    }
+    getMenuBar()
+    {
+        return(
+        <Row style={{flex:1, alignContent:"space-between"}}>
+            <Col style={{textAlign: "center"}}>
+                <Button variant="outline-info" onClick={this.jumpToToday} size="sm">{this.i18next.t("TODAY")}</Button>
+            </Col>
+            <Col>
+                <HelpGanttView />
+            </Col>
+        </Row>
+
+        )
     }
     render() {
 
@@ -216,18 +274,31 @@ export default class GanttView extends Component {
 
         var ganttTasks= this.generateTaskArray()
         if (ganttTasks != null && ganttTasks.length > 0) {
-            var ganttview =  <Gantt viewMode={this.state.viewMode} TaskListTable={DummyTaskListComponent} viewDate={Date.now()-(86400*1000*3)}  todayColor="#FFF8DC" onDateChange={this.onDateChange} TaskListHeader={DummyTaskHeaderComponent} tasks={ganttTasks} />
+
+            if(this.state.isLoading==false)
+            {
+                var viewDate = Date.now()-(86400*1000*3)
+                var ganttview =  <Gantt viewMode={this.state.viewMode}  TaskListTable={DummyTaskListComponent} onDoubleClick={this.taskClicked}  viewDate={viewDate}  todayColor="#FFF8DC" onDateChange={this.onDateChange} TaskListHeader={DummyTaskHeaderComponent} tasks={ganttTasks} />
+                
+
+
+            }else{
+                var ganttview=(<><p style={{textAlign:"center"}}>{this.i18next.t("EDITING_IN_PROGRESS")}</p><Loading centered={true} padding={10} />)</>)
+                
+
+            }
+
             finalOutput = (<div>
                 {ganttview}
-               </div>)
-
+            </div>)
         }
         else {
             finalOutput = (<p>{this.i18next.t("NOTHING_TO_SHOW")}</p>)
         }
         return (
             <>
-                            <Row>
+            {this.getMenuBar()}
+                <Row>
                     <Col>
                         <span style={{ justifyContent: 'center', display: 'flex', alignItems: "center", paddingBottom: 30, paddingTop: 30 }}>
 
@@ -274,7 +345,24 @@ export default class GanttView extends Component {
                     </Col>
                 </Row>
 
-                {finalOutput}
+                <Row >
+                    <Col>
+                    {finalOutput}
+                    </Col>
+                </Row>
+                <Row style={{textAlign: "center", marginTop: 30}}>
+                        {this.getMenuBar()}
+                </Row>
+
+                <Offcanvas placement='end' show={this.state.showTaskEditor} onHide={this.taskEditorClosed}>
+                        <Offcanvas.Header closeButton>
+                            <Offcanvas.Title>{this.i18next.t("EDIT_TASK")}</Offcanvas.Title>
+                        </Offcanvas.Header>
+                        <Offcanvas.Body>
+                            <TaskEditor repeatInfo={this.state.repeatInfo} onDismiss={this.onTaskSubmittoServer} onChange={this.taskDataChanged} todoList={this.props.todoList} unparsedData={this.props.unparsedData} data={this.state.currentTaskdata} />
+                        </Offcanvas.Body>
+                </Offcanvas>
+
             </>
         )
     }

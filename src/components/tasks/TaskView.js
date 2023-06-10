@@ -8,7 +8,7 @@ import { getRandomString } from '@/helpers/crypto';
 import Collapse from 'react-bootstrap/Collapse';
 import { TaskWithFilters } from './TaskWithFilters';
 import GenerateTaskUIList from './GenerateTaskUIList';
-import GanttView from './GanttView';
+import GanttView from './GanttView/GanttView';
 import { toast } from 'react-toastify';
 export function TaskView(props)
 {
