@@ -34,7 +34,6 @@ export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
         var dueDate = ""
-
         if (props.data.due != null && props.data != null && props != null) {
           if(varNotEmpty(props.newTask) && props.newTask==true){
             dueDate = props.data.due
@@ -43,6 +42,8 @@ export default class TaskEditor extends Component {
           } 
 
         }
+        console.log(props.data.due, dueDate)
+
         var startDate = ""
         if (props.data.start != null && props.data.start != "") {
             startDate = moment(props.data.start)

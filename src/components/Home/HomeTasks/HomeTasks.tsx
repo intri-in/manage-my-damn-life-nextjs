@@ -34,7 +34,7 @@ const defaultMenuOptions = {
     "HIGH_PROIRITY": { logic: "or",filter: { priority: 4 }},
     "ALL_TASKS": {logic: "or", filter: {}},    
 
-}
+} 
 function HomeTasks(props:homeTasksPropsInterface) {
     const [taskView, setTaskView ] = useState(props.view)
     const [updated, setUpdated]  =  useState(props.updated)
@@ -42,7 +42,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
     const [caldav_accounts_id, setCaldavAccountsId] = useState(props.caldav_accounts_id)
     const [calendars_id, setCalendarsId] = useState(props.calendars_id)
     const [filter, setFilter] = useState<filterInterface | undefined>(defaultFilter)
-    const [menuOptions, setMenuOptions]=useState(defaultMenuOptions)
+    const [menuOptions, setMenuOptions]=useState<any | null>(defaultMenuOptions)
     
     const fetchEvents =  () =>{
         var updated = Math.floor(Date.now() / 1000).toString()
