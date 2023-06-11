@@ -100,7 +100,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
-      - "33:3306"    
+      - "3306:3306"    
     networks:
       - app-tier      
     environment:
