@@ -1,5 +1,1 @@
-- Features added to Gantt view:
-    - Double click edits task 
-    - Drag and drop, expansion/contraction enabled.
-    - Added help option.
-- Fixed type error in HomeTasks.tsx
+- Fixed mysql port variable in docker-compose.yml.sample
