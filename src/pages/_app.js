@@ -18,7 +18,7 @@ function stop()
 
 export default function App({ Component, pageProps }) {
   return (<>
-      <Script  src='./fullcalendar/6.1.7/index.global.min.js'/>
+      <Script  src='./fullcalendar/6.1.8/dist/index.global.min.js'/>
       <NextNProgress  color="#ff0000"  height={5} options={{ showSpinner: false }}/>
       <Component {...pageProps} />
       <Toastify />
