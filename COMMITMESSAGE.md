@@ -1,1 +1,1 @@
-- Fixed mysql port variable in docker-compose.yml.sample
+- Bumped up some @fullcalendar packages. Meant to fix some bugs with fullcalendar not working with NextJS.
