@@ -590,7 +590,7 @@ class DashboardView extends Component {
                 dateClick={this.handleDateClick}
                 onClick={this.onClick}
                 selectable={true}
-                nowIndicator={true}Show
+                nowIndicator={true}
                 rerenderEvents={this.rerenderEvents}
                 eventDrop={this.eventDrop}
                 eventResize={this.eventResize}
