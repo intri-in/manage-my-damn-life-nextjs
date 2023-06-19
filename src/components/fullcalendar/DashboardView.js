@@ -12,20 +12,20 @@ import { getEmptyEventDataObject, getParsedEvent, isAllDayEvent, majorTaskFilter
 import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import { BiTask } from "react-icons/bi";
 import rrulePlugin from '@fullcalendar/rrule'
-import { ISODatetoHuman, ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
+import {  getI18nObject } from "@/helpers/frontend/general";
 import EventEditor from "../events/EventEditor";
 import moment from "moment";
 import { getRandomString } from "@/helpers/crypto";
 import { getObjectForAPICall, makeGenerateICSRequest } from "@/helpers/frontend/ics";
 import { toast } from "react-toastify";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
-import { FULLCALENDAR_BUSINESS_HOURS } from "@/config/constants";
 import { withRouter } from "next/router";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { FULLCALENDAR_VIEWLIST } from "./FullCalendarHelper";
 import { getDefaultViewForCalendar } from "@/helpers/frontend/settings";
+import { ListGroupCalDAVAccounts } from "./ListGroupCalDAVAccounts";
+import { Preference_CalendarsToShow } from "@/helpers/frontend/classes/UserPreferences/Preference_CalendarsToShow";
 
 class DashboardView extends Component {
     calendarRef = React.createRef()
@@ -34,7 +34,7 @@ class DashboardView extends Component {
         super(props)
         this.i18next = getI18nObject()
         var initialViewCalendar = "timeGridDay"
-        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR }
+        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR,showTasksChecked: false, allEventsFromServer: null, caldav_accounts:null }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -43,6 +43,9 @@ class DashboardView extends Component {
         this.eventDrop = this.eventDrop.bind(this)
         this.eventResize = this.eventResize.bind(this)
         this.scheduleEvent = this.scheduleEvent.bind(this)
+        this.showTasksChanged = this.showTasksChanged.bind(this)
+        this.addEventsToCalendar = this.addEventsToCalendar.bind(this)
+        this.userPreferencesChanged = this.userPreferencesChanged.bind(this)
     }
 
 
@@ -57,7 +60,7 @@ class DashboardView extends Component {
 
         const view = await getDefaultViewForCalendar()
         calendarApi.changeView(view)
-        this.setState({viewValue: view})
+        this.setState({viewValue: view, showTasksChecked: true})
 
     }
 
@@ -65,7 +68,7 @@ class DashboardView extends Component {
         var caldav_accounts = await getCaldavAccountsfromServer()
         if (caldav_accounts != null && caldav_accounts.success == true) {
             if (caldav_accounts.data.message.length > 0) {
-
+                this.setState({caldav_accounts: caldav_accounts.data.message})
             } else {
                 this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
             }
@@ -287,13 +290,18 @@ class DashboardView extends Component {
         return false
 
     }
-    async getAllEventsfromServer() {
-        var allEvents = await getAllEvents()
+    async addEventsToCalendar(allEvents){
         var finalEvents = []
+
+        
         if (isValidResultArray(allEvents.data.message)) {
 
             for (let i = 0; i < allEvents.data.message.length; i++) {
                 for (const j in allEvents.data.message[i].events) {
+                    var userWantsToSee = Preference_CalendarsToShow.getShowValueForCalendar(allEvents.data.message[i].info.caldav_accounts_id, allEvents.data.message[i].events[j].calendar_id)
+                    if(userWantsToSee ==false){
+                        continue
+                    }
                     var event = allEvents.data.message[i].events[j]
                     if (event.deleted == "1" || event.deleted == "TRUE") {
                         continue
@@ -422,7 +430,7 @@ class DashboardView extends Component {
                         this.state.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
 
                     }
-                    else if (event.type == "VTODO") {
+                    else if (event.type == "VTODO" && this.state.showTasksChecked==true) {
                         var data = returnGetParsedVTODO(allEvents.data.message[i].events[j].data)
                         if (varNotEmpty(data) == false) {
                             continue
@@ -495,8 +503,41 @@ class DashboardView extends Component {
         }
 
         this.setState({ events: finalEvents })
+
+    }
+    async getAllEventsfromServer() {
+        var allEvents = await getAllEvents()
+        this.setState({allEventsFromServer: allEvents})
+
+        this.addEventsToCalendar(allEvents)
     }
 
+     showTasksChanged(e)
+    {
+        this.setState(({ showTasksChecked }) => (
+            {
+                showTasksChecked: !showTasksChecked
+            }
+          ), function () {
+            if(this.state.allEventsFromServer!=null)
+            {
+                this.addEventsToCalendar(this.state.allEventsFromServer)
+            }else{
+                 this.getAllEventsfromServer()
+            }
+        });
+    
+
+    }
+
+    userPreferencesChanged(){
+        if(this.state.allEventsFromServer!=null)
+            {
+                this.addEventsToCalendar(this.state.allEventsFromServer)
+            }else{
+                 this.getAllEventsfromServer()
+        }
+    }
     render() {
 
         const eventDataDashBoard = this.state.eventDataDashBoard
@@ -508,12 +549,33 @@ class DashboardView extends Component {
         {
             options.push( <option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{this.i18next.t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
         }
+
+        var calendarsSelect= null
+        if(varNotEmpty(this.state.caldav_accounts) && Array.isArray(this.state.caldav_accounts) && this.state.caldav_accounts.length>0)
+        {
+            calendarsSelect = <ListGroupCalDAVAccounts onChange={this.userPreferencesChanged} caldav_accounts={this.state.caldav_accounts} />
+        }
         return (<>
-            <Row style={{ padding: 20 }} >
-                <Col>
+
+            <Row  style={{  padding: 20, flex:1 , justifyContent:"center", alignItems:"center", }} >
+                <Col >
                     <Form.Select value={this.state.viewValue} onChange={this.viewChanged}>
                         {options}
                     </Form.Select>
+                </Col>
+                <Col style={{}}>
+                    
+                    <Form.Check 
+                        type="switch"
+                        id="show_tasks_switch"
+                        checked={this.state.showTasksChecked}
+                        onClick={this.showTasksChanged}
+                        label={this.i18next.t("SHOW_TASKS")}
+                    />
+
+                </Col>
+                <Col  style={{textAlign:"center",}}>
+                    {calendarsSelect}
                 </Col>
             </Row>
             <FullCalendar

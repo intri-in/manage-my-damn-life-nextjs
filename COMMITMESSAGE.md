@@ -1,1 +1,1 @@
-- Bumped up some @fullcalendar packages. Meant to fix some bugs with fullcalendar not working with NextJS.
+- Bug fix: Done tasks being shown in lists filtered just with Labels.

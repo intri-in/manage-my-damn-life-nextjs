@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
                                     
                                 }
-                                allCalendarEvents.push({info: {caldav_account: caldav_accounts[i].name, calendar:calendars[k].displayName, color: calendars[k].calendarColor}, events: allObjectsfromCalendar})
+                                allCalendarEvents.push({info: {caldav_account: caldav_accounts[i].name,caldav_accounts_id:caldav_accounts[i].caldav_accounts_id, calendar:calendars[k].displayName, color: calendars[k].calendarColor}, events: allObjectsfromCalendar})
 
                             }
                        }

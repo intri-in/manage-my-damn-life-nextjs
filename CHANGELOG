@@ -1,3 +1,18 @@
+v0.1.8
+- Features added to Gantt view:
+    - Double click edits task 
+    - Drag and drop, expansion/contraction enabled.
+    - Added help option.
+- Fixed type error in HomeTasks.tsx
+- Fixed mysql port variable in docker-compose.yml.sample
+- Bumped up some @fullcalendar packages. Meant to fix some bugs with fullcalendar not working with NextJS.
+- Bumped version to 0.1.8
+- Calendar Views now have more options
+    - Switch to enable showing tasks
+    - Option to select displayed calendars
+- API Change: caldav/calendars/events/db/all now also includes caldav_accounts_id for each event in output
+- Bug fix: Done tasks being shown in lists filtered just with Labels.
+
 v0.1.7
 - Added constant VERSION_NUMBER
 - Breaking change:
