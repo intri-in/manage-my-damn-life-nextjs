@@ -25,6 +25,7 @@ export default class GenerateTaskUIList extends Component{
     }
 
     componentDidMount(){
+        
         this.setState({showDone: this.props.showDone, })
         //this.renderTasks(false)
 
@@ -171,6 +172,7 @@ export default class GenerateTaskUIList extends Component{
             var hardFilter= todoList[1][key].todo.summary!=null && todoList[1][key].todo.summary!=undefined && (todoList[1][key].todo.deleted == null || todoList[1][key].todo.deleted == "")
             var showTask = false
             const showDone= this.state.showDone
+            console.log("showDone", showDone)
             if(showDone)
             {
                 showTask=true

@@ -1,4 +1,1 @@
-- Calendar Views now have more options
-    - Switch to enable showing tasks
-    - Option to select displayed calendars
-- API Change: caldav/calendars/events/db/all now also includes caldav_accounts_id for each event in output
+- Bug fix: Done tasks being shown in lists filtered just with Labels.

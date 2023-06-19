@@ -11,6 +11,7 @@ v0.1.8
     - Switch to enable showing tasks
     - Option to select displayed calendars
 - API Change: caldav/calendars/events/db/all now also includes caldav_accounts_id for each event in output
+- Bug fix: Done tasks being shown in lists filtered just with Labels.
 
 v0.1.7
 - Added constant VERSION_NUMBER
