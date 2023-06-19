@@ -1,1 +1,4 @@
-- Bumped up some @fullcalendar packages. Meant to fix some bugs with fullcalendar not working with NextJS.
+- Calendar Views now have more options
+    - Switch to enable showing tasks
+    - Option to select displayed calendars
+- API Change: caldav/calendars/events/db/all now also includes caldav_accounts_id for each event in output

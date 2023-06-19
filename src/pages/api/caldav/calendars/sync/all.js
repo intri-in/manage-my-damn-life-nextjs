@@ -131,7 +131,7 @@ async function processSyncCalendarResponse(caldav_accounts_id, response)
             for (const i in response.updated)
             {
                 var calendarExists=await checkifCalendarExistforUser(response.updated[i],caldav_accounts_id)
-                console.log(calendarExists, caldav_accounts_id, response.updated[i].calendar_id)
+                //console.log(calendarExists, caldav_accounts_id, response.updated[i].calendar_id)
                 if(calendarExists==true)
                 {
                     var updateResult= await updateCalendarinDB(response.updated[i], caldav_accounts_id)
