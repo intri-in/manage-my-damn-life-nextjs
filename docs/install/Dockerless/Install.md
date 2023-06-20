@@ -12,7 +12,7 @@
 
 1. Install mysql and create a database.
 
-1. Copy the env file, and make desired changes to configuration. For more details see [Configuration](Configuration.md)
+1. Copy the env file, and make desired changes to configuration. For more details see [Configuration](../Configuration/WithoutDocker.md)
 
     ``` cp sample.env.local .env.local```
 

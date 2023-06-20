@@ -59,7 +59,7 @@ MMDL uses a MySQL database to store user data. You can either use an existing da
 
 If you choose to use your MySQL without docker, just set the values of DB_HOST, DB_USER, DB_PASS, and DB_NAME in the **.env.local** file you just downloaded.
 
-If you need a basic guide to run a MySQL container, you can read one [here](../Supplementary%20Info/RunMySQLDocker.md).
+If you need a basic guide to run a MySQL container, you can read one [here](../Supplementary/RunMySQLDocker.md).
 ### Run the MMDL Docker Container
 
 All previous steps completed, you can now spin up the docker container for MMDL.
