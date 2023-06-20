@@ -4,11 +4,11 @@ Manage my Damn Life (MMDL) is a self hosted front end for managing your CalDAV t
 
 **This project is in alpha state, so be careful if you're working with production data.**
 
-![Demo](pics/screenRecord.gif)
+![Demo](docs/pics/screenRecord.gif)
 
-![Task View](pics/screenshots/TaskView.png "Task View")
-![Home](pics/screenshots/HomeView.png "Task View")
-![GanttView](pics/screenshots/GanttView.png "Task View")
+![Task View](docs/pics/screenshots/TaskView.png "Task View")
+![Home](docs/pics/screenshots/HomeView.png "Task View")
+![GanttView](docs/pics/screenshots/GanttView.png "Task View")
 
 More screenshots are available in the directory '/docs/pics/screenshots'
 
