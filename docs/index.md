@@ -4,6 +4,8 @@ Manage my Damn Life (MMDL) is a self hosted front end for managing your CalDAV t
 
 **This project is in alpha state, so be careful if you're working with production data.**
 
+![Demo](pics/screenRecord.gif)
+
 ![Task View!](pics/screenshots/TaskView.png "Task View")
 ![Home !](pics/screenshots/HomeView.png "Task View")
 ![Home !](pics/screenshots/GanttView.png "Task View")
@@ -14,11 +16,12 @@ More screenshots are available in the director '/docs/pics/screenshots'
 
 1. Manage your CalDAV tasks.
     - Supports sub tasks.
+    - Supports many fields like due, status, description, recurrence, and more
 2. Manage calendar events.  
 3. Supports multiple CalDAV accounts, and multiple user accounts.
 4. View your tasks as a list, in a gantt view, or on a calendar.  
 1. Create and manage task filters to view your tasks as you see fit.
-1. "Reponsive-ish" view. This is a desktop first project, as mutiple clients like JTX Boards, OpenTasks exist for mobile.
+1. "Reponsive-ish" view. This is a desktop first project, as multiple clients like JTX Boards, OpenTasks exist for mobile.
 
 ### Planned features
 

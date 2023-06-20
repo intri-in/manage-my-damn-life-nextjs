@@ -1,1 +1,3 @@
-- Bug fix: Done tasks being shown in lists filtered just with Labels.
+- Slight improvements to README and docs.
+- Fixed broken links in docs
+- Fixed typo in docs
