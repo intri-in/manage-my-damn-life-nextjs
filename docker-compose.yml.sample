@@ -99,8 +99,8 @@ services:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-    ports:
-      - "3306:3306"    
+    expose: 
+      - 3306
     networks:
       - app-tier      
     environment:
