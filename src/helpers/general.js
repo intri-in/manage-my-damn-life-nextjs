@@ -42,6 +42,9 @@ export function getTodaysDateUnixTimeStamp()
 
 export function addTrailingSlashtoURL(url)
 {
+    if(varNotEmpty(url)==false){
+        return ""
+    }
     var lastChar = url.substr(-1); 
     if (lastChar != '/') {       
     url = url + '/';          
