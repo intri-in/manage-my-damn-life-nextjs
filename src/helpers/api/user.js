@@ -127,7 +127,7 @@ export function checkCredentialsinDB(username, password)
             {
                 var userPasswordFromDB = result[0].password
                 bcrypt.compare(password,userPasswordFromDB, function(err, compResult) {
-                    console.log(compResult, password, userPasswordFromDB)
+                    //console.log(compResult, password, userPasswordFromDB)
                     if(compResult==true)
                     {
                         return resolve(result)
