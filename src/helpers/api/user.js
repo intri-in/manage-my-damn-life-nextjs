@@ -95,7 +95,7 @@ export async function forceInsertUserIntoDB(username,password,email,level)
         var userhash= crypto.createHash('sha512').update(username).digest('hex')
         //var password = crypto.createHash('sha512').update(password).digest('hex')
         const salt = await bcrypt.genSalt(10)
-        const passwordHash  = await bcrypt.hash(toString(password), salt)
+        const passwordHash  = await bcrypt.hash(password, salt)
 
         var created=Math.floor(Date.now() / 1000)
 
@@ -127,6 +127,7 @@ export function checkCredentialsinDB(username, password)
             {
                 var userPasswordFromDB = result[0].password
                 bcrypt.compare(password,userPasswordFromDB, function(err, compResult) {
+                    console.log(compResult, password, userPasswordFromDB)
                     if(compResult==true)
                     {
                         return resolve(result)

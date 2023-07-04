@@ -1,3 +1,1 @@
-- Slight improvements to README and docs.
-- Fixed broken links in docs
-- Fixed typo in docs
+- Fixed bug in the login process.
