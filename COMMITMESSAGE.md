@@ -1,3 +1,2 @@
-- Removed Fullcalendar script import from _app.js
-    - Looks like calendar view works without it.
-- Fixed calendar/view page not redirecting if user isn't logged in.
+- Improved how default calendar is selected from Calendar list. User should now see the default calendar auto-selected in most cases.
+- Bumped version number to 0.2.0

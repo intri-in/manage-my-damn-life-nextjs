@@ -19,6 +19,7 @@ import { DeleteEventConfirmation } from "../tasks/DeleteEventConfirmation";
 import { Loading } from "../common/Loading";
 import { parseTime, parseVALARMTIME } from "@/helpers/frontend/rfc5545";
 import { BsAlarm } from "react-icons/bs";
+import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 
 export default class EventEditor extends Component {
     constructor(props) {
@@ -51,6 +52,7 @@ export default class EventEditor extends Component {
         this.alarmTimeSelected = this.alarmTimeSelected.bind(this)
         this.removeAlarm = this.removeAlarm.bind(this)
         this.newAlarmAdded = this.newAlarmAdded.bind(this)
+        this.setCalendarID = this.setCalendarID.bind(this)
     }
 
     generateEventDataArray(props) {
@@ -112,7 +114,7 @@ export default class EventEditor extends Component {
         }
 
         this.generateCalendarName()
-
+        this.setCalendarID()
     }
 
     componentWillUnmount()
@@ -176,6 +178,13 @@ export default class EventEditor extends Component {
 
 
     }
+    async setCalendarID()
+    {
+        var calendar = await getDefaultCalendarID()
+        this.setState({ calendar_id:  calendar})
+
+    }
+
     onSummaryChanged(e) {
         this.setState({ summary: e.target.value})
     }
