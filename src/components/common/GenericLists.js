@@ -65,7 +65,7 @@ class GenericLists extends Component{
     
         return new Promise( (resolve, reject) => {
 
-            try{
+            
                 const response =  fetch(url_api, requestOptions)
                 .then(response =>{
                     return response.json()
@@ -129,14 +129,11 @@ class GenericLists extends Component{
                     }
                   
         
-                });
-    
-            }catch(e)
-            {
-                logVar(e,"GenericLists: generateLabelList")
-                toast.error(e.message)
-
-            }
+                }).catch(e =>{
+                    console.error(e,"GenericLists: generateLabelList")
+                    //toast.error("GenericLists: generateLabelList: "+e.message)
+                })
+           
         })
     
     

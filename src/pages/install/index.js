@@ -55,7 +55,6 @@ class StartInstall extends Component{
             //headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        try{
             fetch(url_api, requestOptions)
             .then(response => {
                 return response.json()
@@ -82,12 +81,13 @@ class StartInstall extends Component{
                   </Alert>)})
 
                 }
-            })
+            }).catch(e => {
+                console.error("installButtonClicked" ,e)
+                this.setState({output: ( <Alert variant="danger">
+                {this.i18next.t("ERROR_GENERIC")}
+              </Alert>)})
 
-        }catch(e)
-        {
-            logVar(e, "installButtonClicked")
-        }
+            })
     }
 
     getInstallForm()
@@ -112,7 +112,6 @@ class StartInstall extends Component{
             //headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        try{
             fetch(url_api, requestOptions)
             .then(response => {
                 
@@ -154,13 +153,13 @@ class StartInstall extends Component{
                 }
                
 
-            })
-        
+            }).catch(e =>{
+            console.error( "checkifInstalled" , e)
+            this.setState({output: ( <Alert variant="danger">
+            {this.i18next.t("ERROR_GENERIC")}
+          </Alert>)})
 
-        }catch(e)
-        {
-            logVar(e, "checkifInstalled")
-        }
+            })
 
     }
 

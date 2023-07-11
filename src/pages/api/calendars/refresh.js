@@ -40,6 +40,7 @@ export default async function handler(req, res) {
 
                     if(client!=null && typeof(client)== 'object')
                     {
+                        finalResponse.push({url: caldav_accounts[i].url, status: "ok"})
                         const calendars = await client.fetchCalendars()
                         logVar(calendars, "calendars: "+LOGTAG)
 
@@ -94,13 +95,13 @@ export default async function handler(req, res) {
 
 
                     }else{
-                        res.status(401).json({ success: false, data: { message: "INVALID_CALDAV_ACCOUNT" }})
-    
+                        finalResponse.push({url: caldav_accounts[i].url, status: "error"})
+
                     }    
 
   
                 }
-                res.status(200).json({ success: true, data: { message: "REFRESH_OK" }})
+                res.status(200).json({ success: true, data: { message: "REFRESH_OK", details: finalResponse }})
 
                
 

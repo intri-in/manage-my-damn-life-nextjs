@@ -110,9 +110,8 @@ class Register extends Component{
             headers: new Headers({'Content-Type':'application/json'}),
 
         }
-        try    
-        {
-            const response = await fetch(url_api, requestOptions)
+      
+        const response = await fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
             console.log(body)
@@ -142,12 +141,11 @@ class Register extends Component{
             toast.error(this.i18next.t("ERROR_GENERIC"))
            }
             
-        });
-        }
-        catch(e)
+        }).catch(e =>
         {
-            console.log(e.message)
-        }
+            toast.error(this.i18next.t("ERROR_GENERIC"))
+            console.error("makeRequesttoServer",e)
+        })
 
 
     }

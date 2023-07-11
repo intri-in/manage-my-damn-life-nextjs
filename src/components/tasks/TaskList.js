@@ -188,7 +188,7 @@ import { getAPIURL, logVar } from '@/helpers/general';
 
             }
 
-            try{
+           
                 const response = fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -196,13 +196,10 @@ import { getAPIURL, logVar } from '@/helpers/general';
                     if (body.data.message != null && body.data.message.caldav_name != null) {
                         this.setState({ taskListName: body.data.message.caldav_name + " >> " + body.data.message.calendar_name, taskListColor:body.data.message.color })
                     }
+                }).catch(e =>
+                {
+                    console.error(e, "TaskList:getCalendarName")
                 })
-
-
-            }catch(e)
-            {
-                logVar(e, "TaskList:getCalendarName")
-            }
         }
 
     }

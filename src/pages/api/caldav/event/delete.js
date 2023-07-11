@@ -29,17 +29,36 @@ export default async function handler(req, res) {
                         },
                         authMethod: 'Basic',
                         defaultAccountType: 'caldav',
-                    })
-                    const response_caldav = await client.deleteCalendarObject({
-                        calendarObject: {
-                          url: req.body.url,
-                          etag: req.body.etag,
-                        },
-                      });            
-                    // Now we delete object from DB (which means, just set it as DELETED)
-                    const response = await deleteCalendarObjectsFromDB(req.body.url, req.body.calendar_id)
+                    }).catch(e =>{
+                        console.log("createDAVClient:", e)
 
-                    res.status(200).json({ success: true, data: { message: "DELETE_OK", detail: response_caldav} })
+                    })
+                    if(client!=null && client!=undefined){
+                        const response_caldav = await client.deleteCalendarObject({
+                            calendarObject: {
+                            url: req.body.url,
+                            etag: req.body.etag,
+                            },
+                        }).catch(e =>{
+                            console.log(e)
+                        })            
+    
+                        if(response_caldav!=null){
+                            // Now we delete object from DB (which means, just set it as DELETED)
+
+                            const response = await deleteCalendarObjectsFromDB(req.body.url, req.body.calendar_id)
+
+                            res.status(200).json({ success: true, data: { message: "DELETE_OK", detail: response_caldav} })
+    
+                        }else{
+                            res.status(500).json({ success: false, data: { message: "ERROR_GENERIC", detail: "Check logs."} })
+
+                        }
+
+                    }else{
+                        res.status(401).json({ success: false, data: { message: "CANT_REACH_CALDAV_ACCOUNT", detail: "No access to Caldav Account."} })
+
+                    }
 
                 }else{
                     res.status(401).json({ success: false, data: { message: 'CALENDAR_NOT_ACCESSIBLE'} })

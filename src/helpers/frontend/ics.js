@@ -20,7 +20,7 @@ export async function makeGenerateICSRequest(eventObj)
     }
     return new Promise( (resolve, reject) => {
 
-        try{
+
             fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
@@ -40,13 +40,11 @@ export async function makeGenerateICSRequest(eventObj)
                     return resolve(null)
                 }
                 
+            }).catch(e =>{
+                console.error("makeGenerateICSRequest", e)
+
+                return resolve(null)
             })
-        }
-        catch(e)
-        {
-            return resolve(null)
-            logVar(e, "makeGenerateICSRequest" )
-        }
          
     })
 
@@ -185,21 +183,19 @@ export async function makeParseICSRequest(data,type)
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
         return new Promise( (resolve, reject) => {
-            try {
+            
+            
                 fetch(url_api, requestOptions)
                     .then(response => response.json())
                     .then((body) => {
-                        console.log("body", body)
                         return resolve(body)
+                    }).catch(e =>{
+                        console.error("makeParseICSRequest", e)
+                        return resolve({
+                            success:false,
+                            data:{message:e.message, details:e}
+                        })
                     })
-                }
-                catch(e)
-                {
-                    return resolve({
-                        success:false,
-                        data:{message:e.message, details:e}
-                    })
-                }
     
         })
     }

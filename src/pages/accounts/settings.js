@@ -49,7 +49,6 @@ class Settings extends Component {
             headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        try{
             fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) => {
@@ -88,14 +87,11 @@ class Settings extends Component {
                     toast.error(this.state.i18next.t("ERROR_GETTING_SETTINGS"))
                     
                 }
-            })
+            }).catch(e =>{
+            console.error("getAllUserSettings", e)
+            toast.error(this.i18next.t("ERROR_GETTING_SETTINGS"))
 
-        }catch(e)
-        {
-            logVar(e, "getAllUserSettings")
-            toast.error(this.state.i18next.t("ERROR_GETTING_SETTINGS"))
-
-        }
+        })
 
 
     }
@@ -114,7 +110,6 @@ class Settings extends Component {
             headers: new Headers({ 'authorization': authorisationData }),
         }
 
-        try{
             fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) => {
@@ -170,19 +165,15 @@ class Settings extends Component {
                     }
                 }
                 else {
-                    toast.error(this.state.i18next.t("ERROR_GENERIC"))
+                    toast.error(this.i18next.t("ERROR_GENERIC"))
 
                 }
 
 
-            });
-
-        }
-        catch(e)
-        {
-            toast.error(this.state.i18next.t("ERROR_GENERIC"))
-            logVar(e, "getUserInfo")
-        }
+            }).catch(e =>{
+                toast.error(this.i18next.t("ERROR_GENERIC"))
+                console.error( "getUserInfo" ,e)
+            })
 
 
      
@@ -218,7 +209,6 @@ class Settings extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
         fetch(url_api, requestOptions)
                 .then(response =>  response.json())
                 .then((body) => {
@@ -234,11 +224,10 @@ class Settings extends Component {
                     }
                     this.getAllUserSettings()
 
-                });
-        }
-        catch (e) {
-            toast.error(e.message)
-        }
+                }).catch (e => {
+                    console.error("updateDefaultCalendaronServer",e)
+                    toast.error(e.message)
+            })
 
     }
     allowRegChanged(e)
@@ -267,7 +256,6 @@ class Settings extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
         fetch(url_api, requestOptions)
                 .then(response =>  response.json())
                 .then((body) => {
@@ -276,17 +264,15 @@ class Settings extends Component {
                         toast.success(this.i18next.t("UPDATE_OK"))
                     }else{
                         toast.success(this.i18next.t("ERROR_GENERIC"))
-                        console.log("Setting update response GLOBAL_DISABLE_USER_REGISTRATION:")                
+                        console.error("Setting update response GLOBAL_DISABLE_USER_REGISTRATION:")                
                         console.error(body)
     
 
                     }
 
-                });
-        }
-        catch (e) {
-            toast.error(e.message)
-        }
+                }).catch (e => {
+                    toast.error(e.message)
+                })
 
 
     }

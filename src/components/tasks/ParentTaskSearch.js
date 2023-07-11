@@ -54,8 +54,6 @@ export default class ParentTaskSearch extends Component{
     
         var finalOutput = []
 
-            try
-            {
                 const response =  fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) =>{
@@ -92,12 +90,11 @@ export default class ParentTaskSearch extends Component{
                     }
         
                     }
-                )
-    
-            }catch(e)
-            {
-                logVar(e, "ParentTaskSearch: searchForTasks")
-            }
+                ).catch(e =>{
+                    logVar(e, "ParentTaskSearch: searchForTasks")
+
+                })
+            
 
         }else{
             this.setState({searchOutput: null})

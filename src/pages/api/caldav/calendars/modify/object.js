@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
                      }else
                      {
-                        res.status(200).json({ success: false, data: {message: response.result.statusText, details: response.statusText} })
+                        res.status(500).json({ success: false, data: {message: response.result.statusText, details: response.statusText} })
 
                      }
 

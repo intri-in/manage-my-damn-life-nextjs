@@ -26,7 +26,6 @@ export async function getDefaultCalendarID()
 
     return new Promise( (resolve, reject) => {
 
-        try{
             fetch(url_api, requestOptions)
             .then(response =>{
                 return response.json()
@@ -39,14 +38,10 @@ export async function getDefaultCalendarID()
                 }else{
                     return resolve('')
                 }
+            }).catch(e =>{
+                console.error(e, "getDefaultCalendarID")
+                return resolve('')
             })
-    
-        }
-        catch(e)
-        {
-            logVar(e, "getDefaultCalendarID")
-            return resolve('')
-        }
 
     })
 

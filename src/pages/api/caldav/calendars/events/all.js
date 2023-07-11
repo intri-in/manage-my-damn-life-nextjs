@@ -31,12 +31,14 @@ export default async function handler(req, res) {
     
                             if(caldav_accounts[i].caldav_accounts_id==req.query.caldav_accounts_id)
                             {
-                                var client = await getCaldavClient(caldav_accounts[i].caldav_accounts_id)
-                                logVar(client, LOGTAG)
+                                var client = await getCaldavClient(caldav_accounts[i].caldav_accounts_id).catch(e =>{
+                                    console.error(e)
+
+                                })
                                 const allCalendarsinCaldavAccount= await getCalendarsfromCaldavAccountsID(caldav_accounts[i].caldav_accounts_id)
         
                                 logVar(allCalendarsinCaldavAccount, LOGTAG+": allCalendarsinCaldavAccount")
-                                if(allCalendarsinCaldavAccount!=null && Array.isArray(allCalendarsinCaldavAccount) && allCalendarsinCaldavAccount.length>0)
+                                if(allCalendarsinCaldavAccount!=null && Array.isArray(allCalendarsinCaldavAccount) && allCalendarsinCaldavAccount.length>0 && client!=null)
                                 {
                                     //Pull all calendar objects from Remote CALDAV.
                                     for(let j=0; j<allCalendarsinCaldavAccount.length;j++)
@@ -91,9 +93,13 @@ export default async function handler(req, res) {
                                 
                         }
     
+                        res.status(200).json({ success: true, data: { message: calendarObjectsArray} })
+
+                    }else{
+                        res.status(200).json({ success: true, data: { message: calendarObjectsArray} })
+
                     }
 
-                    res.status(200).json({ success: true, data: { message: calendarObjectsArray} })
 
                 }else{
                     res.status(401).json({ success: false, data: { message: 'USER_DOESNT_HAVE_ACCESS'} })

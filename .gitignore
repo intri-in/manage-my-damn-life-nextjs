@@ -43,3 +43,15 @@ docker-compose.yml
 index.js.backup
 view/
 COMBINEDCOMMITMESSAGE
+config/config.json
+package-withSequelize.json
+
+
+#Sequelise Temporary Ignore list
+models/
+config/
+migrations/
+src/helpers/api/installSequelize.ts
+src/helpers/installation.ts
+src/helpers/models.ts
+.sequelizerc

@@ -234,6 +234,13 @@ export async function createEventinCalDAVAccount(url, caldav_accounts_id, calend
     
         }, (rejected) => {
             console.log(rejected)
+            var statusText="Server error. Check Logs."
+            if(varNotEmpty(rejected) && varNotEmpty(rejected.message))
+            {
+                statusText=rejected.message
+            }
+
+            return resolve({result: {status: 500, error:rejected, statusText:statusText}, client:null})
         })
     
 
@@ -275,7 +282,14 @@ export async function updateEventinCalDAVAccount(caldav_accounts_id,  event)
     
         
             }, (rejected) => {
-                return resolve(rejected)
+                console.error(rejected)
+                var statusText="Server error. Check Logs."
+                if(varNotEmpty(rejected) && varNotEmpty(rejected.message))
+                {
+                    statusText=rejected.message
+                }
+                return resolve({result: {status: 500, error:rejected, statusText:statusText}, client:null, })
+
             })
         
     

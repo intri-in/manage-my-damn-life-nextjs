@@ -129,23 +129,16 @@ export async function updateTodo(calendar_id, url, etag, dataObj) {
     }
 
     return new Promise( (resolve, reject) => {
-        try {
 
             fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
-                   
-            return resolve(body)
+                    return resolve(body)
     
-                });
-
-        }
-        catch (e) {
-            toast.error(e.message)
-            return resolve(null)
-
-        }
-    
+                }).catch (e => {
+                    toast.error(e.message)
+                    return resolve(null)
+                })
     
     })
 }
