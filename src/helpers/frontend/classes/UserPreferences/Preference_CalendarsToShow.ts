@@ -7,7 +7,11 @@ export class Preference_CalendarsToShow{
     static get(){
         var cookie = null
         try{
-            cookie = JSON.parse(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW"))
+            if(varNotEmpty(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW")))
+            {
+                cookie = JSON.parse(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW"))
+
+            }
         }catch(e)
         {
             console.error(e, "Preference_CalendarsToShow.get")
