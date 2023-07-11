@@ -1,2 +1,1 @@
-- Improved how default calendar is selected from Calendar list. User should now see the default calendar auto-selected in most cases.
-- Bumped version number to 0.2.0
+- Github workflow not works for development branch as well.
