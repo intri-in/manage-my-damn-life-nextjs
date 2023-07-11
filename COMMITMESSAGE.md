@@ -1,5 +1,3 @@
-- Added sequelize as a package dependency, and sequelize-cli as a dev dependency.
-    - First steps towards migrating towards an ORM for database queries and management.
-- Fixed error handling.
-- Bumped up version to 0.1.9
-
+- Removed Fullcalendar script import from _app.js
+    - Looks like calendar view works without it.
+- Fixed calendar/view page not redirecting if user isn't logged in.
