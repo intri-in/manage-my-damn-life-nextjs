@@ -50,12 +50,10 @@ class ResetPassword extends Component{
                 method: 'GET',
             }
     
-            try{
                 const response =  fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) =>{
                     //Save the events to db.
-                    console.log(body)
                     if(body!=null)
                     {
                         if(body.success==true)
@@ -90,12 +88,9 @@ class ResetPassword extends Component{
                     }
         
         
-                });
-        
-            }catch(e)
-            {
-                logVar(e, "makeGetOTPRequest")
-            }
+                }).catch(e =>{
+                    console.error("makeGetOTPRequest",e)
+                })
 
         }
 
@@ -170,8 +165,7 @@ class ResetPassword extends Component{
                     mode: 'cors',
                     headers: new Headers({'Content-Type':'application/json'}),
                 }
-                try    
-                {
+                
                     fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) =>{
@@ -193,13 +187,10 @@ class ResetPassword extends Component{
                     }
                    
                     
-                });
-                }
-                catch(e)
-                {
-                    console.log(e)
+                }).catch(e =>{
+                    console.error("makePassResetRequest", e)
                     toast.error(e.message)
-                }
+                })
             
             
           

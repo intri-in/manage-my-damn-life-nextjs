@@ -138,7 +138,6 @@ export function logVar(variable,tag)
         console.log("=====================")
         if(varNotEmpty(tag)) console.log(tag)
         if(varNotEmpty(variable)) console.log(variable)
-        console.log("=====================")
     
     }
 }

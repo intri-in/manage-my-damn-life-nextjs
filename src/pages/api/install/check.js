@@ -1,15 +1,9 @@
-import Settings from "@/helpers/api/classes/Settings"
-import { User } from "@/helpers/api/classes/User"
-import { getConnectionVar } from "@/helpers/api/db"
-import { getICS } from "@/helpers/api/ical"
-import { getInstallDateFromDB, isInstalled, testDBConnection, testDBConnectionSimple } from "@/helpers/api/install"
-import { middleWareForAuthorisation } from "@/helpers/api/user"
+import {  isInstalled, testDBConnection } from "@/helpers/api/install"
 import { logVar, varNotEmpty } from "@/helpers/general"
-import moment from "moment"
 const LOGTAG = "api/install/check"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        var connStatus = await testDBConnectionSimple()
+        var connStatus = await testDBConnection()
         logVar(connStatus, LOGTAG+" connStatus")
             if(varNotEmpty(connStatus))
             {

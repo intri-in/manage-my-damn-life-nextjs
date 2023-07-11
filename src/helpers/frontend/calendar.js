@@ -19,7 +19,7 @@ export async function getCaldavAccountsfromServer()
     }
 
     return new Promise( (resolve, reject) => {
-        try{
+     
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
@@ -27,11 +27,9 @@ export async function getCaldavAccountsfromServer()
                 return resolve(body)
                 
     
-            });
-        }catch(e)
-        {
+            }).catch(e =>{
             return resolve(getErrorResponse(e))
-        }
+            })
 
     })
 
@@ -50,7 +48,6 @@ export async function caldavAccountsfromServer()
 
     return new Promise( (resolve, reject) => {
 
-        try{
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
@@ -71,13 +68,11 @@ export async function caldavAccountsfromServer()
                 }
                 
     
-            });
-    
-        }catch(e)
-        {
-            logVar(e, "caldavAccountsfromServer")
-            return resolve(null)
-        }
+            }).catch(e =>
+            {
+                logVar(e, "caldavAccountsfromServer")
+                return resolve(null)
+            })
     })
 
 }
@@ -97,20 +92,16 @@ export async function getLatestCalendarEvents(caldav_accounts_id, calendars_id, 
     }
 
     return new Promise( (resolve, reject) => {
-        try{
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
                 //Save the events to db.
                 return resolve(body)
     
-            });
-    
-        }
-        catch(e)
-        {
-            return resolve(getErrorResponse(e))
-        }
+            }).catch(e =>
+            {
+                return resolve(getErrorResponse(e))
+            })
     })
 
 }
@@ -136,7 +127,7 @@ export async function getAllEvents(filters)
     }
 
     return new Promise( (resolve, reject) => {
-        try{
+       
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
@@ -144,12 +135,9 @@ export async function getAllEvents(filters)
                 return resolve(body)
                 
     
-            });
-    
-        }catch(e)
-        {
-            return resolve(getErrorResponse(e))
-        }
+            }).catch(e =>{
+                return resolve(getErrorResponse(e))
+            })
     })
 
 }

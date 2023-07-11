@@ -84,20 +84,17 @@ export default class RruleServerHelper extends RRuleHelper {
         }
 
         return new Promise((resolve, reject) => {
-            try{
                 const response = fetch(url_api, requestOptions)
                 .then(response => {
                     return response.json()
                 })
                 .then((body) => {
+                    throw new Error("asdasd")
                     return resolve(body)
-                })
-
-            }catch(e)
-            {
-                logVar(e, "getRepeatRuleFromServer")
+                }).catch(e =>{
+                console.error("getRepeatRuleFromServer", e)
                 return resolve(getErrorResponse(e))
-            }
+                })
 
         })
 
@@ -133,7 +130,6 @@ export default class RruleServerHelper extends RRuleHelper {
 
 
         */
-       try{
         axios({
             method: 'post',
             url: getAPIURL() + "tasks/rrule/postrepeatobj",
@@ -145,16 +141,13 @@ export default class RruleServerHelper extends RRuleHelper {
           }).then(function (response) {
           
             return(response)
-          })  .catch(function (error) {
-            console.log(error);
+         }).catch(function (error) {
+            console.error("postRepeatRule", error);
+            return (getErrorResponse(e))
+
           });
 
-       }
-       catch(e)
-       {
-        logVar(e, "postRepeatRule")
-        return (getErrorResponse(e))
-       }
+     
 
     }
 

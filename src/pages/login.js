@@ -72,19 +72,14 @@ class Login extends Component{
         }
     
         return new Promise( (resolve, reject) => {
-            try{
                 const response =  fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) =>{
                     return resolve(body)     
-                })
-    
-            }
-            catch(e)
-            {
-                logVar(e, "getRegistrationStatusFromServer")
+                }).catch(e =>{
+                console.error("getRegistrationStatusFromServer", e)
                 return resolve(getErrorResponse(e))
-            }
+                })
         })
     
     }
@@ -131,21 +126,17 @@ class Login extends Component{
                 headers: new Headers({'Content-Type':'application/json'}),
 
             }
-            try    
-            {
                 const response = await fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
-                console.log(body)
                this.processReponse(body)
                 
-            });
-            }
-            catch(e)
+            }).catch(e =>
             {
-                this.processReponse(getErrorResponse())
-                logVar(e, "loginButtonClicked")
-            }
+                console.error("loginButtonClicked", e)
+                this.processReponse(getErrorResponse(e))
+                
+            })
     
         }
 

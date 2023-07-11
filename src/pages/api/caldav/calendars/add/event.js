@@ -60,7 +60,7 @@ export default async function handler(req, res) {
                     else
                     {
                         console.log(response)
-                        res.status(200).json({ success: false, data: {message: 'ERROR_UPDATE', details: response.result.statusText}})
+                        res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
 
                     }
             
