@@ -1,3 +1,8 @@
+v0.1.9
+- Removed Fullcalendar script import from _app.js
+    - Looks like calendar view works without it.
+- Fixed calendar/view page not redirecting if user isn't logged in.
+
 v0.1.8
 - Features added to Gantt view:
     - Double click edits task 

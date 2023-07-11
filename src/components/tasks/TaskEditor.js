@@ -43,7 +43,7 @@ export default class TaskEditor extends Component {
           } 
 
         }
-        console.log(props.data.due, dueDate)
+        //console.log(props.data.due, dueDate)
 
         var startDate = ""
         if (props.data.start != null && props.data.start != "") {
@@ -64,9 +64,9 @@ export default class TaskEditor extends Component {
             taskDone = props.data.taskDone
         }
         var calendar_id=""
-        if(varNotEmpty(calendar_id))
+        if(varNotEmpty(props.data.calendar_id))
         {
-            calendar_id=props.calendar_id
+            calendar_id=props.data.calendar_id
         }
         var status=''
         if(varNotEmpty(props.data.status))
@@ -612,7 +612,6 @@ export default class TaskEditor extends Component {
 
     }
     onParentSelect(uid) {
-        console.log("uid", uid)
         this.setState(function(previousState, currentProps) {
             var newRelatedTo = _.cloneDeep(previousState.relatedto)
             newRelatedTo = VTODO.addParentToRelatedTo(uid, newRelatedTo)
