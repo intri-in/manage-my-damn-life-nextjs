@@ -80,11 +80,9 @@ export async function getLabelsFromServer()
 
     return new Promise( (resolve, reject) => {
 
-        try{
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
-                //Save the events to db.
                 if(body!=null && body.data.message!=null)
                 {
                     var labels= body.data.message
@@ -97,14 +95,10 @@ export async function getLabelsFromServer()
                 }
                     
     
-            });
-    
-        }
-        catch(e)
-        {
-            logVar(e, "getLabelsFromServer")
-            return resolve(null)
-        }
+            }).catch(e =>{
+                console.error("getLabelsFromServer", e)
+                return resolve(null)
+            })
     })
 } 
 export async function makeUpdateLabelRequest()
@@ -120,19 +114,14 @@ export async function makeUpdateLabelRequest()
 
     }
     return new Promise( (resolve, reject) => {
-        try{
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
                 return resolve(body)
-            });
-    
-        }
-        catch(e)
-        {
-            logVar(e, "makeUpdateLabelRequest")
+            }).catch(e =>{
+            console.error("makeUpdateLabelRequest", e)
             return resolve(getErrorResponse(e))
-        }
+            })
     })
 
 }

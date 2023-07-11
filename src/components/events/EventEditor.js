@@ -132,7 +132,6 @@ export default class EventEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
             fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -151,11 +150,9 @@ export default class EventEditor extends Component {
                         this.setState({alarms: alarms, parsedEventV2: message["VCALENDAR"][0].VEVENT[0]})
                     }
 
-                });
-        }
-        catch (e) {
-            logVar(e, "EventEditor:getVAlarms")
-        }
+                }).catch (e=> {
+                    logVar(e, "EventEditor:getVAlarms")
+                }) 
 
     }
     componentDidUpdate(prevProps, prevState) {
@@ -493,7 +490,7 @@ export default class EventEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
+
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -510,12 +507,10 @@ export default class EventEditor extends Component {
 
 
 
-                });
-        }
-        catch (e) {
-            toast.error(e.message)
-            this.props.onDismiss()
-        }
+                }).catch (e =>{
+                    toast.error(e.message)
+                    this.props.onDismiss()
+                }) 
     }
 
     async updateEvent(calendar_id, url, etag, data) {
@@ -531,7 +526,6 @@ export default class EventEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -547,11 +541,11 @@ export default class EventEditor extends Component {
                     this.props.onDismiss()
 
 
-                });
-        }
-        catch (e) {
-            toast.error(e.message)
-        }
+                }).catch (e =>{
+                    toast.error(e.message)
+                    this.props.onDismiss()
+
+                }) 
 
     }
     onDismissDeleteDialog() {
@@ -569,7 +563,6 @@ export default class EventEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -584,11 +577,10 @@ export default class EventEditor extends Component {
 
 
 
-                });
-        }
-        catch (e) {
-            this.props.onDismiss(e.message)
-        }
+                }).catch (e =>{
+                    console.error("deleteEventFromServer:", e)
+                    this.props.onDismiss(e.message)
+                }) 
 
 
     }

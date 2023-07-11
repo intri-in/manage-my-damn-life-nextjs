@@ -23,21 +23,15 @@ export async function saveFiltertoServer(name, filter)
             mode: 'cors',
             headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
         }
-        try    
-        {
             fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
-            console.log(body)
             return resolve(body)
-           
-            
-        });
-        }
-        catch(e)
-        {
-            this.props.onResponse(e.message)
-        }
+            }).catch(e =>
+            {
+                console.error("saveFiltertoServer: ",e)
+                return resolve(getErrorResponse(e.message))
+            })
     
     
     })
@@ -60,21 +54,17 @@ export async function makeFilterEditRequest(filterid, name, finalFilter)
             mode: 'cors',
             headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
         }
-        try    
-        {
+        
             fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
             return resolve(body)
            
             
-        });
-        }
-        catch(e)
-        {
-            console.log(e.message)
-            return resolve(null)
-        }
+        }).catch(e =>{
+            console.error(e)
+            return resolve(getErrorResponse(e))
+        })
     
     
     })
@@ -181,19 +171,16 @@ export async function getFiltersFromServer()
     }
 
     return new Promise( (resolve, reject) => {
-        try{
             const response =  fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
                 return resolve(body)       
     
                 }
-            )
-        }catch(e)
-        {
-            logVar(e, "getFiltersFromServer")
+            ).catch(e =>{
+            console.error("getFiltersFromServer",e)
             return resolve(getErrorResponse(e))
-        }
+            })
        
     });
   

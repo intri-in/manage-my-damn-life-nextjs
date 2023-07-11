@@ -23,21 +23,15 @@ export class FilterHelper{
         }
     
         return new Promise( (resolve, reject) => {
-            try{
                 const response =  fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) =>{
-                    return resolve(body)       
-        
+                    return resolve(body)        
                     }
-                )
-    
-            }
-            catch(e)
-            {
-                logVar(e, "deleteFromServer")
+                ).catch(e =>{
+                console.error("deleteFromServer",e)
                 return resolve(getErrorResponse(e))
-            }
+                })
         });
       
     

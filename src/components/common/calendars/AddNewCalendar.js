@@ -29,9 +29,8 @@ export default class AddNewCalendar extends Component{
             mode: 'cors',
             headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
         }
-        try    
-        {
-            const response = await fetch(url_api, requestOptions)
+        
+        const response = await fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
             console.log(body)
@@ -39,12 +38,10 @@ export default class AddNewCalendar extends Component{
 
            
             
-        });
-        }
-        catch(e)
-        {
+        }).catch(e =>{
             this.props.onResponse(e.message)
-        }
+        })
+        
 
     }
     calendarNameValueChanged(e)

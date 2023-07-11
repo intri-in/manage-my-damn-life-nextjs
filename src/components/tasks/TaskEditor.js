@@ -30,6 +30,7 @@ import { makeParseICSRequest } from "@/helpers/frontend/ics";
 import { VTODO } from "@/helpers/frontend/classes/VTODO";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { getStandardDateFormat } from "@/helpers/frontend/settings";
+import { getErrorResponse } from "@/helpers/errros";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
@@ -441,7 +442,7 @@ export default class TaskEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
+           
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -449,11 +450,10 @@ export default class TaskEditor extends Component {
 
 
 
-                });
-        }
-        catch (e) {
-            this.props.onDismiss(e.message)
-        }
+                }).catch(e =>{
+                    this.props.onDismiss(e.message)
+                })
+
 
     }
     checkifValid()
@@ -573,7 +573,7 @@ export default class TaskEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
+        
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
@@ -581,11 +581,9 @@ export default class TaskEditor extends Component {
 
 
 
-                });
-        }
-        catch (e) {
-            this.props.onDismiss(e.message)
-        }
+                }).catch (e => {
+                    this.props.onDismiss(e.message)
+                })
     }
     async updateTodo(calendar_id, url, etag, data) {
         const url_api = getAPIURL() + "caldav/calendars/modify/object"
@@ -599,18 +597,18 @@ export default class TaskEditor extends Component {
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
-        try {
+     
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
                     this.props.onDismiss(body)
 
 
-                });
-        }
-        catch (e) {
-            toast.error(e.message)
-        }
+                }).catch (e => {
+                    console.error("TaskEditor: updateTodo ", e)
+                    this.props.onDismiss(getErrorResponse(e))
+
+                })
 
     }
     onParentSelect(uid) {

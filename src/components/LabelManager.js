@@ -74,8 +74,7 @@ class LabelManager extends Component{
             mode: 'cors',
             headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
         }
-        try    
-        {
+        
             fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
@@ -93,13 +92,12 @@ class LabelManager extends Component{
 
                 }
             }            
-        });
-        }
-        catch(e)
-        {
-            toast.error(this.i18next.t("ERROR_GENERIC"))
-            console.log(e)
-        }
+        }).catch(e=>
+            {
+                toast.error(this.i18next.t("ERROR_GENERIC"))
+                console.error("makeModifyLabelRequest", e)
+            }
+        )
 
     
     }
@@ -191,7 +189,9 @@ class LabelManager extends Component{
             }
           
 
-        });
+        }).catch(e =>{
+            console.error("getLabelsFromServer", e)
+        })
 
     }
     getColorEditorModal()

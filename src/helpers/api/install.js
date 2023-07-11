@@ -74,13 +74,15 @@ export async function testDBConnectionSimple()
 export async function isInstalled()
 {
     var allTables = await getListofTables()
-    if(varNotEmpty(allTables) && allTables.length==FINAL_TABLES.length)
+    if(varNotEmpty(allTables) && allTables.length>=FINAL_TABLES.length)
     {
         return true
     }else{
         return false
     }
 }
+
+
 export async function getListofTables()
 {
 

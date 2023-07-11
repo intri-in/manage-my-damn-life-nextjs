@@ -50,7 +50,7 @@ class DashboardView extends Component {
 
 
     async componentDidMount() {
-
+        
         this.getCaldavAccountsfromDB()
         this.getAllEventsfromServer()
 
@@ -59,8 +59,13 @@ class DashboardView extends Component {
         calendarApi.eventDragStart = this.eventDrag
 
         const view = await getDefaultViewForCalendar()
-        calendarApi.changeView(view)
-        this.setState({viewValue: view, showTasksChecked: true})
+        if(varNotEmpty(view))
+        {
+            calendarApi.changeView(view)
+            this.setState({viewValue: view})
+
+        }
+        this.setState({showTasksChecked: true})
 
     }
 
@@ -73,7 +78,34 @@ class DashboardView extends Component {
                 this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
             }
 
-        }
+        }else{
+            var message =getMessageFromAPIResponse(caldav_accounts)
+            if(message!=null)
+            {
+                if(message=="PLEASE_LOGIN")
+                {
+                    // Login required
+                    var redirectURL="/login"
+                    if(window!=undefined)
+                    {
+
+
+                        redirectURL +="?redirect="+window.location.pathname
+                    }
+                    this.props.router.push(redirectURL)
+
+
+                }else{
+                    toast.error(this.i18next.t(message))
+
+                }
+            }
+            else
+            {
+                toast.error(this.i18next.t("ERROR_GENERIC"))
+
+            }
+    }
 
 
     }

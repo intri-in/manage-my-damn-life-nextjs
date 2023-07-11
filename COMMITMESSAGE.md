@@ -1,1 +1,3 @@
-- Fixed bug in the login process.
+- Removed Fullcalendar script import from _app.js
+    - Looks like calendar view works without it.
+- Fixed calendar/view page not redirecting if user isn't logged in.

@@ -72,7 +72,7 @@ export default class AddCaldavAccount extends Component{
         }
     
         return new Promise( (resolve, reject) => {
-            try{
+           
                 const response =  fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) =>{
@@ -95,14 +95,11 @@ export default class AddCaldavAccount extends Component{
                     }
                     
         
-                });
-    
-            }
-            catch(e)
-            {
-                logVar(e, "AddCaldavAccount:makeServerRequest")
-                toast.error(e.message)
-            }
+                }).catch(e =>{
+                    console.error(e, "AddCaldavAccount:makeServerRequest")
+                    toast.error(e.message)
+                })
+            
         })
 
     }

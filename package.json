@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -32,6 +32,7 @@
     "crypto-js": "4.1.1",
     "dexie": "3.2.3",
     "dexie-react-hooks": "1.1.3",
+    "dotenv": "16.3.1",
     "fuzzy-search": "3.2.1",
     "gantt-task-react": "0.3.9",
     "i18next": "22.4.13",
@@ -43,6 +44,7 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "mysql": "2.18.1",
+    "mysql2": "3.4.0",
     "next": "13.2.4",
     "nextjs-progressbar": "0.0.16",
     "nodemailer": "6.9.1",
@@ -58,6 +60,8 @@
     "react-icons": "4.8.0",
     "react-toastify": "9.1.1",
     "rrule": "2.7.2",
+    "sequelize": "6.32.1",
+    "sequelize-cli": "6.6.1",
     "timezone-validator": "1.0.3",
     "tsdav": "2.0.3",
     "validator": "13.9.0",
@@ -65,6 +69,7 @@
   },
   "devDependencies": {
     "@types/node": "20.1.3",
+    "sequelize-auto": "0.8.8",
     "typescript": "5.0.4"
   }
 }

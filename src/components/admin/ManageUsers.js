@@ -94,6 +94,8 @@ export default class ManageUsers extends Component{
                     console.log(body)
                     toast.error(message)
                 }
+            }).catch(e =>{
+                console.error("getUsersFromDB", e)
             })
 
     }
@@ -145,6 +147,8 @@ export default class ManageUsers extends Component{
 
                 this.setState({isSubmitting: false, showDeleteModal: false })
 
+            }).catch(e =>{
+                console.error("makeDeleteRequesttoServer", e)
             })
 
     }

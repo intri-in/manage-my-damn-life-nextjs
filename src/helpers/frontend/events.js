@@ -486,18 +486,15 @@ export async function updateEvent(calendar_id, url, etag, data) {
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
     return new Promise( (resolve, reject) => {
-        try {
             fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
                     return resolve(body)
     
-                });
-        }
-        catch (e) {
-            logVar(e)
-            return resolve({success: false, data:{message: e.message}})
-        }
+                }).catch (e =>{
+                console.error(e)
+                    return resolve({success: false, data:{message: e.message}})
+                })
     
     
     })
