@@ -23,7 +23,7 @@ class AddTask extends Component{
     {
         super(props)
         this.i18next = getI18nObject()
-        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{calendar_id: props.calendar_id}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: [], todoList: null}
+        this.state={newTaskSummary: "", showTaskEditor: false, showTaskEditModal: false, data:{calendar_id: props.calendars_id}, taskDataChanged: false, calendar_id: props.calendars_id, quickAddResults: [], todoList: null}
         this.addTask = this.addTask.bind(this)
         this.taskDataChanged = this.taskDataChanged.bind(this)
         this.taskEditorClosed = this.taskEditorClosed.bind(this)
@@ -60,8 +60,8 @@ class AddTask extends Component{
     componentDidUpdate(prevProps, prevState) {
 
         if (this.props.calendars_id !== prevProps.calendars_id || this.props.caldav_accounts_id!=prevProps.caldav_accounts_id) {
-            this.setState({calendar_id: this.props.calendar_id, newTaskSummary: ""})
-            this.refreshDataWithNewCalendarID(this.props.calendar_id)
+            this.setState({calendar_id: this.props.calendars_id, newTaskSummary: ""})
+            this.refreshDataWithNewCalendarID(this.props.calendars_id)
             
         }
 

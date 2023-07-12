@@ -12,7 +12,10 @@ export function setCookie(cname, cvalue, exdays=10000)
 
 export async function getDefaultCalendarID()
 {
-    //Cookies.get("DEFAULT_CALENDAR_ID")
+    var fromCookie=Cookies.get("DEFAULT_CALENDAR_ID")
+    if(varNotEmpty(fromCookie) && fromCookie!=""){
+        return fromCookie
+    }
     const url_api=getAPIURL()+"settings/getone?name=DEFAULT_CALENDAR"
     const authorisationData=await getAuthenticationHeadersforUser()
 
@@ -34,6 +37,11 @@ export async function getDefaultCalendarID()
                 if(varNotEmpty(body) && varNotEmpty(body.success))
                 {
                     var message= getMessageFromAPIResponse(body)
+                    if(varNotEmpty(message) && message!="")
+                    {
+                        setDefaultCalendarID(message)
+
+                    }
                     return resolve(message)
                 }else{
                     return resolve('')
@@ -50,4 +58,13 @@ export async function getDefaultCalendarID()
 export function setDefaultCalendarID(calendars_id)
 {
     Cookies.set("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
+}
+
+export function setUserNameCookie(username){
+    Cookies.set("MMDL_USERNAME", username, { expires: 3650 })
+
+}
+
+export function getUserNameFromCookie(){
+    return Cookies.get("MMDL_USERNAME")
 }
