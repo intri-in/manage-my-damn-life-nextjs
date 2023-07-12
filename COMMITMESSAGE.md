@@ -1,1 +1,2 @@
-- Github workflow not works for development branch as well.
+- Username is now displayed in the navigation bar
+- Added tooltips in the nav bar

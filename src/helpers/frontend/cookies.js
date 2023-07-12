@@ -60,4 +60,11 @@ export function setDefaultCalendarID(calendars_id)
     Cookies.set("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
 }
 
+export function setUserNameCookie(username){
+    Cookies.set("MMDL_USERNAME", username, { expires: 3650 })
 
+}
+
+export function getUserNameFromCookie(){
+    return Cookies.get("MMDL_USERNAME")
+}
