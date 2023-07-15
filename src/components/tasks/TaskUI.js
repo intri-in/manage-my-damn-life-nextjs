@@ -74,11 +74,15 @@ export default class TaskUI extends Component {
         this.isRepeatingTask()
         if (this.props.todoList != null && this.props.data.relatedto != null && this.props.data.relatedto != "" && this.props.level == 0) {
             var parentID = this.taskObj.getParent()
-            if (varNotEmpty(parentID) && parentID != "") {
+                
+            try{
                 var newTaskTitle = (<div><span style={{ color: "gray" }}>{this.props.todoList[1][this.taskObj.getParent()].todo.summary + " > "}</span>  {this.props.title}</div>)
-                this.setState({ taskTitle: newTaskTitle })
+            this.setState({ taskTitle: newTaskTitle })
 
+            }catch(e){
+                console.error(e)
             }
+            
         }
         var collapseButton = null
         if (this.props.hasChildren != null && this.props.hasChildren == true) {

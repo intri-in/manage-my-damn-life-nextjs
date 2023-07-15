@@ -1,2 +1,1 @@
-- Username is now displayed in the navigation bar
-- Added tooltips in the nav bar
+- Minor bug fixes
