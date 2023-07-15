@@ -281,13 +281,4 @@ import { getAPIURL, logVar } from '@/helpers/general';
     }
 }
 
-export async function getStaticProps() {
-    return {
-        props: {
-
-        },
-    }
-
-}
-
 export default withRouter(TaskList)
