@@ -207,7 +207,7 @@ export default class TaskUI extends Component {
             newDataArray.categories.push(MYDAY_LABEL)
             //console.log(newDataArray)
             console.log(newDataArray)
-            var todo = new VTodoGenerator(newDataArray)
+            var todo = new VTodoGenerator(newDataArray, {strict: false})
             console.log(todo.generate())
 
             //this.setState({data: newDataArray, showTaskEditor: true, })

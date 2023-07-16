@@ -65,7 +65,7 @@
     "timezone-validator": "1.0.3",
     "tsdav": "2.0.3",
     "validator": "13.9.0",
-    "vtodogenerator": "1.1.1"
+    "vtodogenerator": "2.0.2"
   },
   "devDependencies": {
     "@types/node": "20.1.3",

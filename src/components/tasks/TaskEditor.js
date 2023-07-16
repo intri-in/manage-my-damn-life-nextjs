@@ -6,7 +6,7 @@ import "react-datetime/css/react-datetime.css";
 import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
 import { Row, Col, Button, Alert } from "react-bootstrap";
 import * as moment from 'moment';
-import VTodoGenerator from "vtodogenerator";
+import VTodoGenerator from 'vtodogenerator'
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
 import { getAPIURL, getISO8601Date, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
@@ -128,6 +128,7 @@ export default class TaskEditor extends Component {
         this.getCalendarDDL = this.getCalendarDDL.bind(this)
         this.onRruleSet = this.onRruleSet.bind(this)
         this.getNextUpKey = this.getNextUpKey.bind(this)
+        this.fixDueDate = this.fixDueDate.bind(this)
     }
 
     componentDidMount() {
@@ -236,7 +237,6 @@ export default class TaskEditor extends Component {
     getStatusDropdown() {
         var validStatuses = VTodoGenerator.getValidStatusValues()
         var finalOutput = []
-        finalOutput.push(<option value=""></option>)
         for (const i in validStatuses) {
             finalOutput.push(<option key={validStatuses[i]} value={validStatuses[i]}>{validStatuses[i]}</option>)
         }
@@ -458,9 +458,9 @@ export default class TaskEditor extends Component {
     }
     checkifValid()
     {
-        var dueDateUnix = moment(this.state.dueDate).unix()
+        var dueDateUnix = moment(this.fixDueDate(this.state.dueDate)).unix()
         var startDateUnix = moment(this.state.start).unix()
-
+        //console.log(dueDateUnix, startDateUnix)
         if (startDateUnix > dueDateUnix) {
             if (this.state.start.toString().trim() != "" && varNotEmpty(this.state.start) && this.state.dueDate.toString().trim() != "" && varNotEmpty(this.state.dueDate)) {
                 toast.error(this.i18next.t("ERROR_ENDDATE_SMALLER_THAN_START"))
@@ -486,6 +486,15 @@ export default class TaskEditor extends Component {
         }
         return true
     }
+
+    fixDueDate(){
+        var dueDate=""
+        var dueDateUnix = moment(this.state.dueDate, 'D/M/YYYY H:mm').unix() * 1000;
+        dueDate = moment(dueDateUnix).format('YYYYMMDD');
+        dueDate += "T" + moment(dueDateUnix).format('HHmmss');
+
+        return dueDate
+    }
     async saveTask() {
         //console.log(recurrences)
         var recurrences = null
@@ -505,19 +514,13 @@ export default class TaskEditor extends Component {
             if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
                 var dueDate = ""
                 if (this.state.dueDate != null && this.state.dueDate != "") {
-                    var dueDateUnix = moment(this.state.dueDate, 'D/M/YYYY H:mm').unix() * 1000;
-                    dueDate = moment(dueDateUnix).format('YYYYMMDD');
-                    dueDate += "T" + moment(dueDateUnix).format('HHmmss');
-    
+                    dueDate= this.fixDueDate()
                 }
     
-            var dueDateUnix = moment(dueDate).unix()
-            var startDateUnix = moment(this.state.start).unix()
             //console.log(startDateUnix, dueDateUnix, dueDateUnix - startDateUnix)
             var valid = this.checkifValid()
             if (valid) {
                 this.setState({ saveButton: <Loading /> })
-
                 var todoData = { due: dueDate, start: this.state.start, summary: this.state.summary, created: this.props.data.created, completion: this.state.completion, completed: this.state.completed, status: this.state.status, uid: this.props.data.uid, categories: this.state.category, priority: this.state.priority, relatedto: this.state.relatedto, lastmodified: "", dtstamp: this.props.data.dtstamp, description: this.state.description, rrule: this.state.rrule, recurrences: recurrences}
 
                 var oldUnparsedData = null
@@ -530,7 +533,7 @@ export default class TaskEditor extends Component {
                 //console.log(finalTodoData)
 
 
-                var todo = new VTodoGenerator(finalTodoData)
+                var todo = new VTodoGenerator(finalTodoData, {strict: false})
                 
                 //console.log(todo, finalTodoData)
                 var finalVTODO = todo.generate()
