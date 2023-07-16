@@ -1,1 +1,2 @@
+- Upgraded vtodogenerator package.
 - Minor bug fixes
