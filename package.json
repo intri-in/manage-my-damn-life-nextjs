@@ -6,11 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress": "cypress open"
   },
   "dependencies": {
     "@babel/core": "7.21.8",
-    "@babel/preset-react": "7.18.6",
     "@emotion/react": "11.10.6",
     "@emotion/styled": "11.10.6",
     "@fullcalendar/bootstrap": "6.1.5",
@@ -68,7 +68,14 @@
     "vtodogenerator": "2.0.2"
   },
   "devDependencies": {
+    "@babel/preset-env": "7.21.5",
+    "@babel/preset-react": "7.22.5",
+    "@babel/preset-typescript": "7.22.5",
     "@types/node": "20.1.3",
+    "cypress": "12.17.1",
+    "eslint": "8.45.0",
+    "eslint-config-next": "13.4.10",
+    "node-mocks-http": "1.12.2",
     "sequelize-auto": "0.8.8",
     "typescript": "5.0.4"
   }
