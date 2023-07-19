@@ -1,4 +1,4 @@
-import ICAL from '@/../ical.js/build/ical'
+import ICAL from 'ical.js'
 import { isValidResultArray, logError, varNotEmpty } from "@/helpers/general";
 
 

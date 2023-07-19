@@ -459,7 +459,7 @@ class DashboardView extends Component {
                         
                     } 
                     */
-                        this.state.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                        //this.state.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
 
                     }
                     else if (event.type == "VTODO" && this.state.showTasksChecked==true) {

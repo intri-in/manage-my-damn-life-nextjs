@@ -55,7 +55,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
             setMenuOptions(newMenuOptions)
         }
         refreshMenuOptions()
-      }, [updated])
+      }, [updated, menuOptions])
 
       useEffect(()=> {
         setUpdated(props.updated)

@@ -17,6 +17,7 @@ import { getSyncTimeout } from "@/helpers/frontend/settings";
 import { toast } from "react-toastify";
 import Dropdown from 'react-bootstrap/Dropdown';
 import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
+import Image from "next/image";
 class AppBarGeneric extends Component {
 
   constructor(props) {
@@ -111,7 +112,7 @@ async syncButtonClicked() {
     return (
       <Navbar className="nav-pills nav-fill" style={{background: PRIMARY_COLOUR, padding: 20}} variant="dark" sticky="top"  expand="lg">
                 <Navbar.Brand  onClick={this.logoClicked} >
-                        <img
+                        <Image
                   src="/logo.png"
                   width="30"
                   height="30"
