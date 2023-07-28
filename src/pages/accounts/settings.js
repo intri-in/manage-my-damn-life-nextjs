@@ -18,6 +18,7 @@ import ManageUsers from "@/components/admin/ManageUsers";
 import Button from "react-bootstrap/Button";
 import DefaultCalendarViewSelect from "@/components/accounts/DefaultCalendarViewSelect";
 import { VERSION_NUMBER } from "@/config/constants";
+import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
 class Settings extends Component {
 
     constructor(props) {
@@ -214,6 +215,7 @@ class Settings extends Component {
                 .then((body) => {
                     if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true)
                     {
+                        setDefaultCalendarID(calendar_id)
                         toast.success(this.i18next.t("UPDATE_OK"))
                     }else{
                         toast.success(this.i18next.t("ERROR_GENERIC"))

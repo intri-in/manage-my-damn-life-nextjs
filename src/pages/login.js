@@ -16,6 +16,7 @@ import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { getAPIURL, logVar } from '@/helpers/general';
 import { getErrorResponse } from '@/helpers/errros';
 import { fetchLatestEvents } from '@/helpers/frontend/sync';
+import { setUserNameCookie } from '@/helpers/frontend/cookies';
 class Login extends Component{
 
     constructor(props)
@@ -151,6 +152,7 @@ class Login extends Component{
             {
                 if(message.userhash!=null && message.userhash!=undefined && message.ssid!=null && message.ssid!=undefined)
                 {
+                    setUserNameCookie(this.state.username)
                     //Save userhash and SSID 
                     setLoginCookie(message.userhash, message.ssid)
                     fetchLatestEvents()

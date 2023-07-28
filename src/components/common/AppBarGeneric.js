@@ -2,13 +2,13 @@ import { PRIMARY_COLOUR } from "@/config/style"
 import Row from 'react-bootstrap/Row';
 import Col from "react-bootstrap/Col";
 import { useRouter, withRouter } from "next/router";
-import { Button, NavItem, NavLink, Spinner } from "react-bootstrap";
+import { Button, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { Component, useState } from 'react';
 import { fetchLatestEvents, makeSyncRequest } from "@/helpers/frontend/sync";
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { getI18nObject } from "@/helpers/frontend/general";
-import { AiOutlineSetting } from "react-icons/ai";
+import { AiOutlineSetting, AiOutlineUser } from "react-icons/ai";
 import  {IoSyncCircleOutline}  from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
 import { logoutUser } from "@/helpers/frontend/user";
@@ -16,11 +16,13 @@ import Link from "next/link";
 import { getSyncTimeout } from "@/helpers/frontend/settings";
 import { toast } from "react-toastify";
 import Dropdown from 'react-bootstrap/Dropdown';
+import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
+import Image from "next/image";
 class AppBarGeneric extends Component {
 
   constructor(props) {
     super(props)
-    this.state = {  isSyncing: this.props.isSyncing }
+    this.state = {  isSyncing: this.props.isSyncing, username: "" }
     this.i18next = getI18nObject()
     this.logoClicked = this.logoClicked.bind(this)
     this.taskViewClicked = this.taskViewClicked.bind(this)
@@ -41,6 +43,7 @@ componentDidMount(){
     console.log("getSyncTimeout", getSyncTimeout())
   }, getSyncTimeout())
 
+  this.setState({username: getUserNameFromCookie()})
 
 }
 
@@ -106,25 +109,23 @@ async syncButtonClicked() {
     aria-hidden="true"
   />) : (<IoSyncCircleOutline size={24} onClick={this.syncButtonClicked} />)
 
-
     return (
       <Navbar className="nav-pills nav-fill" style={{background: PRIMARY_COLOUR, padding: 20}} variant="dark" sticky="top"  expand="lg">
-            <Navbar.Brand  onClick={this.logoClicked} >
-                    <img
-              src="/logo.png"
-              width="30"
-              height="30"
-              className="d-inline-block align-top"
-              alt="Manage my Damn Life"
-            />
-                    </Navbar.Brand>
-
+                <Navbar.Brand  onClick={this.logoClicked} >
+                        <Image
+                  src="/logo.png"
+                  width="30"
+                  height="30"
+                  className="d-inline-block align-top"
+                  alt="Manage my Damn Life"
+                />
+                </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse  id="basic-navbar-nav">
-                <Nav style={{display: "flex", margin:5,justifyContent:"space-evenly", alignItems:"center", }}  className="justify-content-end">
+                <Nav style={{display: "flex",  margin:5,justifyContent:"space-evenly", alignItems:"center", }}  className="justify-content-end">
                     <Link style={{color: "white", textDecoration: "none"}} href="/"> {this.i18next.t("HOME")}</Link> &nbsp; &nbsp;
                     <Link style={{color: "white", textDecoration: "none"}} href="/tasks/list"> {this.i18next.t("TASK_VIEW")}</Link>&nbsp; &nbsp;
-                  <Link style={{color: "white", textDecoration: "none"}} href="/calendar/view"> {this.i18next.t("CALENDAR_VIEW")}</Link>
+                   <Link style={{color: "white", textDecoration: "none"}} href="/calendar/view"> {this.i18next.t("CALENDAR_VIEW")}</Link>
                   <Nav.Item>
                   <Dropdown style={{color: "white"}} as={NavItem}>
                     <Dropdown.Toggle  style={{color: "white"}} as={NavLink}>                            
@@ -141,13 +142,40 @@ async syncButtonClicked() {
                   </Nav.Item>
 
                 </Nav>
+               
                 </Navbar.Collapse>
+               
+
                 <Nav style={{display: "flex", justifyContent:"space-evenly", alignItems:"center", }} className="justify-content-end"> 
+                <NavItem style={{color:"white", display: "flex", margin:10,justifyContent:"space-evenly", alignItems:"center", }}>
+                <OverlayTrigger key="KEY_USERNAME" placement='bottom'
+              overlay={
+                  <Tooltip id='tooltip_USERNAME'> 
+                              {this.i18next.t("USERNAME")}
+
+                  </Tooltip>
+                }>
+                  <div>
+                  <AiOutlineUser /> 
+                  {this.state.username}
+
+                  </div>
+                </OverlayTrigger>
+                </NavItem>
+
                   <Nav.Item style={{}}>
-                    <div style={{color: "white", padding:5,}}>{syncButton} </div>
+                  <OverlayTrigger key="SYNC_KEY" placement='bottom'
+              overlay={
+                  <Tooltip id='tooltip_SYNC'> 
+                              {this.i18next.t("SYNC")}
+
+                  </Tooltip>
+                }>
+                  <div style={{color: "white", padding:5,}}>{syncButton} </div>
+                </OverlayTrigger>
                   </Nav.Item>
                   <Nav.Item style={{ color: "white",  padding:5,}}>
-                      <BiLogOut onClick={this.logOutClicked} size={24} /> 
+                     <BiLogOut onClick={this.logOutClicked} size={24} /> 
                   </Nav.Item>
                 </Nav>
 

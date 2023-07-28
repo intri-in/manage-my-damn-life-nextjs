@@ -91,6 +91,8 @@ export function RecursivelyGetListItemforTask(props) {
     var level = props.level
     var context = props.context
     var listColor = props.listColor
+    const [collapsed, collapseButtonClicked] = React.useState(false);
+
 //function recursivelyGetListItemforTask(list, todoList, level, context, filter, listColor) {
     var toReturn = []
     level++
@@ -124,7 +126,7 @@ export function RecursivelyGetListItemforTask(props) {
             if (list[i].length > 2) {
                 hasChildren=true
             }
-            const [collapsed, collapseButtonClicked] = React.useState(false);
+            //const [collapsed, collapseButtonClicked] = React.useState(false);
 
             listitem=(
             <div key={key}  style={{marginTop: marginTop}}> <TaskUI key={key} collapseButtonClicked={()=>collapseButtonClicked(!collapsed)} collapsed={collapsed} hasChildren={hasChildren} unparsedData={todoList[2]} data={todoList[1][key].todo} todoList={todoList} fetchEvents={props.fetchEvents}  title={todoList[1][key].todo.summary} dueDate={dueDate} dueDateinWords="Words" level={level} priority={todoList[1][key].todo.priority} listColor={listColor} completion={todoList[1][key].todo.completion} labels={todoList[1][key].todo.category}/>

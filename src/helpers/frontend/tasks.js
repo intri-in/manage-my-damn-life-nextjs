@@ -113,7 +113,7 @@ export async function generateNewTaskObject(currenTaskObject, oldData, oldUnpars
 
 export async function updateTodo(calendar_id, url, etag, dataObj) {
 
-    var todo = new VTodoGenerator(dataObj)
+    var todo = new VTodoGenerator(dataObj, {strict: false})
     var data = todo.generate()
     console.log(data)
     const url_api = getAPIURL() + "caldav/calendars/modify/object"

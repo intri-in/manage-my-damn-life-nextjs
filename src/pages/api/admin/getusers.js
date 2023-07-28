@@ -5,7 +5,7 @@ import { middleWareForAuthorisation } from "@/helpers/api/user"
 import { varNotEmpty } from "@/helpers/general"
 import moment from "moment"
 
-export default async function handler(req, res) {
+export default async function getusers_handler(req, res) {
     if (req.method === 'GET') {
         if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
         {

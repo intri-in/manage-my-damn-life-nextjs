@@ -1,3 +1,3 @@
-- Removed Fullcalendar script import from _app.js
-    - Looks like calendar view works without it.
-- Fixed calendar/view page not redirecting if user isn't logged in.
+admin/getusers API Changes
+- Added dev dependencies to make cypress work.
+- Added eslint dependencies
