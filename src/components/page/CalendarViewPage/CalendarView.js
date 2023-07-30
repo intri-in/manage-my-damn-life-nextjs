@@ -1,8 +1,9 @@
-import AppBarGeneric from "@/components/common/AppBarGeneric";
+import AppBarGeneric from "@/components/common/AppBar";
 import DashboardView from "@/components/fullcalendar/DashboardView";
 import { getI18nObject } from "@/helpers/frontend/general";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { withRouter } from "next/router";
+import { useRouter, withRouter } from "next/router";
 import { Component } from "react";
 import "react-datetime/css/react-datetime.css";
 

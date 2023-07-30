@@ -1,4 +1,3 @@
-import AppBarGeneric from "@/components/common/AppBarGeneric"
 import { SECONDARY_COLOUR } from "@/config/style"
 import Head from "next/head"
 import { withRouter } from "next/router"

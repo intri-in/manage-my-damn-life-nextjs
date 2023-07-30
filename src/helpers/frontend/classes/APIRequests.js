@@ -45,25 +45,32 @@ export class APIRequests{
                 toast.error(this.i18next.t("ERROR_GENERIC"))
             }else{
                 var message= getMessageFromAPIResponse(responseFromServer)
+                console.error("getAllTodosFromServer", message, responseFromServer)
+
                 if(message!=null)
                 {
-                    if(message=="PLEASE_LOGIN")
+                    
+                    if(message!=="PLEASE_LOGIN")
                     {
-                        // Login required
-                        var redirectURL="/login"
-                        if(window!=undefined)
-                        {
-
-
-                            redirectURL +="?redirect="+window.location.pathname
-                        }
-                        this.props.router.push(redirectURL)
-
-
-                    }else{
                         toast.error(this.i18next.t(message))
-
                     }
+                    // if(message=="PLEASE_LOGIN")
+                    // {
+                    //     // Login required
+                    //     var redirectURL="/login"
+                    //     if(window!=undefined)
+                    //     {
+
+
+                    //         redirectURL +="?redirect="+window.location.pathname
+                    //     }
+                    //     this.props.router.push(redirectURL)
+
+
+                    // }else{
+                    //     toast.error(this.i18next.t(message))
+
+                    // }
                 }
                 else
                 {

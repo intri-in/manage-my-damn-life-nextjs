@@ -3,6 +3,19 @@ import { getAuthenticationHeadersforUser } from './user'
 import { getAPIURL, logVar, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
 
+export function deleteAllCookies(){
+    Cookies.remove("DEFAULT_CALENDAR_ID")
+    Cookies.remove("MMDL_USERNAME")
+    Cookies.remove("USER_SETTING_SYNCTIMEOUT")
+    Cookies.remove("USER_DATA_LABELS")
+    Cookies.remove("DEFAULT_VIEW_CALENDAR")
+    Cookies.remove("USERHASH")
+    Cookies.remove("USER_PREFERENCE_CALENDARS_TO_SHOW")
+    Cookies.remove("SSID")
+
+    
+    
+}
 export function setCookie(cname, cvalue, exdays=10000)
 {
 

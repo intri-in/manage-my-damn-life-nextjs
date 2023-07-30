@@ -1,7 +1,7 @@
 import { CaldavAccount } from "@/helpers/api/classes/CaldavAccount"
 import { Calendars } from "@/helpers/api/classes/Calendars"
 import { User } from "@/helpers/api/classes/User"
-import { middleWareForAuthorisation } from "@/helpers/api/user"
+import { getUserIDFromLogin, middleWareForAuthorisation } from "@/helpers/api/user"
 import { addTrailingSlashtoURL, getRandomColourCode, isValidResultArray, replaceSpacewithHyphen } from "@/helpers/general"
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
@@ -9,11 +9,18 @@ import CryptoJS from "crypto-js"
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(req.body.caldav_accounts_id!=null && req.body.caldav_accounts_id!=""&&req.body.calendarName!=null&&req.body.calendarName!="")
             {
-                var userid=await User.idFromAuthorisation(req.headers.authorization)
+                // var userid=await User.idFromAuthorisation(req.headers.authorization)
+
+                var userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
                 var user = new User(userid)
                 var caldav_accounts= await user.getCaldavAccountsAllData()
                 var caldavAccountFound=-1

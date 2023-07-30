@@ -1,18 +1,24 @@
 import { checkifUserHasAccesstoRequestedCalendar } from '@/helpers/api/cal/calendars';
-import { checkSSIDValidity, getUserHashSSIDfromAuthorisation, getUseridFromUserhash, middleWareForAuthorisation } from '@/helpers/api/user';
+import { checkSSIDValidity, getUserHashSSIDfromAuthorisation, getUserIDFromLogin, getUseridFromUserhash, middleWareForAuthorisation } from '@/helpers/api/user';
 import { getCaldavClient, saveCalendarEventsintoDB } from '@/helpers/api/cal/caldav';
 import { DAVNamespace } from 'tsdav';
 export default async function handler(req, res) {
     if (req.method === 'GET') {
         if(req.query.caldav_account_id!=null && req.query.calendar_id!=null)
         {
-            if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+            if( await middleWareForAuthorisation(req,res))
             {
                 
                 var calendarObjects = null
-                var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
+                // var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
-                var userid = await getUseridFromUserhash(userHash[0])
+                // var userid = await getUseridFromUserhash(userHash[0])
+                const userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
                     var calendar=await checkifUserHasAccesstoRequestedCalendar(userid, req.query.caldav_account_id, req.query.calendar_id)
                 if(calendar!=null)
                 {

@@ -109,29 +109,37 @@ import { getAPIURL, logVar } from '@/helpers/general';
                 toast.error(this.i18next.t("ERROR_GENERIC"))
             }else{
                 var message= getMessageFromAPIResponse(responseFromServer)
+                console.error("getCaldavAccountsfromDB", message, responseFromServer)
+
                 if(message!=null)
                 {
-                    if(message=="PLEASE_LOGIN")
+                    if(message!="PLEASE_LOGIN")
                     {
-                        // Login required
-                        var redirectURL="/login"
-                        if(window!=undefined)
-                        {
-
-
-                            redirectURL +="?redirect="+window.location.pathname
-                        }
-                        if(this.props.router!=undefined)
-                        {
-                            this.props.router.push(redirectURL)
-
-                        }
-
-
-                    }else{
                         toast.error(this.i18next.t(message))
 
                     }
+
+                    // if(message=="PLEASE_LOGIN")
+                    // {
+                    //     // Login required
+                    //     var redirectURL="/login"
+                    //     if(window!=undefined)
+                    //     {
+
+
+                    //         redirectURL +="?redirect="+window.location.pathname
+                    //     }
+                    //     if(this.props.router!=undefined)
+                    //     {
+                    //         this.props.router.push(redirectURL)
+
+                    //     }
+
+
+                    // }else{
+                    //     toast.error(this.i18next.t(message))
+
+                    // }
                 }
                 else
                 {
@@ -232,25 +240,33 @@ import { getAPIURL, logVar } from '@/helpers/general';
             }
             else {
                 var message= getMessageFromAPIResponse(response)
+                console.error("refreshCalendars", message, response)
+
                 if(message!=null)
                 {
-                    if(message=="PLEASE_LOGIN")
+
+                    if(message!="PLEASE_LOGIN")
                     {
-                        // Login required
-                        var redirectURL="/login"
-                        if(window!=undefined)
-                        {
-
-
-                            redirectURL +="?redirect="+window.location.pathname
-                        }
-                        this.props.router.push(redirectURL)
-
-
-                    }else{
                         toast.error(this.i18next.t(message))
 
                     }
+
+                    // if(message=="PLEASE_LOGIN")
+                    // {
+                    //     // Login required
+                    //     var redirectURL="/login"
+                    //     if(window!=undefined)
+                    //     {
+
+
+                    //         redirectURL +="?redirect="+window.location.pathname
+                    //     }
+                    //     this.props.router.push(redirectURL)
+
+
+                    // }else{
+
+                    // }
                 }
                 else
                 {

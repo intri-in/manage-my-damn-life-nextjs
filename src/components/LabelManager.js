@@ -157,20 +157,13 @@ class LabelManager extends Component{
                         
                 }else{
                     var message= getMessageFromAPIResponse(body)
+                    console.error("getLabelsFromServer", message, body)
+
                     if(message!=null)
                     {
-                        if(message=="PLEASE_LOGIN")
+                        if(message!=="PLEASE_LOGIN")
                         {
-                            // Login required
-                            var redirectURL="/login"
-                            if(window!=undefined)
-                            {
-
-
-                                redirectURL +="?redirect="+window.location.pathname
-                            }
-                            this.props.router.push(redirectURL)
-
+                            toast.error(this.i18next.t(message))
 
                         }
                     }

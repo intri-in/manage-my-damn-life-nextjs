@@ -302,14 +302,15 @@ export default class TaskUI extends Component {
     }
     onTaskSubmittoServer(body) {
         this.setState({ showTaskEditModal: false, showTaskEditor: false })
+        var message= getMessageFromAPIResponse(body)
 
         if (body != null) {
             if (body.success == true) {
-                toast.success(this.i18next.t(body.data.message))
+                toast.success(this.i18next.t(message))
                 this.props.fetchEvents(body.data.refresh)
             }
             else {
-                toast.error(this.i18next.t(body.data.message))
+                toast.error(message)
 
             }
         }
@@ -321,7 +322,6 @@ export default class TaskUI extends Component {
     onSubtaskSubmittoServer(body) {
         this.setState({ showSubtaskEditor: false })
 
-
         if (body != null) {
             if (body.success == true) {
                 toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
@@ -330,12 +330,12 @@ export default class TaskUI extends Component {
 
             }
             else {
-                toast.error(this.i18next.t(body.data.message))
+                toast.error(this.i18next.t(message))
 
             }
         }
         else {
-            toast.error(body)
+            toast.error(this.i18next.t("ERROR_GENERIC"))
 
         }
     }

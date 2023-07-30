@@ -28,7 +28,6 @@ export default class CaldavAccounts extends Component{
 
         this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
         this.showAddAccountModal = this.showAddAccountModal.bind(this)
-        this.getCaldavAccountsfromDB()
         this.onAccountAddSuccess = this.onAccountAddSuccess.bind(this)
         this.syncButtonClicked = this.syncButtonClicked.bind(this)
         this.onAddAccountDismissed = this.onAddAccountDismissed.bind(this)
@@ -42,6 +41,8 @@ export default class CaldavAccounts extends Component{
     }
 
     componentDidMount(){
+        this.getCaldavAccountsfromDB()
+
         if(window!=undefined){
             const queryString = window.location.search;
             const params = new URLSearchParams(queryString);

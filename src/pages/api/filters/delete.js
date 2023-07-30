@@ -1,14 +1,19 @@
 import { Filters } from '@/helpers/api/classes/Filters';
 import { User } from '@/helpers/api/classes/User';
 import { getFiltersFromDB } from '@/helpers/api/filter';
-import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation} from '@/helpers/api/user';
+import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 export default async function handler(req, res) {
     if (req.method === 'DELETE') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(req.query.filterid!=null &&req.query.filterid!=""&&req.query.filterid!=undefined)
             {
-                var userid=await User.idFromAuthorisation(req.headers.authorization)
+                // var userid=await User.idFromAuthorisation(req.headers.authorization)
+                var userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+    
+                }
 
                 var filterObject= new Filters(req.query.filterid)
                 

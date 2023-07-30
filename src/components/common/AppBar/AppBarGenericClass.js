@@ -11,18 +11,21 @@ import { getI18nObject } from "@/helpers/frontend/general";
 import { AiOutlineSetting, AiOutlineUser } from "react-icons/ai";
 import  {IoSyncCircleOutline}  from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
-import { logoutUser } from "@/helpers/frontend/user";
+import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user";
 import Link from "next/link";
 import { getSyncTimeout } from "@/helpers/frontend/settings";
 import { toast } from "react-toastify";
 import Dropdown from 'react-bootstrap/Dropdown';
 import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import Image from "next/image";
-class AppBarGeneric extends Component {
+import { signOut, useSession } from "next-auth/react";
+import { getNextAuthSessionData, nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 
+
+class AppBarGeneric_ClassComponent extends Component {
   constructor(props) {
     super(props)
-    this.state = {  isSyncing: this.props.isSyncing, username: "" }
+    this.state = {  isSyncing: this.props.isSyncing, username: "",  }
     this.i18next = getI18nObject()
     this.logoClicked = this.logoClicked.bind(this)
     this.taskViewClicked = this.taskViewClicked.bind(this)
@@ -40,10 +43,31 @@ componentDidMount(){
   setInterval(() => {
     //context.syncButtonClicked()
     //toast.info("syncing")
-    console.log("getSyncTimeout", getSyncTimeout())
   }, getSyncTimeout())
 
-  this.setState({username: getUserNameFromCookie()})
+  let username=""
+  try{
+    if(nextAuthEnabled()){
+      if(this.props.session)
+      {
+        
+        const { data: session, status } = this.props.session
+        if(status!="loading"){
+          username = session.user.name
+
+        }else{
+
+        }
+      }
+    }else{
+  
+        username = getUserNameFromCookie()
+    }
+  
+  }catch(e){
+    
+  }
+  this.setState({username: username})
 
 }
 
@@ -79,8 +103,7 @@ async syncButtonClicked() {
   }
   logOutClicked()
   {
-    logoutUser()
-    this.props.router.push("/login")
+    logoutUser_withRedirect(this.props.router)
   }
   settingsClicked()
   {
@@ -89,7 +112,6 @@ async syncButtonClicked() {
   manageFilterClicked()
   {
     this.props.router.push("/filters/manage")
-
   }
   labelManageClicked(){
     this.props.router.push("/labels/manage")
@@ -185,4 +207,4 @@ async syncButtonClicked() {
   }
 }
 
-export default withRouter(AppBarGeneric)
+export default withRouter(AppBarGeneric_ClassComponent)

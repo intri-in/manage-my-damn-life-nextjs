@@ -97,19 +97,21 @@ class GenericLists extends Component{
                                 
                         }else{
                             var message= getMessageFromAPIResponse(body)
+                            console.error("generateLabelList", message, body)
+
                             if(message!=null)
                             {
                                 if(message=="PLEASE_LOGIN")
                                 {
                                     // Login required
-                                    var redirectURL="/login"
-                                    if(window!=undefined)
-                                    {
+                                    // var redirectURL="/login"
+                                    // if(window!=undefined)
+                                    // {
         
         
-                                        redirectURL +="?redirect="+window.location.pathname
-                                    }
-                                    this.props.router.push(redirectURL)
+                                    //     redirectURL +="?redirect="+window.location.pathname
+                                    // }
+                                    // this.props.router.push(redirectURL)
         
         
                                 }

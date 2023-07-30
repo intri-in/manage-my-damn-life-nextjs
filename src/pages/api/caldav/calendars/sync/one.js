@@ -1,21 +1,28 @@
 import { getCaldavAccountDetailsfromId } from "@/helpers/api/cal/caldav"
 import { getCaldavAccountsAllData, getCaldavAccountsfromUserid, getCalendarsfromCaldavAccountsID } from "@/helpers/api/cal/calendars"
 import { getCalendarObjectsFromCalendarbyType } from "@/helpers/api/cal/object"
-import { getUserHashSSIDfromAuthorisation, getUseridFromUserhash, middleWareForAuthorisation } from "@/helpers/api/user"
+import { getUserHashSSIDfromAuthorisation, getUserIDFromLogin, getUseridFromUserhash, middleWareForAuthorisation } from "@/helpers/api/user"
 import { isValidResultArray } from "@/helpers/general"
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(req.query.calendar_id!=null)
             {
 
-                var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
+                // var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
-                var userid = await getUseridFromUserhash(userHash[0])
+                // var userid = await getUseridFromUserhash(userHash[0])
+                const userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
+
                 var allCaldavAccountBasicData = await getCaldavAccountsAllData(userid)
                 if(isValidResultArray(allCaldavAccountBasicData))
                 {

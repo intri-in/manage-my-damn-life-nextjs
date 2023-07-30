@@ -1,10 +1,15 @@
-import { getConnectionVar } from '@/helpers/api/db';
+import { getConnectionVar, getSequelizeObj } from '@/helpers/api/db';
 import crypto from "crypto"
 import { Base64 } from 'js-base64';
 import { getRegistrationStatus, userRegistrationAllowed } from './settings';
 import { varNotEmpty } from '../general';
 import bcrypt from 'bcryptjs';
-
+import { getUserIDFromNextAuthSession, nextAuthEnabled } from '../thirdparty/nextAuth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/pages/api/auth/[...nextauth]'; 
+import { getToken } from 'next-auth/jwt';
+import { getRandomString } from '../crypto';
+import { users } from 'models/users';
 export async function getUserDetailsfromUsername(username)
 {
     var con = getConnectionVar()
@@ -96,10 +101,10 @@ export async function forceInsertUserIntoDB(username,password,email,level)
         //var password = crypto.createHash('sha512').update(password).digest('hex')
         const salt = await bcrypt.genSalt(10)
         const passwordHash  = await bcrypt.hash(password, salt)
-
+        const id = getRandomString(16)
         var created=Math.floor(Date.now() / 1000)
 
-        con.query('INSERT INTO users (username, password, email, created, userhash,level) VALUES (?,?, ? ,?,?,?)', [username, passwordHash, email, created, userhash,level], function (error, results, fields) {
+        con.query('INSERT INTO users (username, password, email, created, userhash,level,id) VALUES (?,?, ? ,?,?,?,?)', [username, passwordHash, email, created, userhash,level, id], function (error, results, fields) {
             if (error) {
                 console.log(error.message)
             }
@@ -244,6 +249,40 @@ export async  function getAllSSIDFromDB(userhash)
 
 }
 
+export async function getUserIDFromLogin(req,res){
+    if(!varNotEmpty(req) || !varNotEmpty(res)){
+        return null
+    }
+
+    if(nextAuthEnabled()){
+        const session = await getServerSession(req, res, authOptions)
+        const id_fromNextAuth= getUserIDFromNextAuthSession(session)
+        return await getUserIDFromNextAuthID(id_fromNextAuth)
+    }else{
+        var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
+        const userid = await getUseridFromUserhash(userHash[0])
+        return userid
+    }
+
+}
+
+export async function getUserIDFromNextAuthID(id){
+
+    const Users=  users.initModel(getSequelizeObj())
+    const res = await Users.findOne({
+        where:{
+            id:id
+        },
+        raw: true,
+        nest: true,
+    })
+
+    if(res && res.users_id){
+        return res.users_id
+    }
+    return null
+}
+
 export async function getUserHashSSIDfromAuthorisation(authHeaders)
 {
     if(authHeaders!=null && authHeaders!="" && authHeaders!=undefined && authHeaders!="null")
@@ -259,37 +298,46 @@ export async function getUserHashSSIDfromAuthorisation(authHeaders)
     }
     
 }
-export async function middleWareForAuthorisation(authHeaders)
+export async function middleWareForAuthorisation(req, res)
 {
-    try{
-    if(authHeaders!=null && authHeaders!="" && authHeaders!=undefined &&authHeaders!="null")
-    {
-
-        var userssidArray= await getUserHashSSIDfromAuthorisation(authHeaders)
-        if(userssidArray!=null && Array.isArray(userssidArray) && userssidArray.length==2)
-        {
-           
-                const isValid= await checkSSIDValidity(userssidArray[0], userssidArray[1])
-                //console.log(isValid)
-                return isValid
-                 
-            
-        }
-        else
-        {
+    if(!varNotEmpty(req)){
+        return false
+    }
+    if(nextAuthEnabled()){
+        const session = await getServerSession(req, res, authOptions)
+        if(session){
+            return true
+        }else{
             return false
         }
-        //
     }
-    else
-    {
-        return false
-    }
-    } 
-    catch(e)
-    {
-        //console.log("middleWareForAuthorisation", e)
-        return false
+    else{
+        try{
+                const authHeaders = req.headers.authorization
+        
+                var userssidArray= await getUserHashSSIDfromAuthorisation(authHeaders)
+                if(userssidArray!=null && Array.isArray(userssidArray) && userssidArray.length==2)
+                {
+                   
+                        const isValid= await checkSSIDValidity(userssidArray[0], userssidArray[1])
+                        //console.log(isValid)
+                        return isValid
+                         
+                    
+                }
+                else
+                {
+                    return false
+                }
+                //
+           
+            } 
+            catch(e)
+            {
+                //console.log("middleWareForAuthorisation", e)
+                return false
+            }
+        
     }
 }
 
