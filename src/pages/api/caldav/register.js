@@ -2,21 +2,26 @@ import validator from 'validator';
 import { createDAVClient, DAVClient, getBasicAuthHeaders } from 'tsdav';
 import { caldavAccountExistinDB, insertCalendarsintoDB, isValidCaldavAccount, getCaldavAccountfromDetails, insertCalendarintoDB, checkifCalendarExistforUser } from '@/helpers/api/cal/calendars'
 import { getConnectionVar } from '@/helpers/api/db';
-import { middleWareForAuthorisation, getUseridFromUserhash, getUserHashSSIDfromAuthorisation } from '@/helpers/api/user';
+import { middleWareForAuthorisation, getUseridFromUserhash, getUserHashSSIDfromAuthorisation, getUserIDFromLogin } from '@/helpers/api/user';
 import { createCalDAVAccount } from '@/helpers/api/cal/caldav';
 import { AES } from 'crypto-js';
 import { logError, logVar } from '@/helpers/general';
 export default async function handler(req, res) {
     if (req.method === 'GET') {
 
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
+            const userid =  await getUserIDFromLogin(req, res)
+            if(userid==null){
+                return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+            }
+
             if(req.query.url!=null && req.query.username!=null && req.query.accountname!=null &&req.query.password!=null)
             {
                 if ((req.query.url!=null&&validator.isURL(req.query.url)) || req.query.url.startsWith("http://localhost") || req.query.url.startsWith("https://localhost") ){
                     if(req.query.username!=null&&req.query.password!=null)
                     {
-                        var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
                         var url = req.query.url
                         var username = validator.escape(req.query.username)
@@ -33,7 +38,7 @@ export default async function handler(req, res) {
                             defaultAccountType: 'caldav',
                         }).catch((reason)=>{
                             logError(reason, "api/caldav/register client:")
-                            res.status(401).json({ success: false, data: {message: reason.message}})
+                            return res.status(401).json({ success: false, data: {message: reason.message}})
 
 
                         })
@@ -43,7 +48,9 @@ export default async function handler(req, res) {
                             //Caldav authentication was succesful. We'll save the details in the db now.
                             if(calendars!=null)
                             {
-                               var answer= await saveDatatoDatabase(accountname, username, password, url, calendars, userHash[0])
+                                
+
+                               var answer= await saveDatatoDatabase(accountname, username, password, url, calendars, userid)
                                 res.status(200).json({ success: true, data: answer})
     
                             }else
@@ -96,10 +103,9 @@ export default async function handler(req, res) {
     }
 }
 
-async function saveDatatoDatabase(accountname, username, password, url, calendars,userhash)
+async function saveDatatoDatabase(accountname, username, password, url, calendars,userid)
 {
 
-    var userid = await getUseridFromUserhash(userhash)
     var calDavAccountIsInDb=await caldavAccountExistinDB(username, url)
     if(calDavAccountIsInDb==false || (calDavAccountIsInDb!=null&&calDavAccountIsInDb.length==0))
     {

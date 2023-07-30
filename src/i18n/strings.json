@@ -82,6 +82,7 @@
       "EVENT_NEEDS_BOTH_FROM_AND_TO": "Event needs both a 'From' and 'To' date.",
       "EVENT_SUBMIT_OK": "Event successfully added.",
       "EVENT_SUMMARY": "Event Summary",
+      "ERROR_INVALID_VALUE_OPENID_PROVIDER":"Invalid value of NEXT_PUBLIC_OPEN_ID_PROVIDER was provided as environment variable.",
       "EVERY": "Every",
       "FILTERS": "Filters",
       "FILTER_BY_DUE": "Filter by Due",

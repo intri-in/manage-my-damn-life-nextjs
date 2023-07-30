@@ -1,18 +1,25 @@
 import { CaldavAccount } from "@/helpers/api/classes/CaldavAccount"
 import { Calendars } from "@/helpers/api/classes/Calendars"
 import { User } from "@/helpers/api/classes/User"
-import { middleWareForAuthorisation } from "@/helpers/api/user"
+import { getUserIDFromLogin, middleWareForAuthorisation } from "@/helpers/api/user"
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar"
 import { applyTaskFilter, majorTaskFilter } from "@/helpers/frontend/events"
 import { haystackHasNeedle } from "@/helpers/general"
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(req.query.calendar_id!=null && req.query.calendar_id!=""&& req.query.calendar_id!=undefined && req.query.search_term!="" && req.query.search_term!=undefined && req.query.search_term!=null)
             {
-                var userid=await User.idFromAuthorisation(req.headers.authorization)
+                // var userid=await User.idFromAuthorisation(req.headers.authorization)
+
+                var userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
                 var user = new User(userid)
                 var calendarObject= {calendars_id: req.query.calendar_id}
                 var caldav_id = await CaldavAccount.getIDFromCalendar(calendarObject)

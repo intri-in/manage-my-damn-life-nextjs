@@ -1,6 +1,3 @@
-import Head from 'next/head'
-import TaskList from '@/components/tasks/TaskList'
-import  AppBarGeneric  from '@/components/common/AppBarGeneric'
 import { Col, Row } from 'react-bootstrap'
 import { getTodaysDateUnixTimeStamp, varNotEmpty } from '@/helpers/general'
 import DashboardView from '@/components/fullcalendar/DashboardView'
@@ -88,6 +85,7 @@ export default class CombinedView extends Component {
   render(){
     var borderLeft = this.state.showListColumn ? '3px solid ' + SECONDARY_COLOUR : ""
     var leftColumnMatter = ( <><AddTask onSuccessAddTask={this.fetchEvents} />
+    
     <HomeTasks scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{}} />
     
 {/*       

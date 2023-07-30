@@ -1,16 +1,22 @@
 import EventMeta from '@/helpers/api/classes/EventMeta';
 import { Events } from '@/helpers/api/classes/Events';
 import { User } from '@/helpers/api/classes/User';
-import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation} from '@/helpers/api/user';
+import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 import { logVar, varNotEmpty } from '@/helpers/general';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(req.body.calendar_event_id!=null &&req.body.calendar_event_id!=""&&req.body.calendar_event_id!=undefined && varNotEmpty(req.body.value) && req.body.value!="")
             {
 
-                var userid=await User.idFromAuthorisation(req.headers.authorization)
+                // var userid=await User.idFromAuthorisation(req.headers.authorization)
+                const userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
                 var metaObject = new EventMeta({calendar_events_id: req.body.calendar_event_id, userid: userid, property: "REPEAT_META", value:req.body.value})
 
                 const userHasAccess = await metaObject.userHasAccess(userid)

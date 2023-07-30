@@ -26,6 +26,8 @@ export default async function handler(req, res) {
                 {
                     //User is not in db. Register user.
                     var  response = await insertUserIntoDB(req.body.username, req.body.password, req.body.email)
+
+                    console.log("response" ,response)
                     if(response){
                         res.status(200).json({ success: response ,data: {message: "USER_INSERT_OK"} })
 

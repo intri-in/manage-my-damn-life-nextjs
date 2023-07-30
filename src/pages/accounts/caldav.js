@@ -1,11 +1,31 @@
 import Head from 'next/head'
 import Container from 'react-bootstrap/Container';
-import AppBarGeneric  from "@/components/common/AppBarGeneric"
+import AppBarGeneric  from "@/components/common/AppBar"
 import CaldavAccounts from '@/components/common/calendars/caldavAccounts/CaldavAccounts'
 import { getI18n } from 'react-i18next';
 import { getI18nObject } from '@/helpers/frontend/general';
+import { signIn, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth';
+import { useRouter } from 'next/router';
+import { checkLogin_InBuilt } from '@/helpers/frontend/user';
 
 export default function Caldav() {
+
+  const { data: session, status } = useSession()  
+  const router = useRouter()
+
+  useEffect(() =>{
+
+    if(nextAuthEnabled()){
+      if (status=="unauthenticated" ) {
+        signIn()
+      }
+    }else{
+      // Check login using inbuilt function.
+      checkLogin_InBuilt(router,"/accounts/caldav")
+    }
+  }, [status, router])
 
   var i18next = getI18nObject()
     return (
@@ -15,7 +35,7 @@ export default function Caldav() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <AppBarGeneric />
+        <AppBarGeneric  />
 
         <Container fluid >
              <div style={{marginTop: 20}}><CaldavAccounts  /></div>

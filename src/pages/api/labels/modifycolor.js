@@ -1,11 +1,16 @@
 import {  modifyLabelColour, updateLabels } from '@/helpers/api/cal/labels';
 import { User } from '@/helpers/api/classes/User';
-import { middleWareForAuthorisation, } from '@/helpers/api/user';
+import { getUserIDFromLogin, middleWareForAuthorisation, } from '@/helpers/api/user';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if( await middleWareForAuthorisation(req,res))
         {
-            var userid=await User.idFromAuthorisation(req.headers.authorization)
+            var userid = await getUserIDFromLogin(req, res)
+            if(userid==null){
+                return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+            }
+
 
             if(req.body.labelname!=null &&req.body.labelname!=""&&req.body.labelname!=undefined && req.body.colour!=null &&req.body.colour!=""&&req.body.colour!=undefined)
             {

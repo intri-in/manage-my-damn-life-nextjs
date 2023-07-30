@@ -1,5 +1,4 @@
 import { getI18nObject } from "@/helpers/frontend/general";
-import { withRouter } from "next/router";
 import React, { FC, ReactElement, useEffect, useState } from 'react';
 import TaskList from "../../tasks/TaskList";
 import { getTodaysDateUnixTimeStamp, varNotEmpty } from "@/helpers/general";
@@ -7,6 +6,7 @@ import { MYDAY_LABEL } from "@/config/constants";
 import Form from 'react-bootstrap/Form';
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions";
 import { isValidFilter } from "@/helpers/frontend/filters";
+import * as _ from 'lodash'
 interface homeTasksPropsInterface {
 
     router: object
@@ -52,7 +52,11 @@ function HomeTasks(props:homeTasksPropsInterface) {
     useEffect( () => {
         const refreshMenuOptions = async () =>{
             const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions)
-            setMenuOptions(newMenuOptions)
+            //console.log(menuOptions, newMenuOptions)
+            if(_.isEqual(menuOptions, newMenuOptions) ==false){
+                setMenuOptions(newMenuOptions)
+
+            }
         }
         refreshMenuOptions()
       }, [updated, menuOptions])
