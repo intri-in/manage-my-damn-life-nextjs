@@ -46,12 +46,13 @@ COMBINEDCOMMITMESSAGE
 config/config.json
 package-withSequelize.json
 
-
+temp/
+*.backup
 #Sequelise Temporary Ignore list
-models/
-config/
-migrations/
-src/helpers/api/installSequelize.ts
-src/helpers/installation.ts
-src/helpers/models.ts
-.sequelizerc
+# models/
+# config/
+# migrations/
+# src/helpers/api/installSequelize.ts
+# src/helpers/installation.ts
+# src/helpers/models.ts
+# .sequelizerc

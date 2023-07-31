@@ -6,7 +6,7 @@ import moment from "moment"
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(varNotEmpty(req.body.obj))
             {

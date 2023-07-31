@@ -1,46 +1,79 @@
 import Head from 'next/head'
-import TaskList from '@/components/tasks/TaskList'
-import  AppBarGeneric  from '@/components/common/AppBarGeneric'
-import { Col, Row } from 'react-bootstrap'
-import { getTodaysDateUnixTimeStamp, varNotEmpty } from '@/helpers/general'
-import DashboardView from '@/components/fullcalendar/DashboardView'
-import AddTask from '@/components/common/AddTask/AddTask'
-import { PRIMARY_COLOUR, SECONDARY_COLOUR } from '@/config/style'
-import { Component, useEffect, useState } from 'react'
+import  AppBarGeneric  from '@/components/common/AppBar'
+import { useEffect, useState, useRef } from 'react'
 import { getI18nObject } from '@/helpers/frontend/general'
-import { MYDAY_LABEL } from '@/config/constants'
-import Offcanvas from 'react-bootstrap/Offcanvas';
-import { AiOutlineMenuUnfold } from 'react-icons/ai'
-import Script from 'next/script'
-import HomeTasks from '@/components/Home/HomeTasks/HomeTasks'
 import CombinedView from '@/components/page/CombinedView'
-import { Loading } from '@/components/common/Loading'
+import { useSession, signIn } from "next-auth/react"
+import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth'
+import { checkLogin_InBuilt, logoutUser_withRedirect } from '@/helpers/frontend/user'
+import { varNotEmpty } from '@/helpers/general'
+import { useRouter } from 'next/router'
+import { getIfInstalled, installCheck } from '@/helpers/install'
 
 const i18next = getI18nObject()
-
 export default function HomePage() {
+  const { data: session, status } = useSession()  
   const [updated, setUpdated]=useState('')
   const [isSyncing, setIsSyncing] = useState(false)
-
+  const [installChecked, setInstallChecked] = useState(false)
   const onSynComplete = () =>{
       var updated = Math.floor(Date.now() / 1000)
       setUpdated(updated)
     }
 
-  const [finalOutput, setFinalOutput] =useState(<CombinedView updated={updated} onSynComplete={onSynComplete} />)
+  //const [finalOutput, setFinalOutput] =useState()
+  // useEffect(()=>{
+     
+
+  //   // if(!loginChecked.current){
+  //   //   loginChecked.current=true
+  //   //   const checkAuth = async() =>{
+  //   //     const auth = await isUserLoggedIn()
+  //   //     if(auth){
+  //   //       setUserAuthenticated(true)
+  //   //     }
+  //   //   }
+  //   //   checkAuth()
+  //   // }
+    
+  //   // }, [userAuthenticated])
+  const router = useRouter()
 
     useEffect(()=>{
-    })
+      installCheck(router).then(()=>{
+        setInstallChecked(true)
+
+      })
+    }, [router])
+
+    useEffect(() =>{
+      if(installChecked){
+        if(nextAuthEnabled()){
+          if (status=="unauthenticated" ) {
+            signIn()
+          }
+        }else{
+          // Check login using inbuilt function.
+          checkLogin_InBuilt(router)
+        }
+  
+      }
+    }, [status, router, installChecked])
+    
+
+  
+    var finalOutput = (<CombinedView updated={updated} onSynComplete={onSynComplete} />)
+
     return(
         <>
         <Head>
-          <title>{i18next.t("APP_NAME_TITLE")} - {i18next.t("TASKS")}</title>
+          <title>{i18next.t("APP_NAME_TITLE")} - {i18next.t("HOME")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <AppBarGeneric  onSynComplete={onSynComplete} isSyncing={isSyncing}/>
         <div className='container-fluid'>
-            {finalOutput}
+          {finalOutput}
         </div>     
         </>
 

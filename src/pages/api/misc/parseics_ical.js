@@ -3,7 +3,7 @@ import ICAL from '@/../ical.js/build/ical'
 import { isValidResultArray, logError, varNotEmpty } from "@/helpers/general";
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             var type="vevent"
             var dataICS= req.body.ics

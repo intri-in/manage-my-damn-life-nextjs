@@ -2,19 +2,25 @@ import { createEventinCalDAVAccount, getCaldavAccountDetailsfromId } from '@/hel
 import { checkifUserHasAccesstoRequestedCalendar, getCaldavAccountfromUserID, getCaldavAccountIDFromCalendarID, getCalendarfromCalendarID } from '@/helpers/api/cal/calendars';
 import { getAllLablesFromDB } from '@/helpers/api/cal/labels';
 import { deleteCalendarObjectsFromDB, getObjectFromDB, insertObjectIntoDB, updateObjectinDB } from '@/helpers/api/cal/object';
-import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation} from '@/helpers/api/user';
+import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 import { getRandomString } from '@/helpers/crypto';
 import { AES } from 'crypto-js';
 import { createDAVClient, deleteCalendarObject } from 'tsdav';
 import CryptoJS from 'crypto-js';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if( await middleWareForAuthorisation(req,res))
         {
             if(req.body.etag!=null  && req.body.etag.trim()!="" && req.body.calendar_id!=null && req.body.calendar_id.toString().trim()!=""&&req.body.url!=null  && req.body.url.trim()!="")
             {
-                var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
-                var userid = await getUseridFromUserhash(userHash[0])
+                // var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
+                // var userid = await getUseridFromUserhash(userHash[0])
+                const userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
                 var currentCaldavAccountID=await getCaldavAccountIDFromCalendarID(req.body.calendar_id)
                 var currentCalendar= await checkifUserHasAccesstoRequestedCalendar(userid, currentCaldavAccountID, req.body.calendar_id)
                 if(currentCalendar!=null)

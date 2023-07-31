@@ -1,15 +1,20 @@
 import { User } from '@/helpers/api/classes/User';
 import { insertNewFiltertoDB,  updateFilterinDB } from '@/helpers/api/filter';
-import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation} from '@/helpers/api/user';
+import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 import validator from 'validator';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
-            console.log(req.body)
             if(req.body.custom_filters_id!=undefined && req.body.custom_filters_id!=null && req.body.custom_filters_id!="" && req.body.name!=undefined && req.body.name!=null && req.body.name!="" && req.body.filtervalue!=null&&req.body.filtervalue!="")
             {
-                var userid=await User.idFromAuthorisation(req.headers.authorization)
+                // var userid=await User.idFromAuthorisation(req.headers.authorization)
+                var userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+    
+                }
+
                 var jsonToInsert =  JSON.stringify(req.body.filtervalue) 
                 var dbInsertResponse = await updateFilterinDB(req.body.custom_filters_id, req.body.name, jsonToInsert, userid)
                 var response = "FILTER_UPDATE_OK"

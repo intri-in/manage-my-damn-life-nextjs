@@ -97,25 +97,34 @@ class ShowCalendarList extends Component{
                     toast.error(this.i18.t("ERROR_GENERIC"))
                 }else{
                     var message= getMessageFromAPIResponse(caldav_accounts)
+                    console.error("getCaldavAccountsfromDB", message, caldav_accounts)
+
                     if(message!=null)
                     {
-                        if(message=="PLEASE_LOGIN")
+
+                        if(message!=="PLEASE_LOGIN")
                         {
-                            // Login required
-                            var redirectURL="/login"
-                            if(window!=undefined)
-                            {
-
-
-                                redirectURL +="?redirect="+window.location.pathname
-                            }
-                            this.props.router.push(redirectURL)
-
-
-                        }else{
                             toast.error(this.i18.t(message))
 
                         }
+                        // if(message=="PLEASE_LOGIN")
+                        // {
+                         
+                        //     // Login required
+                        //     var redirectURL="/login"
+                        //     if(window!=undefined)
+                        //     {
+
+
+                        //         redirectURL +="?redirect="+window.location.pathname
+                        //     }
+                        //     this.props.router.push(redirectURL)
+
+
+                        // }else{
+                        //     toast.error(this.i18.t(message))
+
+                        // }
                     }
                     else
                     {

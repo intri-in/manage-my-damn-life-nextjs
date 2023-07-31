@@ -6,95 +6,21 @@ networks:
 
 services:
   app:
-    image: node:18-alpine
-    command: sh -c "npm install && npm run build && npm run start"
+    build: intriin/mmdl:latest
+    image: mmdl
     ports:
       - 3000:3000
-    working_dir: /app
-    volumes:
-      - ./:/app
     depends_on:
       - db
     networks:
       - app-tier   
+    restart: always
     environment:
-      ############################################################
-      ## The following variables NEED to be set before execution.
-      ############################################################
-      
-      NEXT_PUBLIC_BASE_URL: "http://localhost:3000/"
-
-      #DB_PASS and MYSQL_ROOT_PASSWORD must be the same.
-      DB_PASS: "root"
-      
-      #DB_NAME and MYSQL_DATABASE must be the same.
-      DB_NAME: sample_install_mmdm
-
-      ## AES Encryption Password
-      ## This is used to encrypt CalDAV passwords in the database.
-      AES_PASSWORD : NEW_AES_PASSWORD
-
-      ############################################################
-      ## The following variables aren't required for basic functionality,
-      ## but might be required to be set for some additional features.
-      ############################################################
-
-      SMTP_HOST : smtp.example.com
-      SMTP_USERNAME :  example@example.comm
-      SMTP_PASSWORD :  password
-      SMTP_FROMEMAIL :  example@example.comm
-      SMTP_PORT :  587
-      SMTP_USESECURE :  "false"
-
-      ############################################################
-      ## The following variables aren't required to be set,
-      ## but affect behaviour that you might want to customise.
-      ############################################################
-
-      # User Config
-      NEXT_PUBLIC_DISABLE_USER_REGISTRATION: "false"
-
-      # After this value, old ssid will be deleted.
-      MAX_CONCURRENT_LOGINS_ALLOWED: 5
-
-      # Maxium length of OTP validity, in seconds.
-      MAX_OTP_VALIDITY:  1800
-
-      # Maximum length of a login session in seconds.
-      MAX_SESSION_LENGTH: 2592000
-
-      # Enforce max length of session.
-      ENFORCE_SESSION_TIMEOUT: "true"
-
-      ############################################################
-      ## The following variables are advanced settings,
-      ## and must be only changed in case you're trying something
-      ## specific.
-      ############################################################
-      DB_USER: "root"
       DB_HOST: db
-      DB_CHARSET: "utf8mb4"
-      DB_COLLATE: "utf8mb4_0900_ai_ci"
-
-      # Whether user is running install from a docker image.
-      DOCKER_INSTALL: "true"
-
-      NEXT_PUBLIC_API_URL: "http://localhost:3000/api/"
-      NEXT_PUBLIC_DEBUG_MODE: "true"
-      
-
-      #Max number of recursions for finding subtasks. Included so the recursive function doesn't go haywire.
-      #If subtasks are not being rendered properly, try increasing the value.
-      NEXT_PUBLIC_SUBTASK_RECURSION_CONTROL_VAR: 100
-
-      ## Test Mode
-      NEXT_PUBLIC_TEST_MODE: "false"
-
-      ############################################################
-      ## The following variables must not be changed.
-      ############################################################
-
-      NEXT_PUBLIC_VERSION_NUMBER: "0.1.6"
+    env_file:
+      - .env.local
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
   db:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
@@ -102,14 +28,16 @@ services:
     expose: 
       - 3306
     networks:
-      - app-tier      
+      - app-tier
     environment:
     ############################################################
     ## The following variables NEED to be set before execution.
     ############################################################
+      
       #DB_NAME and MYSQL_DATABASE must be the same.
       MYSQL_DATABASE: sample_install_mmdm
-
+      
+      
       #DB_PASS and MYSQL_ROOT_PASSWORD must be the same.
       MYSQL_ROOT_PASSWORD: root
 

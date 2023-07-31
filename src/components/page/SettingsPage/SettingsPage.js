@@ -1,13 +1,11 @@
-import AppBarGeneric from "@/components/common/AppBarGeneric";
+import AppBarGeneric from "@/components/common/AppBar";
 import { Loading } from "@/components/common/Loading";
 import { displayErrorMessageFromAPIResponse, getI18nObject } from "@/helpers/frontend/general";
 import Head from "next/head";
-import { Col, Container, ProgressBar, Row } from "react-bootstrap";
-import Placeholder from 'react-bootstrap/Placeholder';
+import { Col, Container,  Row } from "react-bootstrap";
 const { withRouter } = require("next/router");
 const { Component } = require("react");
-import Card from 'react-bootstrap/Card';
-import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
+import { getAuthenticationHeadersforUser, logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user";
 import { getAPIURL, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import { BACKGROUND_GRAY } from "@/config/style";
 import moment from "moment";
@@ -19,7 +17,8 @@ import Button from "react-bootstrap/Button";
 import DefaultCalendarViewSelect from "@/components/accounts/DefaultCalendarViewSelect";
 import { VERSION_NUMBER } from "@/config/constants";
 import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
-class Settings extends Component {
+import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+class SettingsPage extends Component {
 
     constructor(props) {
         super(props)
@@ -84,8 +83,11 @@ class Settings extends Component {
                     }
 
                 }else{
-                    console.log(body)
-                    toast.error(this.state.i18next.t("ERROR_GETTING_SETTINGS"))
+                    var message = getMessageFromAPIResponse(body)
+                    console.error("getAllUserSettings", message, body)
+                    // if(message==="PLEASE_LOGIN"){
+                    //     logoutUser_withRedirect(this.props.router)
+                    // }
                     
                 }
             }).catch(e =>{
@@ -166,7 +168,7 @@ class Settings extends Component {
                     }
                 }
                 else {
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                    console.error(this.i18next.t("ERROR_GENERIC"), body)
 
                 }
 
@@ -394,4 +396,4 @@ class Settings extends Component {
 }
 
 
-export default withRouter(Settings)
+export default withRouter(SettingsPage)

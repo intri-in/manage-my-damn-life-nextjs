@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import TaskList from '@/components/tasks/TaskList'
-import AppBarGeneric from '@/components/common/AppBarGeneric'
+import AppBarGeneric from '@/components/common/AppBar'
 import '@/../bootstrap/dist/css/bootstrap.min.css'
 import GenericLists from '@/components/common/GenericLists'
 import { Component } from 'react'

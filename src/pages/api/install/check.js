@@ -4,7 +4,6 @@ const LOGTAG = "api/install/check"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
         var connStatus = await testDBConnection()
-        logVar(connStatus, LOGTAG+" connStatus")
             if(varNotEmpty(connStatus))
             {
                 res.status(503).json({ success: false ,data: {message: "ERROR_DB_CON_ERROR", details: connStatus}})

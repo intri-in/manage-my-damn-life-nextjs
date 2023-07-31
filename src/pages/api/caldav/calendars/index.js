@@ -1,14 +1,18 @@
 import { getCalendarsfromCaldavAccountsID, getCaldavAccountsfromUserid } from "@/helpers/api/cal/calendars"
 import { getCaldavAccountfromUserID } from '@/helpers/api/cal/calendars';
-import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation} from '@/helpers/api/user';
+import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req, res))
         {
-            var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
-            var userid = await getUseridFromUserhash(userHash[0])
+            var userid = await getUserIDFromLogin(req, res)
+            if(userid==null){
+                return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+            }
+
             var final_caldav_account_array=[]
             var caldav_accounts= await getCaldavAccountsfromUserid(userid)
             if(caldav_accounts!=null&&Array.isArray(caldav_accounts)&&caldav_accounts.length>0)

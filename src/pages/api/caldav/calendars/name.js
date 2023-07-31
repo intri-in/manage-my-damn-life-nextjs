@@ -1,16 +1,22 @@
 import { getCaldavAccountDetailsfromId } from "@/helpers/api/cal/caldav"
 import { checkifUserHasAccesstoRequestedCalendar, getCaldavAccountsfromUserid } from "@/helpers/api/cal/calendars"
-import { getUserHashSSIDfromAuthorisation, getUseridFromUserhash, middleWareForAuthorisation } from "@/helpers/api/user"
+import { getUserHashSSIDfromAuthorisation, getUserIDFromLogin, getUseridFromUserhash, middleWareForAuthorisation } from "@/helpers/api/user"
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             if(req.query.caldav_accounts_id!=null && req.query.calendars_id!=null && req.query.calendars_id!="" && req.query.caldav_accounts_id!="")
             {
-                var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
+                // var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
-                var userid = await getUseridFromUserhash(userHash[0])
+                // var userid = await getUseridFromUserhash(userHash[0])
+                const userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+    
+                }
+    
                 var allCalendarEvents =null 
                 var calendar=await checkifUserHasAccesstoRequestedCalendar(userid, req.query.caldav_accounts_id, req.query.calendars_id)
                 var caldavDetails= await getCaldavAccountDetailsfromId(req.query.caldav_accounts_id)

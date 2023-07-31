@@ -1,13 +1,14 @@
 import Head from 'next/head'
 import Container from 'react-bootstrap/Container';
-import AppBarGeneric  from "@/components/common/AppBarGeneric"
+import AppBarGeneric  from "@/components/common/AppBar"
 import CaldavAccounts from '@/components/common/calendars/caldavAccounts/CaldavAccounts'
 import LabelManager from '@/components/LabelManager';
 import { makeUpdateLabelRequest } from '@/helpers/frontend/labels';
 import { getAuthenticationHeadersforUser } from '@/helpers/frontend/user';
 import { getI18nObject } from '@/helpers/frontend/general';
+import { withRouter } from 'next/router';
 
-export default function ManageLables({reply}) {
+function ManageLabels() {
 
   var i18next = getI18nObject()
     return (
@@ -27,4 +28,6 @@ export default function ManageLables({reply}) {
     </>
     )
 }
+
+export default withRouter(ManageLabels)
 

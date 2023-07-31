@@ -1,4 +1,4 @@
-import AppBarGeneric from "@/components/common/AppBarGeneric"
+import AppBarGeneric from "@/components/common/AppBar"
 import { Loading } from "@/components/common/Loading"
 import AddFilter from "@/components/filters/AddFilter"
 import { Toastify } from "@/components/Generic"
@@ -8,8 +8,9 @@ import { filtertoWords, getFiltersFromServer } from "@/helpers/frontend/filters"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response"
 import { dateTimeReviver } from "@/helpers/general"
+import { useSession } from "next-auth/react"
 import Head from "next/head"
-import { withRouter } from "next/router"
+import { useRouter, withRouter } from "next/router"
 import { Component } from "react"
 import { Col, Row } from "react-bootstrap"
 import  Button  from "react-bootstrap/Button"
@@ -71,25 +72,32 @@ class ManageFilters extends Component{
                 toast.error(this.i18next.t("ERROR_GENERIC"))
             }else{
                 var message= getMessageFromAPIResponse(filtersFromServer)
+                console.error("getAllTodosFromServer", message, filtersFromServer)
+
                 if(message!=null)
                 {
-                    if(message=="PLEASE_LOGIN")
+                    if(message!=="PLEASE_LOGIN")
                     {
-                        // Login required
-                        var redirectURL="/login"
-                        if(window!=undefined)
-                        {
-
-
-                            redirectURL +="?redirect="+window.location.pathname
-                        }
-                        this.props.router.push(redirectURL)
-
-
-                    }else{
                         toast.error(this.i18next.t(message))
 
-                    }
+                    }   
+                    // if(message=="PLEASE_LOGIN")
+                    // {
+                    //     // Login required
+                    //     var redirectURL="/login"
+                    //     if(window!=undefined)
+                    //     {
+
+
+                    //         redirectURL +="?redirect="+window.location.pathname
+                    //     }
+                    //     this.props.router.push(redirectURL)
+
+
+                    // }else{
+                    //     toast.error(this.i18next.t(message))
+
+                    // }
                 }
                 else
                 {
@@ -168,7 +176,7 @@ class ManageFilters extends Component{
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link rel="icon" href="/favicon.ico" />
             </Head>
-            <AppBarGeneric />
+            <AppBarGeneric session={this.props.session} />
             <div style={{marginTop: 30, padding:40}} className='container-fluid'>
             <h1>{this.i18next.t("MANAGE_FILTERS")}</h1>
             <p>{this.i18next.t("MANAGE_FILTERS_DESC")}</p>
@@ -184,6 +192,7 @@ class ManageFilters extends Component{
         </>)
     }
 }
+
 
 export default withRouter(ManageFilters)
 

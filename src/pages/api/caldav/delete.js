@@ -1,15 +1,21 @@
-import { middleWareForAuthorisation } from "@/helpers/api/user"
+import { getUserIDFromLogin, middleWareForAuthorisation } from "@/helpers/api/user"
 import { User } from '@/helpers/api/classes/User';
 import { CaldavAccount } from "@/helpers/api/classes/CaldavAccount";
 import { Calendars } from "@/helpers/api/classes/Calendars";
 
 export default async function handler(req, res) {
     if (req.method === 'DELETE') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if( await middleWareForAuthorisation(req,res))
         {
             if(req.query.caldav_account_id!=null &&req.query.caldav_account_id!=""&&req.query.caldav_account_id!=undefined)
             {
-                var userid=await User.idFromAuthorisation(req.headers.authorization)
+                // var userid=await User.idFromAuthorisation(req.headers.authorization)
+                const userid = await getUserIDFromLogin(req, res)
+                if(userid==null){
+                    return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+
+                }
+
                 var user = new User(userid)
                 var userHasAcess= await user.hasAccesstoCaldavAccountID(req.query.caldav_account_id)
                 if (userHasAcess)

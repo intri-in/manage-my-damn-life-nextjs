@@ -46,6 +46,7 @@ class DashboardView extends Component {
         this.showTasksChanged = this.showTasksChanged.bind(this)
         this.addEventsToCalendar = this.addEventsToCalendar.bind(this)
         this.userPreferencesChanged = this.userPreferencesChanged.bind(this)
+        this.allEvents = {}
     }
 
 
@@ -80,25 +81,31 @@ class DashboardView extends Component {
 
         }else{
             var message =getMessageFromAPIResponse(caldav_accounts)
+            console.error("getCaldavAccountsfromDB", message, caldav_accounts)
+
             if(message!=null)
             {
-                if(message=="PLEASE_LOGIN")
+                if(message!=="PLEASE_LOGIN")
                 {
-                    // Login required
-                    var redirectURL="/login"
-                    if(window!=undefined)
-                    {
-
-
-                        redirectURL +="?redirect="+window.location.pathname
-                    }
-                    this.props.router.push(redirectURL)
-
-
-                }else{
                     toast.error(this.i18next.t(message))
-
                 }
+                // if(message=="PLEASE_LOGIN")
+                // {
+                //     // Login required
+                //     var redirectURL="/login"
+                //     if(window!=undefined)
+                //     {
+
+
+                //         redirectURL +="?redirect="+window.location.pathname
+                //     }
+                //     this.props.router.push(redirectURL)
+
+
+                // }else{
+                //     toast.error(this.i18next.t(message))
+
+                // }
             }
             else
             {
@@ -161,14 +168,14 @@ class DashboardView extends Component {
     }
     eventClick = (e) => {
         var newID = e.event.id
-        if (varNotEmpty(this.state.allEvents[e.event.id]) == false) {
+        if (varNotEmpty(this.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
             newID = this.state.recurMap[e.event.id]
 
         }
-        var eventData = this.state.allEvents[newID]
+        var eventData = this.allEvents[newID]
 
-        if (varNotEmpty(this.state.allEvents[newID]) && this.state.allEvents[newID].type != "VTODO" && this.state.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.state.allEvents[newID])) {
+        if (varNotEmpty(this.allEvents[newID]) && this.allEvents[newID].type != "VTODO" && this.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.allEvents[newID])) {
 
             this.setState({ showEventEditor: true, selectedID: e.event.id, eventDataDashBoard: eventData })
 
@@ -191,14 +198,14 @@ class DashboardView extends Component {
     async eventDrop(e) {
         //console.log(e)
         var newID = e.event.id
-        if (varNotEmpty(this.state.allEvents[e.event.id]) == false) {
+        if (varNotEmpty(this.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
             newID = this.state.recurMap[e.event.id]
 
         }
         //Calculate delta in ms
-        var eventData = this.state.allEvents[newID]
-        if (this.state.allEvents[newID].type != "VTODO" && this.state.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.state.allEvents[newID])) {
+        var eventData = this.allEvents[newID]
+        if (this.allEvents && this.allEvents[newID] && this.allEvents[newID].type != "VTODO" && this.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.allEvents[newID])) {
             var delta = e.delta.milliseconds + (e.delta.days * 86400 * 1000) + (e.delta.months * 30 * 86400 * 1000) + (e.delta.years * 365 * 86400 * 1000)
 
             //console.log("delta", delta)
@@ -248,16 +255,17 @@ class DashboardView extends Component {
 
     }
     async eventResize(e) {
-        //console.log("eventResize", e)
+        console.log("eventResize", this.allEvents[e.event.id])
         var newID = e.event.id
-        if (varNotEmpty(this.state.allEvents[e.event.id]) == false) {
+        if (varNotEmpty(this.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
             newID = this.state.recurMap[e.event.id]
 
         }
         //Calculate delta in ms
-        var eventData = this.state.allEvents[newID]
-        if (this.state.allEvents[newID].type != "VTODO" && this.state.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.state.allEvents[newID])) {
+        var eventData = _.cloneDeep(this.allEvents[newID])
+        console.log(this.allEvents[newID])
+        if (this.allEvents && this.allEvents[newID] && this.allEvents[newID].type != "VTODO" && this.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.allEvents[newID])) {
             var delta = e.endDelta.milliseconds + (e.endDelta.days * 86400 * 1000) + (e.endDelta.months * 30 * 86400 * 1000) + (e.endDelta.years * 365 * 86400 * 1000)
 
             //console.log("delta", delta)
@@ -294,6 +302,8 @@ class DashboardView extends Component {
                 toast.error((this.i18next.t("ERROR_GENERIC")))
 
             }
+        }else{
+            console.log("oaspdaosdpoaspdoaspdoasd")
         }
 
 
@@ -324,12 +334,14 @@ class DashboardView extends Component {
     }
     async addEventsToCalendar(allEvents){
         var finalEvents = []
+        this.allEvents = {}
 
-        
         if (isValidResultArray(allEvents.data.message)) {
 
             for (let i = 0; i < allEvents.data.message.length; i++) {
                 for (const j in allEvents.data.message[i].events) {
+
+                    
                     var userWantsToSee = Preference_CalendarsToShow.getShowValueForCalendar(allEvents.data.message[i].info.caldav_accounts_id, allEvents.data.message[i].events[j].calendar_id)
                     if(userWantsToSee ==false){
                         continue
@@ -459,7 +471,16 @@ class DashboardView extends Component {
                         
                     } 
                     */
-                        //this.state.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                    // this.setState((prevState, props) => {
+                    //     var newAllEvents = _.cloneDeep(prevState.allEvents)
+                    //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                    //     return({allEvents: newAllEvents})
+
+                    // })
+                        var eventToPush = {}
+                        eventToPush[data.uid] ={ data: data, event: allEvents.data.message[i].events[j] }
+                        this.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                        // this.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
 
                     }
                     else if (event.type == "VTODO" && this.state.showTasksChecked==true) {
@@ -527,7 +548,13 @@ class DashboardView extends Component {
                             }
 
                         }
-
+                        // this.setState((prevState, props) => {
+                        //     var newAllEvents = _.cloneDeep(prevState.allEvents)
+                        //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                        //     return({allEvents: newAllEvents})
+    
+                        // })
+    
                     }
                 }
             }

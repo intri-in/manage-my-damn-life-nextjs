@@ -2,7 +2,7 @@ import { middleWareForAuthorisation } from "@/helpers/api/user"
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        if(req.headers.authorization!=null && await middleWareForAuthorisation(req.headers.authorization))
+        if(await middleWareForAuthorisation(req,res))
         {
             var icalToolkit = require('ical-toolkit');
             var json = icalToolkit.parseToJSON(req.body.ics);
