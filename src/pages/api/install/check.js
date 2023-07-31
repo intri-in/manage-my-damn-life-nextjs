@@ -10,7 +10,8 @@ export default async function handler(req, res) {
 
             }else{
 
-                    var installed = await isInstalled()
+                    var installed = await isInstalled(true)
+                    console.log("installed", installed)
                     //We have successful connection to a database. Now we check the install info from database.
                      if(installed==true)
                      {

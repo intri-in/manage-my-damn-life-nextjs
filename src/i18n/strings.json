@@ -17,6 +17,7 @@
       "ALL_DAY_EVENT": "All Day Event",
       "ALL_TASKS": "All Tasks",
       "ALREADY_INSTALLED": "MMDL has already been installed. Redirecting...",
+      "MMDL_NOT_INSTALLED":" Database tables for MMDL have not been installed. Click this banner to install.",
       "APP_NAME": "Manage my Damn Life",
       "APP_NAME_TITLE": "MMDL",
       "BACK": "Back",
