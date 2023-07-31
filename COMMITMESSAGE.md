@@ -1,5 +1,1 @@
-- docker-compose file changed
-    - Now runs migrations
-    - Instead of requiring source code, pulls up image from Docker Hub
-- Docs updated
-- v0.3.0 is ready to go
+- Link flag removed from Dockerfile. Breaks CI on github.
