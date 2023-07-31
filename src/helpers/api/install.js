@@ -91,14 +91,43 @@ export async function isInstalled(log)
             }
         }
 
-        return _.isEmpty(_.xor(listOfTablesFromDb, FINAL_TABLES))
+        console.log("listOfTablesFromDb", listOfTablesFromDb)
+
+        //return _.isEmpty(_.xor(listOfTablesFromDb, FINAL_TABLES))
         //return true
+        return tableArrayMatch(listOfTablesFromDb, log)
     }else{
         return false
     }
 }
 
+export function tableArrayMatch(tablesFromDB, log){
 
+    if(!tablesFromDB){
+        return false
+    }
+    if(!Array.isArray(tablesFromDB) ){
+        return false
+    }
+    if(tablesFromDB.length<FINAL_TABLES.length){
+        return false
+    }
+    let found = 0
+    for(const i in tablesFromDB){
+        for (const j in FINAL_TABLES){
+            if(FINAL_TABLES[j].toLowerCase()==tablesFromDB[i].toLowerCase()){
+                if(log) console.log(FINAL_TABLES[j]+ "found!") 
+                found++
+            }
+        }
+    }
+
+    if(found==FINAL_TABLES.length){
+        return true
+    }else{
+        return false
+    }
+}
 export async function getListofTables()
 {
 
