@@ -1,6 +1,5 @@
-import { TbRuler2Off } from "react-icons/tb"
 import { logVar, varNotEmpty } from "../general"
-import { getSimpleConnectionVar } from "./db"
+import { getSequelizeObj, getSimpleConnectionVar } from "./db"
 import { getConnectionVar } from "./db"
 import * as _ from "lodash"
 /**
@@ -77,16 +76,20 @@ export async function testDBConnectionSimple()
 }
 export async function isInstalled(log)
 {
-    var allTables = await getListofTables()
+    var allTables = await getListofTablesWithSequelize()
     if(log){
-        console.log("Tables from DB:", allTables)
+        //console.log("Tables from DB:", allTables)
     }
     if(varNotEmpty(allTables) && allTables.length>=FINAL_TABLES.length)
     {
         let listOfTablesFromDb=[]
         for(const row in allTables){
-            if(allTables[row] && allTables[row]["Tables_in_sample_install_mmdm"]){
-                listOfTablesFromDb.push(allTables[row]["Tables_in_sample_install_mmdm"])
+            console.log(allTables[row])
+            if(allTables[row]){
+                for(const tableName in allTables[row]){
+                
+                    listOfTablesFromDb.push(allTables[row][tableName])
+                }
 
             }
         }
@@ -116,7 +119,7 @@ export function tableArrayMatch(tablesFromDB, log){
     for(const i in tablesFromDB){
         for (const j in FINAL_TABLES){
             if(FINAL_TABLES[j].toLowerCase()==tablesFromDB[i].toLowerCase()){
-                if(log) console.log(FINAL_TABLES[j]+ "found!") 
+                if(log) console.log(FINAL_TABLES[j]+ " found!") 
                 found++
             }
         }
@@ -141,6 +144,21 @@ export async function getListofTables()
             return resolve(result)
         })
         
+    })
+}
+
+export async function getListofTablesWithSequelize(){
+    const sequelize = getSequelizeObj()
+    return new Promise( (resolve, reject) => {
+        sequelize.getQueryInterface().showAllSchemas().then((tableObj) => {
+            console.log(tableObj);
+            resolve(tableObj)
+        })
+        .catch((err) => {
+            console.log('showAllSchemas ERROR',err);
+            resolve([])
+        })
+    
     })
 }
 
