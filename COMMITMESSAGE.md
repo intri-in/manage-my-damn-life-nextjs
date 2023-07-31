@@ -1,2 +1,5 @@
--Bug fix
-    - Fixed Events in CalendarView sometimes can't be resized or moved around. 
+- docker-compose file changed
+    - Now runs migrations
+    - Instead of requiring source code, pulls up image from Docker Hub
+- Docs updated
+- v0.3.0 is ready to go

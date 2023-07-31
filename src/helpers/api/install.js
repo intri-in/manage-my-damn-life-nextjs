@@ -2,8 +2,12 @@ import { TbRuler2Off } from "react-icons/tb"
 import { logVar, varNotEmpty } from "../general"
 import { getSimpleConnectionVar } from "./db"
 import { getConnectionVar } from "./db"
+import * as _ from "lodash"
+/**
+ * List of tables in db. v0.3.0
+ */
+export const FINAL_TABLES=[ "SequelizeMeta", "accounts","caldav_accounts", "calendar_events", "calendars", "custom_filters", "labels", "otp_table", "sessions", "settings", "ssid_table", "users" ]
 
-export const FINAL_TABLES=["caldav_accounts", "calendar_events" , "calendars", "custom_filters", "labels", "otp_table", "settings", "ssid_table", "users"]
 
 export async function testDBConnection(){
     var con = getConnectionVar()
@@ -71,12 +75,24 @@ export async function testDBConnectionSimple()
     })
 
 }
-export async function isInstalled()
+export async function isInstalled(log)
 {
     var allTables = await getListofTables()
+    if(log){
+        console.log("Tables from DB:", allTables)
+    }
     if(varNotEmpty(allTables) && allTables.length>=FINAL_TABLES.length)
     {
-        return true
+        let listOfTablesFromDb=[]
+        for(const row in allTables){
+            if(allTables[row] && allTables[row]["Tables_in_sample_install_mmdm"]){
+                listOfTablesFromDb.push(allTables[row]["Tables_in_sample_install_mmdm"])
+
+            }
+        }
+
+        return _.isEmpty(_.xor(listOfTablesFromDb, FINAL_TABLES))
+        //return true
     }else{
         return false
     }

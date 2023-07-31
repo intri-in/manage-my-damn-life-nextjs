@@ -2,6 +2,20 @@
 
 This guide will help you setup MMDL with basic configuration if you want to run MMDL with Docker Compose. 
 
+> ⚠️ **Configuration instructions have changed since v0.3.0**
+
+> This guide is useful for installation of v0.3.0 or above. Guide for older versions is available [here](https://manage-my-damn-life-nextjs.readthedocs.io/en/v0.2.0/).
+
+**MMDL no longer needs you to provide most of the environment variables in the ```docker-compose.yml``` file. You can instead reference a ```.env.local``` file in ```docker-compose.yml```.**
+
+Configuration with Docker Compose will be required in two parts:
+
+1. [Changing ```docker-compose.yml``` file.](#changing-docker-compose-configuration)
+2. [Creating and setting up a ```.env.local``` file.](#configuring-env)
+
+
+## Changing Docker Compose Configuration
+
 Copy sample docker compose file.
 
 ```
@@ -10,65 +24,23 @@ cp docker-compose.yml.sample docker-compose.yml
 
 
 
-## Variables that you absolutely need to change
+## Variables that you need to change
 
-These are the variables that you need to change for MMDL to function properly. If you're running 
+These are the variables that you need to change for MMDL to function properly. 
 
-### NEXT_PUBLIC_BASE_URL
+### env_file:
 
-> Required to Change From Default: **Yes**
+> Required to Change From Default: **Maybe**
 
 
-This is the base URL for the front end. If you're hosting MMDL with a domain name, point it to your domain. 
+This is the name of the file with your environment variables. Path is relative to the ```docker-compose.yml``` file. To learn more about creating a .env.local file, you can refer to the [guide here](WithoutDocker.md). 
 
-```
-Example:
-
-NEXT_PUBLIC_BASE_URL:"http://example.com/"
-```
-
-### DB_PASS
-
-> Required to Change From Default: **Yes**
-
-Password for your MySQL user.
-```
-Example:
-
-DB_PASS:mypassword
-```
-
-**Note: DB_PASS and [MYSQL_ROOT_PASSWORD](#MYSQL_ROOT_PASSWORD) must be the same.**
-
-### DB_NAME
-
-> Required to Change From Default: **Yes**
-
-Name of your MySQL database.
-```
-Example:
-
-DB_NAME:dbname
-```
-**Note: Variable DB_NAME and MYSQL_DATABASE must be the same.**
-
-### AES_PASSWORD
-
-> Required to Change From Default: **Yes**
-
-This password is used to secure CalDAV account passwords of users. Make sure this is long and secure.
-
-```
-Example:
-
-AES_PASSWORD : PASSWORD
-```
 
 ### MYSQL_DATABASE
 
 > Required to Change From Default: **Yes**
 
-This is the name of the database in your new MySQL container.
+This is the name of the database in your new MySQL container. 
 
 ```
 Example:
@@ -93,93 +65,7 @@ MYSQL_ROOT_PASSWORD:root
 **Note: DB_PASS and MYSQL_ROOT_PASSWORD must be the same.**
 
 
-## Variables that you may need to change
 
-The following variables aren't required for basic functionality, but might be required to be set for some additional features like sending password reset emails.
+## Configuring .env
 
-### SMTP_HOST 
-
-> Required to Change From Default: **No**
-
-Your SMTP host server.
-
-** Note: SMTP details are used to send emails during password reset. They are not required, but you might end up getting locked out of your account if you lose the password, and the only option in that case would be to manually reset the password in database.**
-```
-Example:
-
-SMTP_HOST : host
-```
-
-### SMTP_USERNAME 
-
-> Required to Change From Default: **No**
-
-Your SMTP username.
-
-** Note: SMTP details are used to send emails during password reset. They are not required, but you might end up getting locked out of your account if you lose the password, and the only option in that case would be to manually reset the password in database.**
-
-```
-Example:
-
-SMTP_USERNAME : username
-```
-
-### SMTP_PASSWORD 
-
-> Required to Change From Default: **No**
-
-Your SMTP password.
-
-** Note: SMTP details are used to send emails during password reset. They are not required, but you might end up getting locked out of your account if you lose the password, and the only option in that case would be to manually reset the password in database.**
-
-```
-Example:
-
-SMTP_PASSWORD : password
-```
-
-### SMTP_FROMEMAIL 
-
-> Required to Change From Default: **No**
-
-From email for your SMTP server.
-
-** Note: SMTP details are used to send emails during password reset. They are not required, but you might end up getting locked out of your account if you lose the password, and the only option in that case would be to manually reset the password in database.**
-
-```
-Example:
-
-SMTP_FROMEMAIL : test@example.com
-```
-
-### SMTP_PORT 
-
-> Required to Change From Default: **No**
-
-Port for your SMTP server.
-
-** Note: SMTP details are used to send emails during password reset. They are not required, but you might end up getting locked out of your account if you lose the password, and the only option in that case would be to manually reset the password in database.**
-
-```
-Example:
-
-SMTP_PORT : 25
-```
-
-### SMTP_USESECURE 
-
-> Required to Change From Default: **No**
-
-Whether or not to use secure port(TLS/STARTTLS) for SMTP.
-
-** Note: SMTP details are used to send emails during password reset. They are not required, but you might end up getting locked out of your account if you lose the password, and the only option in that case would be to manually reset the password in database.**
-
-```
-Example:
-
-SMTP_USESECURE : false 
-```
-
-## Additional Variables
-
-There are some additional variables that you don't really need to get into to get a basic setup  running. You can learn more about them [here.](DetailedConfiguration.md)
+Now that your ```docker-compose.yml``` is ready you can go ahead and setup a ```.env.local``` file. To learn more, visit [this guide](WithoutDocker.md).

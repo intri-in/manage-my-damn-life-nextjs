@@ -6,11 +6,12 @@ If you want to run MMDL in a docker container, you have two options:
 2. [Run with a Docker Image](#without-docker-compose)
 
 ## With Docker Compose
+> ⚠️ **Installation instructions have changed since v0.3.0**
 
-Pull the repository, or download latest release from Github.
+Visit the repository, and download the ```docker-compose.yml.sample` file from Github.
 
 ```
-git clone https://github.com/intri-in/manage-my-damn-life-nextjs.git
+https://github.com/intri-in/manage-my-damn-life-nextjs.git
 ```
 
 Copy sample compose file.
@@ -39,7 +40,7 @@ Open your browser and go to ```http://localhost:3000/install``` to start the ins
 Get the latest docker image
 
 ```
-docker pull intriin/mmdl
+docker pull intriin/mmdl:latest
 ```
 
 ### Configuration
@@ -47,8 +48,9 @@ Docker image of MMDL needs some configuration to run.
 
 You can get a sample configuration file from the github repository.
 
+
 ```
-curl https://raw.githubusercontent.com/intri-in/manage-my-damn-life-nextjs/main/sample.env.local.docker > .env.local
+curl https://raw.githubusercontent.com/intri-in/manage-my-damn-life-nextjs/main/sample.env.local > .env.local
 ```
 
 Make changes to it, using the [Configuration](../Configuration/WithoutDocker.md) guide as a help. The most important settings are the database settings.
@@ -60,6 +62,7 @@ MMDL uses a MySQL database to store user data. You can either use an existing da
 If you choose to use your MySQL without docker, just set the values of DB_HOST, DB_USER, DB_PASS, and DB_NAME in the **.env.local** file you just downloaded.
 
 If you need a basic guide to run a MySQL container, you can read one [here](../Supplementary/RunMySQLDocker.md).
+
 ### Run the MMDL Docker Container
 
 All previous steps completed, you can now spin up the docker container for MMDL.

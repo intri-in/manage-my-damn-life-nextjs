@@ -41,7 +41,8 @@ export function getSequelizeObj(){
     process.env.DB_PASS,
      {
        host: process.env.DB_HOST,
-       dialect: 'mysql'
+       dialect: 'mysql',
+       dialectModule: require('mysql2'),
      });
 
      return sequelize

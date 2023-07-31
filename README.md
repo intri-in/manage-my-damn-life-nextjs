@@ -22,6 +22,8 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 4. View your tasks as a list, in a gantt view, or on a calendar.  
 1. Create and manage task filters to view your tasks as you see fit.
 1. "Reponsive-ish" view. This is a desktop first project, as multiple clients like JTX Boards, OpenTasks exist for mobile.
+1. OAUTH support
+
 
 ### Planned features
 
@@ -29,7 +31,6 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 1. More flexible ways to view tasks, and customisable views.
 1. Drag and drop capability for tasks
 1. Ability to create external plugins.
-1. OAUTH support
 
 ## Compatibility
 

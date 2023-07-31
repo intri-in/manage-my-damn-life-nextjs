@@ -8,12 +8,14 @@ import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth'
 import { checkLogin_InBuilt, logoutUser_withRedirect } from '@/helpers/frontend/user'
 import { varNotEmpty } from '@/helpers/general'
 import { useRouter } from 'next/router'
+import { getIfInstalled, installCheck } from '@/helpers/install'
 
 const i18next = getI18nObject()
 export default function HomePage() {
   const { data: session, status } = useSession()  
   const [updated, setUpdated]=useState('')
   const [isSyncing, setIsSyncing] = useState(false)
+  const [installChecked, setInstallChecked] = useState(false)
   const onSynComplete = () =>{
       var updated = Math.floor(Date.now() / 1000)
       setUpdated(updated)
@@ -37,16 +39,26 @@ export default function HomePage() {
   //   // }, [userAuthenticated])
   const router = useRouter()
 
+    useEffect(()=>{
+      installCheck(router).then(()=>{
+        setInstallChecked(true)
+
+      })
+    }, [router])
+
     useEffect(() =>{
-      if(nextAuthEnabled()){
-        if (status=="unauthenticated" ) {
-          signIn()
+      if(installChecked){
+        if(nextAuthEnabled()){
+          if (status=="unauthenticated" ) {
+            signIn()
+          }
+        }else{
+          // Check login using inbuilt function.
+          checkLogin_InBuilt(router)
         }
-      }else{
-        // Check login using inbuilt function.
-        checkLogin_InBuilt(router)
+  
       }
-    }, [status, router])
+    }, [status, router, installChecked])
     
 
   

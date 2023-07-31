@@ -1,21 +1,24 @@
-# Configuration: Without Docker Compose
+# Configuration: Setting up .env File
+
+> ⚠️ **Configuration instructions have changed since v0.3.0**
+
+> This guide is useful for installation of v0.3.0 or above. Guide for older versions is available [here](https://manage-my-damn-life-nextjs.readthedocs.io/en/v0.2.0/).
+
 
 This guide will help you setup MMDL with basic configuration. 
 
-Use this guide if you're running MMDL:
+Configuration will be done by making changes to ```.env.local``` file in the root directory.
 
-1. With a docker image (but not docker compose)
-1. By cloning the repository directory
-
-Configuration will be done by making changes to .env.local file in the root directory.
-
-First, copy the env file in the root directory.
+If you have cloned the git repository, clone the env file.
     
 ```
 cp .env.local.sample .env.local
 ```
-You don't need to worry about all the variables in this file.
+If you are running via docker image, or Docker Compose, fetch the ```.env.local.sample``` file as follows:
 
+```
+curl https://raw.githubusercontent.com/intri-in/manage-my-damn-life-nextjs/main/sample.env.local >  .env.local
+```
 
 
 ## Variables that you absolutely need to change
@@ -70,7 +73,21 @@ Example:
 DB_PASS=mypassword
 ```
 
+
+### DB_PORT
+
+> Required to Change From Default: **Yes**
+
+Port for your MySQL server.
+```
+Example:
+
+DB_PORT=3306
+```
+
 ### DB_NAME
+
+> ⚠️ **Do not set if you're using Docker Compose**
 
 > Required to Change From Default: **Yes**
 
@@ -80,6 +97,7 @@ Example:
 
 DB_NAME=dbname
 ```
+
 
 ### AES_PASSWORD
 
@@ -179,6 +197,14 @@ Example:
 
 SMTP_USESECURE = false 
 ```
+
+### OAUTH Variables
+
+> Required to Change From Default: **No**
+
+The variables NEXT_PUBLIC_USE_NEXT_AUTH, NEXTAUTH_URL, NEXTAUTH_SECRET, and more are required for OAUTH to work.
+
+Please refer to this [detailed guide](OAuth.md) to set them.
 
 ## Additional Variables
 

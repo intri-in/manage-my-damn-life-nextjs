@@ -47,6 +47,7 @@ config/config.json
 package-withSequelize.json
 
 temp/
+*.backup
 #Sequelise Temporary Ignore list
 # models/
 # config/

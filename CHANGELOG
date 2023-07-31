@@ -1,3 +1,10 @@
+v0.3.0
+- docker-compose file changed
+    - Now runs migrations
+    - Instead of requiring source code, pulls up image from Docker Hub
+- Docs updated
+- v0.3.0 is ready to go
+
 v0.3.0-dev
     - Version bumped to 0.3.0 
     - NextAuth.js Introduced
