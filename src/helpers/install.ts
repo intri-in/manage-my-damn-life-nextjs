@@ -41,7 +41,8 @@ export async function installCheck(router: NextRouter){
     const installed: boolean = await getIfInstalled()
     
     if(!installed){
-        router.push('/install')
+        //router.push('/install')
     }
+    return installed
 
 }

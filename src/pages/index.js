@@ -39,12 +39,7 @@ export default function HomePage() {
   //   // }, [userAuthenticated])
   const router = useRouter()
 
-    useEffect(()=>{
-      installCheck(router).then(()=>{
-        setInstallChecked(true)
-
-      })
-    }, [router])
+   
 
     useEffect(() =>{
       if(installChecked){

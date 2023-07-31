@@ -20,12 +20,13 @@ import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { getNextAuthSessionData, nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
+import { installCheck } from "@/helpers/install";
 
 
 class AppBarGeneric_ClassComponent extends Component {
   constructor(props) {
     super(props)
-    this.state = {  isSyncing: this.props.isSyncing, username: "",  }
+    this.state = {  isSyncing: this.props.isSyncing, username: "", installed: true }
     this.i18next = getI18nObject()
     this.logoClicked = this.logoClicked.bind(this)
     this.taskViewClicked = this.taskViewClicked.bind(this)
@@ -35,10 +36,14 @@ class AppBarGeneric_ClassComponent extends Component {
     this.manageFilterClicked = this.manageFilterClicked.bind(this)
     this.labelManageClicked = this.labelManageClicked.bind(this)
     this.manageCaldavClicked = this.manageCaldavClicked.bind(this)
+    this.notInstalledBannerClicked = this.notInstalledBannerClicked.bind(this)
   }
-componentDidMount(){
+async componentDidMount(){
   this.setState({isSyncing: this.props.isSyncing})
- 
+  const installed = await installCheck(this.props.router)
+  if(!installed){
+    this.setState({installed: false})
+  }
   var context = this
   setInterval(() => {
     //context.syncButtonClicked()
@@ -71,7 +76,9 @@ componentDidMount(){
 
 }
 
-
+notInstalledBannerClicked(){
+  this.props.router.push("/install")
+}
 componentDidUpdate(prevProps, prevState) {
 
   if (this.props.isSyncing !== prevProps.isSyncing) {
@@ -131,8 +138,14 @@ async syncButtonClicked() {
     aria-hidden="true"
   />) : (<IoSyncCircleOutline size={24} onClick={this.syncButtonClicked} />)
 
+    let notInstalledBanner = null
+    if(!this.state.installed){
+    notInstalledBanner = (<div onClick={this.notInstalledBannerClicked} style={{background: "darkred", textAlign:"center", color:"white"}}>{this.i18next.t("MMDL_NOT_INSTALLED")}</div>)
+    }
     return (
-      <Navbar className="nav-pills nav-fill" style={{background: PRIMARY_COLOUR, padding: 20}} variant="dark" sticky="top"  expand="lg">
+      <>
+            {notInstalledBanner}
+            <Navbar className="nav-pills nav-fill" style={{background: PRIMARY_COLOUR, padding: 20}} variant="dark" sticky="top"  expand="lg">
                 <Navbar.Brand  onClick={this.logoClicked} >
                         <Image
                   src="/logo.png"
@@ -203,6 +216,8 @@ async syncButtonClicked() {
 
 
       </Navbar>
+
+      </>
     )
   }
 }
