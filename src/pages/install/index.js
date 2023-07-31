@@ -3,6 +3,7 @@ import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
+import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +28,12 @@ class StartInstall extends Component{
 
     continueClicked()
     {
-        this.props.router.push("/accounts/register")
+        if(!nextAuthEnabled()){
+            this.props.router.push("/accounts/register")
+        }else{
+            this.props.router.push("/")
+        }
+        
     }
 
     getInstallFinishedOKForm()

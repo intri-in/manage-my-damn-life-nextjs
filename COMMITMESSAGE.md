@@ -1,2 +1,1 @@
--Bug fix
-    - Fixed Events in CalendarView sometimes can't be resized or moved around. 
+- Link flag removed from Dockerfile. Breaks CI on github.

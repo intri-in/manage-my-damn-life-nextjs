@@ -6,112 +6,140 @@ import { FINAL_TABLES, checkifDBExists, createMMDL_DB, getInstallDateFromDB, get
 import { middleWareForAuthorisation } from "@/helpers/api/user"
 import { logVar, varNotEmpty } from "@/helpers/general"
 import moment from "moment"
+import runManualMigrations from "runSequelizeMigrations"
 const LOGTAG = "api/install/go"
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        if(process.env.NEXT_PUBLIC_TEST_MODE=="true")
+        // if(process.env.NEXT_PUBLIC_TEST_MODE=="true")
+        // {
+        //     //Test reponse.
+        //     return res.status(200).json({ success: true ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
+        // }
+        var con = getConnectionVar()
+        var err =  con.ping()
+        if(varNotEmpty(err))
         {
-            //Test reponse.
-            res.status(200).json({ success: true ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
+            res.status(503).json({ success: false ,data: {message: err}})
+
         }else{
-            var con = getConnectionVar()
-            var err =  con.ping()
-            if(varNotEmpty(err))
+
+            var dbExits= await checkifDBExists()
+            if(varNotEmpty(dbExits) && dbExits == true)
             {
-                res.status(503).json({ success: false ,data: {message: err}})
-    
+                //Db Exists, probably. And the user has access to it.
+                
+                //We continue.
+
+
+                await moveOn(req, res)
+
             }else{
-    
-                var dbExits= await checkifDBExists()
-                if(varNotEmpty(dbExits) && dbExits == true)
-                {
-                    //Db Exists, probably. And the user has access to it.
-                    
-                    //We continue.
 
+                return res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
+                //Check if this is a docker install (so we assume user has root privileges on database).
 
-                    await moveOn(req, res)
+                // if(varNotEmpty(process.env.DOCKER_INSTALL) && process.env.DOCKER_INSTALL=="true")
+                // {
+                //     // This is a docker install.
+                //     // We now need to try to install the db.
+                //     var statusofDBCreation = await createMMDL_DB()
+                //     logVar(statusofDBCreation, LOGTAG+" statusofDBCreation")
+                //     if(statusofDBCreation==true)
+                //     {
+                //     }else{
+                //         
 
-                }else{
-                    //Check if this is a docker install (so we assume user has root privileges on database).
+                //     }
+                // }else{
+                //     res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
 
-                    if(varNotEmpty(process.env.DOCKER_INSTALL) && process.env.DOCKER_INSTALL=="true")
-                    {
-                        // This is a docker install.
-                        // We now need to try to install the db.
-                        var statusofDBCreation = await createMMDL_DB()
-                        logVar(statusofDBCreation, LOGTAG+" statusofDBCreation")
-                        if(statusofDBCreation==true)
-                        {
-                            await moveOn(req, res)
-                        }else{
-                            res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
+                // }
 
-                        }
-                    }else{
-                        res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
-
-                    }
-
-                }
-              
-    
             }
-    
+            
+
         }
+    
+        
     }
 }
 
-export async function moveOn(req, res)
+async function moveOn(req, res)
 {
     //We have successful connection to a database. Now we check the install info from database.
 
-    var installed = await isInstalled()
+    var installed = await isInstalled(true)
     if(installed==true){
         res.status(409).json({ success: false ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
 
     }else{
-        //Continue.
+        // All required tables weren't found in the database.
+        // Either the use didn't run the migrate command, or MMDL is being run using docker.
+        // We try to run the migrations here.
+        
+        try{
+            const result = await runManualMigrations()
+            console.log("result", result)
+            if(result==true){
+                res.status(200).json({ success: true ,data: {message:"INSTALL_OK", details: result}})
+            }else{
+                res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(result)}})
+    
+            }
+    
+        }
+        catch (e){
+            console.log(e)
+            res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(e)}})
 
-        var listTbls = await getListofTables()
+        }
 
-        var toInstall = []
-        for (const k in FINAL_TABLES){
+      
+        
+    }
 
-            var found =false
-            for(const i in listTbls)
+} 
+/**
+ * @deprecated
+ * Install process before v0.3.0 has now been moved here. 
+ */
+async function installTables_OldVersion(){
+    var listTbls = await getListofTables()
+
+    var toInstall = []
+    for (const k in FINAL_TABLES){
+
+        var found =false
+        for(const i in listTbls)
+        {
+            for (const m in listTbls[i])
             {
-                for (const m in listTbls[i])
+                if(listTbls[i][m]==FINAL_TABLES[k])
                 {
-                    if(listTbls[i][m]==FINAL_TABLES[k])
-                    {
-                        found=true
-                    }
-
+                    found=true
                 }
 
             }
 
-            if(found==false){
-                toInstall.push(FINAL_TABLES[k])
-            }
+        }
 
+        if(found==false){
+            toInstall.push(FINAL_TABLES[k])
         }
-        logVar(toInstall, "Tables to Install>>")
-        var finalReponse = []
-        if(toInstall.length>0)
-        {
-            //Install each table.
-            for(const tbl in toInstall)
-            {
-                var response= await installTables(toInstall[tbl])
-                finalReponse.push([toInstall[tbl], response])
-            }
-        
-        }
-        res.status(200).json({ success: true ,data: {message:finalReponse}})
 
     }
+    logVar(toInstall, "Tables to Install>>")
+    var finalReponse = []
+    if(toInstall.length>0)
+    {
+        //Install each table.
+        for(const tbl in toInstall)
+        {
+            var response= await installTables(toInstall[tbl])
+            finalReponse.push([toInstall[tbl], response])
+        }
+    
+    }
 
-} 
+}
