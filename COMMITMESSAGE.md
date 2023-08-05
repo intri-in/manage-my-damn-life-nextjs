@@ -1,3 +1,1 @@
--v0.3.1
-    - Fixed problem with installation check causing a loop
-    
+-Bug fix: Home page not redirecting if user isn't logged in.
