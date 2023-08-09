@@ -496,7 +496,6 @@ export default class TaskEditor extends Component {
         return dueDate
     }
     async saveTask() {
-        //console.log(recurrences)
         var recurrences = null
         if(this.state.isRepeatingTask == true )
         {
@@ -509,6 +508,7 @@ export default class TaskEditor extends Component {
                 recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]=getISO8601Date(this.state.nextUpRepeatingInstance)
             }
         }
+        console.log(recurrences)
 
 
             if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
@@ -537,7 +537,7 @@ export default class TaskEditor extends Component {
                 
                 //console.log(todo, finalTodoData)
                 var finalVTODO = todo.generate()
-                logVar(finalVTODO, "Final Generated TODO")
+                console.log("Final Generated TODO:", finalVTODO, todoData )
                 var etag = getRandomString(32)
                 if (this.props.data.url_internal == null || this.props.data.url_internal == "") {
                   var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)

@@ -1,6 +1,7 @@
 v0.3.2
     - -Bug fix: Home page not redirecting if user isn't logged in.
-
+    - Bug fix: Recurrence not working.
+    - Vtodogenerator package bumped up to v3.0.1
 
 v0.3.0
 - docker-compose file changed

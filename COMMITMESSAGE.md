@@ -1,1 +1,2 @@
--Bug fix: Home page not redirecting if user isn't logged in.
+- Bug fix: Recurrence not working.
+    - Vtodogenerator package bumped up to v3.0.1
