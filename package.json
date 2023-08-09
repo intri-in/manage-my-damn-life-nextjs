@@ -70,7 +70,7 @@
     "timezone-validator": "1.0.3",
     "tsdav": "2.0.3",
     "validator": "13.9.0",
-    "vtodogenerator": "2.0.2"
+    "vtodogenerator": "3.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "7.21.5",
