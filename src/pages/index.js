@@ -42,18 +42,17 @@ export default function HomePage() {
    
 
     useEffect(() =>{
-      if(installChecked){
         if(nextAuthEnabled()){
           if (status=="unauthenticated" ) {
             signIn()
           }
+          
         }else{
           // Check login using inbuilt function.
           checkLogin_InBuilt(router)
         }
-  
-      }
-    }, [status, router, installChecked])
+        
+      }, [status, router])
     
 
   

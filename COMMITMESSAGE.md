@@ -1,3 +1,2 @@
--v0.3.1
-    - Fixed problem with installation check causing a loop
-    
+- Bug fix: Recurrence not working.
+    - Vtodogenerator package bumped up to v3.0.1

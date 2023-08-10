@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -70,7 +70,7 @@
     "timezone-validator": "1.0.3",
     "tsdav": "2.0.3",
     "validator": "13.9.0",
-    "vtodogenerator": "2.0.2"
+    "vtodogenerator": "3.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "7.21.5",
