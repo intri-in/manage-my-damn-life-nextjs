@@ -1,2 +1,2 @@
-- Bug fix: Recurrence not working.
-    - Vtodogenerator package bumped up to v3.0.1
+- Bug fixes:
+    - Fixed bug that prevented editing of Events.

@@ -95,7 +95,7 @@ export default class EventEditor extends Component {
         return eventData
         */
     }
-    componentDidMount() {
+    async componentDidMount() {
 
        // console.log(this.props.eventData.event.data, this.props.eventData.data)
         this.getVAlarms(this.props.eventData.event.data)
@@ -113,7 +113,7 @@ export default class EventEditor extends Component {
             this.setState({ deleteButton: this.getDeleteButton() })
         }
 
-        this.generateCalendarName()
+        await this.generateCalendarName()
         this.setCalendarID()
     }
 
@@ -173,15 +173,16 @@ export default class EventEditor extends Component {
 
     }
     calendarSelected(e) {
-        //console.log(e.target.value)
         this.setState({ calendar_id: e.target.value })
-
 
     }
     async setCalendarID()
     {
         var calendar = await getDefaultCalendarID()
-        this.setState({ calendar_id:  calendar})
+        if(calendar){
+            this.setState({ calendar_id:  calendar})
+
+        }
 
     }
 
@@ -441,15 +442,13 @@ export default class EventEditor extends Component {
 
         // Add fields not supported by MMDL. 
 
-        //console.log(eventData)
         eventData = addAdditionalFieldsFromOldEvent(eventData, this.props.eventData)
-        //console.log(eventData)
 
         if (this.isValidEvent(eventData)) {
             var obj = getObjectForAPICall(eventData.data)
             //console.log("obj", obj)
             var ics = await makeGenerateICSRequest({ obj })
-            console.log(eventData, ics)
+            if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if (varNotEmpty(ics)) {
 
                 //Make add request if new, edit request otherwise.
