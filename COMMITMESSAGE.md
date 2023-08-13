@@ -1,2 +1,1 @@
-- Bug fixes:
-    - Fixed bug that prevented editing of Events.
+- Bump to v0.3.3
