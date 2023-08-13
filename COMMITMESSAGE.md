@@ -1,2 +1,1 @@
-- Bug fix: Recurrence not working.
-    - Vtodogenerator package bumped up to v3.0.1
+- Bump to v0.3.3

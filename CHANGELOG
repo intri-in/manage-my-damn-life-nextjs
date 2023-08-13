@@ -1,3 +1,6 @@
+v0.3.3
+    - Bug fixes:
+    - Fixed bug that prevented editing of Events.
 v0.3.2
     - -Bug fix: Home page not redirecting if user isn't logged in.
     - Bug fix: Recurrence not working.

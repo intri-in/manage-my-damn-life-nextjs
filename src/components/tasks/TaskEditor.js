@@ -210,7 +210,10 @@ export default class TaskEditor extends Component {
     async setCalendarID()
     {
         var calendar = await getDefaultCalendarID()
-        this.setState({ calendar_id:  calendar})
+        if(calendar){
+            this.setState({ calendar_id:  calendar})
+
+        }
 
     }
     componentDidUpdate(prevProps, prevState) {
