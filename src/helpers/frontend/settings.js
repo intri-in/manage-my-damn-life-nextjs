@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import { isValidResultArray, logError, varNotEmpty } from "../general";
 import SettingsHelper from "./classes/SettingsHelper";
 
+export const SETTING_NAME_CALENDAR_START_DAY="MMDL_CALENDAR_START_DAY"
 export function getSyncTimeout()
 {
     var timeout = Cookies.get("USER_SETTING_SYNCTIMEOUT")
@@ -22,7 +23,17 @@ export function saveLabelArrayToCookie(labels)
         
     }
 }
+export function getCalendarStartDay(){
+    const defaultCalendar= Cookies.get(SETTING_NAME_CALENDAR_START_DAY)
 
+    if(varNotEmpty(defaultCalendar)){
+        return defaultCalendar
+    }else{
+        return "1"
+    }
+    
+
+}
 export function getLabelArrayFromCookie()
 {
     var array =[]

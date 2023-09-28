@@ -8,12 +8,13 @@ import GenerateTaskUIList from "./GenerateTaskUIList";
 import { MdCancel } from "react-icons/md";
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
 import { getI18nObject } from "@/helpers/frontend/general";
+import { Loading } from "../common/Loading";
 export class TaskWithFilters extends Component{
     constructor(props)
     {
         super(props)
         this.i18next= getI18nObject()
-        this.state ={list: this.props.list, isFiltered: false, taskList: null, showAllChecked:false}
+        this.state ={list: this.props.list, isFiltered: false, taskList: null, showAllChecked:false, renderedTasks: <Loading padding={20} centered={true} />}
         this.getLabels = this.getLabels.bind(this)
         this.childlessList
         this.filterByLabelClicked = this.filterByLabelClicked.bind(this)
@@ -25,12 +26,13 @@ export class TaskWithFilters extends Component{
 
     componentDidMount(){
      
-     if(this.state.isFiltered==false) 
-     {
+     if(this.state.isFiltered==false) {
       this.setLabelMenu()
 
-      }
-     
+    }
+
+
+      //
     }
 
     showAllChanged(e)
@@ -190,7 +192,8 @@ export class TaskWithFilters extends Component{
         </Row>
       
       {this.state.appliedFilters}
-      <GenerateTaskUIList scheduleItem={this.props.scheduleItem} showDone={this.state.showAllChecked} collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.props.collapsed} fetchEvents={this.props.fetchEvents} list={this.state.list} todoList={this.props.todoList} level={-1} context={this.props.context} listColor={this.props.listColor}  />      </>
+      <GenerateTaskUIList scheduleItem={this.props.scheduleItem} showDone={this.state.showAllChecked} collapseButtonClicked={this.props.collapseButtonClicked} collapsed={this.props.collapsed} fetchEvents={this.props.fetchEvents} list={this.state.list} todoList={this.props.todoList} level={-1} context={this.props.context} listColor={this.props.listColor}  /> 
+           </>
         )
     }
 }

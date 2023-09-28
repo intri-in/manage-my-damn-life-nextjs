@@ -1,1 +1,3 @@
-- Bump to v0.3.3
+- Bump version number to v0.3.4
+- Introduced option to select starting day of the week for Calendar View
+- Minor performance fixes
