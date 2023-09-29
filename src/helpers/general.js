@@ -1,6 +1,7 @@
 import moment from "moment"
 import { dueDatetoUnixStamp } from "./frontend/general"
 
+export const DAY_ARRAY = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
 export function isValidResultArray(array)
 {
     if(array!=null && Array.isArray(array) && array.length>0)
@@ -187,4 +188,15 @@ export function getISO8601Date(date, skipTime)
         return null
     }
     return toReturn
+}
+
+export function dayNameFromNumber(dayNumber){
+
+    const dayArray = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+    if(dayNumber>0 && dayNumber<dayArray.length-1){
+        return dayArray[dayNumber]
+    }
+
+    return ""
+
 }

@@ -80,7 +80,7 @@ export default class TaskUI extends Component {
             this.setState({ taskTitle: newTaskTitle })
 
             }catch(e){
-                console.error(e)
+                console.warn(e)
             }
             
         }

@@ -151,7 +151,7 @@ export function RecursivelyGetListItemforTask(props) {
     }
     if (toReturn != []) {
         
-        return (<div key={getRandomString(5)} style={{marginBottom: 5}}>
+        return (<div style={{marginBottom: 5}}>
 
             {toReturn}
 
