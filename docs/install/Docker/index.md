@@ -20,7 +20,9 @@ Copy sample compose file.
 cp docker-compose.yml.sample docker-compose.yml 
 ```
 
-You can make changes to docker compose file using the [Configuration](../Configuration/WithDockerCompose.md) guide as a help. If you're just running locally and port 3000 is free on your local machine, no configuration is required.
+You can make changes to docker compose file using the [Configuration](../Configuration/WithDockerCompose.md) guide as a help. 
+
+After making the required changed, run:
 
 ```
 docker compose up

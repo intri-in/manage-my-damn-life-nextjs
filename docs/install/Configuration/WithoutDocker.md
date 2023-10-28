@@ -87,7 +87,6 @@ DB_PORT=3306
 
 ### DB_NAME
 
-> ⚠️ **Do not set if you're using Docker Compose**
 
 > Required to Change From Default: **Yes**
 

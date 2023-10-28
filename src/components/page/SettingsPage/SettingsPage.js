@@ -18,6 +18,7 @@ import DefaultCalendarViewSelect from "@/components/accounts/DefaultCalendarView
 import { VERSION_NUMBER } from "@/config/constants";
 import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+import CalendarStartDayWeek from "@/components/settings/CalendarStartDayWeek";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -373,6 +374,8 @@ class SettingsPage extends Component {
                                 <DefaultCalendarViewSelect />
                             </Col>
                         </Row>
+                        <br />
+                        <CalendarStartDayWeek />
                         </div>
                         <br />
                         <br />

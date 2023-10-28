@@ -23,7 +23,7 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { withRouter } from "next/router";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { FULLCALENDAR_VIEWLIST } from "./FullCalendarHelper";
-import { getDefaultViewForCalendar } from "@/helpers/frontend/settings";
+import { getCalendarStartDay, getDefaultViewForCalendar } from "@/helpers/frontend/settings";
 import { ListGroupCalDAVAccounts } from "./ListGroupCalDAVAccounts";
 import { Preference_CalendarsToShow } from "@/helpers/frontend/classes/UserPreferences/Preference_CalendarsToShow";
 
@@ -34,7 +34,7 @@ class DashboardView extends Component {
         super(props)
         this.i18next = getI18nObject()
         var initialViewCalendar = "timeGridDay"
-        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR,showTasksChecked: false, allEventsFromServer: null, caldav_accounts:null }
+        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR,showTasksChecked: false, allEventsFromServer: null, caldav_accounts:null, firstDay:"3"}
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -66,10 +66,11 @@ class DashboardView extends Component {
             this.setState({viewValue: view})
 
         }
-        this.setState({showTasksChecked: true})
+        this.setState({showTasksChecked: true, firstDay: getCalendarStartDay()})
 
     }
 
+    
     async getCaldavAccountsfromDB() {
         var caldav_accounts = await getCaldavAccountsfromServer()
         if (caldav_accounts != null && caldav_accounts.success == true) {
@@ -653,6 +654,7 @@ class DashboardView extends Component {
                 rerenderEvents={this.rerenderEvents}
                 eventDrop={this.eventDrop}
                 eventResize={this.eventResize}
+                firstDay={this.state.firstDay}
             />
             <br />
             <br />

@@ -47,14 +47,38 @@ Example:
 
 MYSQL_DATABASE : dbname
 ```
+### MYSQL_USER
+> Required to Change From Default: **Yes**
 
-**Note: Variable DB_NAME and MYSQL_DATABASE must be the same.**
+This is the name of the user in your new MySQL container. 
+
+```
+Example:
+
+MYSQL_USER : myuser
+```
+
+**Note: Variable DB_USER in your .env file and MYSQL_USER in docker-compose.yml must be the same.**
+
+### MYSQL_PASSWORD
+> Required to Change From Default: **Yes**
+
+This is the password of the user in your new MySQL container. 
+
+```
+Example:
+
+MYSQL_PASSWORD : mypassword
+```
+
+**Note: Variable DB_PASS in your .env file and MYSQL_PASSWORD in docker-compose.yml must be the same.**
+
 
 ### MYSQL_ROOT_PASSWORD
 
-> Required to Change From Default: **Yes**
+> Required to Change From Default: **Maybe**
 
-Password for your MySQL user on the new docker MySQL which will be created.
+Password for your root user on the new docker container MySQL which will be created.
 
 ```
 Example:
@@ -62,7 +86,7 @@ Example:
 MYSQL_ROOT_PASSWORD:root
 ```
 
-**Note: DB_PASS and MYSQL_ROOT_PASSWORD must be the same.**
+**Note: DB_PASS in your .env file and MYSQL_ROOT_PASSWORD in docker-compose.yml must be the same if you plan on using the root user.**
 
 
 

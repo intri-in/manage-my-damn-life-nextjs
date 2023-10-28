@@ -13,7 +13,7 @@ export default class SettingsHelper
 {
 
 
-    static async getFromServer(keyName: string)
+    static async getFromServer(keyName: string): Promise<string>
     {
         const authorisationData = await getAuthenticationHeadersforUser()
         return new Promise( (resolve, reject) => {
@@ -32,7 +32,7 @@ export default class SettingsHelper
                     }else{
                         return resolve("")
                     }
-                  })  .catch(function (error) {
+                  }).catch(function (error) {
                     logError(error, "SettingsHelper.getFromServer");
                     return resolve("")
                   });

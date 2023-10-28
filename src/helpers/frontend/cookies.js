@@ -12,6 +12,7 @@ export function deleteAllCookies(){
     Cookies.remove("USERHASH")
     Cookies.remove("USER_PREFERENCE_CALENDARS_TO_SHOW")
     Cookies.remove("SSID")
+    Cookies.remove("MMDL_CALENDAR_START_DAY")
 
     
     

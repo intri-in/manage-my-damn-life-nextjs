@@ -37,10 +37,12 @@ services:
       #DB_NAME and MYSQL_DATABASE must be the same.
       MYSQL_DATABASE: sample_install_mmdm
       
-      
-      #DB_PASS and MYSQL_ROOT_PASSWORD must be the same.
-      MYSQL_ROOT_PASSWORD: root
+      # This is the user name and password of your mysql user that will be created. These values must be used in DB_USER and DB_PASS variables in the .env file that you will create.
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
 
+      # This defines the root password of mysql in the container. You can use the root user too. 
+      MYSQL_ROOT_PASSWORD: root
     ############################################################
     ## The following variables are advanced settings,
     ## and must be only changed in case you're trying something
