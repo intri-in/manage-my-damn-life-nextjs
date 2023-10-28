@@ -285,7 +285,6 @@ export default class TaskEditor extends Component {
     }
     async generateCalendarName() {
         const calendarsFromCookies= getUserCalendarsFromLocalStorage()
-        console.log("calendarsFromCookies", calendarsFromCookies)
         if(varNotEmpty(calendarsFromCookies)){
             this.setState({calendarsFromServer: calendarsFromCookies})
 
