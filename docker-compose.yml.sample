@@ -15,8 +15,6 @@ services:
     networks:
       - app-tier   
     restart: always
-    environment:
-      DB_HOST: db
     env_file:
       - .env.local
     extra_hosts:
@@ -29,24 +27,5 @@ services:
       - 3306
     networks:
       - app-tier
-    environment:
-    ############################################################
-    ## The following variables NEED to be set before execution.
-    ############################################################
-      
-      #DB_NAME and MYSQL_DATABASE must be the same.
-      MYSQL_DATABASE: sample_install_mmdm
-      
-      # This is the user name and password of your mysql user that will be created. These values must be used in DB_USER and DB_PASS variables in the .env file that you will create.
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
-
-      # This defines the root password of mysql in the container. You can use the root user too. 
-      MYSQL_ROOT_PASSWORD: root
-    ############################################################
-    ## The following variables are advanced settings,
-    ## and must be only changed in case you're trying something
-    ## specific.
-    ############################################################
-      MYSQL_ALLOW_EMPTY_PASSWORD: ok
-      MYSQL_ROOT_HOST: '%'
+    env_file:
+      - .env.local
