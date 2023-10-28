@@ -2,6 +2,7 @@ import Cookies from 'js-cookie'
 import { getAuthenticationHeadersforUser } from './user'
 import { getAPIURL, logVar, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
+import { clearLocalStorage } from './localstorage'
 
 export function deleteAllCookies(){
     Cookies.remove("DEFAULT_CALENDAR_ID")
@@ -13,8 +14,8 @@ export function deleteAllCookies(){
     Cookies.remove("USER_PREFERENCE_CALENDARS_TO_SHOW")
     Cookies.remove("SSID")
     Cookies.remove("MMDL_CALENDAR_START_DAY")
-
-    
+    Cookies.remove("MMDL_USER_CALENDARS")
+    clearLocalStorage()
     
 }
 export function setCookie(cname, cvalue, exdays=10000)
@@ -68,7 +69,6 @@ export async function getDefaultCalendarID()
     })
 
 }
-
 export function setDefaultCalendarID(calendars_id)
 {
     Cookies.set("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
