@@ -1,6 +1,2 @@
-- Bump version to 0.3.5
-- Changed a few variable in docker-compose sample file
-    - Now user can choose to create a new user for mysql docker container.
-    - Changed sample .env file to make sure it is compatible out of the box with docker-compose.yml.sample.
-    - Made changed to docs to reflect these changes.
-    - Upgrade some dependencies, as per dependabot alerts.
+- bump to version 0.3.6
+- Calendar and Caldav account names are now stored locally to improve performace by limiting calls to API.

@@ -17,6 +17,7 @@ import AddNewCalendar from "../AddNewCalendar";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAPIURL } from "@/helpers/general";
+import { setUserCalendarStorageVar } from "@/helpers/frontend/localstorage";
 
 export default class CaldavAccounts extends Component{
     constructor(props)
@@ -126,6 +127,7 @@ export default class CaldavAccounts extends Component{
                         </Col>
                     </Row>)
                     */
+                   setUserCalendarStorageVar(caldav_accounts.data.message)
                     for(let j=0; j<caldav_accounts.data.message.length; j++)
                     {
                         var calendars=[]

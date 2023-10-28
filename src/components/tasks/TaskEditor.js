@@ -31,6 +31,7 @@ import { VTODO } from "@/helpers/frontend/classes/VTODO";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { getStandardDateFormat } from "@/helpers/frontend/settings";
 import { getErrorResponse } from "@/helpers/errros";
+import { getUserCalendarsFromLocalStorage, setUserCalendarStorageVar } from "@/helpers/frontend/localstorage";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
@@ -283,8 +284,17 @@ export default class TaskEditor extends Component {
         this.getLabels()
     }
     async generateCalendarName() {
-        var calendarsFromServer = await caldavAccountsfromServer()
-        this.setState({calendarsFromServer: calendarsFromServer})
+        const calendarsFromCookies= getUserCalendarsFromLocalStorage()
+        console.log("calendarsFromCookies", calendarsFromCookies)
+        if(varNotEmpty(calendarsFromCookies)){
+            this.setState({calendarsFromServer: calendarsFromCookies})
+
+        }else{
+            var calendarsFromServer = await caldavAccountsfromServer()
+            setUserCalendarStorageVar(calendarsFromServer)
+            this.setState({calendarsFromServer: calendarsFromServer})
+    
+        }
     }
 
     getCalendarDDL()
