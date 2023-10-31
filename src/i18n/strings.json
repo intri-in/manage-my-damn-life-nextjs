@@ -26,6 +26,7 @@
       "CALDAV_ACCOUNT_DELETED": "CalDAV account deleted successfully.",
       "CALDAV_PASSWORD_PLACEHOLDER": "Enter your CalDAV password.",
       "CALDAV_USERNAME_PLACEHOLDER": "Enter your CalDAV username.",
+      "CALDAV_ALREADY_EXISTS": "CalDAV account has already been added.",
       "CALENDAR": "Calendar",
       "CALENDARS": "Calendars",
       "CALENDAR_ADDED_SUCCESSFULLY": "Calendar added successfully!",

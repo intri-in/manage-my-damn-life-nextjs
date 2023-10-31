@@ -15,9 +15,11 @@ export function deleteAllCookies(){
     Cookies.remove("SSID")
     Cookies.remove("MMDL_CALENDAR_START_DAY")
     Cookies.remove("MMDL_USER_CALENDARS")
+    Cookies.remove("MMDL_INSTALL_CHECK")
     clearLocalStorage()
     
 }
+
 export function setCookie(cname, cvalue, exdays=10000)
 {
 
@@ -81,4 +83,13 @@ export function setUserNameCookie(username){
 
 export function getUserNameFromCookie(){
     return Cookies.get("MMDL_USERNAME")
+}
+
+export function setInstallOKCookie(time){
+    Cookies.set("MMDL_INSTALL_CHECK", time, { expires: 3650 } )
+}
+
+export function getInstallCheckCookie(){
+    return Cookies.get("MMDL_INSTALL_CHECK")
+
 }

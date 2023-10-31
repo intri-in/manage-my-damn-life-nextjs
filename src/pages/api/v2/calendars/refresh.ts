@@ -6,6 +6,7 @@ import { isValidResultArray, logVar } from "@/helpers/general"
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
+import { processCalendarFromCaldav } from "@/helpers/api/v2/caldavHelper"
 const LOGTAG = "api/calendars/refresh"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
                         defaultAccountType: 'caldav',
                     }).catch((reason) =>
                     {
-                        logVar(reason, "api/calendars/refresh")
+                        logVar(reason, "api/v2/calendars/refresh")
                         // Invalid calDAV account. Client is null.
                     })
                     //logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
@@ -47,68 +48,31 @@ export default async function handler(req, res) {
 
                     if(client!=null && typeof(client)== 'object')
                     {
-                        finalResponse.push({url: caldav_accounts[i].url, status: "ok"})
                         const calendars = await client.fetchCalendars()
                         //logVar(calendars, "calendars: "+LOGTAG)
-
+                        
+                        
+                        var tempCalList = []
                         if(isValidResultArray(calendars))
                         {
                             for (const j in calendars)
                             {
                                 //console.log(calendars[j])
-                                var calExists=await caldavAccount.calendarExists(calendars[j])
-
-                                if(calExists==true)
-                                {
-                                    await Calendars.updateCalendarinDB(calendars[j])
-                                }
-                                else
-                                {
-                                    await caldavAccount.insertCalendar(calendars[j])
-                                }
-                            }
-
-                            //Clean up extra calendars not on CalDAV server.
-                            var allCalendarsfromDB= await caldavAccount.getAllCalendars()
-                            if(isValidResultArray(allCalendarsfromDB))
-                            {
-                                for (const k in allCalendarsfromDB)
-                                {
-                                    var found = false
-                                    for (const l in calendars)
-                                    {
-                                        if(calendars[l].url == allCalendarsfromDB[k].url)
-                                        {
-                                            found=true
-                                        }
-                                    }
-
-
-                                    if(found==false)
-                                    {
-                                        //Delete the calendar as it is not in CalDAV Account.
-
-                                        var answerObjects = await Calendars.deleteAllEvents(allCalendarsfromDB[k])
-
-                                        var answer = await Calendars.deleteCalendar(allCalendarsfromDB[k])
-
-                                      
-
-                                    }
-
-                                }
+                                const processedCal = processCalendarFromCaldav(calendars[j])
+                                tempCalList.push(processedCal)
                             }
                         }
-
-
+                        finalResponse.push({username: caldav_accounts[i].username, url: caldav_accounts[i].url, name:caldav_accounts[i].name, status: "ok", caldav_accounts_id:caldav_accounts[i]["caldav_accounts_id"], calendars: tempCalList})
+                        
+                        
                     }else{
-                        finalResponse.push({url: caldav_accounts[i].url, status: "error"})
-
+                        finalResponse.push({url: caldav_accounts[i].url, status: "error",caldav_accounts_id:caldav_accounts[i]["caldav_accounts_id"]})
+                        
                     }    
-
+                    
   
                 }
-                res.status(200).json({ success: true, data: { message: "REFRESH_OK", details: finalResponse }})
+                res.status(200).json({ version:2, success: true, data: { message: "REFRESH_OK", details: finalResponse }})
 
                
 

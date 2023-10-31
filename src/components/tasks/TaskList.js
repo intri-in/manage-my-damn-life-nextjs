@@ -11,7 +11,10 @@ import { getEvents } from '@/helpers/frontend/events';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { withRouter } from 'next/router';
 import { Loading } from '../common/Loading';
-import { getAPIURL, logVar } from '@/helpers/general';
+import { getAPIURL, isValidResultArray, logVar } from '@/helpers/general';
+import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from '@/helpers/frontend/dexie/events_dexie';
+import { getCalDAVSummaryFromDexie, getNameForTaskList, getNameofCalDAVFromDexie } from '@/helpers/frontend/dexie/caldav_dexie';
+import { getCalendarNameByIDFromDexie } from '@/helpers/frontend/dexie/calendars_dexie';
  class TaskList extends Component {
     constructor(props) {
         super(props)
@@ -22,13 +25,14 @@ import { getAPIURL, logVar } from '@/helpers/general';
         this.renderTaskListUI = this.renderTaskListUI.bind(this)
         this.asyncSaveLabelstoDB = this.asyncSaveLabelstoDB.bind(this)
         this.getCalendarName = this.getCalendarName.bind(this)
+        this.fetchEvents = this.fetchEvents.bind(this)
 
     }
     componentDidMount() {
-
+        //console.log(this.props.caldav_accounts_id, this.props.calendars_id)
         try {
-            if (this.props.caldav_accounts_id != null && this.props.calendars_id != null && this.props.caldav_accounts_id.trim()!="" && this.props.calendars_id.trim() != "") {
-                this.refreshCalendars()
+            if (this.props.caldav_accounts_id&&this.props.calendars_id) {
+                this.fetchEvents()
                 this.getCalendarName()
 
             }
@@ -47,7 +51,7 @@ import { getAPIURL, logVar } from '@/helpers/general';
             
             this.setState({taskList: null})
             if (this.props.caldav_accounts_id != null && this.props.calendars_id != null) {
-                this.refreshCalendars()
+                this.fetchEvents()
                 this.getCalendarName()
 
             }
@@ -59,8 +63,48 @@ import { getAPIURL, logVar } from '@/helpers/general';
 
 
     }
+    async getAllTodosFromDexie(){
+        //Formulates a response like the API.
+        var toReturn ={
+            success: true,
+            data:{
+                message:[]
+            }
+        } 
+        const allSummary = await getCalDAVSummaryFromDexie()
+        if(isValidResultArray(allSummary)){
+            for(const i in allSummary){
+                if(isValidResultArray(allSummary[i]["calendars"])){
+                    for(const j in allSummary[i]["calendars"]){
+                        let cal = allSummary[i]["calendars"][j]
+                        let info = {
+                            caldav_account:allSummary[i]["name"],
+                            caldav_accounts_id: allSummary[i]["caldav_accounts_id"],
+                            calendar: cal["displayName"],
+                            color: cal["calendarColor"]
+                        }
+                        // console.log("cal", cal)
+                        const events = await fetchEventsForCalendarsFromDexie(cal["calendars_id"])
+                        let toAddToResult = {
+                            info: info,
+                            events: events
+                        }
+                        toReturn.data.message.push(toAddToResult)
+                    }
+
+
+                }
+            }
+
+        }
+        
+        
+        return toReturn
+
+    }
     async getAllTodosfromServer() {
-        var responseFromServer = await getAllEvents("todo")
+        var responseFromServer = await this.getAllTodosFromDexie()
+        // console.log("responseFromServer", responseFromServer)
         var output = []
         output.push(<h2 key={this.props.title} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.props.title}</h2>)
         var combinedTodoList = [{}, {}, {}, {}]
@@ -69,7 +113,6 @@ import { getAPIURL, logVar } from '@/helpers/general';
                 var todoArray = responseFromServer.data.message[i].events
                 const todoListSorted = await getEvents(todoArray, this.props.filter)
                 var taskListName = responseFromServer.data.message[i].info.caldav_account + ">>" + responseFromServer.data.message[i].info.calendar
-
 
                 if (todoListSorted[0]!=null && Object.keys(todoListSorted[0]).length>0) {
                     if(this.props.view=="tasklist")
@@ -185,29 +228,31 @@ import { getAPIURL, logVar } from '@/helpers/general';
 
     async getCalendarName() {
         if (this.props.calendars_id != null && this.props.caldav_accounts_id != null) {
-            const url_api = getAPIURL() + "caldav/calendars/name?caldav_accounts_id=" + this.props.caldav_accounts_id + "&&calendars_id=" + this.props.calendars_id
-            const authorisationData = await getAuthenticationHeadersforUser()
+            const taskListName =  await getNameForTaskList(this.props.caldav_accounts_id, this.props.calendars_id)
+            this.setState({ taskListName:taskListName, taskListColor:"body.data.message.color" })
+            // const url_api = getAPIURL() + "caldav/calendars/name?caldav_accounts_id=" + this.props.caldav_accounts_id + "&&calendars_id=" + this.props.calendars_id
+            // const authorisationData = await getAuthenticationHeadersforUser()
 
-            const requestOptions =
-            {
-                method: 'GET',
-                mode: 'cors',
-                headers: new Headers({ 'authorization': authorisationData }),
+            // const requestOptions =
+            // {
+            //     method: 'GET',
+            //     mode: 'cors',
+            //     headers: new Headers({ 'authorization': authorisationData }),
 
-            }
+            // }
 
            
-                const response = fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    //Save the events to db.
-                    if (body.data.message != null && body.data.message.caldav_name != null) {
-                        this.setState({ taskListName: body.data.message.caldav_name + " >> " + body.data.message.calendar_name, taskListColor:body.data.message.color })
-                    }
-                }).catch(e =>
-                {
-                    console.error(e, "TaskList:getCalendarName")
-                })
+            //     const response = fetch(url_api, requestOptions)
+            //     .then(response => response.json())
+            //     .then((body) => {
+            //         //Save the events to db.
+            //         if (body.data.message != null && body.data.message.caldav_name != null) {
+            //             this.setState({ taskListName: body.data.message.caldav_name + " >> " + body.data.message.calendar_name, taskListColor:body.data.message.color })
+            //         }
+            //     }).catch(e =>
+            //     {
+            //         console.error(e, "TaskList:getCalendarName")
+            //     })
         }
 
     }
@@ -220,11 +265,19 @@ import { getAPIURL, logVar } from '@/helpers/general';
         })
 
         */
-        this.setState({taskList: (<> <h2 style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents}  todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
+        this.setState({taskList: (<> <h2 key={this.props.calendars_id+"_"+this.props.caldav_accounts_id+"headingName"} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents}  todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>)})
 
     }
 
 
+    async fetchEvents(){
+        const eventsFromDexie =  await fetchEventsForCalendarsFromDexie(this.props.calendars_id)
+        // console.log(eventsFromDexie)
+        const todoList = await getEvents(eventsFromDexie, this.props.filter)
+        if (todoList != null && Array.isArray(todoList) && todoList.length > 0) {
+            this.renderTaskListUI(todoList)
+        }
+    }
     async refreshCalendars() {
         var userArray = await getUserData()
         var response = await getLatestCalendarEvents(this.props.caldav_accounts_id, this.props.calendars_id, "")

@@ -56,10 +56,31 @@ export default async function handler(req, res) {
                             url: url,
                             props: {
                               displayname: req.body.calendarName,
+                              calendarColor: calendarColor
                             },
                           });
+                          var failed_firstTry=false
+                          var result2=null
+                          if(result && Array.isArray(result) && result.length>0&&result[0].status==403){
+                              failed_firstTry=true
+                              var url=addTrailingSlashtoURL(caldavFromDB.url)+caldavFromDB.username+"/"+replaceSpacewithHyphen(req.body.calendarName.trim())
+                              result2 = await client.makeCalendar({
+                                url: url,
+                                props: {
+                                  displayname: req.body.calendarName,
+                                },
+                              });
+                              console.log("result2", result2)
+                          }
+                          //Try a second time to create. without calendars.
 
-                          res.status(200).json({ success: true, data: { message: result} })
+                          if(failed_firstTry){
+                            res.status(200).json({ success: true, data: { message: result2} })
+
+                          }else{
+                            res.status(200).json({ success: true, data: { message: result} })
+
+                          }
 
                     }else
                     {

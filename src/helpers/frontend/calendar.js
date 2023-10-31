@@ -329,8 +329,11 @@ export function returnGetParsedVTODO(vtodo)
 
 export function arrangeTodoListbyHierarchy(todoList, filter, allEvents)
 {
+
     var listofTasks= getTopLevelUID(todoList, filter)
+
     //console.log("listofTasks", listofTasks)
+
     recursivelyAddChildren(listofTasks, allEvents, 0)
 
     return listofTasks
@@ -380,19 +383,26 @@ function recursivelyAddChildren(listofTasks, todoList, counter)
 function getTopLevelUID(todoList, filter)
 {
     var finalArray={}
+
     if(todoList!=null && Array.isArray(todoList) && todoList.length>0)
     {
+
         for(let i=0; i<todoList.length; i++)
         {
             var todo = returnGetParsedVTODO(todoList[i].data)
+
             //console.log("parsed todo", todo)
             var todoObj = new VTODO(todoList[i])
+
            // console.log(todoObj.parsedData.summary, todoObj.hasNoRelatedParent(), todoObj.parsedData.relatedto)
             todo.deleted= todoList[i].deleted
             if(majorTaskFilter(todo)==true)
             {
+
                 if(isValidObject(filter))
                 {
+                    
+
                     if(todoObj.hasNoRelatedParent()==true)
                     {
                         // Task is a sub task. If parent is in todoList, then we don't add it at top level. If the parent is not here, we add.
@@ -411,20 +421,22 @@ function getTopLevelUID(todoList, filter)
                         finalArray[todo.uid]={}
     
                     }
-    
+
                 }else
                 {
+
                     if(todoObj.hasNoRelatedParent()==true)
                     {
                         //Probably a parent task with no relations to anyone.
                         finalArray[todo.uid]={}             
                     }
+
                 }
             }
-            
+
             
         }
-    
+
     }
 
     return finalArray

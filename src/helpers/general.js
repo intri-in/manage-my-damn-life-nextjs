@@ -2,6 +2,11 @@ import moment from "moment"
 import { dueDatetoUnixStamp } from "./frontend/general"
 
 export const DAY_ARRAY = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
+/**
+ * Checks if a variable is an array of length >0
+ * @param {*} array 
+ * @returns Boolean
+ */
 export function isValidResultArray(array)
 {
     if(array!=null && Array.isArray(array) && array.length>0)

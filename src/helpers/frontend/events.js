@@ -15,6 +15,7 @@ export async function getEvents(calendarEvents, filter)
     }
     var unparsedData= getUnparsedEventData(calendarEvents)
     var listofTodos= arrangeTodoListbyHierarchy(filteredEvents, filter, calendarEvents )
+
     return [listofTodos, getParsedTodoList(calendarEvents), unparsedData]
 
 }

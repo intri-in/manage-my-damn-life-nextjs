@@ -31,8 +31,8 @@ export async function checkifDBExists()
                 return resolve(false)
             }
             var resultfromDB=Object.values(JSON.parse(JSON.stringify(result)))
-            logVar(resultfromDB, "resultfromDB:checkifDBExists")
-            console.log( Array.isArray(resultfromDB), resultfromDB.length)
+            //logVar(resultfromDB, "resultfromDB:checkifDBExists")
+            //console.log( Array.isArray(resultfromDB), resultfromDB.length)
             if(Array.isArray(resultfromDB) && resultfromDB.length>0)
             {
                 return resolve(true)
@@ -84,7 +84,7 @@ export async function isInstalled(log)
     {
         let listOfTablesFromDb=[]
         for(const row in allTables){
-            console.log(allTables[row])
+            //console.log(allTables[row])
             if(allTables[row]){
                 for(const tableName in allTables[row]){
                 

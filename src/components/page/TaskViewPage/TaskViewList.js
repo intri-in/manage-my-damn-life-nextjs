@@ -84,6 +84,7 @@ class TaskViewList extends Component {
     this.setState({ showLeftColumnOffcanvas: true, })
   }
   calendarNameClicked(caldav_accounts_id, calendars_id) {
+    console.log("caldav_accounts_id, calendars_id", caldav_accounts_id, calendars_id)
     this.setState({ filter: {}, title: null, caldav_accounts_id: caldav_accounts_id, calendars_id: calendars_id, showLeftColumnOffcanvas: false })
   }
   handleCloseOffcanvas() {
