@@ -3,12 +3,17 @@ import { db } from "./dexieDB";
 import { getRandomColourCode } from "../general";
 
 export async function getCalendarbyIDFromDexie(calendars_id){
-    const calendars =  await db.calendars
-    .where('calendars_id')
-    .equals(calendars_id)
-    .toArray();
-
-    return calendars
+    try{
+        const calendars_id_int = parseInt(calendars_id)
+        const calendars =  await db.calendars
+        .where('calendars_id')
+        .equals(calendars_id_int)
+        .toArray();
+        return calendars
+    }catch(e){
+        console.error("getCalendarbyIDFromDexie", e)
+    }
+ 
 
 }
 export async function getCalendarNameByIDFromDexie(calendar_id){
@@ -30,7 +35,24 @@ export async function deleteAllCalendarsFromCaldavAccountID_Dexie(caldav_account
         }
     }
 }
+export async function getCalDAVAccountIDFromCalendarID_Dexie(calendars_id){
+    try{
+        const calendars_id_int = parseInt(calendars_id)
 
+        const calendars =  await db.calendars
+        .where('calendars_id')
+        .equals(calendars_id_int)
+        .toArray();
+    
+        if(isValidResultArray(calendars)){
+
+            return calendars[0]["caldav_accounts_id"]
+        }
+    
+    }catch(e){
+        console.error("getCalDAVAccountIDFromCalendarID_Dexie", e)
+    }
+}
 export async function deleteOneCalendarFromDexie(calendars_id){
     try{
         db.calendars.delete(calendars_id)

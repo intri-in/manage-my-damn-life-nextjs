@@ -7,16 +7,12 @@ import { getI18nObject, ISODatetoHuman } from "@/helpers/frontend/general";
 import { Row, Col, Button, Alert } from "react-bootstrap";
 import * as moment from 'moment';
 import VTodoGenerator from 'vtodogenerator'
-import { getLabelsFromServer } from "@/helpers/frontend/labels";
 import { getAPIURL, getISO8601Date, isValidResultArray, logVar, varNotEmpty } from "@/helpers/general";
 import SearchLabelArray from "../common/SearchLabelArray";
 import { getRandomString } from "@/helpers/crypto";
-import { postNewTodo } from "@/helpers/frontend/eventmodifier";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { caldavAccountsfromServer, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { toast } from "react-toastify";
-import { AiFillDelete, AiOutlineDelete } from "react-icons/ai";
-import ical from '@/../ical/ical'
+import {  AiOutlineDelete } from "react-icons/ai";
 import { TaskDeleteConfirmation } from "./TaskDeleteConfirmation";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { Loading } from "../common/Loading";
@@ -26,12 +22,13 @@ import Recurrence from "../common/Recurrence";
 import { rruleToObject } from "@/helpers/frontend/events";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 import * as _ from 'lodash'
-import { makeParseICSRequest } from "@/helpers/frontend/ics";
 import { VTODO } from "@/helpers/frontend/classes/VTODO";
-import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { getStandardDateFormat } from "@/helpers/frontend/settings";
 import { getErrorResponse } from "@/helpers/errros";
-import { getUserCalendarsFromLocalStorage, setUserCalendarStorageVar } from "@/helpers/frontend/localstorage";
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
+import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
+import { saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
@@ -69,6 +66,7 @@ export default class TaskEditor extends Component {
         {
             calendar_id=props.data.calendar_id
         }
+        // console.log("initial calendar_id", calendar_id)
         var status=''
         if(varNotEmpty(props.data.status))
         {
@@ -100,9 +98,10 @@ export default class TaskEditor extends Component {
     
         }
 
-        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [],rrule:rrule, repeatInfo: _.cloneDeep(props.repeatInfo), todoList: _.cloneDeep(props.todoList), recurrences: props.data.recurrences, isRepeatingTask: false, nextUpRepeatingInstance: null}
+        this.state = { showEditor: false, data: null, summary: props.data.summary, dueDate: dueDate, dueDateUTC: props.data.due, start: startDate, priority: props.data.priority, completion: completion, description: description, category: props.data.category, labels: null, completed: props.data.completed, status: status, calendarOptions: [], calendar: "", parentTask: null, calendar_id: calendar_id, showTaskDeleteModal: false, deleteTaskButton: null, taskDone: taskDone, saveButton: null, relatedto: props.data.relatedto, calendarsFromServer: [],rrule:rrule, repeatInfo: _.cloneDeep(props.repeatInfo), todoList: _.cloneDeep(props.todoList), recurrences: props.data.recurrences, isRepeatingTask: false, nextUpRepeatingInstance: null, caldav_accounts_id:"", calendarData: null}
 
         //console.log("props.data.recurrences", props.data.recurrences)
+        // console.log(props.data)
         this.i18next = getI18nObject()
         this.dueDateChanged = this.dueDateChanged.bind(this)
         this.completionChanged = this.completionChanged.bind(this)
@@ -130,11 +129,13 @@ export default class TaskEditor extends Component {
         this.onRruleSet = this.onRruleSet.bind(this)
         this.getNextUpKey = this.getNextUpKey.bind(this)
         this.fixDueDate = this.fixDueDate.bind(this)
+        this.setupInitialValues = this.setupInitialValues.bind(this)
     }
 
     componentDidMount() {
         this.getLabels()
         this.generateCalendarName()
+        this.getCalendarDDL()
         if (this.props.data.url_internal == null) {
             //Probably a new task.
             this.props.onChange()
@@ -148,10 +149,11 @@ export default class TaskEditor extends Component {
 
         if (this.props.data.calendar_id != null && this.props.data.calendar_id != "") {
             this.setState({ calendar_id: this.props.data.calendar_id })
-
+            this.setupInitialValues(this.props.data.calendar_id)
         }
         else {
             this.setCalendarID()
+
         }
 
 
@@ -188,6 +190,21 @@ export default class TaskEditor extends Component {
 
     }
 
+    async setupInitialValues(calendar_id){
+        if(calendar_id){
+            
+            const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+                this.setState({caldav_accounts_id: caldav_accounts_id})
+           
+    
+            const calendar = await getCalendarbyIDFromDexie(calendar_id)
+            // console.log("calendara", calendar, calendar_id, caldav_accounts_id)
+                if(isValidResultArray(calendar)){
+                    this.setState({calendarData: calendar[0]})
+                }
+        }
+
+    }
     /**
      * Key of the next up repeating instance of the tasks
      * @returns String key
@@ -213,7 +230,7 @@ export default class TaskEditor extends Component {
         var calendar = await getDefaultCalendarID()
         if(calendar){
             this.setState({ calendar_id:  calendar})
-
+            this.setupInitialValues(calendar)
         }
 
     }
@@ -257,7 +274,8 @@ export default class TaskEditor extends Component {
     }
     calendarSelected(e) {
         this.setState({ calendar_id: e.target.value })   
-
+        this.setupInitialValues(e.target.value)
+        this.getCalendarDDL()
     }
     removeParentClicked() {
         this.setState(function(previousState, currentProps) {
@@ -284,23 +302,23 @@ export default class TaskEditor extends Component {
         this.getLabels()
     }
     async generateCalendarName() {
-        const calendarsFromCookies= getUserCalendarsFromLocalStorage()
-        if(varNotEmpty(calendarsFromCookies)){
-            this.setState({calendarsFromServer: calendarsFromCookies})
+        // const calendarsFromCookies= getUserCalendarsFromLocalStorage()
+        // if(varNotEmpty(calendarsFromCookies)){
+        //     this.setState({calendarsFromServer: calendarsFromCookies})
 
-        }else{
-            var calendarsFromServer = await caldavAccountsfromServer()
-            setUserCalendarStorageVar(calendarsFromServer)
-            this.setState({calendarsFromServer: calendarsFromServer})
+        // }else{
+        //     var calendarsFromServer = await caldavAccountsfromServer()
+        //     setUserCalendarStorageVar(calendarsFromServer)
+        //     this.setState({calendarsFromServer: calendarsFromServer})
     
-        }
+        // }
     }
 
-    getCalendarDDL()
+    async getCalendarDDL()
     {
         var calendarOutput = null
 
-        var calendarsFromServer = this.state.calendarsFromServer
+        var calendarsFromServer = await getCalDAVSummaryFromDexie()
         if (isValidResultArray(calendarsFromServer)) {
             calendarOutput = []
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
@@ -313,7 +331,7 @@ export default class TaskEditor extends Component {
                     var key = j + "." + value
                     tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
-                calendarOutput.push(<optgroup key={calendarsFromServer[i].account.name} label={calendarsFromServer[i].account.name}>{tempOutput}</optgroup>)
+                calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
 
             }
         }
@@ -328,7 +346,8 @@ export default class TaskEditor extends Component {
         else {
             var disabled = false
         }
-        return(<Form.Select key="calendarOptions" onChange={this.calendarSelected} disabled={disabled} value={this.state.calendar_id}>{calendarOutput}</Form.Select>) 
+        // console.log("this.state.calendar_id at DDL", this.state.calendar_id)
+        this.setState({calendarOptions: <Form.Select key="calendarOptions" onChange={this.calendarSelected} disabled={disabled} value={this.state.calendar_id}>{calendarOutput}</Form.Select>}) 
 
     }
     taskSummaryChanged(e) {
@@ -398,7 +417,7 @@ export default class TaskEditor extends Component {
     async getLabels() {
 
         var labelArray = []
-        var labels = await getLabelsFromServer()
+        var labels = await getAllLabelsFromDexie()
         var labelColour = ""
 
         if (isValidResultArray(this.state.category)) {
@@ -444,13 +463,13 @@ export default class TaskEditor extends Component {
 
     }
     async deleteTheTaskFromServer() {
-        const url_api = getAPIURL() + "caldav/event/delete"
+        const url_api = getAPIURL() + "v2/calendars/events/delete"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url_internal, "calendar_id": this.state.calendar_id }),
+            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url_internal, "calendar_id": this.state.calendar_id, caldav_accounts_id: this.state.caldav_accounts_id}),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -520,7 +539,7 @@ export default class TaskEditor extends Component {
                 recurrences[this.state.nextUpRepeatingInstance]["recurrenceid"]=getISO8601Date(this.state.nextUpRepeatingInstance)
             }
         }
-        console.log(recurrences)
+        // console.log(recurrences)
 
 
             if (varNotEmpty(this.state.summary) && this.state.summary.trim() != "") {
@@ -549,7 +568,7 @@ export default class TaskEditor extends Component {
                 
                 //console.log(todo, finalTodoData)
                 var finalVTODO = todo.generate()
-                console.log("Final Generated TODO:", finalVTODO, todoData )
+                // console.log("Final Generated TODO:", finalVTODO, todoData )
                 var etag = getRandomString(32)
                 if (this.props.data.url_internal == null || this.props.data.url_internal == "") {
                   var resultsofPost= await this.postNewTodo(this.state.calendar_id, finalVTODO, etag, this.processResult)
@@ -577,14 +596,20 @@ export default class TaskEditor extends Component {
     }
 
     async postNewTodo(calendar_id, data, etag) {
-        const url_api = getAPIURL() + "caldav/calendars/add/event"
+        const url_api = getAPIURL() + "v2/calendars/events/add"
 
+        if(!this.state.calendarData){
+            toast.error(this.i18next.t("ERROR_GENERIC"))
+            console.error("this.state.calendarData", this.state.calendarData)
+            console.error("this.state.calendar_id",this.state.calendar_id)
+            return null
+        }
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id }),
+            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":this.state.caldav_accounts_id, ctag:this.state.calendarData["ctag"], syncToken:this.state.calendarData["syncToken"], url:this.state.calendarData["url"] }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -592,23 +617,35 @@ export default class TaskEditor extends Component {
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
+                    if(body && body.success){
+                        //Task was published to CalDAV. We will save it in dexie.
+                        if(body.data && body.data.message && body.data.details){
+                            if(isValidResultArray(body.data.details)){
+                                const newEvent = body.data.details[0]
+
+                                console.log("newEvent", newEvent)
+                                saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],newEvent["data"], newEvent["type"])
+                            }
+                        }
+                    }
                     this.props.onDismiss(body)
 
 
 
                 }).catch (e => {
+                    console.log("postNewTodo",e)
                     this.props.onDismiss(e.message)
                 })
     }
     async updateTodo(calendar_id, url, etag, data) {
-        const url_api = getAPIURL() + "caldav/calendars/modify/object"
+        const url_api = getAPIURL() + "v2/calendars/events/modify"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: this.state.caldav_accounts_id }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -616,6 +653,9 @@ export default class TaskEditor extends Component {
             const response = await fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
+                    // console.log("response Edit", body)
+                    if(body && body.success){
+                    }
                     this.props.onDismiss(body)
 
 
@@ -640,7 +680,7 @@ export default class TaskEditor extends Component {
         this.setState({rrule: newRRULE})
     }
 
-    render() {
+   render() {
         var parentTask = ""
         var parentID = VTODO.getParentIDFromRelatedTo(this.state.relatedto)
         if (varNotEmpty(parentID) && parentID!="" && this.state.todoList!=undefined && this.state.todoList.length>1) {
@@ -658,8 +698,6 @@ export default class TaskEditor extends Component {
         } else {
             parentTask = (<ParentTaskSearch currentID={this.props.data.uid} onParentSelect={this.onParentSelect} calendar_id={this.state.calendar_id} data={this.state.todoList} />)
         }
-
-        var calendarOptions = this.getCalendarDDL()
 
         var dueDate = (<Datetime value={this.state.dueDate} onChange={this.dueDateChanged} dateFormat="D/M/YYYY" timeFormat="HH:mm" closeOnSelect={true} />)
 
@@ -695,7 +733,7 @@ export default class TaskEditor extends Component {
                 <div style={{ marginBottom: 10 }}><Form.Control onChange={this.taskSummaryChanged} autoFocus={true} value={this.state.summary} placeholder="Enter a summary" /></div>
                 {repeatInfoMessage}
                 <h4>Calendar</h4>
-                <div style={{ marginBottom: 10 }}>{calendarOptions}</div>
+                <div style={{ marginBottom: 10 }}>{this.state.calendarOptions}</div>
 
                 <h4>Parent Task</h4>
                 <div style={{ marginBottom: 10 }}>{parentTask}</div>

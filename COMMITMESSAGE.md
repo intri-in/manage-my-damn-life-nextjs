@@ -1,2 +1,2 @@
-- bump to version 0.3.6
-- Calendar and Caldav account names are now stored locally to improve performace by limiting calls to API.
+- TaskEditor now reads and edits from local Dexie store rather than from server.
+- Numerous other changes.

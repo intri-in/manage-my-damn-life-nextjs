@@ -250,79 +250,85 @@ export function returnEventType(data)
 
 export function returnGetParsedVTODO(vtodo)
 {
-    const  parsedData = ical.parseICS(vtodo);
-    for (let k in parsedData) {
-        
-        var entries = Object.entries(parsedData[k])
-        //console.log(parsedData[k].recurrences)
-        var relatedto =""
-        var percentcomplete=""
-
-        for(let i=0; i<entries.length; i++)
-        {
-            var key = entries[i][0]
-            if(key=="related-to")
-            {
-                relatedto= entries[i][1]
-
-            }   
-            if(key=="percent-complete")
-            {
-                percentcomplete=entries[i][1]
-            }
-        }      
-        
-
-        var duedate=parsedData[k].due
-        if(typeof(parsedData[k].due) =='object' && typeof(parsedData[k].due) !='string' ){
+    try{
+        const  parsedData = ical.parseICS(vtodo);
+        for (let k in parsedData) {
             
-                try{
-                    duedate=parsedData[k].due.val
-                }
-                catch{
-                    duedate=""
-                }
-        }
-        var recurrences ={}
-        if(varNotEmpty(parsedData[k].recurrences))
-        {
-            for(const i in parsedData[k].recurrences)
+            var entries = Object.entries(parsedData[k])
+            //console.log(parsedData[k].recurrences)
+            var relatedto =""
+            var percentcomplete=""
+    
+            for(let i=0; i<entries.length; i++)
             {
-                recurrences[i]=parsedData[k].recurrences[i]
+                var key = entries[i][0]
+                if(key=="related-to")
+                {
+                    relatedto= entries[i][1]
+    
+                }   
+                if(key=="percent-complete")
+                {
+                    percentcomplete=entries[i][1]
+                }
+            }      
+            
+    
+            var duedate=parsedData[k].due
+            if(typeof(parsedData[k].due) =='object' && typeof(parsedData[k].due) !='string' ){
+                
+                    try{
+                        duedate=parsedData[k].due.val
+                    }
+                    catch{
+                        duedate=""
+                    }
+            }
+            var recurrences ={}
+            if(varNotEmpty(parsedData[k].recurrences))
+            {
+                for(const i in parsedData[k].recurrences)
+                {
+                    recurrences[i]=parsedData[k].recurrences[i]
+                }
+        
             }
     
-        }
-
-        //console.log("recurrences", recurrences, typeof(parsedData[k].recurrences))
-        var toReturn= {
-            summary:parsedData[k].summary,
-            created: parsedData[k].created,
-            due: duedate,
-            completion: parsedData[k].completion,
-            completed: parsedData[k].completed,
-            status:parsedData[k].status,
-            uid:parsedData[k].uid,
-            category:parsedData[k].categories,
-            priority:parsedData[k].priority,
-            start:parsedData[k].start,
-            relatedto:relatedto,
-            lastmodified:parsedData[k].lastmodified,
-            dtstamp: parsedData[k].dtstamp,
-            description: parsedData[k].description,
-            rrule: parsedData[k].rrule,
-            recurrences: recurrences
-
-        }
-
-        for (const key in parsedData[k])
-        {
-            if(!(key in toReturn))
-            {
-                toReturn[key]=_.cloneDeep(parsedData[k][key])
+            //console.log("recurrences", recurrences, typeof(parsedData[k].recurrences))
+            var toReturn= {
+                summary:parsedData[k].summary,
+                created: parsedData[k].created,
+                due: duedate,
+                completion: parsedData[k].completion,
+                completed: parsedData[k].completed,
+                status:parsedData[k].status,
+                uid:parsedData[k].uid,
+                category:parsedData[k].categories,
+                priority:parsedData[k].priority,
+                start:parsedData[k].start,
+                relatedto:relatedto,
+                lastmodified:parsedData[k].lastmodified,
+                dtstamp: parsedData[k].dtstamp,
+                description: parsedData[k].description,
+                rrule: parsedData[k].rrule,
+                recurrences: recurrences
+    
             }
+    
+            for (const key in parsedData[k])
+            {
+                if(!(key in toReturn))
+                {
+                    toReturn[key]=_.cloneDeep(parsedData[k][key])
+                }
+            }
+            //console.log(toReturn)
+            return toReturn
         }
-        //console.log(toReturn)
-        return toReturn
+    
+    }catch(e){
+        console.log("returnGetParsedVTODO",e,vtodo)
+        return {}
     }
 
 }
@@ -330,12 +336,14 @@ export function returnGetParsedVTODO(vtodo)
 export function arrangeTodoListbyHierarchy(todoList, filter, allEvents)
 {
 
+    // console.time("time1")
     var listofTasks= getTopLevelUID(todoList, filter)
-
+    // console.timeEnd("time1")
     //console.log("listofTasks", listofTasks)
 
+    // console.time("time2")
     recursivelyAddChildren(listofTasks, allEvents, 0)
-
+    // console.timeEnd("time2")
     return listofTasks
 
 }
@@ -390,7 +398,6 @@ function getTopLevelUID(todoList, filter)
         for(let i=0; i<todoList.length; i++)
         {
             var todo = returnGetParsedVTODO(todoList[i].data)
-
             //console.log("parsed todo", todo)
             var todoObj = new VTODO(todoList[i])
 

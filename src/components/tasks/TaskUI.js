@@ -22,6 +22,7 @@ import { VTODO } from "@/helpers/frontend/classes/VTODO";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import VTodoGenerator from "vtodogenerator";
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
+import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 export default class TaskUI extends Component {
 
     constructor(props) {
@@ -301,7 +302,10 @@ export default class TaskUI extends Component {
         if (body != null) {
             if (body.success == true) {
                 toast.success(this.i18next.t(message))
-                this.props.fetchEvents(body.data.refresh)
+                fetchLatestEventsV2().then(reponse =>{
+
+                    this.props.fetchEvents(body.data.refresh)
+                })
             }
             else {
                 toast.error(message)
