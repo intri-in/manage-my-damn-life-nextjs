@@ -463,7 +463,7 @@ export default class TaskEditor extends Component {
 
     }
     async deleteTheTaskFromServer() {
-        const url_api = getAPIURL() + "v2/calendars/events/delete"
+        const url_api = getAPIURL() + "v2/calendars/todo/delete"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         const requestOptions =
@@ -596,7 +596,7 @@ export default class TaskEditor extends Component {
     }
 
     async postNewTodo(calendar_id, data, etag) {
-        const url_api = getAPIURL() + "v2/calendars/events/add"
+        const url_api = getAPIURL() + "v2/calendars/todo/add"
 
         if(!this.state.calendarData){
             toast.error(this.i18next.t("ERROR_GENERIC"))
@@ -624,11 +624,16 @@ export default class TaskEditor extends Component {
                                 const newEvent = body.data.details[0]
 
                                 console.log("newEvent", newEvent)
-                                saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],newEvent["data"], newEvent["type"])
+                                saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],newEvent["data"],"VTODO").then((response)=>{
+                                    this.props.onDismiss(body)
+
+                                })
                             }
                         }
+                    }else{
+
+                        this.props.onDismiss(body)
                     }
-                    this.props.onDismiss(body)
 
 
 
@@ -638,7 +643,7 @@ export default class TaskEditor extends Component {
                 })
     }
     async updateTodo(calendar_id, url, etag, data) {
-        const url_api = getAPIURL() + "v2/calendars/events/modify"
+        const url_api = getAPIURL() + "v2/calendars/todo/modify"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)

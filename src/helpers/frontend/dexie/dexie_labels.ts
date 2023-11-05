@@ -80,6 +80,14 @@ export async function writeLabeltoDexie(labelString) {
 
     }
 }
+export async function clearLabelsFromDexie(){
+    try {
+        const id = await db.labels.clear()
+    } catch (e) {
+        console.error("clearLabelsFromDexie", e)
+    }
+
+}
 
 export async function updateLabelColourinDexie(labelName, colour) {
     const key = await getLabelIDFromName_Dexie(labelName)
@@ -93,6 +101,7 @@ export async function updateLabelColourinDexie(labelName, colour) {
     }
 }
 export async function updateLabelCacheInDexie() {
+    await clearLabelsFromDexie()
     const eventArray = await fetchAllEventsFromDexie()
     if (isValidResultArray(eventArray)) {
         for (const i in eventArray) {
@@ -101,5 +110,4 @@ export async function updateLabelCacheInDexie() {
 
         }
     }
-
 }

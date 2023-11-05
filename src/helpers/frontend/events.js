@@ -474,15 +474,15 @@ export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
 }
 
 
-export async function updateEvent(calendar_id, url, etag, data) {
-    const url_api = getAPIURL() + "caldav/calendars/modify/object"
+export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id) {
+    const url_api = getAPIURL() + "v2/calendars/events/modify"
 
     const authorisationData = await getAuthenticationHeadersforUser()
     var updated = Math.floor(Date.now() / 1000)
     const requestOptions =
     {
         method: 'POST',
-        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: caldav_accounts_id}),
         mode: 'cors',
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }

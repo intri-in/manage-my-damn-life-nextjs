@@ -111,6 +111,7 @@ class TaskList extends Component {
             for (const i in responseFromServer.data.message) {
                 var todoArray = responseFromServer.data.message[i].events
                 getEvents(todoArray, this.props.filter).then(todoListSorted =>{
+                    // console.log("todoListSorted", todoListSorted)
                     var taskListName = responseFromServer.data.message[i].info.caldav_account + ">>" + responseFromServer.data.message[i].info.calendar
                     if (todoListSorted[0]!=null && Object.keys(todoListSorted[0]).length>0) {
                         if(this.props.view=="tasklist")
@@ -241,6 +242,7 @@ class TaskList extends Component {
         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(this.props.calendars_id)
         // console.log(eventsFromDexie)
         const todoList = await getEvents(eventsFromDexie, this.props.filter)
+        // console.log("todoList", todoList)
         if (todoList != null && Array.isArray(todoList) && todoList.length > 0) {
             this.renderTaskListUI(todoList)
         }

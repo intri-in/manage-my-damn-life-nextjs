@@ -72,7 +72,7 @@ class CalendarView extends Component{
         </Head>
         <AppBarGeneric  onSynComplete={this.onSynComplete} />
         <div className='container-fluid'>
-        <DashboardView initialView="dayGridMonth" calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
+        <DashboardView updated={this.state.updated} initialView="dayGridMonth" calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
 
         </div>
         </>)

@@ -18,6 +18,7 @@ import { APIRequests } from "@/helpers/frontend/classes/APIRequests";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { withRouter } from "next/router";
 import AddInfo from "./AddInfo";
+import { fetchAllEventsFromDexie } from "@/helpers/frontend/dexie/events_dexie";
 class AddTask extends Component{
     constructor(props)
     {
@@ -39,8 +40,7 @@ class AddTask extends Component{
     async componentDidMount()
     {
         this.refreshDataWithNewCalendarID()
-        var apiReq = new APIRequests(this.props)
-        var response = await apiReq.getAllTodosFromServer()
+        const response = await fetchAllEventsFromDexie()
         if(varNotEmpty(response))
         {
           this.setState({todoList: response})

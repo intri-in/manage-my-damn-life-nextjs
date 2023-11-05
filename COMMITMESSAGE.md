@@ -1,2 +1,4 @@
-- TaskEditor now reads and edits from local Dexie store rather than from server.
-- Numerous other changes.
+- Label manager - Update label cache now clears labels before adding.
+- GenericLists.js now gets labels from Dexie and not the server
+- AddTasks.js now gets tasks from Dexie, not the server.
+- CalendarViews now work with Dexie and read from Dexie.

@@ -20,13 +20,17 @@ import { Loading } from "../common/Loading";
 import { parseTime, parseVALARMTIME } from "@/helpers/frontend/rfc5545";
 import { BsAlarm } from "react-icons/bs";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { getCaldavIDFromCalendarID_FromDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
+import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
+import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 
 export default class EventEditor extends Component {
     constructor(props) {
         super(props)
         this.i18next = getI18nObject()
         var emptyData = getEmptyEventDataObject()
-        this.state = { summary: "", fromTimeFormat: "HH:mm", toTimeFormat: "HH:mm", allDay: false, fromDate: props.eventData.data.start, toDate: props.eventData.data.end, calendarOptions: "", deleteButton: null, rrule:props.eventData.data.rrule, recurrence: { "FREQ": "", "UNTIL": "", "INTERVAL": "" }, repeatInfo: "", showRecurrenceEditor: false, showEventDeleteModal: false, selectedID: "", location: props.eventData.data.location, summary:props.eventData.data.summary, calendar_id:props.eventData.event.calendar_id, status: props.eventData.data.status, description: props.eventData.data.description, categories: props.eventData.data.categories, alarms: [], alarmTime:"START", alarmValue: 0}
+        this.state = { summary: "", fromTimeFormat: "HH:mm", toTimeFormat: "HH:mm", allDay: false, fromDate: props.eventData.data.start, toDate: props.eventData.data.end, calendarOptions: "", deleteButton: null, rrule:props.eventData.data.rrule, recurrence: { "FREQ": "", "UNTIL": "", "INTERVAL": "" }, repeatInfo: "", showRecurrenceEditor: false, showEventDeleteModal: false, selectedID: "", location: props.eventData.data.location, summary:props.eventData.data.summary, calendar_id:props.eventData.event.calendar_id, status: props.eventData.data.status, description: props.eventData.data.description, categories: props.eventData.data.categories, alarms: [], alarmTime:"START", alarmValue: 0, caldav_accounts_id: null, calendarData: null}
         this.onSummaryChanged = this.onSummaryChanged.bind(this)
         this.allDaySwitched = this.allDaySwitched.bind(this)
         this.generateCalendarName = this.generateCalendarName.bind(this)
@@ -53,6 +57,7 @@ export default class EventEditor extends Component {
         this.removeAlarm = this.removeAlarm.bind(this)
         this.newAlarmAdded = this.newAlarmAdded.bind(this)
         this.setCalendarID = this.setCalendarID.bind(this)
+        this.setValuesToPost = this.setValuesToPost.bind(this)
     }
 
     generateEventDataArray(props) {
@@ -113,7 +118,7 @@ export default class EventEditor extends Component {
             this.setState({ deleteButton: this.getDeleteButton() })
         }
 
-        await this.generateCalendarName()
+        this.generateCalendarName()
         this.setCalendarID()
     }
 
@@ -174,24 +179,47 @@ export default class EventEditor extends Component {
     }
     calendarSelected(e) {
         this.setState({ calendar_id: e.target.value })
+        this.setValuesToPost(e.target.value)
 
     }
     async setCalendarID()
     {
-        var calendar = await getDefaultCalendarID()
-        if(calendar){
-            this.setState({ calendar_id:  calendar})
+        if(!this.state.calendar_id){
+            
+            var calendar = await getDefaultCalendarID()
+            // console.log("calendar", calendar)
+            if(calendar){
+                this.setState({ calendar_id:  calendar})
+                this.setValuesToPost(calendar)
+            }
+        }else{
+            this.setValuesToPost(this.state.calendar_id)
 
         }
 
     }
+
+    async setValuesToPost(calendar_id){
+        const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+        this.setState({caldav_accounts_id: caldav_accounts_id})
+   
+
+        const calendar = await getCalendarbyIDFromDexie(calendar_id)
+        // console.log("calendara", calendar, calendar_id, caldav_accounts_id)
+        if(isValidResultArray(calendar)){
+            this.setState({calendarData: calendar[0]})
+        }
+    }
+
+
 
     onSummaryChanged(e) {
         this.setState({ summary: e.target.value})
     }
     async generateCalendarName() {
         var calendarOutput = null
-        var calendarsFromServer = await caldavAccountsfromServer()
+        var calendarsFromServer = await getCalDAVSummaryFromDexie()
+      
         if (isValidResultArray(calendarsFromServer)) {
             calendarOutput = []
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
@@ -204,7 +232,7 @@ export default class EventEditor extends Component {
                     var key = j + "." + value
                     tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
-                calendarOutput.push(<optgroup key={calendarsFromServer[i].account.name} label={calendarsFromServer[i].account.name}>{tempOutput}</optgroup>)
+                calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
 
             }
         }
@@ -440,7 +468,15 @@ export default class EventEditor extends Component {
     async saveButtonClicked() {
         var eventData = {data:{summary: this.state.summary, start: this.state.fromDate, end: this.state.toDate, status: this.state.status, description: this.state.description, rrule: this.state.rrule, location: this.state.location, alarms: this.state.alarms} , event:{calendar_id: this.state.calendar_id, url: this.props.eventData.event.url, }}
 
+        if(!this.state.calendarData){
+            toast.error(this.i18next.t("ERROR_GENERIC"))
+            console.error("this.state.calendarData", this.state.calendarData)
+            console.error("this.state.calendar_id",this.state.calendar_id)
+            return null
+        }
         // Add fields not supported by MMDL. 
+
+        // this.setCaldav_accounts_id(this.state.calendars_id) //Reset it, to be safe.
 
         eventData = addAdditionalFieldsFromOldEvent(eventData, this.props.eventData)
 
@@ -487,14 +523,14 @@ export default class EventEditor extends Component {
     }
 
     async postNewEvent(calendar_id, data, etag) {
-        const url_api = getAPIURL() + "caldav/calendars/add/event"
+        const url_api = getAPIURL() + "v2/calendars/events/add"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id }),
+            body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":this.state.caldav_accounts_id, ctag:this.state.calendarData["ctag"], syncToken:this.state.calendarData["syncToken"], url:this.state.calendarData["url"]   }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -506,12 +542,20 @@ export default class EventEditor extends Component {
                     if (varNotEmpty(body)) {
                         var message = getMessageFromAPIResponse(body)
                         if (varNotEmpty(body.success) && body.success == true) {
-                            toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                            fetchLatestEventsV2().then((response)=>{
+                                toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                                this.props.onDismiss()
+
+                            })
+
                         } else {
                             toast.error(this.i18next.t(message.toString()))
+                            this.props.onDismiss()
                         }
+                    }else{
+
+                        this.props.onDismiss()
                     }
-                    this.props.onDismiss()
 
 
 
@@ -522,7 +566,7 @@ export default class EventEditor extends Component {
     }
 
     async updateEvent(calendar_id, url, etag, data) {
-        const url_api = getAPIURL() + "caldav/calendars/modify/object"
+        const url_api = getAPIURL() + "v2/calendars/events/modify"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         var updated = Math.floor(Date.now() / 1000)
@@ -530,7 +574,7 @@ export default class EventEditor extends Component {
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+            body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: this.state.caldav_accounts_id }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -540,13 +584,21 @@ export default class EventEditor extends Component {
                     if (varNotEmpty(body)) {
                         var message = getMessageFromAPIResponse(body)
                         if (varNotEmpty(body.success) && body.success == true) {
-                            toast.success(this.i18next.t("UPDATE_OK"))
+                            fetchLatestEventsV2().then((response)=>{
+                                toast.success(this.i18next.t("UPDATE_OK"))
+                                //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                                this.props.onDismiss()
+
+                            })
 
                         } else {
                             toast.error(this.i18next.t(message.toString()))
+                            this.props.onDismiss()
                         }
+                    }else{
+                        this.props.onDismiss()
+
                     }
-                    this.props.onDismiss()
 
 
                 }).catch (e =>{
@@ -561,13 +613,13 @@ export default class EventEditor extends Component {
     }
 
     async deleteEventFromServer() {
-        const url_api = getAPIURL() + "caldav/event/delete"
+        const url_api = getAPIURL() + "v2/calendars/events/delete"
 
         const authorisationData = await getAuthenticationHeadersforUser()
         const requestOptions =
         {
             method: 'POST',
-            body: JSON.stringify({ "etag": this.props.eventData.event.etag, "url": this.props.eventData.event.url, "calendar_id": this.props.eventData.event.calendar_id }),
+            body: JSON.stringify({ "etag": this.props.eventData.event.etag, "url": this.props.eventData.event.url, "calendar_id": this.props.eventData.event.calendar_id, caldav_accounts_id: this.state.caldav_accounts_id }),
             mode: 'cors',
             headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
         }
@@ -577,11 +629,17 @@ export default class EventEditor extends Component {
                     var message = getMessageFromAPIResponse(body)
 
                     if (varNotEmpty(body) && body.success == true) {
-                        toast.success(this.i18next.t(message))
+                        fetchLatestEventsV2().then((response)=>{
+                            toast.success(this.i18next.t(message))
+                            //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                            this.props.onDismiss()
+
+                        })
                     } else {
-                        toast.error(this.i18next.t(message))
+                        this.props.onDismiss()
+                        toast.success(this.i18next.t("UPDATE_OK"))
+
                     }
-                    this.props.onDismiss()
 
 
 

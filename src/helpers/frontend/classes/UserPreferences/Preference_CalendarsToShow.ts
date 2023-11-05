@@ -26,7 +26,7 @@ export class Preference_CalendarsToShow{
 
     }
 
-    static generateFromCaldavObject(caldav_accounts: {account:{name: string, caldav_accounts_id: number}, calendars: any }[]){
+    static generateFromCaldavObject(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
 
         var objToReturn = []
         for(const i in caldav_accounts){
@@ -52,7 +52,7 @@ export class Preference_CalendarsToShow{
                 if(newCalendarEntry.length>0)
                 {
                     entry["account"]={
-                        caldav_accounts_id:caldav_accounts[i].account.caldav_accounts_id,
+                        caldav_accounts_id:caldav_accounts[i].caldav_accounts_id,
                     }
                     entry["calendars"]=newCalendarEntry
 
@@ -86,16 +86,16 @@ export class Preference_CalendarsToShow{
     
     }
 
-    static isUptoDate(caldav_accounts:{account:{name: string, caldav_accounts_id: number}, calendars: any }[]){
+    static isUptoDate(caldav_accounts:{name: string, caldav_accounts_id: number, calendars: any }[]){
         var fromStorage = Preference_CalendarsToShow.get()
         if(varNotEmpty(fromStorage) && Array.isArray(fromStorage)){
             for(const i in caldav_accounts){
-                if(this.findIndex_CaldavAccount(fromStorage, caldav_accounts[i].account.caldav_accounts_id)==null){
+                if(this.findIndex_CaldavAccount(fromStorage, caldav_accounts[i].caldav_accounts_id)==null){
                     return false
                 }else{
                     for (const j in caldav_accounts[i].calendars)
                     {
-                        var index = this.findIndex_Calendar(fromStorage, caldav_accounts[i].account.caldav_accounts_id,caldav_accounts[i].calendars[j].calendars_id)
+                        var index = this.findIndex_Calendar(fromStorage, caldav_accounts[i].caldav_accounts_id,caldav_accounts[i].calendars[j].calendars_id)
 
                         if(index==null ){
                             return false

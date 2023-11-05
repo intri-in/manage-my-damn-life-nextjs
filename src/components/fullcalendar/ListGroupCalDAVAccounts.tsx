@@ -11,7 +11,7 @@ import { BsCalendarCheck } from 'react-icons/bs';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 interface customProps{
-    caldav_accounts:  {account:{name: string, caldav_accounts_id: number}, calendars: any }[];
+    caldav_accounts:  {name: string, caldav_accounts_id: number, calendars: any }[];
     onChange?: () => void;
 
 }
@@ -35,11 +35,11 @@ export function ListGroupCalDAVAccounts(props: customProps ){
     {
       for(const i in props.caldav_accounts){
        
-        output.push(<h3>{props.caldav_accounts[i].account.name}</h3>)
+        output.push(<h3>{props.caldav_accounts[i].name}</h3>)
         var calendarOutput =[]
         if(varNotEmpty(props.caldav_accounts[i].calendars) && props.caldav_accounts[i].calendars)
         for(const j in props.caldav_accounts[i].calendars){
-          var indexInPreferenceObject = Preference_CalendarsToShow.findIndex_Calendar(prefObject, props.caldav_accounts[i].account.caldav_accounts_id, props.caldav_accounts[i].calendars[j].calendars_id)
+          var indexInPreferenceObject = Preference_CalendarsToShow.findIndex_Calendar(prefObject, props.caldav_accounts[i].caldav_accounts_id, props.caldav_accounts[i].calendars[j].calendars_id)
           if(varNotEmpty(indexInPreferenceObject) && Array.isArray(indexInPreferenceObject) && indexInPreferenceObject.length>0)
           {
             calendarOutput.push(<Form.Check 
@@ -91,7 +91,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
 }
 
 
-function getLatestPreferenceObject(caldav_accounts: {account:{name: string, caldav_accounts_id: number}, calendars: any }[]){
+function getLatestPreferenceObject(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
   var calendarstoShow = Preference_CalendarsToShow.get()
   if(Preference_CalendarsToShow.isValidObject(calendarstoShow) && Preference_CalendarsToShow.isUptoDate(caldav_accounts)){
     return calendarstoShow

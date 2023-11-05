@@ -1,12 +1,15 @@
 import { isValidResultArray } from "@/helpers/general";
 import { db } from "./dexieDB";
-import { returnGetParsedVTODO } from "../calendar";
+import { returnEventType, returnGetParsedVTODO } from "../calendar";
 import { saveLabelToDexie } from "./dexie_labels";
 
 export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     if (isValidResultArray(eventArray)) {
         for (const i in eventArray) {
             const labelArray = returnGetParsedVTODO(eventArray[i]["data"]).category
+            // const parsed = returnGetParsedVTODO(eventArray[i]["data"])
+
+            // console.log("parsed",parsed.summary, parsed, calendars_id)
             saveLabelToDexie(labelArray)
             saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"])
             deleteExtraEventsFromDexie(calendars_id, eventArray)
@@ -18,6 +21,7 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
 
 }
 
+
 export async function saveEventToDexie(calendars_id, url, etag, data, type) {
     //Check if event exists in Dexie already, if so, we update it.
     const eventID = await getEventbyURLFromDexie(url)
@@ -25,18 +29,29 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type) {
     if (eventID) {
         // Update if new etag is different.
         //console.log("events etag",eventID["etag"], etag,  eventID["etag"]==etag )
-        if(eventID["etag"]!=etag){
-            const updated = await db.calendar_events.update(eventID, {etag,data, type})
+        const parsedType = returnEventType(data)
+        let typeToInsert = type
+        if (parsedType) {
+            typeToInsert = parsedType
         }
-        
+        // console.log("typeToInsert", typeToInsert, type, parsedType)
+
+        const updated = await db.calendar_events.update(eventID, { etag, data, typeToInsert })
+
     } else {
 
+        const parsedType = returnEventType(data)
+        let typeToInsert = type
+        if (parsedType) {
+            typeToInsert = parsedType
+        }
+        console.log("typeToInsert", typeToInsert, type, parsedType)
         const id = await db.calendar_events.add({
             url: url,
             etag: etag,
             data: data,
             calendar_id: calendars_id,
-            type: type,
+            type: typeToInsert,
             updated: Date.now().toString()
         })
     }
@@ -58,9 +73,9 @@ export async function getEventbyURLFromDexie(url) {
             .equals(url)
             .toArray();
 
-        if(isValidResultArray(events)){
+        if (isValidResultArray(events)) {
             return events[0]
-        }else{
+        } else {
             return null
         }
 
@@ -112,20 +127,20 @@ export async function fetchEventsForCalendarsFromDexie(calendars_id, type?) {
 }
 
 
-export async function deleteExtraEventsFromDexie(calendars_id, eventArray){
+export async function deleteExtraEventsFromDexie(calendars_id, eventArray) {
 
     //First get all events From Dexie for the calendar.
     const allEventsFromDexie = await fetchEventsForCalendarsFromDexie(calendars_id)
-    for (const i in allEventsFromDexie){
-        var found=false;
+    for (const i in allEventsFromDexie) {
+        var found = false;
 
-        for(const j in eventArray){
-            if(eventArray[j]["url"]==allEventsFromDexie[i]["url"]){
+        for (const j in eventArray) {
+            if (eventArray[j]["url"] == allEventsFromDexie[i]["url"]) {
                 //Event found.
-                found=true
+                found = true
             }
         }
-        if(!found){
+        if (!found) {
             //Event not found on server. Delete from Dexie.
             deleteEventFromDexie(allEventsFromDexie[i]["calendar_events_id"])
         }
@@ -133,14 +148,14 @@ export async function deleteExtraEventsFromDexie(calendars_id, eventArray){
     }
 }
 
-export async function deleteEventFromDexie(calendar_events_id){
-    if(!calendar_events_id) return
-    
-    try{
-        const eventKey= parseInt(calendar_events_id)
+export async function deleteEventFromDexie(calendar_events_id) {
+    if (!calendar_events_id) return
+
+    try {
+        const eventKey = parseInt(calendar_events_id)
         db.calendar_events.delete(eventKey)
-        
-    }catch(e){
+
+    } catch (e) {
         console.error("deleteEventFromDexie", e)
     }
 }

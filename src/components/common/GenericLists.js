@@ -16,6 +16,7 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import Link from "next/link";
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
 import { getAPIURL, logVar } from "@/helpers/general";
+import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 
 class GenericLists extends Component{
     constructor(props)
@@ -29,12 +30,14 @@ class GenericLists extends Component{
         this.filterSettingsMenuClicked = this.filterSettingsMenuClicked.bind(this)
         this.manageCalendarsClicked = this.manageCalendarsClicked.bind(this)
         this.labelSettingClicked = this.labelSettingClicked.bind(this)
+        this.generateLabelListfromDexie = this.generateLabelListfromDexie.bind(this)
 
     }
 
     componentDidMount()
     {
-        this.generateLabelList()
+        this.generateLabelListfromDexie()
+        //this.generateLabelList()
         if(window!=undefined)
         {
             this.setState({height: (window.innerHeight-100) + 'px'});
@@ -49,6 +52,26 @@ class GenericLists extends Component{
     filterSettingsMenuClicked()
     {
         this.props.router.push("/filters/manage")
+    }
+
+    async generateLabelListfromDexie(){
+        const labels = await getAllLabelsFromDexie()
+        var temp_Labelcomponent=[]
+        if(labels!=null)
+        {
+            for (const key in labels)
+            {      
+                //temp_Labelcomponent.push((<><Button size="sm" value={labels[key].name} onClick={this.props.labelClicked} style={{margin: 5, backgroundColor: labels[key].colour, color: 'white'}} >{labels[key].name}</Button>{' '}</>))
+                var border="1px solid "+labels[key].colour
+                if(!labels[key].name.startsWith(SYSTEM_DEFAULT_LABEL_PREFIX+"-"))
+                {
+                    temp_Labelcomponent.push(<Badge  key={labels[key].name} value={labels[key].name} onClick={this.props.labelClicked} bg="light" pill style={{margin: 5, borderColor:"pink", border:border, color: labels[key].colour,  textDecorationColor : 'white'}} >{labels[key].name}</Badge>)
+
+                }
+            }
+
+            this.setState({allFilters: temp_Labelcomponent})
+        }
     }
     async generateLabelList()
     {

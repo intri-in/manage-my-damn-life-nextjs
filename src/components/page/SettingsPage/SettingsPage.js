@@ -19,6 +19,7 @@ import { VERSION_NUMBER } from "@/config/constants";
 import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import CalendarStartDayWeek from "@/components/settings/CalendarStartDayWeek";
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -184,8 +185,9 @@ class SettingsPage extends Component {
     }
 
     async getCalendarName(){
-        var calendarsFromServer = await caldavAccountsfromServer()
-        this.setState({calendarsFromServer: calendarsFromServer})
+        // var calendarsFromServer = await caldavAccountsfromServer()
+        var calendars = await getCalDAVSummaryFromDexie()
+        this.setState({calendarsFromServer: calendars})
 
     }
     async generateCalendarList() {
@@ -330,7 +332,7 @@ class SettingsPage extends Component {
                     var key = j + "." + value
                     tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
-                calendarOutput.push(<optgroup key={calendarsFromServer[i].account.name} label={calendarsFromServer[i].account.name}>{tempOutput}</optgroup>)
+                calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
 
             }
 

@@ -41,6 +41,7 @@ export default async function handler(req, res) {
                     if(calendarObjects && isValidResultArray(calendarObjects)){
                         for(const i in calendarObjects){
                             var type = checkifObjectisVTODO(calendarObjects[i])
+                            // console.log("type", type)
                             calendarObjects[i]["type"]=type
                         }
                     }

@@ -33,7 +33,7 @@ class ShowCalendarList extends Component{
     }
     showAddCalendarScreen(caldav_account)
     {
-        console.log(caldav_account)
+        // console.log(caldav_account)
         this.setState({finalOutput: <AddNewCalendar onClose={()=>this.getCaldavAccountsfromDexie()} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={this.addCalendarResponse} accountName={caldav_account.name} />})
     }
 

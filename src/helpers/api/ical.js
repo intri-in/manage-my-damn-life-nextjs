@@ -23,6 +23,7 @@ export function parseICSWithICALJS(dataICS, type)
     var json={}
     try{
         var jcalData= ICAL.parse(dataICS);
+        console.log("comp", jcalData)
         var comp = new ICAL.Component(jcalData);
         var vevent = comp.getFirstSubcomponent(type);
         var veventJSON = vevent.toJSON()
@@ -55,7 +56,7 @@ export function parseICSWithICALJS(dataICS, type)
         }
 
         }catch(e){
-
+            // console.log("parse Error 2", e, dataICS)
         }
 
         return json

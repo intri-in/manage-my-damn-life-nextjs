@@ -255,7 +255,7 @@ export default class CaldavAccounts extends Component{
     }
     async makeDeleteRequest(caldav_account_id)
     {
-        const url_api=getAPIURL()+"caldav/delete?caldav_account_id="+caldav_account_id
+        const url_api=getAPIURL()+"v2/caldav/delete?caldav_account_id="+caldav_account_id
 
         const authorisationData=await getAuthenticationHeadersforUser()
         const requestOptions =
@@ -290,8 +290,8 @@ export default class CaldavAccounts extends Component{
            
             
         }).catch(e =>{
-            this.props.onResponse(e.message)
-
+            // this.props.onResponse(e.message)
+            console.log(e)
         })
         
 
