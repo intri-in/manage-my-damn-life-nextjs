@@ -84,7 +84,7 @@ class TaskList extends Component {
                             color: cal["calendarColor"]
                         }
                         // console.log("cal", cal)
-                        const events = await fetchEventsForCalendarsFromDexie(cal["calendars_id"])
+                        const events = await fetchEventsForCalendarsFromDexie(cal["calendars_id"], "VTODO")
                         let toAddToResult = {
                             info: info,
                             events: events
@@ -103,7 +103,7 @@ class TaskList extends Component {
 
     }
     async getAllTodosfromServer() {
-        var responseFromServer = await this.getAllTodosFromDexie("todo")
+        var responseFromServer = await this.getAllTodosFromDexie("VTODO")
         var output = []
         output.push(<h2 key={this.props.title} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.props.title}</h2>)
         var combinedTodoList = [{}, {}, {}, {}]
@@ -239,7 +239,7 @@ class TaskList extends Component {
 
 
     async fetchEvents() {
-        const eventsFromDexie = await fetchEventsForCalendarsFromDexie(this.props.calendars_id)
+        const eventsFromDexie = await fetchEventsForCalendarsFromDexie(this.props.calendars_id,"VTODO")
         // console.log(eventsFromDexie)
         const todoList = await getEvents(eventsFromDexie, this.props.filter)
         // console.log("todoList", todoList)

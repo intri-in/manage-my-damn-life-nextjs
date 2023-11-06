@@ -5,6 +5,7 @@ import { saveLabelToDexie } from "./dexie_labels";
 
 export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     if (isValidResultArray(eventArray)) {
+
         for (const i in eventArray) {
             const labelArray = returnGetParsedVTODO(eventArray[i]["data"]).category
             // const parsed = returnGetParsedVTODO(eventArray[i]["data"])
@@ -25,35 +26,35 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
 export async function saveEventToDexie(calendars_id, url, etag, data, type) {
     //Check if event exists in Dexie already, if so, we update it.
     const eventID = await getEventbyURLFromDexie(url)
+    const parsedType = returnEventType(data)
+    let typeToInsert = type
+    if (parsedType) {
+        typeToInsert = parsedType
+    }
 
     if (eventID) {
         // Update if new etag is different.
         //console.log("events etag",eventID["etag"], etag,  eventID["etag"]==etag )
-        const parsedType = returnEventType(data)
-        let typeToInsert = type
-        if (parsedType) {
-            typeToInsert = parsedType
-        }
         // console.log("typeToInsert", typeToInsert, type, parsedType)
 
-        const updated = await db.calendar_events.update(eventID, { etag, data, typeToInsert })
-
+        const updated = await db.calendar_events.update(eventID, {etag:etag, data:data, type: typeToInsert})
+        console.log("updated", updated)
     } else {
 
-        const parsedType = returnEventType(data)
-        let typeToInsert = type
-        if (parsedType) {
-            typeToInsert = parsedType
-        }
-        console.log("typeToInsert", typeToInsert, type, parsedType)
+       
+        // console.log("typeToInsert", typeToInsert, type, parsedType)
         const id = await db.calendar_events.add({
             url: url,
             etag: etag,
             data: data,
-            calendar_id: calendars_id,
+            calendar_id: calendars_id.toString(),
             type: typeToInsert,
             updated: Date.now().toString()
+        }).catch(e =>{
+            console.log(e)
         })
+        console.log("id", id)
+
     }
 }
 
@@ -92,7 +93,7 @@ export async function fetchAllEventsFromDexie(type?) {
         if (type) {
             const events = await db.calendar_events
                 .where('type')
-                .equals(type)
+                .equalsIgnoreCase(type)
                 .toArray();
 
             return events
@@ -113,11 +114,21 @@ export async function fetchAllEventsFromDexie(type?) {
 export async function fetchEventsForCalendarsFromDexie(calendars_id, type?) {
 
     try {
-        const events = await db.calendar_events
+        let events=null
+        if(type){
+            events = await db.calendar_events
             .where('calendar_id')
-            .equals(calendars_id)
+            .equals(calendars_id.toString())
+            .and( item => item.type==type)
             .toArray();
 
+        }else{
+            events = await db.calendar_events
+            .where('calendar_id')
+            .equals(calendars_id.toString())
+            .toArray();
+        }
+        
         return events
 
     } catch (e) {
@@ -157,5 +168,12 @@ export async function deleteEventFromDexie(calendar_events_id) {
 
     } catch (e) {
         console.error("deleteEventFromDexie", e)
+    }
+}
+
+export async function deleteEventByURLFromDexie(url){
+    const event = await getEventbyURLFromDexie(url)
+    if(event && event["calendar_events_id"]){
+        await deleteEventFromDexie(event["calendar_events_id"])
     }
 }

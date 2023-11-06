@@ -4,7 +4,7 @@ import { checkifUserHasAccesstoRequestedCalendar, getCaldavAccountIDFromCalendar
 import { getRandomString } from '@/helpers/crypto';
 import { updateEventinCalDAVAccount } from '@/helpers/api/cal/caldav';
 import { fetchCalendarObjects } from 'tsdav';
-import { logVar } from '@/helpers/general';
+import { isValidResultArray, logVar } from '@/helpers/general';
 const validator = require('validator')
 export default async function handler(req, res) {
     // logVar(req.body, "modify object API CALL")
@@ -42,24 +42,22 @@ export default async function handler(req, res) {
                     {
                         //Looks like event has been updated successfully.
                         // Now we fetch it again, to get the new etag.
+                        let newEvent =null
+                        if(response.client!=null)
+                        {
+                            const objects = await response.client.fetchCalendarObjects({
+                                calendar: {url: req.body.url, syncToken: req.body.syncToken, ctag: req.body.ctag},
+                                objectUrls:[req.body.url]
+                                });
+                            
+                            if(isValidResultArray(objects))
+                            {
+                                newEvent = objects[0]
+                               
+                            }
 
-                    // if(response.client!=null)
-                    // {
-                    //     const objects = await response.client.fetchCalendarObjects({
-                    //         calendar: {url: req.body.calendarURL, syncToken: req.body.syncToken, ctag: req.body.ctag},
-                    //         objectUrls:[req.body.url]
-                    //         });
-                        
-                    //     var  responseFromDB_Update=null
-                    //     if(objects!=null && objects.length>0)
-                    //     {
-
-                    //         responseFromDB_Update = await updateObjectinDB(objects[0].url,objects[0].etag, objects[0].data, req.body.updated, req.body.type, req.body.calendar_id, req.body.deleted)
-
-                    //     }
-
-                    // }
-                        res.status(200).json({ success: true, data: {message: "UPDATE_OK", details: response.statusText, refresh:{url: req.body.url,calendar_id: req.body.calendar_id, caldav_accounts_id: caldav_accounts_id} }})
+                        }
+                        res.status(200).json({ success: true, data: {message: "UPDATE_OK", details: newEvent, refresh:{url: req.body.url,calendar_id: req.body.calendar_id, caldav_accounts_id: caldav_accounts_id} }})
 
                     }else
                     {

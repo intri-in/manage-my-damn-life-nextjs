@@ -7,6 +7,7 @@ import { syncCalDAVSummary } from "./dexie/syncDexie"
 import { getMessageFromAPIResponse } from "./response"
 import { getCalDAVSummaryFromDexie } from "./dexie/caldav_dexie"
 import { saveAPIEventReponseToDexie } from "./dexie/events_dexie"
+import { Preference_CalendarsToShow } from "./classes/UserPreferences/Preference_CalendarsToShow"
 
 export async function makeSyncRequest()
 {
@@ -169,7 +170,7 @@ export async function refreshCalendarListV2()
         headers: new Headers({'authorization': authorisationData}),
 
     }
-
+    Preference_CalendarsToShow.remove()
     return new Promise( (resolve, reject) => {
 
         
@@ -179,6 +180,7 @@ export async function refreshCalendarListV2()
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
                     const calDAVSummaryFromServer = body.data.details
                     syncCalDAVSummary(calDAVSummaryFromServer)
+
                 }else{
                     if(body && getMessageFromAPIResponse(body) =="NO_CALDAV_ACCOUNTS"){
                         syncCalDAVSummary([])

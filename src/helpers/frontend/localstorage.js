@@ -2,7 +2,7 @@ export function clearLocalStorage(){
     try{
         localStorage.clear();
     }catch(e){
-        console.error("deleteAllCookies", e)
+        console.error("clearLocalStorage", e)
     }
 }
 /**

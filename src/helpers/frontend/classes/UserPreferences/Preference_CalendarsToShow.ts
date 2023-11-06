@@ -1,28 +1,43 @@
-import Cookies from "js-cookie";
 import { varNotEmpty } from "@/helpers/general"; 
 
 export class Preference_CalendarsToShow{
 
 
     static get(){
-        var cookie = null
+        var toReturn = null
         try{
-            if(varNotEmpty(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW")))
+            const prefFromLocalStorage = localStorage.getItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
+            if(varNotEmpty(prefFromLocalStorage))
             {
-                cookie = JSON.parse(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW"))
-
+                toReturn = JSON.parse(prefFromLocalStorage)
             }
         }catch(e)
         {
             console.error(e, "Preference_CalendarsToShow.get")
         }
     
-        return cookie
+        return toReturn
     }
 
+    static remove(){
+
+        try{
+            localStorage.removeItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
+        }
+        catch(e){
+            console.warn("Preference_CalendarsToShow.remove", e)
+        }
+
+    }
     static set(preferenceObject: {account:{caldav_accounts_id: number}, calendars: any }[]){
-        Cookies.remove("USER_PREFERENCE_CALENDARS_TO_SHOW")
-        Cookies.set("USER_PREFERENCE_CALENDARS_TO_SHOW", JSON.stringify(preferenceObject), { expires: 10000 })
+        try
+        {
+            Preference_CalendarsToShow.remove()
+            localStorage.setItem("USER_PREFERENCE_CALENDARS_TO_SHOW", JSON.stringify(preferenceObject))
+        }catch(e){
+            console.warn("Preference_CalendarsToShow.set", e)
+
+        }
 
     }
 

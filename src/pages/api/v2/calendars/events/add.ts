@@ -4,7 +4,7 @@ import { getAllLablesFromDB } from '@/helpers/api/cal/labels';
 import { getObjectFromDB, insertObjectIntoDB, updateObjectinDB } from '@/helpers/api/cal/object';
 import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 import { getRandomString } from '@/helpers/crypto';
-import { logVar } from '@/helpers/general';
+import { isValidResultArray, logVar } from '@/helpers/general';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         if(await middleWareForAuthorisation(req,res))
@@ -46,8 +46,13 @@ export default async function handler(req, res) {
                             objectUrls:[url]
                             });
                         
-                        
-                        res.status(200).json({ success: true, data: {message: response.result, details: objects} })
+                        if(isValidResultArray(objects)){
+
+                            res.status(200).json({ success: true, data: {message: response.result, details: objects[0]} })
+                        }else{
+                            res.status(200).json({ success: true, data: {message: response.result, details: null, forceSync: true} })
+
+                        }
                     }else{
                         res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
 

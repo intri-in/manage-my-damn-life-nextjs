@@ -1,5 +1,5 @@
 import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
-import { addAdditionalFieldsFromOldEvent, getEmptyEventDataObject, getEmptyRecurrenceObject, isAllDayEvent, reccurence_torrule, rruleObjectToString, rruleObjecttoWords, rruleToObject, rrule_DataToFormData } from "@/helpers/frontend/events";
+import { addAdditionalFieldsFromOldEvent, deleteEventFromServer, getEmptyEventDataObject, getEmptyRecurrenceObject, isAllDayEvent, postNewEvent, reccurence_torrule, rruleObjectToString, rruleObjecttoWords, rruleToObject, rrule_DataToFormData, updateEvent } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getObjectForAPICall, makeGenerateICSRequest } from "@/helpers/frontend/ics";
 import { getAPIURL, isValidResultArray, logVar, replaceNewLineCharacters, varNotEmpty } from "@/helpers/general";
@@ -21,9 +21,10 @@ import { parseTime, parseVALARMTIME } from "@/helpers/frontend/rfc5545";
 import { BsAlarm } from "react-icons/bs";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
-import { getCaldavIDFromCalendarID_FromDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
+import { checkifCalendarIDPresentinDexieSummary, getCaldavIDFromCalendarID_FromDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
+import Cookies from 'js-cookie'
 
 export default class EventEditor extends Component {
     constructor(props) {
@@ -118,13 +119,11 @@ export default class EventEditor extends Component {
             this.setState({ deleteButton: this.getDeleteButton() })
         }
 
-        this.generateCalendarName()
         this.setCalendarID()
+
+            
     }
 
-    componentWillUnmount()
-    {
-    }
 
     async getVAlarms(data)
     {
@@ -187,11 +186,16 @@ export default class EventEditor extends Component {
         if(!this.state.calendar_id){
             
             var calendar = await getDefaultCalendarID()
-            // console.log("calendar", calendar)
             if(calendar){
-                this.setState({ calendar_id:  calendar})
-                this.setValuesToPost(calendar)
+                if(await checkifCalendarIDPresentinDexieSummary(calendar)){
+                    this.setState({ calendar_id:  calendar})
+                }else{
+                    console.log("FALSEEEEE")
+                    Cookies.remove("DEFAULT_CALENDAR_ID")
+                    
+                }
             }
+            this.setValuesToPost(calendar)
         }else{
             this.setValuesToPost(this.state.calendar_id)
 
@@ -200,15 +204,19 @@ export default class EventEditor extends Component {
     }
 
     async setValuesToPost(calendar_id){
-        const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
-        this.setState({caldav_accounts_id: caldav_accounts_id})
-   
+        if(calendar_id){
+            const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+            this.setState({caldav_accounts_id: caldav_accounts_id})
+       
+    
+            const calendar = await getCalendarbyIDFromDexie(calendar_id)
+            // console.log("calendara", calendar, calendar_id, caldav_accounts_id)
+            if(isValidResultArray(calendar)){
+                this.setState({calendarData: calendar[0]})
+            }
 
-        const calendar = await getCalendarbyIDFromDexie(calendar_id)
-        // console.log("calendara", calendar, calendar_id, caldav_accounts_id)
-        if(isValidResultArray(calendar)){
-            this.setState({calendarData: calendar[0]})
         }
+        this.generateCalendarName()
     }
 
 
@@ -224,6 +232,7 @@ export default class EventEditor extends Component {
             calendarOutput = []
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
 
+            console.log(this.state.calendar_id) 
             for (let i = 0; i < calendarsFromServer.length; i++) {
                 var tempOutput = []
 
@@ -233,7 +242,7 @@ export default class EventEditor extends Component {
                     tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
                 calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
-
+                
             }
         }
         if (varNotEmpty(this.props.eventData.event.calendar_id) && varNotEmpty(this.props.eventData.event.url)) {
@@ -467,13 +476,21 @@ export default class EventEditor extends Component {
     }
     async saveButtonClicked() {
         var eventData = {data:{summary: this.state.summary, start: this.state.fromDate, end: this.state.toDate, status: this.state.status, description: this.state.description, rrule: this.state.rrule, location: this.state.location, alarms: this.state.alarms} , event:{calendar_id: this.state.calendar_id, url: this.props.eventData.event.url, }}
+        
+        if(!this.state.calendar_id){
+            toast.error(this.i18next.t("SELECT_A_CALENDAR"))
+            console.error("this.state.calendarData", this.state.calendarData)
+            console.error("this.state.calendar_id",this.state.calendar_id)
+            return null
 
+        }
         if(!this.state.calendarData){
             toast.error(this.i18next.t("ERROR_GENERIC"))
             console.error("this.state.calendarData", this.state.calendarData)
             console.error("this.state.calendar_id",this.state.calendar_id)
             return null
         }
+
         // Add fields not supported by MMDL. 
 
         // this.setCaldav_accounts_id(this.state.calendars_id) //Reset it, to be safe.
@@ -523,89 +540,131 @@ export default class EventEditor extends Component {
     }
 
     async postNewEvent(calendar_id, data, etag) {
-        const url_api = getAPIURL() + "v2/calendars/events/add"
+        this.props.onDismiss()
+       toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+       postNewEvent(calendar_id, data, etag, this.state.caldav_accounts_id, this.state.calendarData["ctag"], this.state.calendarData["syncToken"], this.state.calendarData["url"],"VEVENT")
+        .then(body =>{
+            if (body && body.success ){
+                toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                this.props.onDismiss()
 
-        const authorisationData = await getAuthenticationHeadersforUser()
-        var updated = Math.floor(Date.now() / 1000)
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":this.state.caldav_accounts_id, ctag:this.state.calendarData["ctag"], syncToken:this.state.calendarData["syncToken"], url:this.state.calendarData["url"]   }),
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
+            } else {
+                toast.error(this.i18next.t("ERROR_GENERIC"))
+            }
+        }) 
+        
+            // const url_api = getAPIURL() + "v2/calendars/events/add"
 
-            const response = await fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    //console.log(body)
-                    if (varNotEmpty(body)) {
-                        var message = getMessageFromAPIResponse(body)
-                        if (varNotEmpty(body.success) && body.success == true) {
-                            fetchLatestEventsV2().then((response)=>{
-                                toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
-                                this.props.onDismiss()
+        // const authorisationData = await getAuthenticationHeadersforUser()
+        // var updated = Math.floor(Date.now() / 1000)
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":this.state.caldav_accounts_id, ctag:this.state.calendarData["ctag"], syncToken:this.state.calendarData["syncToken"], url:this.state.calendarData["url"]   }),
+        //     mode: 'cors',
+        //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        // }
 
-                            })
+        //     const response = await fetch(url_api, requestOptions)
+        //         .then(response => response.json())
+        //         .then((body) => {
+        //             //console.log(body)
+        //             if (varNotEmpty(body)) {
+        //                 var message = getMessageFromAPIResponse(body)
+        //                 if (varNotEmpty(body.success) && body.success == true) {
+        //                     fetchLatestEventsV2().then((response)=>{
+        //                         toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+        //                         this.props.onDismiss()
 
-                        } else {
-                            toast.error(this.i18next.t(message.toString()))
-                            this.props.onDismiss()
-                        }
-                    }else{
+        //                     })
 
-                        this.props.onDismiss()
-                    }
+        //                 } else {
+        //                     toast.error(this.i18next.t(message.toString()))
+        //                     this.props.onDismiss()
+        //                 }
+        //             }else{
+
+        //                 this.props.onDismiss()
+        //             }
 
 
 
-                }).catch (e =>{
-                    toast.error(e.message)
-                    this.props.onDismiss()
-                }) 
+        //         }).catch (e =>{
+        //             toast.error(e.message)
+        //             this.props.onDismiss()
+        //         }) 
     }
 
     async updateEvent(calendar_id, url, etag, data) {
-        const url_api = getAPIURL() + "v2/calendars/events/modify"
-
-        const authorisationData = await getAuthenticationHeadersforUser()
-        var updated = Math.floor(Date.now() / 1000)
-        console.log(data)
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: this.state.caldav_accounts_id }),
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
-            const response = await fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    if (varNotEmpty(body)) {
-                        var message = getMessageFromAPIResponse(body)
-                        if (varNotEmpty(body.success) && body.success == true) {
-                            fetchLatestEventsV2().then((response)=>{
-                                toast.success(this.i18next.t("UPDATE_OK"))
-                                //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
-                                this.props.onDismiss()
-
-                            })
-
-                        } else {
-                            toast.error(this.i18next.t(message.toString()))
-                            this.props.onDismiss()
-                        }
-                    }else{
-                        this.props.onDismiss()
-
-                    }
-
-
-                }).catch (e =>{
-                    toast.error(e.message)
+        this.props.onDismiss()
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+ 
+        updateEvent(calendar_id, url, etag, data, this.state.caldav_accounts_id).then(body =>{
+        if (varNotEmpty(body)) {
+            var message = getMessageFromAPIResponse(body)
+            if (varNotEmpty(body.success) && body.success == true) {
+                    toast.success(this.i18next.t("UPDATE_OK"))
+                    //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
                     this.props.onDismiss()
 
-                }) 
+
+            } else {
+                if (message){
+                    toast.error(this.i18next.t(message.toString()))
+                }else{
+                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                }
+                this.props.onDismiss()
+            }
+        }else{
+            toast.error(this.i18next.t("ERROR_GENERIC"))
+
+            this.props.onDismiss()
+
+        }
+
+
+        })
+        // const url_api = getAPIURL() + "v2/calendars/events/modify"
+
+        // const authorisationData = await getAuthenticationHeadersforUser()
+        // var updated = Math.floor(Date.now() / 1000)
+        // console.log(data)
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: this.state.caldav_accounts_id }),
+        //     mode: 'cors',
+        //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        // }
+        //     const response = await fetch(url_api, requestOptions)
+        //         .then(response => response.json())
+        //         .then((body) => {
+        //             if (varNotEmpty(body)) {
+        //                 var message = getMessageFromAPIResponse(body)
+        //                 if (varNotEmpty(body.success) && body.success == true) {
+        //                     fetchLatestEventsV2().then((response)=>{
+        //                         toast.success(this.i18next.t("UPDATE_OK"))
+        //                         //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+        //                         this.props.onDismiss()
+
+        //                     })
+
+        //                 } else {
+        //                     toast.error(this.i18next.t(message.toString()))
+        //                     this.props.onDismiss()
+        //                 }
+        //             }else{
+        //                 this.props.onDismiss()
+
+        //             }
+
+
+        //         }).catch (e =>{
+        //             toast.error(e.message)
+        //             this.props.onDismiss()
+
+        //         }) 
 
     }
     onDismissDeleteDialog() {
@@ -613,40 +672,62 @@ export default class EventEditor extends Component {
     }
 
     async deleteEventFromServer() {
-        const url_api = getAPIURL() + "v2/calendars/events/delete"
+        this.props.onDismiss()
+        toast.info(this.i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+        deleteEventFromServer( this.state.caldav_accounts_id, this.props.eventData.event.calendar_id, this.props.eventData.event.url, this.props.eventData.event.etag ).then((body)=>{
+            var message = getMessageFromAPIResponse(body)
 
-        const authorisationData = await getAuthenticationHeadersforUser()
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "etag": this.props.eventData.event.etag, "url": this.props.eventData.event.url, "calendar_id": this.props.eventData.event.calendar_id, caldav_accounts_id: this.state.caldav_accounts_id }),
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
-            const response = await fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    var message = getMessageFromAPIResponse(body)
+            if (varNotEmpty(body) && body.success == true) {
+                    toast.success(this.i18next.t("DELETE_OK"))
+                    this.props.onDismiss()
 
-                    if (varNotEmpty(body) && body.success == true) {
-                        fetchLatestEventsV2().then((response)=>{
-                            toast.success(this.i18next.t(message))
-                            //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
-                            this.props.onDismiss()
+            } else {
+                if(message){
+                    toast.error(this.i18next.t(message))
 
-                        })
-                    } else {
-                        this.props.onDismiss()
-                        toast.success(this.i18next.t("UPDATE_OK"))
+                }else{
 
-                    }
+                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                }
+                this.props.onDismiss()
+
+            }
+
+        })
+        // const url_api = getAPIURL() + "v2/calendars/events/delete"
+
+        // const authorisationData = await getAuthenticationHeadersforUser()
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({ "etag": this.props.eventData.event.etag, "url": this.props.eventData.event.url, "calendar_id": this.props.eventData.event.calendar_id, caldav_accounts_id: this.state.caldav_accounts_id }),
+        //     mode: 'cors',
+        //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        // }
+        //     const response = await fetch(url_api, requestOptions)
+        //         .then(response => response.json())
+        //         .then((body) => {
+                    // var message = getMessageFromAPIResponse(body)
+
+                    // if (varNotEmpty(body) && body.success == true) {
+                    //     fetchLatestEventsV2().then((response)=>{
+                    //         toast.success(this.i18next.t(message))
+                    //         //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                    //         this.props.onDismiss()
+
+                    //     })
+                    // } else {
+                    //     this.props.onDismiss()
+                    //     toast.success(this.i18next.t("UPDATE_OK"))
+
+                    // }
 
 
 
-                }).catch (e =>{
-                    console.error("deleteEventFromServer:", e)
-                    this.props.onDismiss(e.message)
-                }) 
+        //         }).catch (e =>{
+        //             console.error("deleteEventFromServer:", e)
+        //             this.props.onDismiss(e.message)
+        //         }) 
 
 
     }

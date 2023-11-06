@@ -57,21 +57,23 @@ class DashboardView extends Component {
 
     async componentDidMount() {
 
-        this.getCaldavAccountsfromDB()
-        this.getAllEventsfromServer()
-
+        
         //dayGridMonth
         let calendarApi = this.calendarRef.current.getApi()
         calendarApi.eventDragStart = this.eventDrag
-
+        
         const view = await getDefaultViewForCalendar()
         if (varNotEmpty(view)) {
             calendarApi.changeView(view)
             this.setState({ viewValue: view })
-
+            
         }
         this.setState({ showTasksChecked: true, firstDay: getCalendarStartDay() })
+        
+        this.getCaldavAccountsfromDB().then((result) =>{
+            this.getAllEventsfromServer()
 
+        })
     }
 
 
@@ -205,6 +207,8 @@ class DashboardView extends Component {
     }
     async eventDrop(e) {
         //console.log(e)
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+
         var newID = e.event.id
         if (varNotEmpty(this.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
@@ -231,10 +235,8 @@ class DashboardView extends Component {
             if (varNotEmpty(ics)) {
                 const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics, caldav_accounts_id)
                 if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
-                    fetchLatestEventsV2().then((response) => {
-                        toast.success(this.i18next.t("UPDATE_OK"))
-                        this.getAllEventsfromServer()
-                    })
+                    toast.success(this.i18next.t("UPDATE_OK"))
+                    this.getAllEventsfromServer()
 
                 } else {
                     var message = getMessageFromAPIResponse(response)
@@ -259,11 +261,13 @@ class DashboardView extends Component {
     eventEditorDismissed(e) {
         var eventData = null
 
-        this.setState({ showEventEditor: false, selectedID: "", eventDataDashBoard: eventData })
+        this.setState({ updated:Date.now(), showEventEditor: false, selectedID: "", eventDataDashBoard: eventData })
         this.getAllEventsfromServer()
 
     }
     async eventResize(e) {
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+
         // console.log("eventResize", this.allEvents[e.event.id])
         var newID = e.event.id
         if (varNotEmpty(this.allEvents[e.event.id]) == false) {
@@ -293,12 +297,8 @@ class DashboardView extends Component {
                 const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics, caldav_accounts_id)
 
                 if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
-                    console.time("time2")
-                    fetchLatestEventsV2().then((response) => {
-                        toast.success(this.i18next.t("UPDATE_OK"))
-                        this.getAllEventsfromServer()
-                    })
-                    console.timeEnd("time2")
+                    toast.success(this.i18next.t("UPDATE_OK"))
+                    this.getAllEventsfromServer()
 
 
                 } else {
@@ -348,6 +348,7 @@ class DashboardView extends Component {
 
 
                     var userWantsToSee = Preference_CalendarsToShow.getShowValueForCalendar(allEvents[i].info.caldav_accounts_id, allEvents[i].events[j].calendar_id)
+                    // console.log("userWantsToSee", allEvents[i].info.caldav_accounts_id, allEvents[i].events[j].calendar_id, userWantsToSee )
                     if (userWantsToSee == false) {
                         continue
                     }
@@ -570,11 +571,14 @@ class DashboardView extends Component {
 
     }
     async getAllEventsfromServer() {
-        var allEvents = await getEventsFromDexie_LikeAPI()
-        // console.log("allEvents", allEvents)
-        this.setState({ allEventsFromServer: allEvents })
+        getEventsFromDexie_LikeAPI().then(allEvents =>{
+            console.log("allEvents", allEvents)
+            this.setState({ allEventsFromServer: allEvents })
+            this.addEventsToCalendar(allEvents)
 
-        this.addEventsToCalendar(allEvents)
+        })
+        // console.log("allEvents", allEvents)
+
     }
 
     showTasksChanged(e) {

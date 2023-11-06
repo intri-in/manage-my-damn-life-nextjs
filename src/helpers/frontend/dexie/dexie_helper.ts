@@ -18,6 +18,7 @@ export async function getEventsFromDexie_LikeAPI(){
                     }
                     // console.log("cal", cal)
                     const events = await fetchEventsForCalendarsFromDexie(cal["calendars_id"])
+                    console.log("events", cal["calendars_id"], events )
                     let toAddToResult = {
                         info: info,
                         events: events
@@ -51,4 +52,27 @@ export async function getCaldavIDFromCalendarID_FromDexieSummary(calendars_id){
     }
 
     return null
+}
+
+export async function checkifCalendarIDPresentinDexieSummary(calendar_id){
+    
+    const  summaryToCheck=  await getCalDAVSummaryFromDexie()
+    let toReturn = false
+    if(isValidResultArray(summaryToCheck )){
+        for(const i in summaryToCheck ){
+            if(isValidResultArray(summaryToCheck[i]["calendars"])){
+                for(const j in summaryToCheck[i]["calendars"]){
+                    if(summaryToCheck[i]["calendars"][j]["calendars_id"]==calendar_id){
+                        return true
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    return toReturn
+
+
 }

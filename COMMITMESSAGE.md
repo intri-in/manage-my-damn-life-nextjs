@@ -1,4 +1,6 @@
-- Label manager - Update label cache now clears labels before adding.
-- GenericLists.js now gets labels from Dexie and not the server
-- AddTasks.js now gets tasks from Dexie, not the server.
-- CalendarViews now work with Dexie and read from Dexie.
+- add_temp.js moved back to API V1
+- Fixed Events being shown in todo list view.
+- Improved how EventEditor works
+    - Request is sent to the Caldav server, and user is not made to wait for the result.
+- Changes to modify and add API calls in v2
+- Changed how Dexie stores calendars_id (as a string, not a number)

@@ -18,7 +18,7 @@ class CalendarView extends Component{
         this.updateDimensions = this.updateDimensions.bind(this)
         this.showListColumnButtonClicked = this.showListColumnButtonClicked.bind(this)
         this.handleCloseOffcanvas = this.handleCloseOffcanvas.bind(this)
-
+        this.onSynComplete = this.onSynComplete.bind(this)
     }
     componentDidMount(){
         if (window != undefined) {
@@ -36,6 +36,9 @@ class CalendarView extends Component{
     
       }
     
+      onSynComplete(){
+        this.fetchEvents()
+      }
       updateDimensions = () => {
         if (window.innerWidth < 700) {
           
