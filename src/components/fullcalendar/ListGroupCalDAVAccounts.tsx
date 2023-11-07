@@ -31,22 +31,25 @@ export function ListGroupCalDAVAccounts(props: customProps ){
       }
     }
     var output=[]
-    if(props.caldav_accounts.length>0 ) 
+    if(props.caldav_accounts && props.caldav_accounts.length>0 ) 
     {
       for(const i in props.caldav_accounts){
        
         output.push(<h3>{props.caldav_accounts[i].name}</h3>)
         var calendarOutput =[]
         if(varNotEmpty(props.caldav_accounts[i].calendars) && props.caldav_accounts[i].calendars)
-        for(const j in props.caldav_accounts[i].calendars){
-          var indexInPreferenceObject = Preference_CalendarsToShow.findIndex_Calendar(prefObject, props.caldav_accounts[i].caldav_accounts_id, props.caldav_accounts[i].calendars[j].calendars_id)
-          if(varNotEmpty(indexInPreferenceObject) && Array.isArray(indexInPreferenceObject) && indexInPreferenceObject.length>0)
-          {
-            calendarOutput.push(<Form.Check 
-              inline type="checkbox" id={JSON.stringify(indexInPreferenceObject)} checked={prefObject[indexInPreferenceObject[0]].calendars[indexInPreferenceObject[1]].show} onClick={e => onChangeChecked( e, indexInPreferenceObject)}  label={props.caldav_accounts[i].calendars[j].displayName}/>)
+        {
+          
+          for(const j in props.caldav_accounts[i].calendars){
+            var indexInPreferenceObject = Preference_CalendarsToShow.findIndex_Calendar(prefObject, props.caldav_accounts[i].caldav_accounts_id, props.caldav_accounts[i].calendars[j].calendars_id)
+            if(varNotEmpty(indexInPreferenceObject) && Array.isArray(indexInPreferenceObject) && indexInPreferenceObject.length>0)
+            {
+              calendarOutput.push(<Form.Check 
+                inline type="checkbox" id={JSON.stringify(indexInPreferenceObject)} checked={prefObject[indexInPreferenceObject[0]].calendars[indexInPreferenceObject[1]].show} onClick={e => onChangeChecked( e, indexInPreferenceObject)}  label={props.caldav_accounts[i].calendars[j].displayName}/>)
+    
+            }
   
           }
-
         }
 
         output.push(<Form>{calendarOutput}</Form>)
@@ -93,7 +96,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
 
 function getLatestPreferenceObject(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
   var calendarstoShow = Preference_CalendarsToShow.get()
-  if(Preference_CalendarsToShow.isValidObject(calendarstoShow) && Preference_CalendarsToShow.isUptoDate(caldav_accounts)){
+  if(calendarstoShow && Preference_CalendarsToShow.isValidObject(calendarstoShow) && Preference_CalendarsToShow.isUptoDate(caldav_accounts)){
     return calendarstoShow
   }else{
     var newObj=Preference_CalendarsToShow.generateFromCaldavObject(caldav_accounts)
