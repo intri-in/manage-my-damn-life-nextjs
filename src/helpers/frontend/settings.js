@@ -24,14 +24,21 @@ export function saveLabelArrayToCookie(labels)
     }
 }
 export function getCalendarStartDay(){
-    const defaultCalendar= Cookies.get(SETTING_NAME_CALENDAR_START_DAY)
-
-    if(varNotEmpty(defaultCalendar)){
-        return defaultCalendar
-    }else{
+    const startDay= Cookies.get(SETTING_NAME_CALENDAR_START_DAY)
+    
+    if(isNaN(startDay)){
         return "1"
     }
-    
+
+    try{
+        const startDayInt = parseInt(startDay)
+        return startDayInt
+    }catch(e){
+        console.warn("getCalendarStartDay",e)
+    }
+  
+    return "1"
+
 
 }
 export function getLabelArrayFromCookie()
