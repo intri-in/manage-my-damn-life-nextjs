@@ -51,7 +51,9 @@ class DashboardView extends Component {
         this.showTasksChanged = this.showTasksChanged.bind(this)
         this.addEventsToCalendar = this.addEventsToCalendar.bind(this)
         this.userPreferencesChanged = this.userPreferencesChanged.bind(this)
+        this.getAllEventsfromServer = this.getAllEventsfromServer.bind(this)
         this.allEvents = {}
+        this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
     }
 
 
