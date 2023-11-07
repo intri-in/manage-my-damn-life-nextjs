@@ -39,7 +39,7 @@ class DashboardView extends Component {
         super(props)
         this.i18next = getI18nObject()
         var initialViewCalendar = "timeGridDay"
-        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR, showTasksChecked: false, allEventsFromServer: null, caldav_accounts: null, firstDay: "3" }
+        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR, showTasksChecked: false, allEventsFromServer: null, caldav_accounts: null, firstDay: "0" }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -70,8 +70,11 @@ class DashboardView extends Component {
             this.setState({ viewValue: view })
             
         }
-        this.setState({ showTasksChecked: true, firstDay: getCalendarStartDay() })
-        
+        this.setState({ showTasksChecked: true, })
+        const firstDay = getCalendarStartDay()
+        if(firstDay){
+            this.setState({firstDay: firstDay})
+        }
         this.getCaldavAccountsfromDB().then((result) =>{
             this.getAllEventsfromServer()
 
