@@ -3,6 +3,7 @@ import { db } from "./dexieDB";
 import { getRandomColourCode } from "../general";
 import { fetchAllEventsFromDexie } from "./events_dexie";
 import { returnGetParsedVTODO } from "../calendar";
+import { basicTaskFilterForDexie } from "./dexie_helper";
 
 export async function getAllLabelsFromDexie() {
     try {
@@ -89,6 +90,15 @@ export async function clearLabelsFromDexie(){
 
 }
 
+export async function deleteLabelbyIDFromDexie(labels_id){
+    try {
+        await db.labels.delete(labels_id)
+    } catch (e) {
+        console.error("deleteLabelbyIDFromDexie", e)
+    }
+
+}
+
 export async function updateLabelColourinDexie(labelName, colour) {
     const key = await getLabelIDFromName_Dexie(labelName)
     if (key) {
@@ -101,13 +111,47 @@ export async function updateLabelColourinDexie(labelName, colour) {
     }
 }
 export async function updateLabelCacheInDexie() {
-    await clearLabelsFromDexie()
+    // await clearLabelsFromDexie()
+    const tempLabelList = []
     const eventArray = await fetchAllEventsFromDexie("VTODO")
     if (isValidResultArray(eventArray)) {
         for (const i in eventArray) {
-            const labelArray = returnGetParsedVTODO(eventArray[i]["data"]).category
-            await saveLabelToDexie(labelArray)
+            const parsedTask = returnGetParsedVTODO(eventArray[i]["data"])
+            if(basicTaskFilterForDexie(parsedTask)){
+                const labelArray =parsedTask["category"]
+                if(isValidResultArray(labelArray)){
+                    for(const j in labelArray){
+                        if(!tempLabelList.includes(labelArray[j]) && labelArray[j]){
+                            
+                            tempLabelList.push(labelArray[j])
+                        }
+                    }
+                }else{
+                    if(labelArray && !tempLabelList.includes(labelArray))
+                    tempLabelList.push(labelArray)
+
+                }
+                // await saveLabelToDexie(labelArray)
+            }
 
         }
+        //Now that we have a generated List, we compare them to the ones we have saved in Dexie.
+        await saveLabelToDexie(tempLabelList)
+        
+        // All the labels have been saved. We now delete the ones not in the new list.
+        const labelsFromDexie = await getAllLabelsFromDexie()
+        for(const l in labelsFromDexie){
+            if(!tempLabelList.includes(labelsFromDexie[l]["name"])){
+                // Label will be deleted.
+                console.log("To Delete ", labelsFromDexie[l]["name"])
+                await deleteLabelbyIDFromDexie(labelsFromDexie[l]["labels_id"])
+            }
+        }
+
+        // console.log("tempLabelList", tempLabelList)
+    }else{
+        // No event in dexie. Delete all labels.
+        clearLabelsFromDexie()
     }
+
 }

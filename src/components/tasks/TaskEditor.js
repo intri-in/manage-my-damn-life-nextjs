@@ -19,7 +19,7 @@ import { Loading } from "../common/Loading";
 import ParentTaskSearch from "./ParentTaskSearch";
 import { generateNewTaskObject } from "@/helpers/frontend/tasks";
 import Recurrence from "../common/Recurrence";
-import { rruleToObject } from "@/helpers/frontend/events";
+import { deleteEventFromServer, postNewEvent, rruleToObject, updateEvent } from "@/helpers/frontend/events";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 import * as _ from 'lodash'
 import { VTODO } from "@/helpers/frontend/classes/VTODO";
@@ -463,27 +463,33 @@ export default class TaskEditor extends Component {
 
     }
     async deleteTheTaskFromServer() {
-        const url_api = getAPIURL() + "v2/calendars/todo/delete"
+        toast.info(this.i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+        deleteEventFromServer(this.state.caldav_accounts_id,this.state.calendar_id,this.props.data.url_internal,this.props.data.etag).then((body)=>{
+            this.props.onDismiss(body)
 
-        const authorisationData = await getAuthenticationHeadersforUser()
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url_internal, "calendar_id": this.state.calendar_id, caldav_accounts_id: this.state.caldav_accounts_id}),
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
+        })
+        this.props.onDismiss()
+        // const url_api = getAPIURL() + "v2/calendars/todo/delete"
+
+        // const authorisationData = await getAuthenticationHeadersforUser()
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({ "etag": this.props.data.etag, "url": this.props.data.url_internal, "calendar_id": this.state.calendar_id, caldav_accounts_id: this.state.caldav_accounts_id}),
+        //     mode: 'cors',
+        //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        // }
            
-            const response = await fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    this.props.onDismiss(body)
+        //     const response = await fetch(url_api, requestOptions)
+        //         .then(response => response.json())
+        //         .then((body) => {
+        //             this.props.onDismiss(body)
 
 
 
-                }).catch(e =>{
-                    this.props.onDismiss(e.message)
-                })
+        //         }).catch(e =>{
+        //             this.props.onDismiss(e.message)
+        //         })
 
 
     }
@@ -596,79 +602,93 @@ export default class TaskEditor extends Component {
     }
 
     async postNewTodo(calendar_id, data, etag) {
-        const url_api = getAPIURL() + "v2/calendars/todo/add"
-
         if(!this.state.calendarData){
             toast.error(this.i18next.t("ERROR_GENERIC"))
             console.error("this.state.calendarData", this.state.calendarData)
             console.error("this.state.calendar_id",this.state.calendar_id)
             return null
         }
-        const authorisationData = await getAuthenticationHeadersforUser()
-        var updated = Math.floor(Date.now() / 1000)
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":this.state.caldav_accounts_id, ctag:this.state.calendarData["ctag"], syncToken:this.state.calendarData["syncToken"], url:this.state.calendarData["url"] }),
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
+
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+        postNewEvent(calendar_id, data,etag,this.state.caldav_accounts_id,this.state.calendarData["ctag"],this.state.calendarData["syncToken"],this.state.calendarData["url"],"VTODO").then((body)=>{
+            this.props.onDismiss(body)
+        })
+        this.props.onDismiss()
+
+        // const url_api = getAPIURL() + "v2/calendars/events/add"
         
-            const response = await fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    if(body && body.success){
-                        //Task was published to CalDAV. We will save it in dexie.
-                        if(body.data && body.data.message && body.data.details){
-                            if(isValidResultArray(body.data.details)){
-                                const newEvent = body.data.details[0]
+        // const authorisationData = await getAuthenticationHeadersforUser()
+        // var updated = Math.floor(Date.now() / 1000)
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":this.state.caldav_accounts_id, ctag:this.state.calendarData["ctag"], syncToken:this.state.calendarData["syncToken"], url:this.state.calendarData["url"] }),
+        //     mode: 'cors',
+        //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        // }
+        // this.props.onDismiss()
 
-                                console.log("newEvent", newEvent)
-                                saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],newEvent["data"],"VTODO").then((response)=>{
-                                    this.props.onDismiss(body)
+        //     fetch(url_api, requestOptions)
+        //         .then(response => response.json())
+        //         .then((body) => {
+        //             if(body && body.success){
+        //                 //Task was published to CalDAV. We will save it in dexie.
+        //                 if(body.data && body.data.message && body.data.details){
+        //                     if(isValidResultArray(body.data.details)){
+        //                         const newEvent = body.data.details
+        //                         console.log("newEvent", newEvent)
+        //                         saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],newEvent["data"],"VTODO").then((response)=>{
+        //                             this.props.onDismiss(body)
 
-                                })
-                            }
-                        }
-                    }else{
+        //                         })
+        //                     }
+        //                 }
+        //             }else{
 
-                        this.props.onDismiss(body)
-                    }
+        //                 this.props.onDismiss(body)
+        //             }
 
 
 
-                }).catch (e => {
-                    console.log("postNewTodo",e)
-                    this.props.onDismiss(e.message)
-                })
+        //         }).catch (e => {
+        //             console.log("postNewTodo",e)
+        //             this.props.onDismiss(e.message)
+        //         })
     }
     async updateTodo(calendar_id, url, etag, data) {
-        const url_api = getAPIURL() + "v2/calendars/todo/modify"
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
 
-        const authorisationData = await getAuthenticationHeadersforUser()
-        var updated = Math.floor(Date.now() / 1000)
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: this.state.caldav_accounts_id }),
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
+        updateEvent(calendar_id,url, etag, data,this.state.caldav_accounts_id).then((body)=>{
+                   this.props.onDismiss(body)
+
+        })
+        this.props.onDismiss()
+        // const url_api = getAPIURL() + "v2/calendars/todo/modify"
+
+        // const authorisationData = await getAuthenticationHeadersforUser()
+        // var updated = Math.floor(Date.now() / 1000)
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: this.state.caldav_accounts_id }),
+        //     mode: 'cors',
+        //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        // }
      
-            const response = await fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    // console.log("response Edit", body)
-                    if(body && body.success){
-                    }
-                    this.props.onDismiss(body)
+        //     const response = await fetch(url_api, requestOptions)
+        //         .then(response => response.json())
+        //         .then((body) => {
+        //             // console.log("response Edit", body)
+        //             if(body && body.success){
+        //             }
+        //             this.props.onDismiss(body)
 
 
-                }).catch (e => {
-                    console.error("TaskEditor: updateTodo ", e)
-                    this.props.onDismiss(getErrorResponse(e))
+        //         }).catch (e => {
+        //             console.error("TaskEditor: updateTodo ", e)
+        //             this.props.onDismiss(getErrorResponse(e))
 
-                })
+        //         })
 
     }
     onParentSelect(uid) {

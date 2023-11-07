@@ -18,7 +18,7 @@ export async function getEventsFromDexie_LikeAPI(){
                     }
                     // console.log("cal", cal)
                     const events = await fetchEventsForCalendarsFromDexie(cal["calendars_id"])
-                    console.log("events", cal["calendars_id"], events )
+                    // console.log("events", cal["calendars_id"], events )
                     let toAddToResult = {
                         info: info,
                         events: events
@@ -75,4 +75,15 @@ export async function checkifCalendarIDPresentinDexieSummary(calendar_id){
     return toReturn
 
 
+}
+
+export function basicTaskFilterForDexie(parsedTask){
+
+    // console.log("parsedTask", parsedTask)
+    if(parsedTask["summary"] && !parsedTask.completed && parsedTask["completion"]!="100"){
+        // Task passed the basic checks
+        return true
+    }else{
+        return false
+    }
 }

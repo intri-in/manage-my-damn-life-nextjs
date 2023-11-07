@@ -185,6 +185,7 @@ export default class TaskUI extends Component {
                 newDataArray.categories.push(MYDAY_LABEL)
                 //console.log(this.state.data)
                 //this.setState({data: newDataArray, showTaskEditor: true, })
+                toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
                 var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
                 this.onTaskSubmittoServer(body)
                 //console.log(newDataArray)
@@ -223,6 +224,7 @@ export default class TaskUI extends Component {
                 if (varNotEmpty(this.state.data.rrule) && this.state.data.rrule != "") {
                     newData["rrule"] = RRuleHelper.rruleToObject(newData.rrule)
                 }
+                toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
 
                 //this.setState({data: newData, showTaskEditor: true})
                 var body = await updateTodo(this.props.data.calendar_id, this.props.data.url_internal, this.props.data.etag, newData)
@@ -302,20 +304,19 @@ export default class TaskUI extends Component {
         if (body != null) {
             if (body.success == true) {
                 toast.success(this.i18next.t(message))
-                fetchLatestEventsV2().then(reponse =>{
-
-                    this.props.fetchEvents(body.data.refresh)
-                })
+                this.props.fetchEvents()
             }
             else {
-                toast.error(message)
+                if(message){
+
+                    toast.error(message)
+                }else{
+                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                }
 
             }
         }
-        else {
-            toast.error(this.i18next.t("ERROR_GENERIC"))
-
-        }
+       
     }
     onSubtaskSubmittoServer(body) {
         this.setState({ showSubtaskEditor: false })
@@ -332,10 +333,7 @@ export default class TaskUI extends Component {
 
             }
         }
-        else {
-            toast.error(this.i18next.t("ERROR_GENERIC"))
-
-        }
+       
     }
     clearCheckMarkState() {
 

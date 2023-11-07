@@ -17,6 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { checkifFilterValid, filterDueIsValid, getFilterReadytoPost, makeFilterEditRequest, saveFiltertoServer } from "@/helpers/frontend/filters"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { filtertoWords } from "@/helpers/frontend/filters"
+import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels"
 class AddFilters extends Component {
 
     constructor(props)
@@ -128,7 +129,7 @@ class AddFilters extends Component {
     }
     async generateLabelCheckList()
     {
-        var labels = await getLabelsFromServer()
+        var labels = await getAllLabelsFromDexie()
         var results=[]
         var filterbyLabelCheckList = {}
         if(isValidResultArray(labels))

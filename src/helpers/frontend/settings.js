@@ -1,8 +1,13 @@
 import Cookies from "js-cookie";
 import { isValidResultArray, logError, varNotEmpty } from "../general";
 import SettingsHelper from "./classes/SettingsHelper";
+import { getValueFromLocalStorage } from "./localstorage";
+import { isValidFullCalendarView } from "@/components/fullcalendar/FullCalendarHelper";
 
 export const SETTING_NAME_CALENDAR_START_DAY="MMDL_CALENDAR_START_DAY"
+export const SETTING_NAME_DEFAULT_VIEW_CALENDAR="DEFAULT_VIEW_CALENDAR"
+export const SETTING_NAME_DEFAULT_CALENDAR = "DEFAULT_CALENDAR"
+
 export function getSyncTimeout()
 {
     var timeout = Cookies.get("USER_SETTING_SYNCTIMEOUT")
@@ -24,7 +29,7 @@ export function saveLabelArrayToCookie(labels)
     }
 }
 export function getCalendarStartDay(){
-    const startDay= Cookies.get(SETTING_NAME_CALENDAR_START_DAY)
+    const startDay= localStorage.getItem(SETTING_NAME_CALENDAR_START_DAY)
     
     if(isNaN(startDay)){
         return "1"
@@ -59,29 +64,40 @@ export function getStandardDateFormat()
 {
     return "DD/MM/YYYY HH:mm"
 }
+export function setDefaultViewForCalendar(viewName){
+    
+    if(isValidFullCalendarView(viewName)){
 
-export async function getDefaultViewForCalendar()
+        localStorage.setItem(SETTING_NAME_DEFAULT_VIEW_CALENDAR, viewName)
+    }
+}
+export function getDefaultViewForCalendar()
 {
-    return new Promise((resolve, reject) => {
+    var settingValue= getValueFromLocalStorage(SETTING_NAME_DEFAULT_VIEW_CALENDAR)
+    // console.log("settingValue", settingValue)
+    if(isValidFullCalendarView(settingValue)){
+        return settingValue
+    }
+    return null
+    // return new Promise((resolve, reject) => {
         
-        var settingValue= Cookies.get("DEFAULT_VIEW_CALENDAR")
-        if(varNotEmpty(settingValue) && settingValue!="")
-        {
-            return resolve(settingValue)
-        }else{
-            //Get from Server.
-            SettingsHelper.getFromServer("DEFAULT_VIEW_CALENDAR").then((fromServer)=>{
-                if(varNotEmpty(fromServer) && fromServer!="")
-                {
-                    return resolve(fromServer)
-                }else{
-                    return resolve(settingValue)
-                }
+    //     if(varNotEmpty(settingValue) && settingValue!="")
+    //     {
+    //         return resolve(settingValue)
+    //     }else{
+    //         //Get from Server.
+    //         SettingsHelper.getFromServer("DEFAULT_VIEW_CALENDAR").then((fromServer)=>{
+    //             if(varNotEmpty(fromServer) && fromServer!="")
+    //             {
+    //                 return resolve(fromServer)
+    //             }else{
+    //                 return resolve(settingValue)
+    //             }
     
-            })
-        }
+    //         })
+    //     }
     
-    })
+    // })
 }
 
 

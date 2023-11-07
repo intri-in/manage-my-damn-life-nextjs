@@ -36,7 +36,7 @@ export default async function handler(req, res) {
                 }
 
                 var response = await updateEventinCalDAVAccount(caldav_accounts_id, objectToUpdate)
-                console.log(response)
+                // console.log(response)
                 // console.log("response for Edit", response)
                     if(response.result.status>=200 && response.result.status<300 && ( response.result.error==null || response.result.error==""))
                     {

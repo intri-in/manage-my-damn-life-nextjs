@@ -29,7 +29,7 @@ export function setCookie(cname, cvalue, exdays=10000)
 
 export async function getDefaultCalendarID()
 {
-    var fromCookie=Cookies.get("DEFAULT_CALENDAR_ID")
+    var fromCookie=localStorage.getItem("DEFAULT_CALENDAR_ID")
     if(varNotEmpty(fromCookie) && fromCookie!=""){
         return fromCookie
     }
@@ -73,7 +73,7 @@ export async function getDefaultCalendarID()
 }
 export function setDefaultCalendarID(calendars_id)
 {
-    Cookies.set("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
+    localStorage.setItem("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
 }
 
 export function setUserNameCookie(username){

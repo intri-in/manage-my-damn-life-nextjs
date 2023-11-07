@@ -1,6 +1,4 @@
-- add_temp.js moved back to API V1
-- Fixed Events being shown in todo list view.
-- Improved how EventEditor works
-    - Request is sent to the Caldav server, and user is not made to wait for the result.
-- Changes to modify and add API calls in v2
-- Changed how Dexie stores calendars_id (as a string, not a number)
+- TaskEditor now sends the changes to CalDAV and dismissed. Result is shown later. Behaviour is consistent with EventEditor.
+- Fixed update of Label cache. Labels of "done" tasks are not shown.
+- Moved most of setting variables to localStorage, instead of Cookies.
+- ParentTaskSearch.js now searches Dexie for parent tasks, rather than the API.

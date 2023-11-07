@@ -20,6 +20,8 @@ import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import CalendarStartDayWeek from "@/components/settings/CalendarStartDayWeek";
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { checkifCalendarIDPresentinDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
+import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -36,9 +38,9 @@ class SettingsPage extends Component {
         this.caldavAccountButtonClicked = this.caldavAccountButtonClicked.bind(this)
     }
     componentDidMount() {
+        this.getAllUserSettings()
         this.getUserInfo()
         this.getCalendarName()
-        this.getAllUserSettings()
     }
     async getAllUserSettings(){
         const url_api = getAPIURL() + "settings/get"
@@ -62,7 +64,14 @@ class SettingsPage extends Component {
                         {
                             if(body.data.message.user[i]["name"]=="DEFAULT_CALENDAR")
                             {
-                                this.setState({defaultCalendar: body.data.message.user[i]["value"]})
+                                const defaultCalValue = body.data.message.user[i]["value"]
+                                checkifCalendarIDPresentinDexieSummary(defaultCalValue).then((resultofCheck) =>{
+                                    
+                                    if( resultofCheck){
+                                        localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalValue)
+                                        this.setState({defaultCalendar: defaultCalValue})
+                                    }
+                                })
                             }
                         }
 
@@ -336,7 +345,7 @@ class SettingsPage extends Component {
 
             }
 
-            return (<Form.Select key="calendarOptions" onChange={this.calendarSelected} value={this.state.defaultCalendar}  >{calendarOutput}</Form.Select>) 
+            return (<Form.Select key="calendarOptions" onChange={this.calendarSelected} value={this.state.defaultCalendar} >{calendarOutput}</Form.Select>) 
 
         }
 

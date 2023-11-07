@@ -59,6 +59,10 @@ class DashboardView extends Component {
 
     async componentDidMount() {
 
+        const firstDay = getCalendarStartDay()
+        if(firstDay){
+            this.setState({firstDay: firstDay})
+        }
         
         //dayGridMonth
         let calendarApi = this.calendarRef.current.getApi()
@@ -71,10 +75,6 @@ class DashboardView extends Component {
             
         }
         this.setState({ showTasksChecked: true, })
-        const firstDay = getCalendarStartDay()
-        if(firstDay){
-            this.setState({firstDay: firstDay})
-        }
         this.getCaldavAccountsfromDB().then((result) =>{
             this.getAllEventsfromServer()
 
@@ -307,8 +307,14 @@ class DashboardView extends Component {
 
 
                 } else {
+                    const message = getMessageFromAPIResponse(response)
+                    if(message){
+                        toast.error((this.i18next.t(message)))
 
-                    toast.error((this.i18next.t("ERROR_GENERIC")))
+                    }else{
+
+                        toast.error((this.i18next.t("ERROR_GENERIC")))
+                    }
 
 
                 }
@@ -577,7 +583,7 @@ class DashboardView extends Component {
     }
     async getAllEventsfromServer() {
         getEventsFromDexie_LikeAPI().then(allEvents =>{
-            console.log("allEvents", allEvents)
+            // console.log("allEvents", allEvents)
             this.setState({ allEventsFromServer: allEvents })
             this.addEventsToCalendar(allEvents)
 

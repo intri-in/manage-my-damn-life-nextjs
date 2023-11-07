@@ -5,6 +5,22 @@ export function clearLocalStorage(){
         console.error("clearLocalStorage", e)
     }
 }
+
+
+export function getValueFromLocalStorage(keyName){
+
+    if(!keyName){
+        return null
+    }
+
+    try{
+        return localStorage.getItem(keyName)
+    }catch(e){
+        console.warn("getValueFromLocalStorage",e)
+    }
+    return null
+}
+
 /**
  * Saves calendar names from server to user storage.
  * @param {*} calendarsFromServer Calendar data from API

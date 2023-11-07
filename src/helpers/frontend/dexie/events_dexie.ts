@@ -1,19 +1,25 @@
-import { isValidResultArray } from "@/helpers/general";
+import { haystackHasNeedle, isValidResultArray } from "@/helpers/general";
 import { db } from "./dexieDB";
 import { returnEventType, returnGetParsedVTODO } from "../calendar";
 import { saveLabelToDexie } from "./dexie_labels";
+import { basicTaskFilterForDexie } from "./dexie_helper";
+import { majorTaskFilter } from "../events";
 
 export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     if (isValidResultArray(eventArray)) {
 
         for (const i in eventArray) {
             const labelArray = returnGetParsedVTODO(eventArray[i]["data"]).category
-            // const parsed = returnGetParsedVTODO(eventArray[i]["data"])
+            const parsed = returnGetParsedVTODO(eventArray[i]["data"])
 
             // console.log("parsed",parsed.summary, parsed, calendars_id)
-            saveLabelToDexie(labelArray)
-            saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"])
-            deleteExtraEventsFromDexie(calendars_id, eventArray)
+            const type= returnEventType(eventArray[i]["data"])
+            if(type=="VTODO" && basicTaskFilterForDexie(parsed)){
+
+                await saveLabelToDexie(labelArray)
+            }
+            await saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"])
+            await deleteExtraEventsFromDexie(calendars_id, eventArray)
         }
     }
 
@@ -38,7 +44,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type) {
         // console.log("typeToInsert", typeToInsert, type, parsedType)
 
         const updated = await db.calendar_events.update(eventID, {etag:etag, data:data, type: typeToInsert})
-        console.log("updated", updated)
+        // console.log("updated", updated)
     } else {
 
        
@@ -53,7 +59,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type) {
         }).catch(e =>{
             console.log(e)
         })
-        console.log("id", id)
+        // console.log("id", id)
 
     }
 }
@@ -176,4 +182,19 @@ export async function deleteEventByURLFromDexie(url){
     if(event && event["calendar_events_id"]){
         await deleteEventFromDexie(event["calendar_events_id"])
     }
+}
+
+export async function searchEventInDexie(calendars_id, type,searchTerm){
+    const allEvents = await fetchEventsForCalendarsFromDexie(calendars_id, type)
+    const result = []
+    for (const i in allEvents)
+    {
+        var parsedTodo= returnGetParsedVTODO(allEvents[i].data)
+        if(majorTaskFilter(parsedTodo)==true && parsedTodo.summary!=null &&  parsedTodo.summary!=undefined && (haystackHasNeedle(searchTerm.trim(),parsedTodo.summary) || haystackHasNeedle(searchTerm.trim(),parsedTodo.description) ) )
+        {
+            result.push(allEvents[i])
+        } 
+    }
+
+    return result
 }
