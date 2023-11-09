@@ -351,16 +351,9 @@ class SettingsPage extends Component {
 
     }
     render() {
-
         var adminTable = this.state.isAdmin? this.renderAdminSettings(): null
         return (
             <>
-                <Head>
-                    <title>{this.i18next.t("APP_NAME_TITLE") + " - " + this.i18next.t("SETTINGS")}</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <link rel="icon" href="/favicon.ico" />
-                </Head>
-                <AppBarGeneric />
                 <Container fluid>
                     <div style={{ padding: 20 }}>
                         <h1>{this.i18next.t("SETTINGS")}</h1>

@@ -1,5 +1,5 @@
-v0.3.6
-- bump to version 0.3.6
+v0.4.0
+- bump to version 0.4.0
 - Calendar and Caldav account names are now stored locally to improve performace by limiting calls to API.
 - TaskEditor now reads and edits from local Dexie store rather than from server.
 - Numerous other changes.
@@ -17,6 +17,7 @@ v0.3.6
 - Fixed update of Label cache. Labels of "done" tasks are not shown.
 - Moved most of setting variables to localStorage, instead of Cookies.
 - ParentTaskSearch.js now searches Dexie for parent tasks, rather than the API.
+- Fixed few bugs in MyDay view (duplicate tasks appearing)
 
 
 v0.3.5

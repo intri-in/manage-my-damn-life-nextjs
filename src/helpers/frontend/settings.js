@@ -10,13 +10,16 @@ export const SETTING_NAME_DEFAULT_CALENDAR = "DEFAULT_CALENDAR"
 
 export function getSyncTimeout()
 {
-    var timeout = Cookies.get("USER_SETTING_SYNCTIMEOUT")
+    var timeout = localStorage.getItem("USER_SETTING_SYNCTIMEOUT")
     return 1000*60*5
 }
 
 export function setSyncTimeout(timeinMinutes)
 {
-    Cookies.set("USER_SETTING_SYNCTIMEOUT", timeinMinutes*60*1000, { expires: 10000 })
+    if(!timeinMinutes && isNaN(timeinMinutes)){
+        return
+    }
+    localStorage.setItem("USER_SETTING_SYNCTIMEOUT", timeinMinutes*60*1000)
 }
 
 export function saveLabelArrayToCookie(labels)

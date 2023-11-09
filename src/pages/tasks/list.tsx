@@ -11,7 +11,7 @@ export default function TaskListPage(){
     const router = useRouter()
 
     useEffect(() =>{
-      
+      // console.log("renders")
       if(nextAuthEnabled()){
         if (status=="unauthenticated" ) {
           signIn()

@@ -80,7 +80,17 @@ export async function getAllCalendarsFromCalDavAccountIDFromDexie(caldav_account
 
     return calendars
 }
+export async function getCalendarColorFromDexie(calendars_id){
+  
+    const calendars =  await db.calendars
+    .where('calendars_id')
+    .equals(calendars_id)
+    .toArray();
 
+    if(isValidResultArray(calendars)){
+        return calendars[0]["calendarColor"]
+    }
+}
 export async function insertCalendarsIntoDexie(calendarsFromDB){
     //console.log("calendarsFromDB insertCalendarIntoDexie", calendarsFromDB)
     if(calendarsFromDB && calendarsFromDB["caldav_accounts_id"] && calendarsFromDB["calendars"] && Array.isArray(calendarsFromDB["calendars"]) && calendarsFromDB["calendars"].length>0){

@@ -3,7 +3,7 @@ import Row from 'react-bootstrap/Row';
 import Col from "react-bootstrap/Col";
 import { useRouter, withRouter } from "next/router";
 import { Button, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
-import React, { Component, useState } from 'react';
+import React, { Component, useRef, useState } from 'react';
 import { fetchLatestEvents, fetchLatestEventsV2, makeSyncRequest } from "@/helpers/frontend/sync";
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -13,7 +13,7 @@ import  {IoSyncCircleOutline}  from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
 import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user";
 import Link from "next/link";
-import { getSyncTimeout } from "@/helpers/frontend/settings";
+import { getSyncTimeout, setSyncTimeout } from "@/helpers/frontend/settings";
 import { toast } from "react-toastify";
 import Dropdown from 'react-bootstrap/Dropdown';
 import { getInstallCheckCookie, getUserNameFromCookie } from "@/helpers/frontend/cookies";
@@ -45,10 +45,7 @@ async componentDidMount(){
     this.setState({installed: false})
   }
   var context = this
-  setInterval(() => {
-    //context.syncButtonClicked()
-    //toast.info("syncing")
-  }, getSyncTimeout())
+ 
 
   let username=""
   try{

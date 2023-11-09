@@ -1,4 +1,1 @@
-- TaskEditor now sends the changes to CalDAV and dismissed. Result is shown later. Behaviour is consistent with EventEditor.
-- Fixed update of Label cache. Labels of "done" tasks are not shown.
-- Moved most of setting variables to localStorage, instead of Cookies.
-- ParentTaskSearch.js now searches Dexie for parent tasks, rather than the API.
+- Fixed few bugs in MyDay view (duplicate tasks appearing)

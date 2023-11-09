@@ -14,48 +14,59 @@ import { Loading } from '../common/Loading';
 import { getAPIURL, isValidResultArray, logVar } from '@/helpers/general';
 import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from '@/helpers/frontend/dexie/events_dexie';
 import { getCalDAVSummaryFromDexie, getNameForTaskList, getNameofCalDAVFromDexie } from '@/helpers/frontend/dexie/caldav_dexie';
-import { getCalendarNameByIDFromDexie } from '@/helpers/frontend/dexie/calendars_dexie';
+import { getCalendarColorFromDexie, getCalendarNameByIDFromDexie } from '@/helpers/frontend/dexie/calendars_dexie';
 class TaskList extends Component {
     constructor(props) {
         super(props)
         var i18next = getI18nObject()
         this.i18next = i18next
         this.refreshCalendars = this.refreshCalendars.bind(this)
-        this.state = { i18next: i18next, toast_placeholder: null, taskList: [], caldav_accounts_id: this.props.caldav_accounts_id, calendars_id: this.props.calendars_id, taskListName: "", taskListColor: '', view: props.view, isLoading:true }
+        this.state = { i18next: i18next, toast_placeholder: null, taskList: [], caldav_accounts_id: this.props.caldav_accounts_id, calendars_id: this.props.calendars_id, taskListName: "", taskListColor: '', view: props.view, isLoading:true, }
         this.renderTaskListUI = this.renderTaskListUI.bind(this)
         this.asyncSaveLabelstoDB = this.asyncSaveLabelstoDB.bind(this)
         this.getCalendarName = this.getCalendarName.bind(this)
         this.fetchEvents = this.fetchEvents.bind(this)
+        this.outputArrayHasKey = this.outputArrayHasKey.bind(this)
 
     }
     componentDidMount() {
-        //console.log(this.props.caldav_accounts_id, this.props.calendars_id)
+        // console.log(this.props.caldav_accounts_id, this.props.calendars_id)
         try {
             if (this.props.caldav_accounts_id && this.props.calendars_id) {
-                this.fetchEvents()
-                this.getCalendarName()
+                this.getCalendarName().then((result)=>{
+
+                    this.fetchEvents()
+                })
 
             }
             else {
-                this.getAllTodosfromServer()
+                    this.getAllTodosfromServer()
+
             }
         }
         catch (e) {
             console.log(e)
         }
+       
+    }
 
+    componentWillUnmount(){
+    
     }
     componentDidUpdate(prevProps, prevState) {
-
+        // console.log("here man update")
         if (this.props.caldav_accounts_id !== prevProps.caldav_accounts_id || this.props.calendars_id !== prevProps.calendars_id || this.props.filter != prevProps.filter || this.props.updated != prevProps.updated || this.props.view != prevProps.view) {
 
             this.setState({ taskList: <Loading centered={true} padding={20} /> })
             if (this.props.caldav_accounts_id != null && this.props.calendars_id != null) {
-                this.fetchEvents()
-                this.getCalendarName()
+                this.getCalendarName().then((response) =>{
+
+                    this.fetchEvents()
+                })
 
             }
             else {
+
                 this.getAllTodosfromServer()
             }
         }
@@ -102,10 +113,28 @@ class TaskList extends Component {
         return toReturn
 
     }
+    outputArrayHasKey(key){
+
+        if(isValidResultArray(this.state.taskList)){
+            for(const i in this.state.taskList){
+                if(this.state.taskList[i] && this.state.taskList[i]["key"]){
+                    if(key==this.state.taskList[i]["key"]){
+                        return true
+                    }
+                }
+            }
+        }
+
+        return false
+    }
     async getAllTodosfromServer() {
+        this.setState({taskList: <Loading centered={true} padding={20} />})
         var responseFromServer = await this.getAllTodosFromDexie("VTODO")
         var output = []
+
+        
         output.push(<h2 key={this.props.title} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.props.title}</h2>)
+        
         var combinedTodoList = [{}, {}, {}, {}]
         if (responseFromServer != null && responseFromServer.success == true && responseFromServer.data.message != null) {
             for (const i in responseFromServer.data.message) {
@@ -148,9 +177,21 @@ class TaskList extends Component {
                         this.setState( {taskList: <TaskView fetchEvents={this.props.fetchEvents} todoList={combinedTodoList} context={this} filter={this.props.filter} view={this.props.view} listName={""}  />, isLoading:false})
                     }else{
                         if(this.state.taskList && Array.isArray(this.state.taskList)){
+                            if(isValidResultArray(output)){
+                                for(let k=0; k<output.length; k++){
+                                    if(output[k] && output[k]["key"]){
+                                        // console.log("output[k][key]", output[k]["key"], this.outputArrayHasKey(output[k]["key"]))
+                                        if(!this.outputArrayHasKey(output[k]["key"])){
+                                            this.setState({ taskList: [...this.state.taskList, output[k]] })
 
-                            this.setState({ taskList: [...this.state.taskList,...output], isLoading:false })
+                                        }
+                                    }
+                                }
+                            }
+
+                            this.setState({isLoading: false})
                         }else{
+                            console.log("erer totoo")
                             this.setState({ taskList: output, isLoading:false })
                 
                         }
@@ -197,7 +238,10 @@ class TaskList extends Component {
     async getCalendarName() {
         if (this.props.calendars_id != null && this.props.caldav_accounts_id != null) {
             const taskListName = await getNameForTaskList(this.props.caldav_accounts_id, this.props.calendars_id)
-            this.setState({ taskListName: taskListName, taskListColor: "body.data.message.color" })
+            this.setState({ taskListName: taskListName})
+            const taskListColor =  await getCalendarColorFromDexie(this.props.calendars_id)
+
+            this.setState({taskListColor: taskListColor })
             // const url_api = getAPIURL() + "caldav/calendars/name?caldav_accounts_id=" + this.props.caldav_accounts_id + "&&calendars_id=" + this.props.calendars_id
             // const authorisationData = await getAuthenticationHeadersforUser()
 
@@ -233,7 +277,7 @@ class TaskList extends Component {
         })
 
         */
-        this.setState({ taskList: (<> <h2 key={this.props.calendars_id + "_" + this.props.caldav_accounts_id + "headingName"} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>) })
+        this.setState({ taskList: (<> <h2 key={this.props.calendars_id + "_" + this.props.caldav_accounts_id + "headingName"} style={{ paddingTop: 10, paddingBottom: 10 }}>{this.state.taskListName}</h2><TaskView scheduleItem={this.props.scheduleItem} fetchEvents={this.props.fetchEvents} todoList={todoList} context={this} filter={this.props.filter} view={this.props.view} listColor={this.state.taskListColor} /></>), isLoading:false })
 
     }
 
