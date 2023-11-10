@@ -46,7 +46,7 @@ export default class CaldavAccounts extends Component{
 
     componentDidMount(){
         refreshCalendarListV2()
-        fetchLatestEventsV2()
+        //fetchLatestEventsV2()
         if(window!=undefined){
             const queryString = window.location.search;
             const params = new URLSearchParams(queryString);
@@ -64,8 +64,10 @@ export default class CaldavAccounts extends Component{
         this.setState({showLoading: true})
         toast.info(this.i18next.t("REFRESHING_CALENDAR_LIST"))
 
-        refreshCalendarListV2()
-        this.getCaldavAccountsfromDB()
+        refreshCalendarListV2().then((result)=>{
+
+            this.getCaldavAccountsfromDB()
+        })
         this.setState({showLoading: false})
     }
     

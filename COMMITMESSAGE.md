@@ -1,1 +1,2 @@
-- Fixed few bugs in MyDay view (duplicate tasks appearing)
+- Home (/) now displays user calendars and labels from Dexie, rather than the server.
+- Other minor changes.

@@ -118,7 +118,7 @@ export async function fetchFreshEventsFromCalDAV_ForDexie(caldav_accounts_id,url
                 return resolve(null)
             }
         }).catch(e =>{
-            logVar(e, "refreshEventsinDB")
+            console.error("refreshEventsinDB", e)
             return resolve(getErrorResponse(e))
 
         })
