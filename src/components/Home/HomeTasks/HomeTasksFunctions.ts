@@ -1,6 +1,8 @@
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
 import { CalendarsHelper } from "@/helpers/frontend/classes/Calendars";
 import Labels from "@/helpers/frontend/classes/Labels";
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { getAllFilters, getFiltersFromServer } from "@/helpers/frontend/filters";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
@@ -12,7 +14,7 @@ export async function refreshMenuOptionsFromServer(menuOptions: {})
     const i18next= getI18nObject()
 
     var newMenuOptions = _.cloneDeep(menuOptions)
-    const labelsFromServer = await getLabelArrayFromServer()
+    const labelsFromServer = await getAllLabelsFromDexie()
     var labelArray = []
 
     if(varNotEmpty(labelsFromServer) && Array.isArray(labelsFromServer))
@@ -36,8 +38,7 @@ export async function refreshMenuOptionsFromServer(menuOptions: {})
     /**
      * Add Filters to Menu
     */
-    var filtersFromServer = await getAllFilters()
-
+    const filtersFromServer = await getAllFilters()
     if(varNotEmpty(filtersFromServer) && Array.isArray(filtersFromServer) && filtersFromServer.length>0)
     {
         var finalFilterOptions = []
@@ -56,20 +57,24 @@ export async function refreshMenuOptionsFromServer(menuOptions: {})
 
         }
     }
+    
+   
+
 
     /**
      * Add Calendars to the menu
      */
 
-    const calendars = await CalendarsHelper.getAllCalendars()
+    const calendars = await getCalDAVSummaryFromDexie()
+
     for (const i in calendars)
     {
         var calendarOptions = []
-        var finalKey = calendars[i]["account"]["name"]
+        var finalKey = calendars[i]["name"]
         for (const j in calendars[i]["calendars"])
         {
             var tempObj = {}
-            tempObj[calendars[i]["calendars"][j]["displayName"]]={calendars_id: calendars[i]["calendars"][j].calendars_id, caldav_accounts_id:  calendars[i]["account"]["caldav_accounts_id"]}
+            tempObj[calendars[i]["calendars"][j]["displayName"]]={calendars_id: calendars[i]["calendars"][j].calendars_id, caldav_accounts_id:  calendars[i]["caldav_accounts_id"]}
 
             calendarOptions.push(tempObj)
 
@@ -80,6 +85,7 @@ export async function refreshMenuOptionsFromServer(menuOptions: {})
 
         }
     }
+
 
     
     return newMenuOptions

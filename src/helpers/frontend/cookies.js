@@ -15,9 +15,11 @@ export function deleteAllCookies(){
     Cookies.remove("SSID")
     Cookies.remove("MMDL_CALENDAR_START_DAY")
     Cookies.remove("MMDL_USER_CALENDARS")
+    Cookies.remove("MMDL_INSTALL_CHECK")
     clearLocalStorage()
     
 }
+
 export function setCookie(cname, cvalue, exdays=10000)
 {
 
@@ -27,7 +29,7 @@ export function setCookie(cname, cvalue, exdays=10000)
 
 export async function getDefaultCalendarID()
 {
-    var fromCookie=Cookies.get("DEFAULT_CALENDAR_ID")
+    var fromCookie=localStorage.getItem("DEFAULT_CALENDAR_ID")
     if(varNotEmpty(fromCookie) && fromCookie!=""){
         return fromCookie
     }
@@ -71,7 +73,7 @@ export async function getDefaultCalendarID()
 }
 export function setDefaultCalendarID(calendars_id)
 {
-    Cookies.set("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
+    localStorage.setItem("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })
 }
 
 export function setUserNameCookie(username){
@@ -81,4 +83,13 @@ export function setUserNameCookie(username){
 
 export function getUserNameFromCookie(){
     return Cookies.get("MMDL_USERNAME")
+}
+
+export function setInstallOKCookie(time){
+    Cookies.set("MMDL_INSTALL_CHECK", time, { expires: 3650 } )
+}
+
+export function getInstallCheckCookie(){
+    return Cookies.get("MMDL_INSTALL_CHECK")
+
 }

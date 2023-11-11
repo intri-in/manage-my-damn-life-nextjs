@@ -1,32 +1,47 @@
-import Cookies from "js-cookie";
 import { varNotEmpty } from "@/helpers/general"; 
 
 export class Preference_CalendarsToShow{
 
 
     static get(){
-        var cookie = null
+        var toReturn = null
         try{
-            if(varNotEmpty(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW")))
+            const prefFromLocalStorage = localStorage.getItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
+            if(varNotEmpty(prefFromLocalStorage))
             {
-                cookie = JSON.parse(Cookies.get("USER_PREFERENCE_CALENDARS_TO_SHOW"))
-
+                toReturn = JSON.parse(prefFromLocalStorage)
             }
         }catch(e)
         {
             console.error(e, "Preference_CalendarsToShow.get")
         }
     
-        return cookie
+        return toReturn
     }
 
+    static remove(){
+
+        try{
+            localStorage.removeItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
+        }
+        catch(e){
+            console.warn("Preference_CalendarsToShow.remove", e)
+        }
+
+    }
     static set(preferenceObject: {account:{caldav_accounts_id: number}, calendars: any }[]){
-        Cookies.remove("USER_PREFERENCE_CALENDARS_TO_SHOW")
-        Cookies.set("USER_PREFERENCE_CALENDARS_TO_SHOW", JSON.stringify(preferenceObject), { expires: 10000 })
+        try
+        {
+            Preference_CalendarsToShow.remove()
+            localStorage.setItem("USER_PREFERENCE_CALENDARS_TO_SHOW", JSON.stringify(preferenceObject))
+        }catch(e){
+            console.warn("Preference_CalendarsToShow.set", e)
+
+        }
 
     }
 
-    static generateFromCaldavObject(caldav_accounts: {account:{name: string, caldav_accounts_id: number}, calendars: any }[]){
+    static generateFromCaldavObject(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
 
         var objToReturn = []
         for(const i in caldav_accounts){
@@ -52,7 +67,7 @@ export class Preference_CalendarsToShow{
                 if(newCalendarEntry.length>0)
                 {
                     entry["account"]={
-                        caldav_accounts_id:caldav_accounts[i].account.caldav_accounts_id,
+                        caldav_accounts_id:caldav_accounts[i].caldav_accounts_id,
                     }
                     entry["calendars"]=newCalendarEntry
 
@@ -86,16 +101,16 @@ export class Preference_CalendarsToShow{
     
     }
 
-    static isUptoDate(caldav_accounts:{account:{name: string, caldav_accounts_id: number}, calendars: any }[]){
+    static isUptoDate(caldav_accounts:{name: string, caldav_accounts_id: number, calendars: any }[]){
         var fromStorage = Preference_CalendarsToShow.get()
         if(varNotEmpty(fromStorage) && Array.isArray(fromStorage)){
             for(const i in caldav_accounts){
-                if(this.findIndex_CaldavAccount(fromStorage, caldav_accounts[i].account.caldav_accounts_id)==null){
+                if(this.findIndex_CaldavAccount(fromStorage, caldav_accounts[i].caldav_accounts_id)==null){
                     return false
                 }else{
                     for (const j in caldav_accounts[i].calendars)
                     {
-                        var index = this.findIndex_Calendar(fromStorage, caldav_accounts[i].account.caldav_accounts_id,caldav_accounts[i].calendars[j].calendars_id)
+                        var index = this.findIndex_Calendar(fromStorage, caldav_accounts[i].caldav_accounts_id,caldav_accounts[i].calendars[j].calendars_id)
 
                         if(index==null ){
                             return false

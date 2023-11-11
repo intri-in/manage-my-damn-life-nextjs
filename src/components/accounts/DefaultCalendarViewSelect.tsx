@@ -1,22 +1,29 @@
 import SettingsHelper from '@/helpers/frontend/classes/SettingsHelper';
 import { setCookie } from '@/helpers/frontend/cookies';
 import { getI18nObject } from '@/helpers/frontend/general';
-import { getDefaultViewForCalendar } from '@/helpers/frontend/settings';
+import { SETTING_NAME_DEFAULT_VIEW_CALENDAR, getDefaultViewForCalendar, setDefaultViewForCalendar } from '@/helpers/frontend/settings';
 import { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import { FULLCALENDAR_VIEWLIST } from '../fullcalendar/FullCalendarHelper';
+import { FULLCALENDAR_VIEWLIST, isValidFullCalendarView } from '../fullcalendar/FullCalendarHelper';
 
 const defaultOptions = FULLCALENDAR_VIEWLIST
 
 const i18next = getI18nObject()
 function DefaultCalendarViewSelect(props:null) {
     const [valueofDDL, setValueofDDL] = useState("")
-
     useEffect(()=>{
         const getVal = async () =>{
-            const settingVal = await getDefaultViewForCalendar()
-
-            setValueofDDL(settingVal)
+            const settingVal = getDefaultViewForCalendar()
+            if(isValidFullCalendarView(settingVal)){
+                setValueofDDL(settingVal)
+            }else{
+                // We fetch from server.
+                const fromServer = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_VIEW_CALENDAR) 
+                if(isValidFullCalendarView(fromServer)){
+                    setValueofDDL(fromServer)
+                    setDefaultViewForCalendar(fromServer)
+                }
+            }
 
         }
 
@@ -25,13 +32,14 @@ function DefaultCalendarViewSelect(props:null) {
 
     const  newDefaultViewSelected = async (e) =>{
         const value: string = e.target.value
-        if(value!=""){
+        if(value){
             setValueofDDL(value)
             //Make request to Server.
             if(await SettingsHelper.setKey("DEFAULT_VIEW_CALENDAR", value)==true)
             {
                 //Save to cookie if the insert was successful.
-                setCookie("DEFAULT_VIEW_CALENDAR", value)
+                //setCookie("DEFAULT_VIEW_CALENDAR", value)
+                setDefaultViewForCalendar(value)
             }
     
         }

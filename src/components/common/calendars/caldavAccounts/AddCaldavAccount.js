@@ -9,13 +9,17 @@ import { getI18nObject } from "@/helpers/frontend/general";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import Spinner from 'react-bootstrap/Spinner';
 import { addTrailingSlashtoURL, getAPIURL, logVar } from "@/helpers/general";
+import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+import { getCaldavAccountfromDexie_AddAccountPage, saveCaldavAccountToDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { insertCalendarsIntoDexie } from "@/helpers/frontend/dexie/calendars_dexie";
+
 export default class AddCaldavAccount extends Component{
     constructor(props)
     {
         super(props)
         var i18next = getI18nObject()
         this.i18next=i18next
-        this.state= {serverURL: '', accountName: '', username: '', password: '',  i18next: i18next, requestPending: false}
+        this.state= {serverURL: '', accountName: '', username: '', password: '',  i18next: i18next, requestPending: false, currentCaldavFromDexie: null, error: null}
         this.serverURLValueChanged = this.serverURLValueChanged.bind(this)
         this.accountNameValueChanged = this.accountNameValueChanged.bind(this)
         this.serverUsernameValueChanged = this.serverUsernameValueChanged.bind(this)
@@ -58,7 +62,7 @@ export default class AddCaldavAccount extends Component{
     async makeServerRequest()
     {
         this.setState({requestPending: true})
-        const url_api=getAPIURL()+"caldav/register?url="+ addTrailingSlashtoURL(this.state.serverURL)+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
+        const url_api=getAPIURL()+"v2/caldav/register?url="+ addTrailingSlashtoURL(this.state.serverURL)+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =
@@ -82,7 +86,12 @@ export default class AddCaldavAccount extends Component{
                     {
                         if(body.success==true)
                         {
-                            this.props.onAccoundAddSuccess()
+                            if(body.data && body.data["caldav_accounts_id"] && body.data["calendars"] && body.data["url"]){
+                                saveCaldavAccountToDexie(body.data, this.state.username)
+                                insertCalendarsIntoDexie(body.data)
+                            }
+                    
+                            this.props.onAccountAddSuccess()
     
                         }else{
                             toast.error(this.state.i18next.t(body.data.message))

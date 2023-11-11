@@ -266,6 +266,13 @@ export async function getUserIDFromLogin(req,res){
 
 }
 
+export async function getUserIDFromNextAuthID_FromSession(req,res){
+    const session = await getServerSession(req, res, authOptions)
+    const id_fromNextAuth= getUserIDFromNextAuthSession(session)
+    return await getUserIDFromNextAuthID(id_fromNextAuth)
+
+}
+
 export async function getUserIDFromNextAuthID(id){
 
     const Users=  users.initModel(getSequelizeObj())

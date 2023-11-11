@@ -18,7 +18,7 @@ class CalendarView extends Component{
         this.updateDimensions = this.updateDimensions.bind(this)
         this.showListColumnButtonClicked = this.showListColumnButtonClicked.bind(this)
         this.handleCloseOffcanvas = this.handleCloseOffcanvas.bind(this)
-
+        this.onSynComplete = this.onSynComplete.bind(this)
     }
     componentDidMount(){
         if (window != undefined) {
@@ -36,6 +36,9 @@ class CalendarView extends Component{
     
       }
     
+      onSynComplete(){
+        this.fetchEvents()
+      }
       updateDimensions = () => {
         if (window.innerWidth < 700) {
           
@@ -72,7 +75,7 @@ class CalendarView extends Component{
         </Head>
         <AppBarGeneric  onSynComplete={this.onSynComplete} />
         <div className='container-fluid'>
-        <DashboardView initialView="dayGridMonth" calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
+        <DashboardView updated={this.state.updated} initialView="dayGridMonth" calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
 
         </div>
         </>)

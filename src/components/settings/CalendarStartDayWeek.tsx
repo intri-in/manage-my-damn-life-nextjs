@@ -17,8 +17,15 @@ function CalendarStartDayWeek(props:null){
     const [valueofDDL, setValueofDDL] = useState("1")
     useEffect(()=>{
         const getVal = async () =>{
+            let initValue = localStorage.getItem(SETTING_NAME_CALENDAR_START_DAY)
+            if(!initValue){
+                initValue="1"
+            }        
+            setValueofDDL(initValue)
+
             const settingVal:string = await SettingsHelper.getFromServer(SETTING_NAME_CALENDAR_START_DAY)
-            setCookie(SETTING_NAME_CALENDAR_START_DAY, settingVal)
+            //setCookie(SETTING_NAME_CALENDAR_START_DAY, settingVal)
+            localStorage.setItem(SETTING_NAME_CALENDAR_START_DAY, settingVal)
             setValueofDDL(settingVal)
 
         }
@@ -35,7 +42,9 @@ function CalendarStartDayWeek(props:null){
             if(await SettingsHelper.setKey(SETTING_NAME_CALENDAR_START_DAY, value)==true)
             {
                 //Save to cookie if the insert was successful.
-                setCookie(SETTING_NAME_CALENDAR_START_DAY, value)
+                // setCookie(SETTING_NAME_CALENDAR_START_DAY, value)
+                localStorage.setItem(SETTING_NAME_CALENDAR_START_DAY, value)
+
             }
     
         }

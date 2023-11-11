@@ -3,8 +3,8 @@ import Row from 'react-bootstrap/Row';
 import Col from "react-bootstrap/Col";
 import { useRouter, withRouter } from "next/router";
 import { Button, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
-import React, { Component, useState } from 'react';
-import { fetchLatestEvents, makeSyncRequest } from "@/helpers/frontend/sync";
+import React, { Component, useRef, useState } from 'react';
+import { fetchLatestEvents, fetchLatestEventsV2, makeSyncRequest } from "@/helpers/frontend/sync";
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { getI18nObject } from "@/helpers/frontend/general";
@@ -13,14 +13,14 @@ import  {IoSyncCircleOutline}  from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
 import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user";
 import Link from "next/link";
-import { getSyncTimeout } from "@/helpers/frontend/settings";
+import { getSyncTimeout, setSyncTimeout } from "@/helpers/frontend/settings";
 import { toast } from "react-toastify";
 import Dropdown from 'react-bootstrap/Dropdown';
-import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
+import { getInstallCheckCookie, getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { getNextAuthSessionData, nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
-import { installCheck } from "@/helpers/install";
+import { installCheck, installCheck_Cookie } from "@/helpers/install";
 
 
 class AppBarGeneric_ClassComponent extends Component {
@@ -40,15 +40,12 @@ class AppBarGeneric_ClassComponent extends Component {
   }
 async componentDidMount(){
   this.setState({isSyncing: this.props.isSyncing})
-  const installed = await installCheck(this.props.router)
+  const installed = await installCheck_Cookie(this.props.router)
   if(!installed){
     this.setState({installed: false})
   }
   var context = this
-  setInterval(() => {
-    //context.syncButtonClicked()
-    //toast.info("syncing")
-  }, getSyncTimeout())
+ 
 
   let username=""
   try{
@@ -94,7 +91,7 @@ async syncButtonClicked() {
     this.setState({isSyncing: true})
    
     //Make a refresh Request for all caldav accounts.
-    await fetchLatestEvents()
+    await fetchLatestEventsV2()
     this.setState({isSyncing: false})
     if(this.props.onSynComplete!=null)
     {

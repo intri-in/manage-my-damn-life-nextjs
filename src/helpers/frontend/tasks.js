@@ -1,11 +1,12 @@
 import { ISODatetoHuman, getI18nObject } from "./general"
 import * as moment from 'moment';
-import { majorTaskFilter } from "./events";
+import { majorTaskFilter, updateEvent } from "./events";
 import { getAuthenticationHeadersforUser } from "./user";
 import { toast } from "react-toastify";
 import VTodoGenerator from "vtodogenerator";
 import { getAPIURL, varNotEmpty } from "../general";
 import { makeParseICSRequest } from "./ics";
+import { getCalDAVAccountIDFromCalendarID_Dexie } from "./dexie/calendars_dexie";
 export function sortTaskListbyDue(list, todoList)
 {
     var sortedList= []
@@ -115,32 +116,37 @@ export async function updateTodo(calendar_id, url, etag, dataObj) {
 
     var todo = new VTodoGenerator(dataObj, {strict: false})
     var data = todo.generate()
-    console.log(data)
-    const url_api = getAPIURL() + "caldav/calendars/modify/object"
-    var i18next = getI18nObject()
-    const authorisationData = await getAuthenticationHeadersforUser()
-    var updated = Math.floor(Date.now() / 1000)
-    const requestOptions =
-    {
-        method: 'POST',
-        body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
-        mode: 'cors',
-        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+    if(caldav_accounts_id){
+        const body = await updateEvent(calendar_id,url, etag, data, caldav_accounts_id)
+        return body
     }
+    // console.log(data)
+    // const url_api = getAPIURL() + "caldav/calendars/modify/object"
+    // var i18next = getI18nObject()
+    // const authorisationData = await getAuthenticationHeadersforUser()
+    // var updated = Math.floor(Date.now() / 1000)
+    // const requestOptions =
+    // {
+    //     method: 'POST',
+    //     body: JSON.stringify({ "etag": etag, "data": data, "type": "VTODO", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+    //     mode: 'cors',
+    //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    // }
 
-    return new Promise( (resolve, reject) => {
+    // return new Promise( (resolve, reject) => {
 
-            fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    return resolve(body)
+    //         fetch(url_api, requestOptions)
+    //             .then(response => response.json())
+    //             .then((body) => {
+    //                 return resolve(body)
     
-                }).catch (e => {
-                    toast.error(e.message)
-                    return resolve(null)
-                })
+    //             }).catch (e => {
+    //                 toast.error(e.message)
+    //                 return resolve(null)
+    //             })
     
-    })
+    // })
 }
 
 

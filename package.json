@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.3.6",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -68,7 +68,7 @@
     "sequelize": "6.32.1",
     "sequelize-cli": "6.6.1",
     "timezone-validator": "1.0.3",
-    "tsdav": "2.0.3",
+    "tsdav": "2.0.5",
     "validator": "13.9.0",
     "vtodogenerator": "3.0.1"
   },

@@ -1,2 +1,3 @@
-- bump to version 0.3.6
-- Calendar and Caldav account names are now stored locally to improve performace by limiting calls to API.
+- Fixed Delete Caldav modal not being dismissed on clicking Delete button.
+- Added maintenance options to Settings page
+    - User can purge and refetch Events (in case something goes haywire)

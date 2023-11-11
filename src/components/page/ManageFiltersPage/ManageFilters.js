@@ -72,7 +72,7 @@ class ManageFilters extends Component{
                 toast.error(this.i18next.t("ERROR_GENERIC"))
             }else{
                 var message= getMessageFromAPIResponse(filtersFromServer)
-                console.error("getAllTodosFromServer", message, filtersFromServer)
+                console.error("generateFilterList", message, filtersFromServer)
 
                 if(message!=null)
                 {
