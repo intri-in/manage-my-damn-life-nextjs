@@ -198,3 +198,15 @@ export async function searchEventInDexie(calendars_id, type,searchTerm){
 
     return result
 }
+
+export async function deleteAllEventsFromDexie(){
+
+    try{
+
+        db.calendar_events.clear()
+        return true
+    }catch(e){
+        console.warn("deleteAllEventsFromDexie", e)
+        return false
+    }
+} 

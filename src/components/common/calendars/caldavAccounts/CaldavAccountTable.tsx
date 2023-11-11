@@ -30,6 +30,7 @@ export const CaldavAccountTable = (props: functionalProps) =>{
     
    
     function makeDeleteRequest(calToDelete){
+        setShowDeleteAccountModal(false)
         props.makeDeleteRequest(calToDelete)
     }
     function getDeleteModal(){
@@ -116,7 +117,7 @@ export const CaldavAccountTable = (props: functionalProps) =>{
     return(
         <>
         {output}
-        {showDeleteAccountModal? getDeleteModal(): null}
+        {showDeleteAccountModal ? getDeleteModal() : null}
         </>
     )
 }

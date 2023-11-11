@@ -20,6 +20,9 @@ v0.4.0
 - Fixed few bugs in MyDay view (duplicate tasks appearing)
 - Home (/) now displays user calendars and labels from Dexie, rather than the server.
 - Other minor changes.
+- Fixed Delete Caldav modal not being dismissed on clicking Delete button.
+- Added maintenance options to Settings page
+    - User can purge and refetch Events (in case something goes haywire)
 
 v0.3.5
     - Bump version to 0.3.5

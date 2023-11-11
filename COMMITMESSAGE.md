@@ -1,2 +1,3 @@
-- Home (/) now displays user calendars and labels from Dexie, rather than the server.
-- Other minor changes.
+- Fixed Delete Caldav modal not being dismissed on clicking Delete button.
+- Added maintenance options to Settings page
+    - User can purge and refetch Events (in case something goes haywire)

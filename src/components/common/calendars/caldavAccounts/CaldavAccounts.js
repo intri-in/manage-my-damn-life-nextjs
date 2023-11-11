@@ -28,7 +28,7 @@ export default class CaldavAccounts extends Component{
         super(props)
         var i18n = getI18nObject()
         this.i18next = i18n
-        this.state = {addedAccounts : this.i18next.t("NOTHING_TO_SHOW"), i18n: i18n, addAccountScreenisVisible: false, showLoading: false, showAddCalendarModal: false, addCalendarModalBody: null, showDeleteAccountModal: false, calendartoDelete: null, }
+        this.state = {addedAccounts : this.i18next.t("NOTHING_TO_SHOW"), i18n: i18n, addAccountScreenisVisible: false, showLoading: false, showAddCalendarModal: false, addCalendarModalBody: null, showDeleteAccountModal: false, calendartoDelete: null,deleteAccountModal:null }
 
         this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
         this.showAddAccountModal = this.showAddAccountModal.bind(this)
@@ -38,16 +38,16 @@ export default class CaldavAccounts extends Component{
         this.calendarAddButtonClicked = this.calendarAddButtonClicked.bind(this)
         this.addCalendarModalHidden = this.addCalendarModalHidden.bind(this)
         this.addCalendarResponse = this.addCalendarResponse.bind(this)
-        this.getDeleteAccountModal = this.getDeleteAccountModal.bind(this)
+        // this.getDeleteAccountModal = this.getDeleteAccountModal.bind(this)
         this.deleteCaldavModalHidden = this.deleteCaldavModalHidden.bind(this)
         this.makeDeleteRequest = this.makeDeleteRequest.bind(this)
         this.renderCaldavAccountsFromDexie = this.renderCaldavAccountsFromDexie.bind(this)
     }
 
     componentDidMount(){
-        refreshCalendarListV2()
         //fetchLatestEventsV2()
         if(window!=undefined){
+            refreshCalendarListV2()
             const queryString = window.location.search;
             const params = new URLSearchParams(queryString);
             var message= params.get('message')
@@ -253,6 +253,7 @@ export default class CaldavAccounts extends Component{
         this.setState({addAccountScreenisVisible: false})
     }
     deleteCaldavModalHidden(){
+        // toast.success("HIDEEN")
         this.setState({showDeleteAccountModal: false, calendartoDelete:null})
     }
     async makeDeleteRequest(caldav_account_id)
@@ -270,16 +271,18 @@ export default class CaldavAccounts extends Component{
             const response = await fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
+            // console.log("body", body)
             if(body!=null && body.success!=null)
             {
                 var message = getMessageFromAPIResponse(body)
 
                 if(body.success==true)
                 {
-                    toast.success(this.i18next.t(message))
                     //Delete CalDavFromDexie
                     deleteCalDAVAccountFromDexie(caldav_account_id)
-                    this.setState({showDeleteAccountModal: false, calendartoDelete: null})
+                    this.deleteCaldavModalHidden()
+                    toast.success(this.i18next.t(message))
+
                     this.renderCaldavAccountsFromDexie()
                 }else{
 
@@ -299,34 +302,34 @@ export default class CaldavAccounts extends Component{
 
 
     }
-    getDeleteAccountModal(){
+    // getDeleteAccountModal(){
 
 
-        var body= this.state.calendartoDelete==null ? null :(
-            <>
-            <p>{this.i18next.t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
-            <h3>{this.state.calendartoDelete.name}</h3>
-            </>
-        )
-        return this.state.calendartoDelete==null? null: (
-            <>
-                <Modal centered show={this.state.showDeleteAccountModal} onHide={this.deleteCaldavModalHidden}>
-                    <Modal.Header closeButton>
-                    </Modal.Header>
-                    <Modal.Body>{body}</Modal.Body>
-                    <Modal.Footer>
-                    <Button variant="secondary" onClick={this.deleteCaldavModalHidden}>
-                    {this.i18next.t("BACK")}
-                    </Button>
-                    <Button variant="danger" onClick={()=>this.makeDeleteRequest(this.state.calendartoDelete.caldav_accounts_id)}>
-                        {this.i18next.t("DELETE")}
-                    </Button>
-                    </Modal.Footer>
-                </Modal>
+    //     var body= this.state.calendartoDelete==null ? null :(
+    //         <>
+    //         <p>{this.i18next.t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
+    //         <h3>{this.state.calendartoDelete.name}</h3>
+    //         </>
+    //     )
+    //     return this.state.calendartoDelete==null? null: (
+    //         <>
+    //             <Modal centered show={this.state.showDeleteAccountModal} onHide={this.deleteCaldavModalHidden}>
+    //                 <Modal.Header closeButton>
+    //                 </Modal.Header>
+    //                 <Modal.Body>{body}</Modal.Body>
+    //                 <Modal.Footer>
+    //                 <Button variant="secondary" onClick={this.deleteCaldavModalHidden}>
+    //                 {this.i18next.t("BACK")}
+    //                 </Button>
+    //                 <Button variant="danger" onClick={()=>this.makeDeleteRequest(this.state.calendartoDelete.caldav_accounts_id)}>
+    //                     {this.i18next.t("DELETE")}
+    //                 </Button>
+    //                 </Modal.Footer>
+    //             </Modal>
 
-            </>
-        )
-    }
+    //         </>
+    //     )
+    // }
     render(){
         if(this.state.addAccountScreenisVisible)
         {
@@ -336,9 +339,13 @@ export default class CaldavAccounts extends Component{
         }
         else
         {
-            var syncButton = this.state.showLoading ? (<div ><Loading centered={true} /></div>) : (<IoSyncCircleOutline size={24} onClick={this.syncButtonClicked} />)
+            var syncButton = this.state.showLoading ? (<div ><Loading centered={true} /></div>) : (
+            <>
+            <span onClick={this.syncButtonClicked}>{this.i18next.t("FORCE_SYNC")}</span>
+            &nbsp;
+            <IoSyncCircleOutline size={24} onClick={this.syncButtonClicked} />
+            </>)
 
-            var deleteAccountModal = this.getDeleteAccountModal()
             return(
                 <>
                 <Row>
@@ -372,7 +379,7 @@ export default class CaldavAccounts extends Component{
                 </Modal.Header>
                 <Modal.Body>{this.state.addCalendarModalBody}</Modal.Body>
                 </Modal>
-                {deleteAccountModal}
+                {this.state.deleteAccountModal}
                 </>
             )
         }

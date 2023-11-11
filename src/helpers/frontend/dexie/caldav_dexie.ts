@@ -79,11 +79,17 @@ export async function getCaldavAccountfromDexie(caldavFromDB){
 
 }
 export async function getAllCalDavAccountsFromDexie(){
+  try{
+    
     const caldav =  await db.caldav_accounts
     .toArray();
 
   // Return result
   return caldav;
+  }
+  catch(e){
+    console.warn("getAllCalDavAccountsFromDexie",e)
+  }
 
 }
 export async function findCalDAVAccountinDexie(url, username){
