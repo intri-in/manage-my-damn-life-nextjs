@@ -19,6 +19,10 @@ import { VERSION_NUMBER } from "@/config/constants";
 import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import CalendarStartDayWeek from "@/components/settings/CalendarStartDayWeek";
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { checkifCalendarIDPresentinDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
+import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
+import MaintenanceTasks from "./MaintenanceTasks";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -35,9 +39,9 @@ class SettingsPage extends Component {
         this.caldavAccountButtonClicked = this.caldavAccountButtonClicked.bind(this)
     }
     componentDidMount() {
+        this.getAllUserSettings()
         this.getUserInfo()
         this.getCalendarName()
-        this.getAllUserSettings()
     }
     async getAllUserSettings(){
         const url_api = getAPIURL() + "settings/get"
@@ -61,7 +65,14 @@ class SettingsPage extends Component {
                         {
                             if(body.data.message.user[i]["name"]=="DEFAULT_CALENDAR")
                             {
-                                this.setState({defaultCalendar: body.data.message.user[i]["value"]})
+                                const defaultCalValue = body.data.message.user[i]["value"]
+                                checkifCalendarIDPresentinDexieSummary(defaultCalValue).then((resultofCheck) =>{
+                                    
+                                    if( resultofCheck){
+                                        localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalValue)
+                                        this.setState({defaultCalendar: defaultCalValue})
+                                    }
+                                })
                             }
                         }
 
@@ -184,8 +195,9 @@ class SettingsPage extends Component {
     }
 
     async getCalendarName(){
-        var calendarsFromServer = await caldavAccountsfromServer()
-        this.setState({calendarsFromServer: calendarsFromServer})
+        // var calendarsFromServer = await caldavAccountsfromServer()
+        var calendars = await getCalDAVSummaryFromDexie()
+        this.setState({calendarsFromServer: calendars})
 
     }
     async generateCalendarList() {
@@ -330,26 +342,19 @@ class SettingsPage extends Component {
                     var key = j + "." + value
                     tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
-                calendarOutput.push(<optgroup key={calendarsFromServer[i].account.name} label={calendarsFromServer[i].account.name}>{tempOutput}</optgroup>)
+                calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
 
             }
 
-            return (<Form.Select key="calendarOptions" onChange={this.calendarSelected} value={this.state.defaultCalendar}  >{calendarOutput}</Form.Select>) 
+            return (<Form.Select key="calendarOptions" onChange={this.calendarSelected} value={this.state.defaultCalendar} >{calendarOutput}</Form.Select>) 
 
         }
 
     }
     render() {
-
         var adminTable = this.state.isAdmin? this.renderAdminSettings(): null
         return (
             <>
-                <Head>
-                    <title>{this.i18next.t("APP_NAME_TITLE") + " - " + this.i18next.t("SETTINGS")}</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <link rel="icon" href="/favicon.ico" />
-                </Head>
-                <AppBarGeneric />
                 <Container fluid>
                     <div style={{ padding: 20 }}>
                         <h1>{this.i18next.t("SETTINGS")}</h1>
@@ -377,6 +382,9 @@ class SettingsPage extends Component {
                         <br />
                         <CalendarStartDayWeek />
                         </div>
+                        <br />
+                        <br />
+                        <MaintenanceTasks />
                         <br />
                         <br />
                         <h2>{this.i18next.t("ACCOUNT_INFO")}</h2>

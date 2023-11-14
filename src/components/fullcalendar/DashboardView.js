@@ -13,7 +13,7 @@ import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import rrulePlugin from '@fullcalendar/rrule'
-import {  getI18nObject } from "@/helpers/frontend/general";
+import { getI18nObject } from "@/helpers/frontend/general";
 import EventEditor from "../events/EventEditor";
 import moment from "moment";
 import { getRandomString } from "@/helpers/crypto";
@@ -26,6 +26,11 @@ import { FULLCALENDAR_VIEWLIST } from "./FullCalendarHelper";
 import { getCalendarStartDay, getDefaultViewForCalendar } from "@/helpers/frontend/settings";
 import { ListGroupCalDAVAccounts } from "./ListGroupCalDAVAccounts";
 import { Preference_CalendarsToShow } from "@/helpers/frontend/classes/UserPreferences/Preference_CalendarsToShow";
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
+import { fetchAllEventsFromDexie } from "@/helpers/frontend/dexie/events_dexie";
+import { getEventsFromDexie_LikeAPI } from "@/helpers/frontend/dexie/dexie_helper";
+import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie/calendars_dexie";
+import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 
 class DashboardView extends Component {
     calendarRef = React.createRef()
@@ -34,7 +39,7 @@ class DashboardView extends Component {
         super(props)
         this.i18next = getI18nObject()
         var initialViewCalendar = "timeGridDay"
-        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR,showTasksChecked: false, allEventsFromServer: null, caldav_accounts:null, firstDay:"3"}
+        this.state = { showEventEditor: false, viewValue: initialViewCalendar, events: null, eventEdited: false, eventDataDashBoard: {}, initialViewCalendar: initialViewCalendar, allEvents: {}, recurMap: {}, selectedID: "", calendarAR: props.calendarAR, showTasksChecked: false, allEventsFromServer: null, caldav_accounts: null, firstDay: "0" }
         this.viewChanged = this.viewChanged.bind(this)
         this.eventClick = this.eventClick.bind(this)
         this.handleDateClick = this.handleDateClick.bind(this)
@@ -46,74 +51,78 @@ class DashboardView extends Component {
         this.showTasksChanged = this.showTasksChanged.bind(this)
         this.addEventsToCalendar = this.addEventsToCalendar.bind(this)
         this.userPreferencesChanged = this.userPreferencesChanged.bind(this)
+        this.getAllEventsfromServer = this.getAllEventsfromServer.bind(this)
         this.allEvents = {}
+        this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
     }
 
 
     async componentDidMount() {
-        
-        this.getCaldavAccountsfromDB()
-        this.getAllEventsfromServer()
 
+        const firstDay = getCalendarStartDay()
+        if(firstDay){
+            this.setState({firstDay: firstDay})
+        }
+        
         //dayGridMonth
         let calendarApi = this.calendarRef.current.getApi()
         calendarApi.eventDragStart = this.eventDrag
-
+        
         const view = await getDefaultViewForCalendar()
-        if(varNotEmpty(view))
-        {
+        if (varNotEmpty(view)) {
             calendarApi.changeView(view)
-            this.setState({viewValue: view})
-
+            this.setState({ viewValue: view })
+            
         }
-        this.setState({showTasksChecked: true, firstDay: getCalendarStartDay()})
+        this.setState({ showTasksChecked: true, })
+        this.getCaldavAccountsfromDB().then((result) =>{
+            this.getAllEventsfromServer()
 
+        })
     }
 
-    
+
     async getCaldavAccountsfromDB() {
-        var caldav_accounts = await getCaldavAccountsfromServer()
-        if (caldav_accounts != null && caldav_accounts.success == true) {
-            if (caldav_accounts.data.message.length > 0) {
-                this.setState({caldav_accounts: caldav_accounts.data.message})
-            } else {
-                this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
-            }
-
-        }else{
-            var message =getMessageFromAPIResponse(caldav_accounts)
-            console.error("getCaldavAccountsfromDB", message, caldav_accounts)
-
-            if(message!=null)
-            {
-                if(message!=="PLEASE_LOGIN")
-                {
-                    toast.error(this.i18next.t(message))
-                }
-                // if(message=="PLEASE_LOGIN")
-                // {
-                //     // Login required
-                //     var redirectURL="/login"
-                //     if(window!=undefined)
-                //     {
+        var caldav_accounts = await getCalDAVSummaryFromDexie()
+        if (isValidResultArray(caldav_accounts)) {
+            this.setState({ caldav_accounts: caldav_accounts })
 
 
-                //         redirectURL +="?redirect="+window.location.pathname
-                //     }
-                //     this.props.router.push(redirectURL)
+        } else {
+            this.props.router.push("/accounts/caldav?message=ADD_A_CALDAV_ACCOUNT")
+            // var message =getMessageFromAPIResponse(caldav_accounts)
+            // console.error("getCaldavAccountsfromDB", message, caldav_accounts)
+
+            // if(message!=null)
+            // {
+            //     if(message!=="PLEASE_LOGIN")
+            //     {
+            //         toast.error(this.i18next.t(message))
+            //     }
+            //     // if(message=="PLEASE_LOGIN")
+            //     // {
+            //     //     // Login required
+            //     //     var redirectURL="/login"
+            //     //     if(window!=undefined)
+            //     //     {
 
 
-                // }else{
-                //     toast.error(this.i18next.t(message))
+            //     //         redirectURL +="?redirect="+window.location.pathname
+            //     //     }
+            //     //     this.props.router.push(redirectURL)
 
-                // }
-            }
-            else
-            {
-                toast.error(this.i18next.t("ERROR_GENERIC"))
 
-            }
-    }
+            //     // }else{
+            //     //     toast.error(this.i18next.t(message))
+
+            //     // }
+            // }
+            // else
+            // {
+            //     toast.error(this.i18next.t("ERROR_GENERIC"))
+
+            // }
+        }
 
 
     }
@@ -127,6 +136,11 @@ class DashboardView extends Component {
 
         if (this.props.calendarAR != prevProps.calendarAR) {
             this.setState({ calendarAR: this.props.calendarAR })
+        }
+
+        if(this.props.updated != prevProps.updated){
+            this.getAllEventsfromServer()
+
         }
     }
 
@@ -198,6 +212,8 @@ class DashboardView extends Component {
     }
     async eventDrop(e) {
         //console.log(e)
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+
         var newID = e.event.id
         if (varNotEmpty(this.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
@@ -220,9 +236,9 @@ class DashboardView extends Component {
 
             var obj = getObjectForAPICall(eventData.data)
             var ics = await makeGenerateICSRequest({ obj })
+            const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventData.event.calendar_id)
             if (varNotEmpty(ics)) {
-                const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics)
-                console.log(response)
+                const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics, caldav_accounts_id)
                 if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
                     toast.success(this.i18next.t("UPDATE_OK"))
                     this.getAllEventsfromServer()
@@ -237,7 +253,6 @@ class DashboardView extends Component {
 
                     }
                 }
-                this.getAllEventsfromServer()
 
 
             } else {
@@ -251,12 +266,14 @@ class DashboardView extends Component {
     eventEditorDismissed(e) {
         var eventData = null
 
-        this.setState({ showEventEditor: false, selectedID: "", eventDataDashBoard: eventData })
+        this.setState({ updated:Date.now(), showEventEditor: false, selectedID: "", eventDataDashBoard: eventData })
         this.getAllEventsfromServer()
 
     }
     async eventResize(e) {
-        console.log("eventResize", this.allEvents[e.event.id])
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+
+        // console.log("eventResize", this.allEvents[e.event.id])
         var newID = e.event.id
         if (varNotEmpty(this.allEvents[e.event.id]) == false) {
             //Probably a recurring event. Get ID from map.
@@ -265,7 +282,8 @@ class DashboardView extends Component {
         }
         //Calculate delta in ms
         var eventData = _.cloneDeep(this.allEvents[newID])
-        console.log(this.allEvents[newID])
+        // console.log(this.allEvents[newID])
+
         if (this.allEvents && this.allEvents[newID] && this.allEvents[newID].type != "VTODO" && this.allEvents[newID].type != "VTIMEZONE" && varNotEmpty(this.allEvents[newID])) {
             var delta = e.endDelta.milliseconds + (e.endDelta.days * 86400 * 1000) + (e.endDelta.months * 30 * 86400 * 1000) + (e.endDelta.years * 365 * 86400 * 1000)
 
@@ -278,49 +296,46 @@ class DashboardView extends Component {
 
             var obj = getObjectForAPICall(eventData.data)
             var ics = await makeGenerateICSRequest({ obj })
-            console.log(ics)
+            // console.log(ics)
+            const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventData.event.calendar_id)
             if (varNotEmpty(ics)) {
-                const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics)
+                const response = await updateEvent(eventData.event.calendar_id, eventData.event.url, eventData.event.etag, ics, caldav_accounts_id)
 
                 if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
                     toast.success(this.i18next.t("UPDATE_OK"))
+                    this.getAllEventsfromServer()
+
 
                 } else {
-                    var message = getMessageFromAPIResponse(body)
-                    if (message != "" && varNotEmpty(message)) {
-                        toast.error(this.i18next.t(message.toString()))
+                    const message = getMessageFromAPIResponse(response)
+                    if(message){
+                        toast.error((this.i18next.t(message)))
 
+                    }else{
 
-                    }
-                    else {
                         toast.error((this.i18next.t("ERROR_GENERIC")))
-
                     }
+
+
                 }
-                this.getAllEventsfromServer()
 
             } else {
                 toast.error((this.i18next.t("ERROR_GENERIC")))
 
             }
-        }else{
-            console.log("oaspdaosdpoaspdoaspdoasd")
+        } else {
         }
 
 
     }
 
-    eventinArray(eventObject, newEntry)
-    {
-        if(varNotEmpty(eventObject) && varNotEmpty(newEntry) && varNotEmpty(newEntry.id))
-        {
-            var found=false
-            for(const i in eventObject){
+    eventinArray(eventObject, newEntry) {
+        if (varNotEmpty(eventObject) && varNotEmpty(newEntry) && varNotEmpty(newEntry.id)) {
+            var found = false
+            for (const i in eventObject) {
 
-                if(varNotEmpty(eventObject[i].id))
-                {
-                    if(eventObject[i].id==newEntry.id)
-                    {
+                if (varNotEmpty(eventObject[i].id)) {
+                    if (eventObject[i].id == newEntry.id) {
                         return true
                     }
                 }
@@ -333,26 +348,27 @@ class DashboardView extends Component {
         return false
 
     }
-    async addEventsToCalendar(allEvents){
+    async addEventsToCalendar(allEvents) {
         var finalEvents = []
         this.allEvents = {}
+        // console.log("allEvents", allEvents)
+        if (isValidResultArray(allEvents)) {
 
-        if (isValidResultArray(allEvents.data.message)) {
+            for (let i = 0; i < allEvents.length; i++) {
+                for (const j in allEvents[i].events) {
 
-            for (let i = 0; i < allEvents.data.message.length; i++) {
-                for (const j in allEvents.data.message[i].events) {
 
-                    
-                    var userWantsToSee = Preference_CalendarsToShow.getShowValueForCalendar(allEvents.data.message[i].info.caldav_accounts_id, allEvents.data.message[i].events[j].calendar_id)
-                    if(userWantsToSee ==false){
+                    var userWantsToSee = Preference_CalendarsToShow.getShowValueForCalendar(allEvents[i].info.caldav_accounts_id, allEvents[i].events[j].calendar_id)
+                    // console.log("userWantsToSee", allEvents[i].info.caldav_accounts_id, allEvents[i].events[j].calendar_id, userWantsToSee )
+                    if (userWantsToSee == false) {
                         continue
                     }
-                    var event = allEvents.data.message[i].events[j]
+                    var event = allEvents[i].events[j]
                     if (event.deleted == "1" || event.deleted == "TRUE") {
                         continue
                     }
                     if (event.type != "VTODO" && event.type != "VTIMEZONE") {
-                        var data = getParsedEvent(allEvents.data.message[i].events[j].data)
+                        var data = getParsedEvent(allEvents[i].events[j].data)
                         if (varNotEmpty(data) == false) {
                             continue
                         }
@@ -372,7 +388,7 @@ class DashboardView extends Component {
                             allDay: allDay,
                             editable: true,
                             draggable: true,
-                            backgroundColor: allEvents.data.message[i].info.color
+                            backgroundColor: allEvents[i].info.color
                         }
                         //finalEvents.push(eventObject)
 
@@ -396,7 +412,7 @@ class DashboardView extends Component {
                                     dtstart: data.start.toISOString(),
                                     until: until
                                 },
-                                backgroundColor: allEvents.data.message[i].info.color
+                                backgroundColor: allEvents[i].info.color
                             }
                             // console.log(eventObject.title, eventObject.rrule)
                             finalEvents.push(eventObject)
@@ -411,7 +427,7 @@ class DashboardView extends Component {
                                 allDay: allDay,
                                 editable: true,
                                 draggable: true,
-                                backgroundColor: allEvents.data.message[i].info.color,
+                                backgroundColor: allEvents[i].info.color,
                             }
                             finalEvents.push(eventObject)
 
@@ -472,25 +488,25 @@ class DashboardView extends Component {
                         
                     } 
                     */
-                    // this.setState((prevState, props) => {
-                    //     var newAllEvents = _.cloneDeep(prevState.allEvents)
-                    //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
-                    //     return({allEvents: newAllEvents})
+                        // this.setState((prevState, props) => {
+                        //     var newAllEvents = _.cloneDeep(prevState.allEvents)
+                        //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                        //     return({allEvents: newAllEvents})
 
-                    // })
+                        // })
                         var eventToPush = {}
-                        eventToPush[data.uid] ={ data: data, event: allEvents.data.message[i].events[j] }
-                        this.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
-                        // this.allEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
+                        eventToPush[data.uid] = { data: data, event: allEvents[i].events[j] }
+                        this.allEvents[data.uid] = { data: data, event: allEvents[i].events[j] }
+                        // this.allEvents[data.uid] = { data: data, event: allEvents[i].events[j] }
 
                     }
-                    else if (event.type == "VTODO" && this.state.showTasksChecked==true) {
-                        var data = returnGetParsedVTODO(allEvents.data.message[i].events[j].data)
+                    else if (event.type == "VTODO" && this.state.showTasksChecked == true) {
+                        var data = returnGetParsedVTODO(allEvents[i].events[j].data)
                         if (varNotEmpty(data) == false) {
                             continue
                         }
 
-                        var eventObject=null
+                        var eventObject = null
                         if (majorTaskFilter(data)) {
                             var title = "[" + this.i18next.t("TASK") + "] " + data.summary
 
@@ -501,8 +517,8 @@ class DashboardView extends Component {
 
                                 var recurrenceObj = new RecurrenceHelper(data)
                                 var dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
-                                var startDate = moment.unix(moment(dueDate).unix() - (60*60)).toISOString()
-                               //console.log("REPEATING", startDate, title, dueDate)
+                                var startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
+                                //console.log("REPEATING", startDate, title, dueDate)
 
                                 var eventObject = {
                                     id: data.uid,
@@ -512,7 +528,7 @@ class DashboardView extends Component {
                                     displayEventEnd: false,
                                     editable: false,
                                     draggable: true,
-                                    backgroundColor: allEvents.data.message[i].info.color,
+                                    backgroundColor: allEvents[i].info.color,
                                     rrule: {
                                         freq: rrule["FREQ"].toLowerCase(),
                                         interval: parseInt(rrule["INTERVAL"]),
@@ -525,7 +541,7 @@ class DashboardView extends Component {
                                 if (varNotEmpty(data.due) && data.due != "") {
 
                                     var dueDate = moment(data.due).toISOString()
-                                    var startDate = moment.unix(moment(data.due).unix() - (10*60)).toISOString()
+                                    var startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
                                     //console.log(startDate, title, dueDate)
 
                                     var eventObject = {
@@ -537,13 +553,13 @@ class DashboardView extends Component {
                                         editable: false,
                                         draggable: true,
                                         displayEventStart: false,
-                                        backgroundColor: allEvents.data.message[i].info.color
+                                        backgroundColor: allEvents[i].info.color
                                     }
                                 }
 
 
                             }
-                            if (varNotEmpty(eventObject) && this.eventinArray(finalEvents, eventObject)==false) {
+                            if (varNotEmpty(eventObject) && this.eventinArray(finalEvents, eventObject) == false) {
                                 finalEvents.push(eventObject)
 
                             }
@@ -553,9 +569,9 @@ class DashboardView extends Component {
                         //     var newAllEvents = _.cloneDeep(prevState.allEvents)
                         //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
                         //     return({allEvents: newAllEvents})
-    
+
                         // })
-    
+
                     }
                 }
             }
@@ -566,36 +582,37 @@ class DashboardView extends Component {
 
     }
     async getAllEventsfromServer() {
-        var allEvents = await getAllEvents()
-        this.setState({allEventsFromServer: allEvents})
+        getEventsFromDexie_LikeAPI().then(allEvents =>{
+            // console.log("allEvents", allEvents)
+            this.setState({ allEventsFromServer: allEvents })
+            this.addEventsToCalendar(allEvents)
 
-        this.addEventsToCalendar(allEvents)
+        })
+        // console.log("allEvents", allEvents)
+
     }
 
-     showTasksChanged(e)
-    {
+    showTasksChanged(e) {
         this.setState(({ showTasksChecked }) => (
             {
                 showTasksChecked: !showTasksChecked
             }
-          ), function () {
-            if(this.state.allEventsFromServer!=null)
-            {
+        ), function () {
+            if (this.state.allEventsFromServer != null) {
                 this.addEventsToCalendar(this.state.allEventsFromServer)
-            }else{
-                 this.getAllEventsfromServer()
+            } else {
+                this.getAllEventsfromServer()
             }
         });
-    
+
 
     }
 
-    userPreferencesChanged(){
-        if(this.state.allEventsFromServer!=null)
-            {
-                this.addEventsToCalendar(this.state.allEventsFromServer)
-            }else{
-                 this.getAllEventsfromServer()
+    userPreferencesChanged() {
+        if (this.state.allEventsFromServer != null) {
+            this.addEventsToCalendar(this.state.allEventsFromServer)
+        } else {
+            this.getAllEventsfromServer()
         }
     }
     render() {
@@ -605,27 +622,25 @@ class DashboardView extends Component {
         ) : (null)
 
         var options = []
-        for (const i in FULLCALENDAR_VIEWLIST)
-        {
-            options.push( <option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{this.i18next.t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
+        for (const i in FULLCALENDAR_VIEWLIST) {
+            options.push(<option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{this.i18next.t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
         }
 
-        var calendarsSelect= null
-        if(varNotEmpty(this.state.caldav_accounts) && Array.isArray(this.state.caldav_accounts) && this.state.caldav_accounts.length>0)
-        {
+        var calendarsSelect = null
+        if (varNotEmpty(this.state.caldav_accounts) && Array.isArray(this.state.caldav_accounts) && this.state.caldav_accounts.length > 0) {
             calendarsSelect = <ListGroupCalDAVAccounts onChange={this.userPreferencesChanged} caldav_accounts={this.state.caldav_accounts} />
         }
         return (<>
 
-            <Row  style={{  padding: 20, flex:1 , justifyContent:"center", alignItems:"center", }} >
+            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", }} >
                 <Col >
                     <Form.Select value={this.state.viewValue} onChange={this.viewChanged}>
                         {options}
                     </Form.Select>
                 </Col>
                 <Col style={{}}>
-                    
-                    <Form.Check 
+
+                    <Form.Check
                         type="switch"
                         id="show_tasks_switch"
                         checked={this.state.showTasksChecked}
@@ -634,7 +649,7 @@ class DashboardView extends Component {
                     />
 
                 </Col>
-                <Col  style={{textAlign:"center",}}>
+                <Col style={{ textAlign: "center", }}>
                     {calendarsSelect}
                 </Col>
             </Row>

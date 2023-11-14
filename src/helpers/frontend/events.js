@@ -6,6 +6,9 @@ import { applyEventFilter } from "./filters"
 import moment from "moment"
 import { getAuthenticationHeadersforUser } from "./user"
 import * as _ from 'lodash'
+import { getMessageFromAPIResponse } from "./response"
+import { deleteEventByURLFromDexie, saveEventToDexie } from "./dexie/events_dexie"
+import { fetchLatestEventsV2 } from "./sync"
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= _.cloneDeep(calendarEvents)
@@ -15,6 +18,7 @@ export async function getEvents(calendarEvents, filter)
     }
     var unparsedData= getUnparsedEventData(calendarEvents)
     var listofTodos= arrangeTodoListbyHierarchy(filteredEvents, filter, calendarEvents )
+
     return [listofTodos, getParsedTodoList(calendarEvents), unparsedData]
 
 }
@@ -472,16 +476,71 @@ export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
 
 }
 
+export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, ctag, syncToken, calendar_url, type) {
+    // We save the event temporarily. If the insert into caldav fails, we will
+    const url_api = getAPIURL() + "v2/calendars/events/add"
+    
+    const authorisationData = await getAuthenticationHeadersforUser()
+    var updated = Math.floor(Date.now() / 1000)
+    const requestOptions =
+    {
+        method: 'POST',
+        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":caldav_accounts_id, ctag:ctag, syncToken:syncToken, url:calendar_url}),
+        mode: 'cors',
+        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    }
+    
+    return new Promise( (resolve, reject) => {
+        fetch(url_api, requestOptions)
+        .then(response => response.json())
+        .then((body) => {
+            //console.log(body)
+            console.log("body", body)
+            if (varNotEmpty(body)) {
+                if (varNotEmpty(body.success) && body.success == true) {
+                    // Save the event to Dexie Now.
+                    
+                    if(body.data && body.data.details){
+                        const newEvent = body.data.details
+                        // console.log("event to Save", calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type)
+                        saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type).then((resultOfInsert) =>{
+                            
+                            return resolve(body)
+                        })
+                        // console.log("details", body.data.details)
+                    }else{
+                            fetchLatestEventsV2().then(resultofRefresh =>{
 
-export async function updateEvent(calendar_id, url, etag, data) {
-    const url_api = getAPIURL() + "caldav/calendars/modify/object"
+                                return resolve(body)
+                            })
+                      
+                    }
+
+                } else {
+                    return resolve(body)
+                }
+            }else{
+                return resolve(body)
+            }
+            
+            
+            
+        }).catch (e =>{
+            console.log("postNewEvent", e)
+            return resolve(null)
+        }) 
+    })
+}
+
+export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id) {
+    const url_api = getAPIURL() + "v2/calendars/events/modify"
 
     const authorisationData = await getAuthenticationHeadersforUser()
     var updated = Math.floor(Date.now() / 1000)
     const requestOptions =
     {
         method: 'POST',
-        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "" }),
+        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: caldav_accounts_id}),
         mode: 'cors',
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
@@ -489,7 +548,24 @@ export async function updateEvent(calendar_id, url, etag, data) {
             fetch(url_api, requestOptions)
                 .then(response => response.json())
                 .then((body) => {
-                    return resolve(body)
+                    if(body && body.success){
+                        if(body.data && body.data.details){
+                            const newEvent= body.data.details
+                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],"VEVENT").then((resultOfInsert) =>{
+                            
+                                return resolve(body)
+                            })
+    
+                        }else{
+                            fetchLatestEventsV2().then(resultofRefresh =>{
+
+                                return resolve(body)
+                            })
+
+                        }
+                    }else{
+                        return resolve(body)
+                    }
     
                 }).catch (e =>{
                 console.error(e)
@@ -498,4 +574,40 @@ export async function updateEvent(calendar_id, url, etag, data) {
     
     
     })
+}
+export async function deleteEventFromServer( caldav_accounts_id, calendar_id, url, etag ) {
+    const url_api = getAPIURL() + "v2/calendars/events/delete"
+
+    const authorisationData = await getAuthenticationHeadersforUser()
+    const requestOptions =
+    {
+        method: 'POST',
+        body: JSON.stringify({ "etag": etag, "url": url, "calendar_id": calendar_id, caldav_accounts_id: caldav_accounts_id}),
+        mode: 'cors',
+        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    }
+    return new Promise( (resolve, reject) => {
+        fetch(url_api, requestOptions)
+        .then(response => response.json())
+        .then((body) => {
+            if (varNotEmpty(body) && body.success == true) {
+                deleteEventByURLFromDexie(url).then(result =>{
+
+                    return resolve(body)
+                })
+            } else {
+                return resolve(body)
+            }
+
+
+
+        }).catch (e =>{
+            console.error("deleteEventFromServer", e)
+            return resolve(null)
+        }) 
+
+    })
+
+       
+
 }

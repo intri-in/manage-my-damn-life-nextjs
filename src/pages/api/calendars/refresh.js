@@ -42,14 +42,14 @@ export default async function handler(req, res) {
                         logVar(reason, "api/calendars/refresh")
                         // Invalid calDAV account. Client is null.
                     })
-                    logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
-                    logVar(client, "client: api/calendars/refresh")
+                    //logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
+                    //logVar(client, "client: api/calendars/refresh")
 
                     if(client!=null && typeof(client)== 'object')
                     {
                         finalResponse.push({url: caldav_accounts[i].url, status: "ok"})
                         const calendars = await client.fetchCalendars()
-                        logVar(calendars, "calendars: "+LOGTAG)
+                        //logVar(calendars, "calendars: "+LOGTAG)
 
                         if(isValidResultArray(calendars))
                         {

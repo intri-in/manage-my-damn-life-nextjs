@@ -18,4 +18,14 @@ export function getSaneName(fullcalendarViewName:string): string
 
     return ""
 }
+export function isValidFullCalendarView(name){
+    // console.log("isValidFullCalendarView", name)
+    for (const i in FULLCALENDAR_VIEWLIST){
+        if(FULLCALENDAR_VIEWLIST[i].name==name){
+            return true
+        }
+    } 
 
+
+    return false
+}

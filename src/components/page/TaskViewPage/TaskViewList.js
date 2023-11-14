@@ -24,7 +24,7 @@ class TaskViewList extends Component {
   constructor(props) {
     super(props)
     this.i18next = getI18nObject()
-    this.state = { showTaskEditor: true, caldav_accounts_id: null, calendars_id: null, filter: { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }, title: "My Day", updated: "", isSyncing: false, taskView: "tasklist", showLeftColumnOffcanvas: false, showListColumn: true, todoList: [] }
+    this.state = { showTaskEditor: true, caldav_accounts_id: null, calendars_id: null, filter: { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }, title: "My Day", updated: Date.now(), isSyncing: false, taskView: "tasklist", showLeftColumnOffcanvas: false, showListColumn: true, todoList: [] }
     this.getParamsFromURL = this.getParamsFromURL.bind(this)
     this.calendarNameClicked = this.calendarNameClicked.bind(this)
     this.labelClicked = this.labelClicked.bind(this)
@@ -58,6 +58,9 @@ class TaskViewList extends Component {
     }
 
   }
+  componentWillUnmount(){
+
+  }
   updateDimensions = () => {
     if (window.innerWidth < 700) {
       this.setState({ showListColumn: false })
@@ -84,6 +87,7 @@ class TaskViewList extends Component {
     this.setState({ showLeftColumnOffcanvas: true, })
   }
   calendarNameClicked(caldav_accounts_id, calendars_id) {
+    // console.log("caldav_accounts_id, calendars_id", caldav_accounts_id, calendars_id)
     this.setState({ filter: {}, title: null, caldav_accounts_id: caldav_accounts_id, calendars_id: calendars_id, showLeftColumnOffcanvas: false })
   }
   handleCloseOffcanvas() {
@@ -98,7 +102,7 @@ class TaskViewList extends Component {
   }
   myDayClicked() {
     var filter = { logic: "or", filter: { due: [0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL] } }
-    this.setState({ filter: filter, title: "My Day", caldav_accounts_id: '', calendars_id: null, showLeftColumnOffcanvas: false })
+    this.setState({ filter: filter, title: "My Day", caldav_accounts_id: null, calendars_id: null, showLeftColumnOffcanvas: false })
 
   }
   dueTodayClicked() {

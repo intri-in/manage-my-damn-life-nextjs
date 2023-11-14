@@ -8,27 +8,21 @@ import { Badge, Col, OverlayTrigger, Row } from "react-bootstrap";
 import { debugging, isValidResultArray, varNotEmpty } from "@/helpers/general";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import TaskEditor from "./TaskEditor";
-import Modal from 'react-bootstrap/Modal';
 import { TaskEditorExitModal } from "./TaskEditorExitModal";
 import { toast } from "react-toastify";
-import { TaskDeleteConfirmation } from "./TaskDeleteConfirmation";
 import { ContextMenuTrigger, ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 import { RightclickContextMenu } from "./RightclickContextMenu";
 import { MYDAY_LABEL } from "@/config/constants";
-import Draggable from 'react-draggable';
 import { updateTodo } from "@/helpers/frontend/tasks";
-import { getLabelArrayFromCookie, saveLabelArrayToCookie } from "@/helpers/frontend/settings";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 import { MdRepeatOn, MdRepeatOne, MdSpeakerNotes } from "react-icons/md";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
-import RruleServerHelper from "@/helpers/frontend/classes/RruleServerHelper";
 import moment from "moment";
 import { VTODO } from "@/helpers/frontend/classes/VTODO";
-import Overlay from 'react-bootstrap/Overlay';
-import Tooltip from 'react-bootstrap/Tooltip';
-import SimpleOverlay from "../bootstrap/SimpleOverlay";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import VTodoGenerator from "vtodogenerator";
+import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
+import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 export default class TaskUI extends Component {
 
     constructor(props) {
@@ -46,7 +40,7 @@ export default class TaskUI extends Component {
         }
         data.taskDone = taskChecked
         this.i18next = getI18nObject()
-        this.taskObj = new VTODO(props.unparsedData[props.data.uid].data, true)
+        this.taskObj = null
         //console.log("props.data", props.data)
         //console.log(this.taskObj)
         this.state = { labelColours: {}, labelArray: [], labelNames: [], showTaskEditor: false, taskEditor: null, taskDataChanged: false, showTaskEditModal: false, showTaskDeleteModal: false, data: data, taskTitle: this.props.title, parentTitle: "", toastPlaceHolder: null, showSubtaskEditor: false, subtaskData: {}, collapseButton: "", isCollapsed: props.collapsed, taskChecked: taskChecked, repeatingTask: false, repeatInfo: [] }
@@ -72,6 +66,7 @@ export default class TaskUI extends Component {
     async componentDidMount() {
         this.generateInitialLabelList()
         this.isRepeatingTask()
+        this.taskObj = new VTODO(this.props.unparsedData[this.props.data.uid].data, true)
         if (this.props.todoList != null && this.props.data.relatedto != null && this.props.data.relatedto != "" && this.props.level == 0) {
             var parentID = this.taskObj.getParent()
                 
@@ -190,6 +185,7 @@ export default class TaskUI extends Component {
                 newDataArray.categories.push(MYDAY_LABEL)
                 //console.log(this.state.data)
                 //this.setState({data: newDataArray, showTaskEditor: true, })
+                toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
                 var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
                 this.onTaskSubmittoServer(body)
                 //console.log(newDataArray)
@@ -228,6 +224,7 @@ export default class TaskUI extends Component {
                 if (varNotEmpty(this.state.data.rrule) && this.state.data.rrule != "") {
                     newData["rrule"] = RRuleHelper.rruleToObject(newData.rrule)
                 }
+                toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
 
                 //this.setState({data: newData, showTaskEditor: true})
                 var body = await updateTodo(this.props.data.calendar_id, this.props.data.url_internal, this.props.data.etag, newData)
@@ -307,17 +304,19 @@ export default class TaskUI extends Component {
         if (body != null) {
             if (body.success == true) {
                 toast.success(this.i18next.t(message))
-                this.props.fetchEvents(body.data.refresh)
+                this.props.fetchEvents()
             }
             else {
-                toast.error(message)
+                if(message){
+
+                    toast.error(message)
+                }else{
+                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                }
 
             }
         }
-        else {
-            toast.error(this.i18next.t("ERROR_GENERIC"))
-
-        }
+       
     }
     onSubtaskSubmittoServer(body) {
         this.setState({ showSubtaskEditor: false })
@@ -334,10 +333,7 @@ export default class TaskUI extends Component {
 
             }
         }
-        else {
-            toast.error(this.i18next.t("ERROR_GENERIC"))
-
-        }
+       
     }
     clearCheckMarkState() {
 
@@ -362,42 +358,30 @@ export default class TaskUI extends Component {
 
 
     }
-    generateInitialLabelList() {
+    async generateInitialLabelList() {
         var labelArray = []
         var labelColour = "black"
-        var labelArrayFromCookie = getLabelArrayFromCookie()
+        var labelArrayFromCookie = await getAllLabelsFromDexie()
         if (varNotEmpty(this.props.labels) && isValidResultArray(this.props.labels)) {
 
-            if (isValidResultArray(labelArrayFromCookie)) {
-                var notFound = 0
-                for (const i in this.props.labels) {
-                    labelColour = "black"
-                    var labelIndex = labelIndexInCookie(this.props.labels[i])
-                    if (labelIndex != -1) {
-                        labelColour = labelArrayFromCookie[labelIndex].colour
-                        //console.log(labelColour)
-                    } else {
-                        //console.log("notfound:", this.props.labels[i])
-                        notFound += 1
+            for (const i in this.props.labels) {
+                labelColour = "black"
+                if (isValidResultArray(labelArrayFromCookie)) {
+                    for(const j in labelArrayFromCookie){
+                        if(labelArrayFromCookie[j]["name"]==this.props.labels[i]){
+                            labelColour=labelArrayFromCookie[j]["colour"]
+                        }
                     }
-                    labelArray.push(<span key={"labels" + i} className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{this.props.labels[i]}</span>)
                 }
 
-                if (notFound > 0) {
-                    this.getLabelsInfoFromServer()
-
+                   
+                labelArray.push(<span key={"labels" + i} className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{this.props.labels[i]}</span>)
                 }
+
                 this.setState({ labelArray: labelArray, labelNames: this.props.labels })
 
-            } else {
-                this.getLabelsInfoFromServer()
-
+        
             }
-
-
-        }
-
-
     }
     async getLabelsInfoFromServer() {
         var labelArray = []

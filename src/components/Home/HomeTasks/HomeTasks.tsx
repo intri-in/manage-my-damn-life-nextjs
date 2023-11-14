@@ -67,12 +67,17 @@ function HomeTasks(props:homeTasksPropsInterface) {
       
     const menuOptionSelected = (e: { target: { value: any; }; }) =>{
         var value = e.target.value
+        console.log("value", value)
         var filterValue = {logic: "or", filter:{}}
         if(varNotEmpty(value) &&typeof(value=="string"))
         {
             var valueArray = value.split(',')
+            console.log("valueArray", valueArray)
             if(Array.isArray(valueArray) && valueArray.length>1)
             {
+                var newTitle=valueArray[0]+" > "+i18next.t(valueArray[1])
+                setTitle(newTitle)
+
                 if(varNotEmpty(menuOptions[valueArray[0]]) && Array.isArray(menuOptions[valueArray[0]]) && menuOptions[valueArray[0]].length>0)
                 {
                     for(const k in menuOptions[valueArray[0]])
@@ -86,15 +91,13 @@ function HomeTasks(props:homeTasksPropsInterface) {
                                 setFilter(filterValue)
                                 setCaldavAccountsId(null)
                                 setCalendarsId(null)
-                                var newTitle=valueArray[0]+" > "+i18next.t(valueArray[1])
-                                setTitle(newTitle)
     
                             }else{
                                 //Probably a calendar Object.
                                 setFilter(null)
                                 if(("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue))
                                 {
-                                    setCaldavAccountsId(filterValue["caldav_accounts_id"].toString())
+                                    setCaldavAccountsId(filterValue["caldav_accounts_id"])
                                     setCalendarsId(filterValue["calendars_id"].toString())
                                 }
                             }

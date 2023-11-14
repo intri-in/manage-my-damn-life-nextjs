@@ -1,6 +1,3 @@
-- Bump version to 0.3.5
-- Changed a few variable in docker-compose sample file
-    - Now user can choose to create a new user for mysql docker container.
-    - Changed sample .env file to make sure it is compatible out of the box with docker-compose.yml.sample.
-    - Made changed to docs to reflect these changes.
-    - Upgrade some dependencies, as per dependabot alerts.
+- Fixed Delete Caldav modal not being dismissed on clicking Delete button.
+- Added maintenance options to Settings page
+    - User can purge and refetch Events (in case something goes haywire)

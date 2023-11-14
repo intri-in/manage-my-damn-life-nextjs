@@ -33,7 +33,7 @@ export default class AddNewCalendar extends Component{
         const response = await fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
-            console.log(body)
+            // console.log(body)
             this.props.onResponse(body)
 
            

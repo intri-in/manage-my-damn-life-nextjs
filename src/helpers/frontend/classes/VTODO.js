@@ -26,6 +26,7 @@ export class VTODO {
 
 
     hasNoRelatedParent() {
+
         var hasNoRelatedParent = true
         var relatedTo = this.parsedData.relatedto
         if (varNotEmpty(relatedTo) && relatedTo != "") {
@@ -55,6 +56,7 @@ export class VTODO {
             } else {
                 return false
             }
+
         } else {
             return true
         }

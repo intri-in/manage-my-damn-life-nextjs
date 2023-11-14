@@ -12,7 +12,8 @@ import { toast } from "react-toastify";
 import { Toastify, nothingToShow } from "./Generic";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { saveLabelArrayToCookie } from "@/helpers/frontend/settings";
-import { getAPIURL } from "@/helpers/general";
+import { getAPIURL, isValidResultArray } from "@/helpers/general";
+import { getAllLabelsFromDexie, updateLabelCacheInDexie, updateLabelColourinDexie } from "@/helpers/frontend/dexie/dexie_labels";
 class LabelManager extends Component{
     constructor(props)
     {
@@ -23,20 +24,21 @@ class LabelManager extends Component{
         this.getLabelTable = this.getLabelTable.bind(this)
         this.handleChangeofColor = this.handleChangeofColor.bind(this)
         this.updateLabels = this.updateLabels.bind(this)
+        this.getLabelsFromDexie = this.getLabelsFromDexie.bind(this)
     }
 
     
     componentDidMount()
     {
-        this.getLabelsFromServer()
+        this.getLabelsFromDexie()
     }
     
     async updateLabels()
     {
 
         this.setState({labels: {}, displayColorPicker: {}, color:{}})
-        var response = await makeUpdateLabelRequest().then((response) =>{
-            this.getLabelsFromServer()
+        updateLabelCacheInDexie().then((response) =>{
+            this.getLabelsFromDexie()
 
         })
     }
@@ -64,40 +66,46 @@ class LabelManager extends Component{
 
     async makeModifyLabelRequest(labelName, color)
     {
-        const url_api=getAPIURL()+"labels/modifycolor"
+        //Now we only modify label locally.
+        updateLabelColourinDexie(labelName, color).then((result)=>{
+            this.getLabelsFromDexie()
+            toast.success(this.i18next.t("UPDATE_OK"))
 
-        const authorisationData=await getAuthenticationHeadersforUser()
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({"labelname":labelName, "colour": color}),
-            mode: 'cors',
-            headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
-        }
+        })
+        // const url_api=getAPIURL()+"labels/modifycolor"
+
+        // const authorisationData=await getAuthenticationHeadersforUser()
+        // const requestOptions =
+        // {
+        //     method: 'POST',
+        //     body: JSON.stringify({"labelname":labelName, "colour": color}),
+        //     mode: 'cors',
+        //     headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
+        // }
         
-            fetch(url_api, requestOptions)
-        .then(response => response.json())
-        .then((body) =>{
-            var message = getMessageFromAPIResponse(body)
+        //     fetch(url_api, requestOptions)
+        // .then(response => response.json())
+        // .then((body) =>{
+        //     var message = getMessageFromAPIResponse(body)
 
-            if(body!=null && body.success!=null && body.success==true)
-            {
-                toast.success(this.i18next.t(message))
-            }else{
-                if (message!=null)
-                {
-                    toast.error(this.i18next.t(message))
-                }else{
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
+        //     if(body!=null && body.success!=null && body.success==true)
+        //     {
+        //         toast.success(this.i18next.t(message))
+        //     }else{
+        //         if (message!=null)
+        //         {
+        //             toast.error(this.i18next.t(message))
+        //         }else{
+        //             toast.error(this.i18next.t("ERROR_GENERIC"))
 
-                }
-            }            
-        }).catch(e=>
-            {
-                toast.error(this.i18next.t("ERROR_GENERIC"))
-                console.error("makeModifyLabelRequest", e)
-            }
-        )
+        //         }
+        //     }            
+        // }).catch(e=>
+        //     {
+        //         toast.error(this.i18next.t("ERROR_GENERIC"))
+        //         console.error("makeModifyLabelRequest", e)
+        //     }
+        // )
 
     
     }
@@ -115,76 +123,93 @@ class LabelManager extends Component{
         this.setState({displayColorPicker: newdisplayColorPicker, currentTarget:labelName})
 
     };
+
+    async getLabelsFromDexie(){
+        const labels = await getAllLabelsFromDexie()
+        if(isValidResultArray(labels) && labels){
+            this.setState({labels: labels})
+            var displayColorPicker ={}
+            var color ={}
+            for (const key in labels)
+            {      
+
+                displayColorPicker[labels[key].name]=false
+                color[labels[key].name] = labels[key].colour
+            }
+            this.setState({displayColorPicker: displayColorPicker, color: color})
+
+        }
+    }
     async getLabelsFromServer()
     {
-        const url_api=getAPIURL()+"caldav/calendars/labels"
-        const authorisationData=await getAuthenticationHeadersforUser()
+        // const url_api=getAPIURL()+"caldav/calendars/labels"
+        // const authorisationData=await getAuthenticationHeadersforUser()
     
-        const requestOptions =
-        {
-            method: 'GET',
-            mode: 'cors',
-            headers: new Headers({'authorization': authorisationData}),
+        // const requestOptions =
+        // {
+        //     method: 'GET',
+        //     mode: 'cors',
+        //     headers: new Headers({'authorization': authorisationData}),
     
-        }
+        // }
 
-        const response =  fetch(url_api, requestOptions)
-        .then(response =>{
-            return response.json()
-        } )
-        .then((body) =>{
-            if(body!=null && body.success!=null)
-            {
-                if(body.success.toString()=="true")
-                {
-                    //Save the events to db.
-                    var labels= body.data.message
-                    if(labels!=null)
-                    {   
-                        saveLabelArrayToCookie(labels)
-                        this.setState({labels: labels})
-                        var displayColorPicker ={}
-                        var color ={}
-                        for (const key in labels)
-                        {      
+        // const response =  fetch(url_api, requestOptions)
+        // .then(response =>{
+        //     return response.json()
+        // } )
+        // .then((body) =>{
+        //     if(body!=null && body.success!=null)
+        //     {
+        //         if(body.success.toString()=="true")
+        //         {
+        //             //Save the events to db.
+        //             var labels= body.data.message
+        //             if(labels!=null)
+        //             {   
+        //                 saveLabelArrayToCookie(labels)
+        //                 this.setState({labels: labels})
+        //                 var displayColorPicker ={}
+        //                 var color ={}
+        //                 for (const key in labels)
+        //                 {      
 
-                            displayColorPicker[labels[key].name]=false
-                            color[labels[key].name] = labels[key].colour
-                        }
-                        this.setState({displayColorPicker: displayColorPicker, color: color})
+        //                     displayColorPicker[labels[key].name]=false
+        //                     color[labels[key].name] = labels[key].colour
+        //                 }
+        //                 this.setState({displayColorPicker: displayColorPicker, color: color})
 
-                    }
+        //             }
                         
-                }else{
-                    var message= getMessageFromAPIResponse(body)
-                    console.error("getLabelsFromServer", message, body)
+        //         }else{
+        //             var message= getMessageFromAPIResponse(body)
+        //             console.error("getLabelsFromServer", message, body)
 
-                    if(message!=null)
-                    {
-                        if(message!=="PLEASE_LOGIN")
-                        {
-                            toast.error(this.i18next.t(message))
+        //             if(message!=null)
+        //             {
+        //                 if(message!=="PLEASE_LOGIN")
+        //                 {
+        //                     toast.error(this.i18next.t(message))
 
-                        }
-                    }
-                    else
-                    {
-                        toast.error(this.i18next.t("ERROR_GENERIC"))
+        //                 }
+        //             }
+        //             else
+        //             {
+        //                 toast.error(this.i18next.t("ERROR_GENERIC"))
 
-                    }
+        //             }
 
-                }
+        //         }
 
-            }
-            else{
-                toast.error(this.i18next.t("ERROR_GENERIC"))
+        //     }
+        //     else{
+        //         toast.error(this.i18next.t("ERROR_GENERIC"))
 
-            }
+        //     }
           
 
-        }).catch(e =>{
-            console.error("getLabelsFromServer", e)
-        })
+        // }).catch(e =>{
+        //     console.error("getLabelsFromServer", e)
+        // })
 
     }
     getColorEditorModal()
