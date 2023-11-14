@@ -72,6 +72,9 @@ class ShowCalendarList extends Component{
                 </Row>
             )
             var calendars=[]
+            if(!caldavSummary[j].calendars){
+                continue
+            }
             for (const i in caldavSummary[j].calendars)
             {
                 var href="/tasks/list?caldav_accounts_id="+caldavSummary[j].caldav_accounts_id+"&&calendars_id="+caldavSummary[j].calendars[i].calendars_id

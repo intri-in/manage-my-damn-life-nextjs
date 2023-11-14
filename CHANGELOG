@@ -1,3 +1,7 @@
+v0.4.1
+- Bumped version to 0.4.1
+- Upgraded package dependencies (those recommended in Dependabot alerts)
+
 v0.4.0
 - bump to version 0.4.0
 - Calendar and Caldav account names are now stored locally to improve performace by limiting calls to API.
