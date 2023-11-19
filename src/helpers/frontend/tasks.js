@@ -1,6 +1,6 @@
 import { ISODatetoHuman, getI18nObject } from "./general"
 import * as moment from 'moment';
-import { majorTaskFilter, updateEvent } from "./events";
+import { majorTaskFilter, preEmptiveUpdateEvent, updateEvent } from "./events";
 import { getAuthenticationHeadersforUser } from "./user";
 import { toast } from "react-toastify";
 import VTodoGenerator from "vtodogenerator";
@@ -112,13 +112,38 @@ export async function generateNewTaskObject(currenTaskObject, oldData, oldUnpars
 
 }
 
-export async function updateTodo(calendar_id, url, etag, dataObj) {
+export async function handleUI_TodoUpdate(calendar_id, url, etag, data, caldav_accounts_id, onDismissFunction, taskName){
+        
+    preEmptiveUpdateEvent(calendar_id, url, etag, data, "VTODO").then(oldEvent =>{
+
+        onDismissFunction(null, taskName)
+        updateEvent(calendar_id,url, etag, data, caldav_accounts_id,"VTODO", oldEvent).then((body)=>{
+            onDismissFunction(body, taskName)
+            
+        })
+    })
+
+}
+export async function updateTodo_WithUI(calendar_id, url, etag, dataObj, onDismissFunction){
+    const i18next = getI18nObject()
+    let message = dataObj["summary"] ? dataObj["summary"]+": " : "" 
+    toast.info(message+i18next.t("ACTION_SENT_TO_CALDAV"))
+    var todo = new VTodoGenerator(dataObj, {strict: false})
+    var data = todo.generate()
+    const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+    if(caldav_accounts_id){
+        handleUI_TodoUpdate(calendar_id, url, etag, data, caldav_accounts_id, onDismissFunction, dataObj["summary"])
+    }
+
+}
+
+export async function updateTodo(calendar_id, url, etag, dataObj, oldEvent) {
 
     var todo = new VTodoGenerator(dataObj, {strict: false})
     var data = todo.generate()
     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
     if(caldav_accounts_id){
-        const body = await updateEvent(calendar_id,url, etag, data, caldav_accounts_id)
+        const body = await updateEvent(calendar_id,url, etag, data, caldav_accounts_id,"VTODO", oldEvent)
         return body
     }
     // console.log(data)

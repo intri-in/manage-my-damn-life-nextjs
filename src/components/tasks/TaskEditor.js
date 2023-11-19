@@ -17,9 +17,9 @@ import { TaskDeleteConfirmation } from "./TaskDeleteConfirmation";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { Loading } from "../common/Loading";
 import ParentTaskSearch from "./ParentTaskSearch";
-import { generateNewTaskObject } from "@/helpers/frontend/tasks";
+import { generateNewTaskObject, updateTodo } from "@/helpers/frontend/tasks";
 import Recurrence from "../common/Recurrence";
-import { deleteEventFromServer, postNewEvent, rruleToObject, updateEvent } from "@/helpers/frontend/events";
+import { deleteEventFromServer, handleDeleteEventUI, postNewEvent, preEmptiveUpdateEvent, rruleToObject, updateEvent } from "@/helpers/frontend/events";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 import * as _ from 'lodash'
 import { VTODO } from "@/helpers/frontend/classes/VTODO";
@@ -28,7 +28,7 @@ import { getErrorResponse } from "@/helpers/errros";
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
-import { saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
+import { deleteEventByURLFromDexie, getEtagFromURL_Dexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
@@ -113,7 +113,7 @@ export default class TaskEditor extends Component {
         this.taskSummaryChanged = this.taskSummaryChanged.bind(this)
         this.calendarSelected = this.calendarSelected.bind(this)
         this.descriptionChanged = this.descriptionChanged.bind(this)
-        this.updateTodo = this.updateTodo.bind(this)
+        this.updateTodoLocal = this.updateTodoLocal.bind(this)
         this.removeLabel = this.removeLabel.bind(this)
         this.taskCheckBoxClicked = this.taskCheckBoxClicked.bind(this)
         this.deleteTask = this.deleteTask.bind(this)
@@ -463,12 +463,13 @@ export default class TaskEditor extends Component {
 
     }
     async deleteTheTaskFromServer() {
-        toast.info(this.i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
-        deleteEventFromServer(this.state.caldav_accounts_id,this.state.calendar_id,this.props.data.url_internal,this.props.data.etag).then((body)=>{
-            this.props.onDismiss(body)
+        handleDeleteEventUI(this.state.caldav_accounts_id,this.state.calendar_id,this.props.data.url_internal,this.props.data.etag, this.state.summary, this.props.onDismiss)
+        // toast.info(this.i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+        // deleteEventFromServer(this.state.caldav_accounts_id,this.state.calendar_id,this.props.data.url_internal,this.props.data.etag).then((body)=>{
+        //     this.props.onDismiss(body)
 
-        })
-        this.props.onDismiss()
+        // })
+        // this.props.onDismiss()
         // const url_api = getAPIURL() + "v2/calendars/todo/delete"
 
         // const authorisationData = await getAuthenticationHeadersforUser()
@@ -581,7 +582,14 @@ export default class TaskEditor extends Component {
 
                 }
                 else {
-                   var resultofEdit  = await this.updateTodo(this.state.calendar_id,this.props.data.url_internal, this.props.data.etag, finalVTODO)
+                    const etag = await getEtagFromURL_Dexie(this.props.data.url_internal)
+                    if(etag){
+
+                        var resultofEdit  = await this.updateTodoLocal(this.state.calendar_id,this.props.data.url_internal, etag, finalVTODO)
+                    }else{
+                        console.error("Etag is null!")
+                        toast.error(this.i18next.t("ERROR_GENERIC"))
+                    }
                 }
 
             } 
@@ -608,12 +616,24 @@ export default class TaskEditor extends Component {
             console.error("this.state.calendar_id",this.state.calendar_id)
             return null
         }
+        const message =  this.state.summary ? this.state.summary+": " : ""
+        toast.info(message+this.i18next.t("ACTION_SENT_TO_CALDAV"))
 
-        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
-        postNewEvent(calendar_id, data,etag,this.state.caldav_accounts_id,this.state.calendarData["ctag"],this.state.calendarData["syncToken"],this.state.calendarData["url"],"VTODO").then((body)=>{
-            this.props.onDismiss(body)
+        
+        let fileName =getRandomString(64)+".ics"
+        let url = this.state.calendarData["url"]         
+        var lastChar = url.substr(-1); 
+        if (lastChar != '/') {       
+        url = url + '/';          
+        }
+        url += fileName
+
+        // Pre-emptively save event.
+        await saveEventToDexie(calendar_id,url,etag,data,"VTODO")
+        postNewEvent(calendar_id, data,etag,this.state.caldav_accounts_id,this.state.calendarData["ctag"],this.state.calendarData["syncToken"],this.state.calendarData["url"],"VTODO", fileName).then((body)=>{
+            this.props.onDismiss(body, this.state.summary)
         })
-        this.props.onDismiss()
+        this.props.onDismiss(null, this.state.summary)
 
         // const url_api = getAPIURL() + "v2/calendars/events/add"
         
@@ -655,14 +675,19 @@ export default class TaskEditor extends Component {
         //             this.props.onDismiss(e.message)
         //         })
     }
-    async updateTodo(calendar_id, url, etag, data) {
-        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
-
-        updateEvent(calendar_id,url, etag, data,this.state.caldav_accounts_id).then((body)=>{
-                   this.props.onDismiss(body)
+    async updateTodoLocal(calendar_id, url, etag, data) {
+        const message =  this.state.summary ? this.state.summary+": " : ""
+        toast.info(message+this.i18next.t("ACTION_SENT_TO_CALDAV"))
+        
+        const oldEvent = await preEmptiveUpdateEvent(calendar_id, url, etag, data, "VTODO")
+        updateEvent(calendar_id,url, etag, data,this.state.caldav_accounts_id,"VTODO", oldEvent).then((body)=>{
+            this.props.onDismiss(body, this.state.summary)
 
         })
-        this.props.onDismiss()
+        this.props.onDismiss(null, this.state.summary)
+
+        // // We save the event pre-emptively to Dexie. The problem is that etag returned by the CalDAV server will have to be saved later. This is just so that the user can see the updated todo immediately.
+
         // const url_api = getAPIURL() + "v2/calendars/todo/modify"
 
         // const authorisationData = await getAuthenticationHeadersforUser()

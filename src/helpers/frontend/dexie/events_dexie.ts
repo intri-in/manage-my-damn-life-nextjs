@@ -1,5 +1,5 @@
 import { haystackHasNeedle, isValidResultArray } from "@/helpers/general";
-import { db } from "./dexieDB";
+import { Calendar_Events, db } from "./dexieDB";
 import { returnEventType, returnGetParsedVTODO } from "../calendar";
 import { saveLabelToDexie } from "./dexie_labels";
 import { basicTaskFilterForDexie } from "./dexie_helper";
@@ -28,6 +28,25 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
 
 }
 
+export async function getEtagFromURL_Dexie(url){
+    try {
+        const events = await db.calendar_events
+            .where('url')
+            .equals(url)
+            .toArray();
+
+        if (isValidResultArray(events)) {
+            return events[0]["etag"]
+        } else {
+            return null
+        }
+
+    } catch (e) {
+        console.warn("getEtagFromURL_Dexie", e)
+        return null
+    }
+
+}
 
 export async function saveEventToDexie(calendars_id, url, etag, data, type) {
     //Check if event exists in Dexie already, if so, we update it.
@@ -210,3 +229,7 @@ export async function deleteAllEventsFromDexie(){
         return false
     }
 } 
+
+export async function restoreEventtoDexie(oldEvent: Calendar_Events){
+    await saveEventToDexie(oldEvent["calendar_id"],oldEvent["url"],oldEvent["etag"], oldEvent["data"],oldEvent["type"])
+}
