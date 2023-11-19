@@ -114,7 +114,8 @@ export default class CaldavAccounts extends Component{
                         {
                             var border="3px solid "+allCals[i].calendarColor
                             var cal=(
-                                <Col style={{borderBottom:border,  borderRadius:10, margin: 5 }}><p className="textDefault">{allCals[i].displayName}</p></Col>
+                                <Col style={{borderBottom:border,  borderRadius:10, margin: 5 }}><p className="textDefault">{allCals[i].displayName} </p>
+                                </Col>
                                 )     
                                 calendars.push(cal)                    
                         }
