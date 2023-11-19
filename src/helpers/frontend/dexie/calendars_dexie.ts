@@ -128,3 +128,15 @@ export async function insertOneCalendarIntoDexie(calendar, caldav_accounts_id){
 
     }
 }
+export async function updateCalendarColourbyID_Dexie(calendars_id, newColour){
+
+    try{
+
+        const intCalendars_id = parseInt(calendars_id)
+        await db.calendars.update(intCalendars_id, {
+            calendarColor: newColour
+        })
+    }catch(e){
+        console.error("updateCalendarColourbyID_Dexie", e)
+    }
+}
