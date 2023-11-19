@@ -5,13 +5,14 @@ import { getObjectFromDB, insertObjectIntoDB, updateObjectinDB } from '@/helpers
 import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 import { getRandomString } from '@/helpers/crypto';
 import { isValidResultArray, logVar } from '@/helpers/general';
+import validator from 'validator';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         if(await middleWareForAuthorisation(req,res))
         {
             console.log(req.body)
             //console.log(req.body)
-            if(req.body.etag!=null && req.body.etag.trim()!="" && req.body.data!=null && req.body.data.trim()!="" && req.body.updated!=null && req.body.updated.toString().trim()!="" && req.body.type!=null && req.body.type.trim()!="" && req.body.caldav_accounts_id!=null && req.body.ctag && req.body.syncToken && req.body.url )
+            if(req.body.etag!=null && req.body.etag.trim()!="" && req.body.data!=null && req.body.data.trim()!="" && req.body.updated!=null && req.body.updated.toString().trim()!="" && req.body.type!=null && req.body.type.trim()!="" && req.body.caldav_accounts_id!=null && req.body.ctag && req.body.syncToken && req.body.url && req.body.fileName )
             {
                 // logVar(req.body.data, '/api/caldav/calendars/add/event')
                 // var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
@@ -24,8 +25,8 @@ export default async function handler(req, res) {
                 }
   
                     //Insert info into database;
-                var filename=getRandomString(64)+".ics"
-
+               // var filename=getRandomString(64)+".ics"
+                let filename = validator.escape(req.body.fileName)
                 var url = req.body.url
                 var lastChar = url.substr(-1); 
                 if (lastChar != '/') {       
