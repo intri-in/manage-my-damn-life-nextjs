@@ -1,2 +1,2 @@
-- Added ability to locally change calendar colours
-    - No change is made to caldav. (AFAIK, tsdav doesn't support change of colour)
+- Fixed EventEditor, now editing event follows the workflow of TaskEditor
+- Minor bug fixes

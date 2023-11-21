@@ -25,6 +25,7 @@ import { checkifCalendarIDPresentinDexieSummary, getCaldavIDFromCalendarID_FromD
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 import Cookies from 'js-cookie'
+import { saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
 
 export default class EventEditor extends Component {
     constructor(props) {
@@ -235,7 +236,9 @@ export default class EventEditor extends Component {
             console.log(this.state.calendar_id) 
             for (let i = 0; i < calendarsFromServer.length; i++) {
                 var tempOutput = []
-
+                if(!isValidResultArray(calendarsFromServer[i].calendars)){
+                    continue
+                }
                 for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
                     var value = calendarsFromServer[i].calendars[j].calendars_id
                     var key = j + "." + value
@@ -511,6 +514,7 @@ export default class EventEditor extends Component {
                     this.updateEvent(this.props.eventData.event.calendar_id, this.props.eventData.event.url, this.props.eventData.event.etag, ics )
                 } else {
                     var etag = getRandomString(32)
+
                     this.postNewEvent(this.state.calendar_id, ics, etag)
                 }
             }
@@ -540,19 +544,32 @@ export default class EventEditor extends Component {
     }
 
     async postNewEvent(calendar_id, data, etag) {
-        this.props.onDismiss()
-       toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
-       postNewEvent(calendar_id, data, etag, this.state.caldav_accounts_id, this.state.calendarData["ctag"], this.state.calendarData["syncToken"], this.state.calendarData["url"],"VEVENT")
-        .then(body =>{
-            if (body && body.success ){
-                toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
-                this.props.onDismiss()
 
-            } else {
-                toast.error(this.i18next.t("ERROR_GENERIC"))
-            }
-        }) 
+        toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+        // Premptively save event.
+        const fileName = getRandomString(32)+".ics"
+        let url=this.state.calendarData["url"] 
+        var lastChar = url.substr(-1);
+        if (lastChar != '/') {       
+            url = url + '/';          
+        }
+        url += fileName
         
+        saveEventToDexie(calendar_id, url, etag, data, "VEVENT").then(result =>{
+          this.props.onDismiss()
+           
+           postNewEvent(calendar_id, data, etag, this.state.caldav_accounts_id, this.state.calendarData["ctag"], this.state.calendarData["syncToken"], this.state.calendarData["url"],"VEVENT",fileName)
+            .then(body =>{
+                if (body && body.success ){
+                    toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                    this.props.onDismiss()
+    
+                } else {
+                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                }
+            }) 
+            
+       })
             // const url_api = getAPIURL() + "v2/calendars/events/add"
 
         // const authorisationData = await getAuthenticationHeadersforUser()
@@ -596,34 +613,36 @@ export default class EventEditor extends Component {
     }
 
     async updateEvent(calendar_id, url, etag, data) {
-        this.props.onDismiss()
         toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
- 
-        updateEvent(calendar_id, url, etag, data, this.state.caldav_accounts_id).then(body =>{
-        if (varNotEmpty(body)) {
-            var message = getMessageFromAPIResponse(body)
-            if (varNotEmpty(body.success) && body.success == true) {
-                    toast.success(this.i18next.t("UPDATE_OK"))
-                    //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
-                    this.props.onDismiss()
-
-
-            } else {
-                if (message){
-                    toast.error(this.i18next.t(message.toString()))
-                }else{
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
-                }
-                this.props.onDismiss()
-            }
-        }else{
-            toast.error(this.i18next.t("ERROR_GENERIC"))
-
+        saveEventToDexie(calendar_id, url, etag, data, "VEVENT").then(result =>{
             this.props.onDismiss()
 
-        }
-
-
+            updateEvent(calendar_id, url, etag, data, this.state.caldav_accounts_id).then(body =>{
+            if (varNotEmpty(body)) {
+                var message = getMessageFromAPIResponse(body)
+                if (varNotEmpty(body.success) && body.success == true) {
+                        toast.success(this.i18next.t("UPDATE_OK"))
+                        //toast.success(this.i18next.t("EVENT_SUBMIT_OK"))
+                        this.props.onDismiss()
+    
+    
+                } else {
+                    if (message){
+                        toast.error(this.i18next.t(message.toString()))
+                    }else{
+                        toast.error(this.i18next.t("ERROR_GENERIC"))
+                    }
+                    this.props.onDismiss()
+                }
+            }else{
+                toast.error(this.i18next.t("ERROR_GENERIC"))
+    
+                this.props.onDismiss()
+    
+            }
+    
+    
+            })
         })
         // const url_api = getAPIURL() + "v2/calendars/events/modify"
 
