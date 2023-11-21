@@ -568,6 +568,8 @@ export async function preEmptiveUpdateEvent(calendar_id, url, etag, data, type){
     
     return oldEvent
 }
+
+
 export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id,type,oldEvent) {
     // If the CalDAV action fails, old version of the event event will be restored in local storage.
     const url_api = getAPIURL() + "v2/calendars/events/modify"

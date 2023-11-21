@@ -336,7 +336,9 @@ class SettingsPage extends Component {
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
             for (let i = 0; i < calendarsFromServer.length; i++) {
                 var tempOutput = []
-
+                if(!isValidResultArray(calendarsFromServer[i].calendars)){
+                    continue
+                }
                 for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
                     var value = calendarsFromServer[i].calendars[j].calendars_id
                     var key = j + "." + value
