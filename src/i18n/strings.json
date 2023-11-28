@@ -3,6 +3,7 @@
     "translation": {
       "ALREADY_SYNCING": "Sync already in process. Please wait.",
       "AUTO_SYNC_START":"Auto Syncing...",
+      "AUTO_SYNC_TIME_SETTING": "Auto Sync Interval",
       "MAINTENANCE_TASKS": "Maintenance Tasks",
       "REFETCH_EVENTS": "Refetch All Events",
       "DELETING_AND_REFRESHING_EVENTS":"Refreshing event cache...",

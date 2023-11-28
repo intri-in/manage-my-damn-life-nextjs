@@ -58,8 +58,8 @@ export async function initAutoSync(){
     if(continueSync){
         
         console.log(new Date(Date.now()), i18next.t("AUTO_SYNC_START"))
-        // localStorage.setItem(IS_SYNCING, true)
-        //fetchLatestEventsV2()
+        localStorage.setItem(IS_SYNCING, true)
+        fetchLatestEventsV2()
     }
 }
 export async function makeSyncRequest()
@@ -115,7 +115,9 @@ export async function fetchLatestEventsV2(refreshCalList)
 {
     if(isSyncing()){
         toast.warn(i18next.t("ALREADY_SYNCING"))
+        return
     }
+    
     localStorage.setItem(IS_SYNCING, true)
     await refreshCalendarListV2()
     const arrayFromDexie = await getCalDAVSummaryFromDexie()

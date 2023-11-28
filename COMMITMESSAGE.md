@@ -1,1 +1,1 @@
-- Autosync setup - Looks like it is working
+- Added user setting for autosync.
