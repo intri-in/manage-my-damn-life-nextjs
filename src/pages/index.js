@@ -42,16 +42,17 @@ export default function HomePage() {
    
 
     useEffect(() =>{
-        if(nextAuthEnabled()){
+      async function checkLogin(){
+        if(await nextAuthEnabled()){
           if (status=="unauthenticated" ) {
             signIn()
-          }
-          
+          } 
         }else{
           // Check login using inbuilt function.
           checkLogin_InBuilt(router)
         }
-        
+      }
+       checkLogin() 
       }, [status, router])
     
 

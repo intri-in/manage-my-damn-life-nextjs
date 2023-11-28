@@ -1,3 +1,25 @@
+v0.4.1
+- Bumped version to 0.4.1
+- Upgraded package dependencies (those recommended in Dependabot alerts)
+- Altered Task Editor Behaviour
+    - On editing tasks, the change is immediately made to local storage, before request being sent to CalDAV
+    - Causes flickering in task renders, but that will have to be resolved later.
+    - If the CalDAV change fails, the old version is reverted.
+- Added ability to locally change calendar colours
+    - No change is made to caldav. (AFAIK, tsdav doesn't support change of colour)
+- Fixed EventEditor, now editing event follows the workflow of TaskEditor
+- Minor bug fixes
+- Autosync setup - Looks like it is working
+- Added user setting for autosync.
+- Fixed Docker installation not working on remote hosts behind proxeis.
+    - The problem started with NEXT_PUBLIC_BASE_URL variable. Variables that start with NEXT_PUBLIC need to be set during build time, and cannot be set while running the docker image.
+    - Now NEXT_PUBLIC_BASE_URL is no longer required to be set in the .env file and will be ignored even if set.
+    - The API url is now a relative URL
+    - Docker images now seem to be working on host behind proxies.
+- Renamed var NEXT_PUBLIC_USE_NEXT_AUTH to USE_NEXT_AUTH, for the aforementioned reasons.
+- Updated Docs to reflect these changes.
+- Changed fetchLatestEvents to fetchLatestEventsV2 in login page.
+
 v0.4.0
 - bump to version 0.4.0
 - Calendar and Caldav account names are now stored locally to improve performace by limiting calls to API.

@@ -254,7 +254,7 @@ export async function getUserIDFromLogin(req,res){
         return null
     }
 
-    if(nextAuthEnabled()){
+    if(await nextAuthEnabled()){
         const session = await getServerSession(req, res, authOptions)
         const id_fromNextAuth= getUserIDFromNextAuthSession(session)
         return await getUserIDFromNextAuthID(id_fromNextAuth)
@@ -310,7 +310,7 @@ export async function middleWareForAuthorisation(req, res)
     if(!varNotEmpty(req)){
         return false
     }
-    if(nextAuthEnabled()){
+    if(await nextAuthEnabled()){
         const session = await getServerSession(req, res, authOptions)
         if(session){
             return true

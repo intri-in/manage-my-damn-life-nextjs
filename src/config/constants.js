@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.4.0" 
+export const VERSION_NUMBER = "0.4.1" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -52,3 +52,4 @@ export const FULLCALENDAR_BUSINESS_HOURS={
 
 
 export const INSTALL_CHECK_THRESHOLD_SECONDS=86400
+export const SYNC_DEFAULT_TIMEOUT = 1000*60*5

@@ -7,8 +7,9 @@ import moment from "moment"
 import { getAuthenticationHeadersforUser } from "./user"
 import * as _ from 'lodash'
 import { getMessageFromAPIResponse } from "./response"
-import { deleteEventByURLFromDexie, saveEventToDexie } from "./dexie/events_dexie"
+import { deleteEventByURLFromDexie, getEventbyURLFromDexie, restoreEventtoDexie, saveEventToDexie } from "./dexie/events_dexie"
 import { fetchLatestEventsV2 } from "./sync"
+import { toast } from "react-toastify"
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= _.cloneDeep(calendarEvents)
@@ -476,7 +477,33 @@ export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
 
 }
 
-export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, ctag, syncToken, calendar_url, type) {
+export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,etag, taskName, onDismissFunction){
+    const message = taskName? taskName+": " : ""
+    const i18next = getI18nObject()
+    toast.info(message+ i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+    const oldEvent = await getEventbyURLFromDexie(url) 
+    // Preemptively delete event from Dexie.
+    await deleteEventByURLFromDexie(url)
+    deleteEventFromServer(caldav_accounts_id,calendar_id,url,etag, oldEvent).then((body)=>{
+        onDismissFunction(body, taskName)
+
+    })
+    onDismissFunction(null, taskName)
+
+}
+// export async function handleNewEventPostUI(calendar_id, data, etag, caldav_accounts_id, ctag, syncToken, calendar_url, type, taskSummary, onDismissFunction){
+//     const message =  taskSummary ? taskSummary+": " : ""
+//     toast.info(message+this.i18next.t("ACTION_SENT_TO_CALDAV"))
+
+//     await saveEventToDexie(calendar_id,url, etag,data,type)
+
+//     postNewEvent(calendar_id, data,etag,this.state.caldav_accounts_id,this.state.calendarData["ctag"],this.state.calendarData["syncToken"],this.state.calendarData["url"],"VTODO").then((body)=>{
+//         onDismissFunction(body, taskSummary)
+//     })
+//     onDismissFunction(null, taskSummary)
+
+// }
+export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, ctag, syncToken, calendar_url, type,fileName) {
     // We save the event temporarily. If the insert into caldav fails, we will
     const url_api = getAPIURL() + "v2/calendars/events/add"
     
@@ -485,7 +512,7 @@ export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, 
     const requestOptions =
     {
         method: 'POST',
-        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":caldav_accounts_id, ctag:ctag, syncToken:syncToken, url:calendar_url}),
+        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, "caldav_accounts_id":caldav_accounts_id, ctag:ctag, syncToken:syncToken, url:calendar_url, fileName: fileName}),
         mode: 'cors',
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
@@ -495,7 +522,7 @@ export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, 
         .then(response => response.json())
         .then((body) => {
             //console.log(body)
-            console.log("body", body)
+            // console.log("body", body)
             if (varNotEmpty(body)) {
                 if (varNotEmpty(body.success) && body.success == true) {
                     // Save the event to Dexie Now.
@@ -532,15 +559,30 @@ export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, 
     })
 }
 
-export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id) {
+export async function preEmptiveUpdateEvent(calendar_id, url, etag, data, type){
+    // First get the old version in Dexie.
+    const oldEvent = await getEventbyURLFromDexie(url) 
+    
+    //Pre-emptively save event to Dexie. 
+    await saveEventToDexie(calendar_id,url, etag,data,type)
+    
+    return oldEvent
+}
+
+
+export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id,type,oldEvent) {
+    // If the CalDAV action fails, old version of the event event will be restored in local storage.
     const url_api = getAPIURL() + "v2/calendars/events/modify"
+    
+    const typetoSend = type ? type: "VEVENT"
+
 
     const authorisationData = await getAuthenticationHeadersforUser()
     var updated = Math.floor(Date.now() / 1000)
     const requestOptions =
     {
         method: 'POST',
-        body: JSON.stringify({ "etag": etag, "data": data, "type": "VEVENT", "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: caldav_accounts_id}),
+        body: JSON.stringify({ "etag": etag, "data": data, "type": typetoSend, "updated": updated, "calendar_id": calendar_id, url: url, deleted: "", caldav_accounts_id: caldav_accounts_id}),
         mode: 'cors',
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
@@ -549,9 +591,10 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
                 .then(response => response.json())
                 .then((body) => {
                     if(body && body.success){
+                        // console.log("update Event", body)
                         if(body.data && body.data.details){
                             const newEvent= body.data.details
-                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],"VEVENT").then((resultOfInsert) =>{
+                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],typetoSend).then((resultOfInsert) =>{
                             
                                 return resolve(body)
                             })
@@ -564,7 +607,18 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
 
                         }
                     }else{
-                        return resolve(body)
+
+                        if(oldEvent){
+                            
+                            // The CalDAV action has failed.
+                            // We restore the older version of the event 
+                            saveEventToDexie(calendar_id,oldEvent["url"], oldEvent["etag"],oldEvent["data"],typetoSend).then((resultOfInsert) =>{
+                                
+                                return resolve(body)
+                            })
+                        }
+
+
                     }
     
                 }).catch (e =>{
@@ -575,7 +629,8 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
     
     })
 }
-export async function deleteEventFromServer( caldav_accounts_id, calendar_id, url, etag ) {
+
+export async function deleteEventFromServer( caldav_accounts_id, calendar_id, url, etag, oldEvent ) {
     const url_api = getAPIURL() + "v2/calendars/events/delete"
 
     const authorisationData = await getAuthenticationHeadersforUser()
@@ -591,12 +646,14 @@ export async function deleteEventFromServer( caldav_accounts_id, calendar_id, ur
         .then(response => response.json())
         .then((body) => {
             if (varNotEmpty(body) && body.success == true) {
-                deleteEventByURLFromDexie(url).then(result =>{
+                    return resolve(body)
+            } else {
 
+                // Restore event back to dexie
+                restoreEventtoDexie(oldEvent).then(resResult =>{
+                    
                     return resolve(body)
                 })
-            } else {
-                return resolve(body)
             }
 
 

@@ -6,8 +6,7 @@ networks:
 
 services:
   app:
-    build: intriin/mmdl:latest
-    image: mmdl
+    image: intriin/mmdl:latest
     ports:
       - 3000:3000
     depends_on:

@@ -23,6 +23,7 @@ import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie
 import { checkifCalendarIDPresentinDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
 import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
 import MaintenanceTasks from "./MaintenanceTasks";
+import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -336,7 +337,9 @@ class SettingsPage extends Component {
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
             for (let i = 0; i < calendarsFromServer.length; i++) {
                 var tempOutput = []
-
+                if(!isValidResultArray(calendarsFromServer[i].calendars)){
+                    continue
+                }
                 for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
                     var value = calendarsFromServer[i].calendars[j].calendars_id
                     var key = j + "." + value
@@ -382,6 +385,8 @@ class SettingsPage extends Component {
                         <br />
                         <CalendarStartDayWeek />
                         </div>
+                        <br />
+                        <AutoSyncSetting />
                         <br />
                         <br />
                         <MaintenanceTasks />

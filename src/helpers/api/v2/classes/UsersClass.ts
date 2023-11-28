@@ -41,7 +41,7 @@ export class UsersClass{
             return null
         }
     
-        if(nextAuthEnabled()){
+        if(await nextAuthEnabled()){
             return await getUserIDFromNextAuthID_FromSession(req,res)
         }else{
             var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)

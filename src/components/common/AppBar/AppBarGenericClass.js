@@ -4,7 +4,7 @@ import Col from "react-bootstrap/Col";
 import { useRouter, withRouter } from "next/router";
 import { Button, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { Component, useRef, useState } from 'react';
-import { fetchLatestEvents, fetchLatestEventsV2, makeSyncRequest } from "@/helpers/frontend/sync";
+import { fetchLatestEvents, fetchLatestEventsV2, isSyncing, makeSyncRequest } from "@/helpers/frontend/sync";
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { getI18nObject } from "@/helpers/frontend/general";
@@ -21,6 +21,7 @@ import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { getNextAuthSessionData, nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { installCheck, installCheck_Cookie } from "@/helpers/install";
+import { IS_SYNCING, getValueFromLocalStorage } from "@/helpers/frontend/localstorage";
 
 
 class AppBarGeneric_ClassComponent extends Component {
@@ -49,7 +50,7 @@ async componentDidMount(){
 
   let username=""
   try{
-    if(nextAuthEnabled()){
+    if(await nextAuthEnabled()){
       if(this.props.session)
       {
         
@@ -127,7 +128,9 @@ async syncButtonClicked() {
   }
   render() {
   
-    var syncButton = this.state.isSyncing ? (   <Spinner
+    // const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
+    const spinningButton = this.state.isSyncing || (isSyncing())
+    var syncButton = spinningButton ? (   <Spinner
     as="span"
     animation="border"
     size="sm"

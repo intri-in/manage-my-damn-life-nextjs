@@ -16,15 +16,19 @@ export default function Caldav() {
   const router = useRouter()
 
   useEffect(() =>{
-
-    if(nextAuthEnabled()){
-      if (status=="unauthenticated" ) {
-        signIn()
+    async function checkAuth(){
+      
+      if(await nextAuthEnabled()){
+        if (status=="unauthenticated" ) {
+          signIn()
+        }
+      }else{
+        // Check login using inbuilt function.
+        checkLogin_InBuilt(router,"/accounts/caldav")
       }
-    }else{
-      // Check login using inbuilt function.
-      checkLogin_InBuilt(router,"/accounts/caldav")
     }
+
+    checkAuth()
   }, [status, router])
 
   var i18next = getI18nObject()

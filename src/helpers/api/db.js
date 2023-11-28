@@ -3,11 +3,12 @@ const { Sequelize } = require('sequelize');
 
 export function getConnectionVar()
 {
-    var db = require('mysql');
+    var db = require('mysql2');
 
       var con = db.createConnection({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
+        port: process.env.DB_PORT,
         database : process.env.DB_NAME,
         password: process.env.DB_PASS
       });
@@ -20,11 +21,12 @@ export function getConnectionVar()
 
 export function getSimpleConnectionVar()
 {
-  var db = require('mysql');
+  var db = require('mysql2');
 
   var con = db.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
+    port: process.env.DB_PORT,
     password: process.env.DB_PASS
   });
   

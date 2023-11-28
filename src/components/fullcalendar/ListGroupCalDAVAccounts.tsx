@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Cookies from 'js-cookie'
 import { getCalendarsToShow, isValid_UserPreference_CalendarsToShow } from '@/helpers/frontend/userpreference';
-import { varNotEmpty } from '@/helpers/general';
+import { isValidResultArray, varNotEmpty } from '@/helpers/general';
 import { Preference_CalendarsToShow } from '@/helpers/frontend/classes/UserPreferences/Preference_CalendarsToShow';
 import { BsCalendarCheck } from 'react-icons/bs';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -39,7 +39,9 @@ export function ListGroupCalDAVAccounts(props: customProps ){
         var calendarOutput =[]
         if(varNotEmpty(props.caldav_accounts[i].calendars) && props.caldav_accounts[i].calendars)
         {
-          
+          if(!isValidResultArray(props.caldav_accounts[i].calendars)){
+            continue
+          }
           for(const j in props.caldav_accounts[i].calendars){
             var indexInPreferenceObject = Preference_CalendarsToShow.findIndex_Calendar(prefObject, props.caldav_accounts[i].caldav_accounts_id, props.caldav_accounts[i].calendars[j].calendars_id)
             if(varNotEmpty(indexInPreferenceObject) && Array.isArray(indexInPreferenceObject) && indexInPreferenceObject.length>0)

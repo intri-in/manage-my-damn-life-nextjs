@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { ContextMenuTrigger, ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 import { RightclickContextMenu } from "./RightclickContextMenu";
 import { MYDAY_LABEL } from "@/config/constants";
-import { updateTodo } from "@/helpers/frontend/tasks";
+import { handleUI_TodoUpdate, updateTodo, updateTodo_WithUI } from "@/helpers/frontend/tasks";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 import { MdRepeatOn, MdRepeatOne, MdSpeakerNotes } from "react-icons/md";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
@@ -23,6 +23,7 @@ import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import VTodoGenerator from "vtodogenerator";
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
+import { getEtagFromURL_Dexie } from "@/helpers/frontend/dexie/events_dexie";
 export default class TaskUI extends Component {
 
     constructor(props) {
@@ -178,16 +179,20 @@ export default class TaskUI extends Component {
                     found = true
                 }
             }
-            console.log("this.state.data.url_internal", this.state.data.url_internal)
+            // console.log("this.state.data.url_internal", this.state.data.url_internal)
 
             if (found == false) {
                 newDataArray["categories"] = newDataArray.category
                 newDataArray.categories.push(MYDAY_LABEL)
                 //console.log(this.state.data)
-                //this.setState({data: newDataArray, showTaskEditor: true, })
-                toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
-                var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
-                this.onTaskSubmittoServer(body)
+                // this.setState({data: newDataArray, showTaskEditor: true, })
+                // toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
+                // var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
+                // this.onTaskSubmittoServer(body)
+                let etag = await getEtagFromURL_Dexie(this.state.data.url_internal)
+                etag = etag ? etag :  this.state.data.etag
+                updateTodo_WithUI(this.state.data.calendar_id, this.state.data.url_internal, etag, newDataArray, this.onTaskSubmittoServer)
+                
                 //console.log(newDataArray)
 
 
@@ -207,8 +212,13 @@ export default class TaskUI extends Component {
             console.log(todo.generate())
 
             //this.setState({data: newDataArray, showTaskEditor: true, })
-            var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
-            this.onTaskSubmittoServer(body)
+            // var body = await updateTodo(this.state.data.calendar_id, this.state.data.url_internal, this.state.data.etag, newDataArray)
+            let etag = await getEtagFromURL_Dexie(this.state.data.url_internal)
+            etag = etag ? etag :  this.state.data.etag
+
+            updateTodo_WithUI(this.state.data.calendar_id, this.state.data.url_internal, etag, newDataArray, this.onTaskSubmittoServer)
+
+            // this.onTaskSubmittoServer(body)
 
 
         }
@@ -224,11 +234,15 @@ export default class TaskUI extends Component {
                 if (varNotEmpty(this.state.data.rrule) && this.state.data.rrule != "") {
                     newData["rrule"] = RRuleHelper.rruleToObject(newData.rrule)
                 }
-                toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
-
+                let etag = await getEtagFromURL_Dexie(this.state.data.url_internal)
+                etag = etag ? etag :  this.state.data.etag
+    
                 //this.setState({data: newData, showTaskEditor: true})
-                var body = await updateTodo(this.props.data.calendar_id, this.props.data.url_internal, this.props.data.etag, newData)
-                this.onTaskSubmittoServer(body)
+                // var body = await updateTodo(this.props.data.calendar_id, this.props.data.url_internal, this.props.data.etag, newData)
+                // this.onTaskSubmittoServer(body)
+
+                updateTodo_WithUI(this.props.data.calendar_id, this.props.data.url_internal, etag, newData, this.onTaskSubmittoServer)
+
 
             }
 
@@ -297,29 +311,33 @@ export default class TaskUI extends Component {
             })
         }) */
     }
-    onTaskSubmittoServer(body) {
+    onTaskSubmittoServer(body, taskName) {
         this.setState({ showTaskEditModal: false, showTaskEditor: false })
         var message= getMessageFromAPIResponse(body)
-
+        const finalToast = taskName ? taskName+": ": ""
         if (body != null) {
             if (body.success == true) {
-                toast.success(this.i18next.t(message))
-                this.props.fetchEvents()
+
+                toast.success(finalToast+this.i18next.t(message))
             }
             else {
                 if(message){
 
                     toast.error(message)
                 }else{
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                    toast.error(finalToast+this.i18next.t("ERROR_GENERIC"))
                 }
 
             }
+        }else{
+
         }
-       
+        this.props.fetchEvents()
+
     }
     onSubtaskSubmittoServer(body) {
         this.setState({ showSubtaskEditor: false })
+        let message = getMessageFromAPIResponse(body) ? getMessageFromAPIResponse(body) : "ERROR_GENERIC"
 
         if (body != null) {
             if (body.success == true) {
@@ -333,7 +351,8 @@ export default class TaskUI extends Component {
 
             }
         }
-       
+        this.props.fetchEvents()
+
     }
     clearCheckMarkState() {
 

@@ -11,16 +11,19 @@ export default function TaskListPage(){
     const router = useRouter()
 
     useEffect(() =>{
-      // console.log("renders")
-      if(nextAuthEnabled()){
-        if (status=="unauthenticated" ) {
-          signIn()
+      async function checkAuth(){
+        
+        if(await nextAuthEnabled()){
+          if (status=="unauthenticated" ) {
+            signIn()
+          }
+        }else{
+          // Check login using inbuilt function.
+  
+          checkLogin_InBuilt(router, "/tasks/list")
         }
-      }else{
-        // Check login using inbuilt function.
-
-        checkLogin_InBuilt(router, "/tasks/list")
       }
+      checkAuth()
     }, [status,router])
     
 

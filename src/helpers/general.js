@@ -124,6 +124,16 @@ export function isNumber(value) {
     }
 }
 
+export function varIsANumber(value){
+    if(value){
+        if(!isNaN(Number(value))){
+            return true
+        }
+    }
+
+    return false
+}
+
 export function logError(error, additionalDetails)
 {
     if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
@@ -159,7 +169,10 @@ export function debugging()
 
 export function getAPIURL()
 {
-    return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_BASE_URL)+"api/"
+    // console.log("process.env.NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL)
+    // return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_BASE_URL)+"/api/"
+
+    return "/api/"
     /*
     try{
         if(window!=undefined)

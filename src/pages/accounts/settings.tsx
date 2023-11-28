@@ -14,15 +14,19 @@ export default function Settings(){
     const router = useRouter()
     const i18next = getI18nObject()
     useEffect(() =>{
-      if(nextAuthEnabled()){
-        if (status=="unauthenticated" ) {
-          signIn()
+      async function checkAuth(){
+        if(await nextAuthEnabled()){
+          if (status=="unauthenticated" ) {
+            signIn()
+          }
+        }else{
+          // Check login using inbuilt function.
+  
+          checkLogin_InBuilt(router, '/accounts/settings')
         }
-      }else{
-        // Check login using inbuilt function.
 
-        checkLogin_InBuilt(router, '/accounts/settings')
       }
+      checkAuth()
     }, [status,router])
     
 
