@@ -25,18 +25,6 @@ curl https://raw.githubusercontent.com/intri-in/manage-my-damn-life-nextjs/main/
 
 These are the variables that you need to change for MMDL to function properly. If you're running 
 
-### NEXT_PUBLIC_BASE_URL
-
-> Required to Change From Default: **Yes**
-
-
-This is the base URL for the front end. If you're hosting MMDL with a domain name, point it to your domain. 
-
-```
-Example:
-
-NEXT_PUBLIC_BASE_URL="http://example.com/"
-```
 
 ### DB_HOST
 
@@ -201,7 +189,7 @@ SMTP_USESECURE = false
 
 > Required to Change From Default: **No**
 
-The variables NEXT_PUBLIC_USE_NEXT_AUTH, NEXTAUTH_URL, NEXTAUTH_SECRET, and more are required for OAUTH to work.
+The variables USE_NEXT_AUTH, NEXTAUTH_URL, NEXTAUTH_SECRET, and more are required for OAUTH to work.
 
 Please refer to this [detailed guide](OAuth.md) to set them.
 

@@ -169,7 +169,10 @@ export function debugging()
 
 export function getAPIURL()
 {
-    return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_BASE_URL)+"api/"
+    // console.log("process.env.NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL)
+    // return addTrailingSlashtoURL(process.env.NEXT_PUBLIC_BASE_URL)+"/api/"
+
+    return "/api/"
     /*
     try{
         if(window!=undefined)

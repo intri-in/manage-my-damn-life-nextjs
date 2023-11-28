@@ -20,7 +20,7 @@ export function setLoginCookie(userhash, ssid) {
     Cookies.set("SSID", ssid, { expires: 30 })
 }
 
-export function logoutUser()
+export async function logoutUser()
 {
     // Just deleted the cookies. 
     Cookies.remove("USERHASH")
@@ -30,7 +30,7 @@ export function logoutUser()
 
     deleteAllCookies()
     //Logout nextAuth Sessions.
-    if(nextAuthEnabled()){
+    if(await nextAuthEnabled()){
         signOut()
     }
 }
@@ -38,10 +38,10 @@ export function logoutUser()
 /**
  * Manages user logout with redirect. Calls the Logout function (which signs out the user either with NextAuth.js or with inbuilt mechanism, then redirects appropriately.)
  */
-export function logoutUser_withRedirect(router, redirectURL){
+export async function logoutUser_withRedirect(router, redirectURL){
     logoutUser()
     if(varNotEmpty(router)){
-        if(nextAuthEnabled()){
+        if(await nextAuthEnabled()){
             router.push('/')
         }else{
             var url = '/login'
