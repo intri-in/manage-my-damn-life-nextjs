@@ -50,7 +50,7 @@ async componentDidMount(){
 
   let username=""
   try{
-    if(nextAuthEnabled()){
+    if(await nextAuthEnabled()){
       if(this.props.session)
       {
         

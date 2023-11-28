@@ -10,32 +10,6 @@ cp .env.local.sample .env.local
 
 ## Variables
 
-### NEXT_PUBLIC_BASE_URL
-
-> Required to Change From Default: **Yes**
-
-
-This is the base URL for the front end. If you're hosting MMDL with a domain name, point it to your domain. 
-
-```
-Example:
-
-NEXT_PUBLIC_BASE_URL="http://example.com/"
-```
-
-### NEXT_PUBLIC_API_URL
-
-> Required to Change From Default: **Yes**
-
-
-This is the base URL API. If you're hosting MMDL, point it to your domain. Note that the trailing slash is required.
-
-```
-Example:
-
-NEXT_PUBLIC_BASE_URL="http://example.com/api/"
-```
-
 ### NEXT_PUBLIC_DEBUG_MODE
 
 > Required to Change From Default: **No**

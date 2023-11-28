@@ -11,16 +11,19 @@ export default function CalendarViewPage(){
     const router = useRouter()
 
     useEffect(() =>{
-      
-      if(nextAuthEnabled()){
-        if (status=="unauthenticated" ) {
-          signIn()
+      async function checkAuth(){
+        
+        if(await nextAuthEnabled()){
+          if (status=="unauthenticated" ) {
+            signIn()
+          }
+        }else{
+          // Check login using inbuilt function.
+  
+          checkLogin_InBuilt(router, "/calendar/view")
         }
-      }else{
-        // Check login using inbuilt function.
-
-        checkLogin_InBuilt(router, "/calendar/view")
       }
+      checkAuth()
     }, [status,router])
     
 

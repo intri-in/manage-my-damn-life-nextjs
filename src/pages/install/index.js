@@ -26,9 +26,9 @@ class StartInstall extends Component{
         this.checkifInstalled()
     }
 
-    continueClicked()
+    async continueClicked()
     {
-        if(!nextAuthEnabled()){
+        if(await nextAuthEnabled()==false){
             this.props.router.push("/accounts/register")
         }else{
             this.props.router.push("/")

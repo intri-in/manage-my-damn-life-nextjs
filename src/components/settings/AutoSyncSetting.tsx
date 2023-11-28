@@ -12,7 +12,7 @@ export function AutoSyncSetting(){
     const [value, setValue] = useState(SYNC_DEFAULT_TIMEOUT/1000/60)
     useEffect(()=>{
         SettingsHelper.getFromServer(USER_SETTING_SYNCTIMEOUT).then((response)=>{
-            console.log("response", response)
+            // console.log("response", response)
             if(response){
                 if(!isNaN(Number(response))){
                     setValue(Number(response)/1000/60)

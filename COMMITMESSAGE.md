@@ -1,1 +1,8 @@
-- Added user setting for autosync.
+- Fixed Docker installation not working on remote hosts behind proxeis.
+    - The problem started with NEXT_PUBLIC_BASE_URL variable. Variables that start with NEXT_PUBLIC need to be set during build time, and cannot be set while running the docker image.
+    - Now NEXT_PUBLIC_BASE_URL is no longer required to be set in the .env file and will be ignored even if set.
+    - The API url is now a relative URL
+    - Docker images now seem to be working on host behind proxies.
+- Renamed var NEXT_PUBLIC_USE_NEXT_AUTH to USE_NEXT_AUTH, for the aforementioned reasons.
+- Updated Docs to reflect these changes.
+- Changed fetchLatestEvents to fetchLatestEventsV2 in login page.

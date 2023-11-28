@@ -13,13 +13,15 @@ First, you will need to setup a ```.env.local``` file. Detailed guide is availab
 
 To setup OAuth certain variables need to be set in your ```.env.local``` file.
 
-### NEXT_PUBLIC_USE_NEXT_AUTH
+> ⚠️ **Variable name to enable NextAuth has changed  v0.4.1**
+
+### USE_NEXT_AUTH
 
 > Required to Change From Default: **Yes**
 
 ```
 Example:
-NEXT_PUBLIC_USE_NEXT_AUTH=true
+USE_NEXT_AUTH=true
 ```
 ### NEXTAUTH_URL
 > Required to Change From Default: **Maybe**
