@@ -9,6 +9,7 @@ v0.4.1
     - No change is made to caldav. (AFAIK, tsdav doesn't support change of colour)
 - Fixed EventEditor, now editing event follows the workflow of TaskEditor
 - Minor bug fixes
+- Autosync setup - Looks like it is working
 
 v0.4.0
 - bump to version 0.4.0

@@ -26,7 +26,7 @@ class ManageFilters extends Component{
         super(props)
         this.i18next = getI18nObject()
 
-        this.state={addFilterForm: null, filterList: <Loading />}
+        this.state={addFilterForm: null, filterList: <Loading /> ,showAddFilterForm: false}
         this.AddFilterButtonClicked = this.AddFilterButtonClicked.bind(this)
         this.onAddNewFilter = this.onAddNewFilter.bind(this)
         this.generateFilterList = this.generateFilterList.bind(this)
@@ -182,11 +182,11 @@ class ManageFilters extends Component{
             <p>{this.i18next.t("MANAGE_FILTERS_DESC")}</p>
             <br/>
             <h2>{this.i18next.t("YOUR_FILTERS")}</h2>
+            {this.state.addFilterForm}
             <div style={{padding: 20, marginBottom: 20, }}>
                 {this.state.filterList}
 
             </div>
-            {this.state.addFilterForm}
             </div>
            {/*  <Toastify /> */}
         </>)

@@ -1,2 +1,1 @@
-- Fixed EventEditor, now editing event follows the workflow of TaskEditor
-- Minor bug fixes
+- Autosync setup - Looks like it is working

@@ -3,15 +3,23 @@ import { isValidResultArray, logError, varNotEmpty } from "../general";
 import SettingsHelper from "./classes/SettingsHelper";
 import { getValueFromLocalStorage } from "./localstorage";
 import { isValidFullCalendarView } from "@/components/fullcalendar/FullCalendarHelper";
+import { SYNC_DEFAULT_TIMEOUT } from "@/config/constants";
 
 export const SETTING_NAME_CALENDAR_START_DAY="MMDL_CALENDAR_START_DAY"
 export const SETTING_NAME_DEFAULT_VIEW_CALENDAR="DEFAULT_VIEW_CALENDAR"
 export const SETTING_NAME_DEFAULT_CALENDAR = "DEFAULT_CALENDAR"
+export const USER_SETTING_SYNCTIMEOUT = "USER_SETTING_SYNCTIMEOUT"
 
 export function getSyncTimeout()
 {
-    var timeout = localStorage.getItem("USER_SETTING_SYNCTIMEOUT")
-    return 1000*60*5
+    var timeout = localStorage.getItem(USER_SETTING_SYNCTIMEOUT)
+    if(!timeout) {
+        return SYNC_DEFAULT_TIMEOUT
+    }
+    if(isNaN(Number(timeout))){
+        return SYNC_DEFAULT_TIMEOUT
+    }
+    return Number(timeout)
 }
 
 export function setSyncTimeout(timeinMinutes)
