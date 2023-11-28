@@ -23,6 +23,7 @@ import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie
 import { checkifCalendarIDPresentinDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
 import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
 import MaintenanceTasks from "./MaintenanceTasks";
+import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -384,6 +385,8 @@ class SettingsPage extends Component {
                         <br />
                         <CalendarStartDayWeek />
                         </div>
+                        <br />
+                        <AutoSyncSetting />
                         <br />
                         <br />
                         <MaintenanceTasks />
