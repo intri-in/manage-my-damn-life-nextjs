@@ -1,3 +1,9 @@
+export const LASTSYNC="LASTSYNC"
+
+// IS_SYNCING holds the state of sync. It's true 
+export const IS_SYNCING="IS_SYNCING"
+
+
 export function clearLocalStorage(){
     try{
         localStorage.clear();
