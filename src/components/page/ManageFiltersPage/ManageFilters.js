@@ -47,23 +47,29 @@ class ManageFilters extends Component{
             
             if(Array.isArray(filtersFromServer.data.message))
             {
-                for (let i=0; i< filtersFromServer.data.message.length; i++)
-                {
-                    var jsonFilter= JSON.parse(filtersFromServer.data.message[i].filtervalue)
-                    finalOutput.push(
-                        <div key={i+"_"+getRandomString(6)} style={{background: "#F1F1F1", padding: 20, marginBottom:20, borderRadius: 20}}>
-                            <Row>
-                                <Col>
-                                <h3 >{filtersFromServer.data.message[i].name}</h3>
-                                <p key={getRandomString(9)} id={getRandomString(6)}className="textDefault"> {filtertoWords(jsonFilter)}</p>
+                try{
 
-                                </Col>
-                                <Col style={{textAlign: "right"}}>
-                                <AiOutlineEdit  key={i+"_words_"+getRandomString(6)} onClick={()=> this.editFilterButtonClicked(filtersFromServer.data.message[i])} color="red" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<AiOutlineDelete onClick={()=> this.deleteButtonClicked(filtersFromServer.data.message[i].custom_filters_id)} color="red" />
-                                </Col>
-                            </Row>
-                        </div>
-                    )
+                    for (let i=0; i< filtersFromServer.data.message.length; i++)
+                    {
+                        
+                        var jsonFilter= JSON.parse(filtersFromServer.data.message[i].filtervalue)
+                        finalOutput.push(
+                            <div key={i+"_"+getRandomString(6)} style={{background: "#F1F1F1", padding: 20, marginBottom:20, borderRadius: 20}}>
+                                <Row>
+                                    <Col>
+                                    <h3 >{filtersFromServer.data.message[i].name}</h3>
+                                    <p key={getRandomString(9)} id={getRandomString(6)}className="textDefault"> {filtertoWords(jsonFilter)}</p>
+    
+                                    </Col>
+                                    <Col style={{textAlign: "right"}}>
+                                    <AiOutlineEdit  key={i+"_words_"+getRandomString(6)} onClick={()=> this.editFilterButtonClicked(filtersFromServer.data.message[i])} color="red" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<AiOutlineDelete onClick={()=> this.deleteButtonClicked(filtersFromServer.data.message[i].custom_filters_id)} color="red" />
+                                    </Col>
+                                </Row>
+                            </div>
+                        )
+                    }
+                }catch(e){
+                    console.error("generateFilterList",e)
                 }
             }
         }else{
