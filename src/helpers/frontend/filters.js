@@ -6,7 +6,6 @@ import { RRuleHelper } from "./classes/RRuleHelper"
 import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 import { getErrorResponse } from "../errros"
 import { getMessageFromAPIResponse } from "./response"
-import { END_OF_THE_UNIVERSE_DATE } from "@/config/constants"
 
 export async function saveFiltertoServer(name, filter)
 {
@@ -447,10 +446,6 @@ export function getFilterReadytoPost(filter)
         if(varNotEmpty(filter.filter.due) && Array.isArray(filter.filter.due) && (filter.filter.due[0]!="" || filter.filter.due[1]!=""))
         {
             newFilter.filter.due = filter.filter.due
-
-            if(!newFilter.filter.due[1]){
-                newFilter.filter.due[1]=END_OF_THE_UNIVERSE_DATE
-            }
         }
 
         if(varNotEmpty(filter.filter.priority) &&filter.filter.priority!="")
@@ -466,7 +461,6 @@ export function getFilterReadytoPost(filter)
 
     }
 
-    // console.log("new Filter", newFilter)
     return newFilter
 
 

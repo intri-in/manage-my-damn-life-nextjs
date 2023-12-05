@@ -160,12 +160,6 @@ export function timeDifferencefromNowinWords(date)
 
 }
 
-export function fixNullDate(dateToCheck, newDate){
-    if(dateToCheck){
-
-    }
-}
-
 export function timeDifferencefromNowinWords_Generic(date)
 {
     var timeDifference=Math.floor((moment(date).unix() - Math.floor(Date.now() / 1000))/86400)
@@ -271,10 +265,4 @@ export const findPath = (ob, key) => {
   export function isValidTime(time)
   {
     return (moment(time, 'HH:mm', true).isValid() || moment(time, 'H:m', true).isValid() || moment(time, 'H:mm', true).isValid() || moment(time, 'H:mm', true).isValid())
-  }
-
-  export function isDateValid(dateStr) {
-    const isValid =  !isNaN(new Date(dateStr));
-    // console.log("dateStr", dateStr, isValid)
-    return isValid
   }

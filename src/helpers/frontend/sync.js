@@ -114,7 +114,7 @@ export async function fetchLatestEvents(refreshCalList)
 export async function fetchLatestEventsV2(refreshCalList)
 {
     if(isSyncing()){
-        //toast.warn(i18next.t("ALREADY_SYNCING"))
+        toast.warn(i18next.t("ALREADY_SYNCING"))
         console.warn("Sync already in progress. Will still sync, though.")
     }
     
