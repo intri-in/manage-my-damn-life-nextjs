@@ -1,2 +1,3 @@
-- Added "use client" to AppBar. Using Localstorage would cause hydration errors on server generation.
-- Upgraded next to 14.0.4
+- Revert next version (>14 no longer compatible with Node16)
+- Changed github workflow
+    - Added fail-fast false to make sure if one of the next builds for any of the node version fails, the other is executed.
