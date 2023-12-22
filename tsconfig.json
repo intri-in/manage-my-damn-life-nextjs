@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "paths":{
-        "@/*": ["./src/*"]
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
     },
     "baseUrl": ".",
     "allowJs": true,
@@ -21,15 +22,23 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.js",
     "**/*.ts",
-    "**/*.tsx", "jest.config.js.old"],
+    "**/*.tsx",
+    "jest.config.js.old",
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
-  ],
-  
+  ]
 }

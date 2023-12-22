@@ -1,6 +1,2 @@
-- Bump to version 0.4.2
-- Removed toast warning if already syncing. Now the warning appears in the console.
-- Minor fixes to how Filter Editing behaves
-    - If Label filter had a filter that's no longer present on the task, it will now be removed on edit.
-- Bug fix in Filter Editor
-    - If the Due Before field is empty it will be auto populated with constant END_OF_THE_UNIVERSE_DATE in constants.js
+- Fixed filters in TaskView not working properly.
+    - The problem was the usage of var, instead of let. Yeah......
