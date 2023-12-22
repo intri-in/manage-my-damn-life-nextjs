@@ -1,2 +1,2 @@
-- Fixed filters in TaskView not working properly.
-    - The problem was the usage of var, instead of let. Yeah......
+- Fix to some build problems 
+    - Typescript linting - fixed type errors.

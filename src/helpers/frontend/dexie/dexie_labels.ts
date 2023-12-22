@@ -112,12 +112,12 @@ export async function updateLabelColourinDexie(labelName, colour) {
 }
 export async function updateLabelCacheInDexie() {
     // await clearLabelsFromDexie()
-    const tempLabelList = []
+    let tempLabelList: any = []
     const eventArray = await fetchAllEventsFromDexie("VTODO")
     if (isValidResultArray(eventArray)) {
         for (const i in eventArray) {
             const parsedTask = returnGetParsedVTODO(eventArray[i]["data"])
-            if(basicTaskFilterForDexie(parsedTask)){
+            if(parsedTask && basicTaskFilterForDexie(parsedTask)){
                 const labelArray =parsedTask["category"]
                 if(isValidResultArray(labelArray)){
                     for(const j in labelArray){

@@ -57,10 +57,10 @@ export default async function handler(req, res) {
                                     //Save Caldav Account.
                                     caldav_accounts_fromDB = await caldav_account.save(accountname, username, password, url, authMethod)
                                     var output ={
-                                        name: caldav_accounts_fromDB.name,
+                                        name: caldav_accounts_fromDB!.name,
                                         username:req.query.username,
-                                        caldav_accounts_id: caldav_accounts_fromDB.caldav_accounts_id,
-                                        url: caldav_accounts_fromDB.url,
+                                        caldav_accounts_id: caldav_accounts_fromDB!.caldav_accounts_id,
+                                        url: caldav_accounts_fromDB!.url,
                                         calendars: processCalDAVResponse(calendars)
                                     }   
                                     
@@ -126,11 +126,11 @@ function processCalDAVResponse(calendarsFromCaldav: any){
     if(!calendarsFromCaldav && !Array.isArray(calendarsFromCaldav)){
         return null
     }
-    var output = []
+    var output: any = []
     calendarsFromCaldav.forEach(calendar => {
 
         const processedCal = processCalendarFromCaldav(calendar)
-        if(processedCal.displayName !="" && processedCal.url!=""){
+        if(processedCal!.displayName !="" && processedCal!.url!=""){
             output.push(processedCal)
 
         }
