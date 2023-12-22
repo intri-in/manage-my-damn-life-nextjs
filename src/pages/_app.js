@@ -8,6 +8,7 @@ import { SessionProvider } from "next-auth/react"
 import { useEffect, useState } from 'react';
 import { getSyncTimeout } from '@/helpers/frontend/settings';
 import { initAutoSync, shouldSync } from '@/helpers/frontend/sync';
+import { SSRProvider } from 'react-bootstrap';
 function load()
 {
   NProgress.start();
@@ -17,7 +18,7 @@ function stop()
 {
   NProgress.done();
 }
-
+ 
 export default function App({ Component, pageProps: {session, ...pageProps }}) {
   const [counter, setCounter] = useState(0)
   useEffect(()=>{
@@ -35,11 +36,11 @@ export default function App({ Component, pageProps: {session, ...pageProps }}) {
     }
   },[counter])
 
-  return (<>
+  return (<SSRProvider>
           <SessionProvider session={session} refetchOnWindowFocus={true}>
             <NextNProgress  color="#ff0000"  height={5} options={{ showSpinner: false }}/>
             <Component {...pageProps} />
             <Toastify />
             </SessionProvider>
-          </>)
+          </SSRProvider>)
 }

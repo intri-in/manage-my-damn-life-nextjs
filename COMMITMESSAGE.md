@@ -1,2 +1,2 @@
-- Fix to some build problems 
-    - Typescript linting - fixed type errors.
+- Added "use client" to AppBar. Using Localstorage would cause hydration errors on server generation.
+- Upgraded next to 14.0.4

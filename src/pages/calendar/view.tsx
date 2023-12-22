@@ -1,3 +1,4 @@
+'use client'
 import CalendarView from "@/components/page/CalendarViewPage/CalendarView";
 import { checkLogin_InBuilt } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";

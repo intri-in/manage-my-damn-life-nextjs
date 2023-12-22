@@ -1,3 +1,4 @@
+'use client';
 import { PRIMARY_COLOUR } from "@/config/style"
 import Row from 'react-bootstrap/Row';
 import Col from "react-bootstrap/Col";
