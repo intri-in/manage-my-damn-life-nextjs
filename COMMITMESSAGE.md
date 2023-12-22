@@ -1,2 +1,3 @@
-- Fix to some build problems 
-    - Typescript linting - fixed type errors.
+- Revert next version (>14 no longer compatible with Node16)
+- Changed github workflow
+    - Added fail-fast false to make sure if one of the next builds for any of the node version fails, the other is executed.

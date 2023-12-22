@@ -15,6 +15,10 @@ export function clearLocalStorage(){
 
 export function getValueFromLocalStorage(keyName){
 
+    if(typeof(window)==="undefined")
+    {
+        return null
+    }
     if(!keyName){
         return null
     }
