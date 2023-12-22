@@ -9,7 +9,7 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     if (isValidResultArray(eventArray)) {
 
         for (const i in eventArray) {
-            const labelArray = returnGetParsedVTODO(eventArray[i]["data"]).category
+            const labelArray = returnGetParsedVTODO(eventArray[i]["data"])!.category
             const parsed = returnGetParsedVTODO(eventArray[i]["data"])
 
             // console.log("parsed",parsed.summary, parsed, calendars_id)
@@ -139,7 +139,7 @@ export async function fetchAllEventsFromDexie(type?) {
 export async function fetchEventsForCalendarsFromDexie(calendars_id, type?) {
 
     try {
-        let events=null
+        let events: Calendar_Events[] | null=null
         if(type){
             events = await db.calendar_events
             .where('calendar_id')
@@ -205,11 +205,11 @@ export async function deleteEventByURLFromDexie(url){
 
 export async function searchEventInDexie(calendars_id, type,searchTerm){
     const allEvents = await fetchEventsForCalendarsFromDexie(calendars_id, type)
-    const result = []
+    const result: any = []
     for (const i in allEvents)
     {
         var parsedTodo= returnGetParsedVTODO(allEvents[i].data)
-        if(majorTaskFilter(parsedTodo)==true && parsedTodo.summary!=null &&  parsedTodo.summary!=undefined && (haystackHasNeedle(searchTerm.trim(),parsedTodo.summary) || haystackHasNeedle(searchTerm.trim(),parsedTodo.description) ) )
+        if(majorTaskFilter(parsedTodo)==true && parsedTodo!.summary!=null &&  parsedTodo!.summary!=undefined && (haystackHasNeedle(searchTerm.trim(),parsedTodo!.summary) || haystackHasNeedle(searchTerm.trim(),parsedTodo!.description) ) )
         {
             result.push(allEvents[i])
         } 

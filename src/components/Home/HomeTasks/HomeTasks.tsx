@@ -41,7 +41,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
     const [title, setTitle] = useState(i18next.t("MY_DAY"))
     const [caldav_accounts_id, setCaldavAccountsId] = useState(props.caldav_accounts_id)
     const [calendars_id, setCalendarsId] = useState(props.calendars_id)
-    const [filter, setFilter] = useState<filterInterface | undefined>(defaultFilter)
+    const [filter, setFilter] = useState<filterInterface | undefined | null>(defaultFilter)
     const [menuOptions, setMenuOptions]=useState<any | null>(defaultMenuOptions)
     
     const fetchEvents =  () =>{
@@ -95,7 +95,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
                             }else{
                                 //Probably a calendar Object.
                                 setFilter(null)
-                                if(("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue))
+                                if(("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue) && filterValue.calendars_id)
                                 {
                                     setCaldavAccountsId(filterValue["caldav_accounts_id"])
                                     setCalendarsId(filterValue["calendars_id"].toString())
@@ -120,7 +120,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
         }
 
     }
-    var allMenuOptions = []
+    var allMenuOptions:any[] = []
     for(const key in menuOptions)
     {
         if(varNotEmpty(menuOptions[key]))
@@ -128,7 +128,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
             if(Array.isArray(menuOptions[key]))
             {
                 //It is an array, and therefore has children
-                var tempChildren = []
+                var tempChildren:any[] = []
                 for(const children in menuOptions[key] )
                 {
                     for(const internalKey in menuOptions[key][children])

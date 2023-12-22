@@ -3,7 +3,7 @@ import { getCalDAVSummaryFromDexie } from "./caldav_dexie"
 import { fetchEventsForCalendarsFromDexie } from "./events_dexie"
 
 export async function getEventsFromDexie_LikeAPI(){
-    var toReturn =[]
+    var toReturn: any =[]
     const allSummary = await getCalDAVSummaryFromDexie()
     if (isValidResultArray(allSummary)) {
         for (const i in allSummary) {

@@ -141,15 +141,15 @@ class TaskViewList extends Component {
   }
   filterClicked(filter, name) {
 
-    var newFilter = filter
-    if (newFilter.filter.due != null && newFilter.filter.due != undefined && newFilter.filter.due.length > 1) {
-      //newFilter.due[0] = moment(new Date(filter.due[0])).unix().toString()
-      //newFilter.due[1] = moment(new Date(filter.due[1])).unix().toString()
+    // var newFilter = filter
+    // if (newFilter.filter.due != null && newFilter.filter.due != undefined && newFilter.filter.due.length > 1) {
+    //   //newFilter.due[0] = moment(new Date(filter.due[0])).unix().toString()
+    //   //newFilter.due[1] = moment(new Date(filter.due[1])).unix().toString()
 
-    }
+    // }
     var updated = Math.floor(Date.now() / 1000)
 
-    this.setState({ updated: updated, filter: newFilter, caldav_accounts_id: null, calendars_id: null, title: name, showLeftColumnOffcanvas: false })
+    this.setState({ updated: updated, filter: filter, caldav_accounts_id: null, calendars_id: null, title: name, showLeftColumnOffcanvas: false })
   }
   render() {
     var borderRight = this.state.showListColumn ? '3px solid ' + SECONDARY_COLOUR : ""

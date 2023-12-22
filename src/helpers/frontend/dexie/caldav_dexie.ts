@@ -4,7 +4,7 @@ import { deleteAllCalendarsFromCaldavAccountID_Dexie, getAllCalendarsFromCalDavA
 
 export async function getCalDAVSummaryFromDexie(){
   const caldavAccounts = await getAllCalDavAccountsFromDexie()
-  var toReturn = []
+  var toReturn :any = []
   if(isValidResultArray(caldavAccounts)){
     for(const i in caldavAccounts){
       const allCals = await getAllCalendarsFromCalDavAccountIDFromDexie(caldavAccounts[i]["caldav_accounts_id"])

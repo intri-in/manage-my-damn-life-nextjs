@@ -14,7 +14,7 @@ function DefaultCalendarViewSelect(props:null) {
     useEffect(()=>{
         const getVal = async () =>{
             const settingVal = getDefaultViewForCalendar()
-            if(isValidFullCalendarView(settingVal)){
+            if(settingVal && isValidFullCalendarView(settingVal)){
                 setValueofDDL(settingVal)
             }else{
                 // We fetch from server.

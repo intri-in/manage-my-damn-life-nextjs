@@ -25,9 +25,9 @@ class FilterList extends Component {
         if (filtersFromServer != null && filtersFromServer.success != null && filtersFromServer.success == true) {
             if (Array.isArray(filtersFromServer.data.message)) {
                 for (let i = 0; i < filtersFromServer.data.message.length; i++) {
-                    var jsonFilter = JSON.parse(filtersFromServer.data.message[i].filtervalue)
+                    let jsonFilter = JSON.parse(filtersFromServer.data.message[i].filtervalue)
                     finalOutput.push(
-                        <div onClick={()=>this.props.filterClicked(jsonFilter, filtersFromServer.data.message[i].name)} className="textDefault" style={{ borderBottom: "1px solid black", padding: 4 }} key={i + "_words_" + getRandomString(6)}> <FcEmptyFilter /> {filtersFromServer.data.message[i].name}</div>
+                        <div onClick={()=>this.props.filterClicked(jsonFilter, filtersFromServer.data.message[i].name)} className="textDefault" style={{ borderBottom: "1px solid black", padding: 4 }} key={i + "_words_" + filtersFromServer.data.message[i].name}> <FcEmptyFilter /> {filtersFromServer.data.message[i].name}</div>
 
                     )
                 }

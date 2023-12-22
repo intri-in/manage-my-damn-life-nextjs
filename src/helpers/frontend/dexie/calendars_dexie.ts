@@ -20,7 +20,7 @@ export async function getCalendarNameByIDFromDexie(calendar_id){
     const calendar = await getCalendarbyIDFromDexie(calendar_id)
     if(isValidResultArray(calendar))
     {
-        return calendar[0].displayName
+        return calendar![0].displayName
     }
 }
 /**
@@ -31,7 +31,7 @@ export async function deleteAllCalendarsFromCaldavAccountID_Dexie(caldav_account
     const allCalendars = await getAllCalendarsFromCalDavAccountIDFromDexie(caldav_accounts_id)
     if(isValidResultArray(allCalendars)){
         for (const i in allCalendars){
-            db.calendars.delete(allCalendars[i].calendars_id)
+            db.calendars.delete(allCalendars[i]!.calendars_id!)
         }
     }
 }
