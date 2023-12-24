@@ -56,3 +56,5 @@ temp/
 # src/helpers/installation.ts
 # src/helpers/models.ts
 # .sequelizerc
+
+.env
