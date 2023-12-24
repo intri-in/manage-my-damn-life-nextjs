@@ -29,6 +29,7 @@ import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { deleteEventByURLFromDexie, getEtagFromURL_Dexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
+import ParentTaskView from "./TaskEditorSupport/ParentTaskView";
 export default class TaskEditor extends Component {
     constructor(props) {
         super(props)
@@ -278,6 +279,7 @@ export default class TaskEditor extends Component {
         this.getCalendarDDL()
     }
     removeParentClicked() {
+        console.log("here")
         this.setState(function(previousState, currentProps) {
             var newRelatedTo = _.cloneDeep(previousState.relatedto)
             newRelatedTo = VTODO.removeParentFromRelatedTo(newRelatedTo)
@@ -735,21 +737,23 @@ export default class TaskEditor extends Component {
    render() {
         var parentTask = ""
         var parentID = VTODO.getParentIDFromRelatedTo(this.state.relatedto)
-        if (varNotEmpty(parentID) && parentID!="" && this.state.todoList!=undefined && this.state.todoList.length>1) {
-            parentTask = (
-                <div >
-                    <Row style={{ justifyContent: 'center', display: 'flex', alignItems: "center", }}>
-                        <Col>
-                            <p>{this.state.todoList[1][parentID].todo.summary}</p>
-                        </Col>
-                        <Col>
-                            <p style={{ textAlign: "right", color: "red" }}><AiOutlineDelete onClick={this.removeParentClicked} /></p>
-                        </Col>
-                    </Row>
-                </div>)
-        } else {
-            parentTask = (<ParentTaskSearch currentID={this.props.data.uid} onParentSelect={this.onParentSelect} calendar_id={this.state.calendar_id} data={this.state.todoList} />)
-        }
+        // if (varNotEmpty(parentID) && parentID!="" && this.state.todoList && isValidResultArray(this.state.todoList) && this.state.todoList.length>1 && this.state.todoList[1] && this.state.todoList[1]["parentID"]) {
+        //     parentTask = (
+        //         <div >
+        //             <Row style={{ justifyContent: 'center', display: 'flex', alignItems: "center", }}>
+        //                 <Col>
+        //                     <p>{this.state.todoList[1][parentID].todo.summary}</p>
+        //                 </Col>
+        //                 <Col>
+        //                     <p style={{ textAlign: "right", color: "red" }}><AiOutlineDelete onClick={this.removeParentClicked} /></p>
+        //                 </Col>
+        //             </Row>
+        //         </div>)
+        // } else {
+        //     parentTask = (<ParentTaskSearch currentID={this.props.data.uid} onParentSelect={this.onParentSelect} calendar_id={this.state.calendar_id} data={this.state.todoList} />)
+        // }
+
+        parentTask =<ParentTaskView parentID={parentID} uid={this.props.data.uid} calendar_id={this.state.calendar_id} removeParentClicked={()=>this.removeParentClicked()} onParentSelect={this.onParentSelect} />
 
         var dueDate = (<Datetime value={this.state.dueDate} onChange={this.dueDateChanged} dateFormat="D/M/YYYY" timeFormat="HH:mm" closeOnSelect={true} />)
 

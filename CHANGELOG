@@ -8,7 +8,9 @@ v0.4.2
 - Fixed filters in TaskView not working properly.
     - The problem was the usage of var, instead of let. Yeah......
 - Added "use client" to AppBar. Using Localstorage would cause hydration errors on server generation.
-
+- Fixed error faced during adding of parent task.
+    - The parent is now searched from dexie, rather than the todoList object.
+    
 
 v0.4.1
 - Bumped version to 0.4.1

@@ -232,4 +232,29 @@ export async function deleteAllEventsFromDexie(){
 
 export async function restoreEventtoDexie(oldEvent: Calendar_Events){
     await saveEventToDexie(oldEvent["calendar_id"],oldEvent["url"],oldEvent["etag"], oldEvent["data"],oldEvent["type"])
+}    const allEvents = fetchEventsForCalendarsFromDexie
+
+/**
+ * Gets the summary of a task by UID and the id of calendar it is in.
+ * @param uid UID of task.
+ * @param calendars_id Calendar ID for the task.
+ * @returns String containing summary of parent. If task has no parent, empty string is returned
+ */
+export async function getSummaryforEventUID_fromDexie(uid, calendars_id){
+
+    const eventsFromCalendar = await fetchEventsForCalendarsFromDexie(calendars_id)
+    if(eventsFromCalendar && isValidResultArray(eventsFromCalendar)){
+
+        for(const i in eventsFromCalendar ){
+
+            const parsed = returnGetParsedVTODO(eventsFromCalendar[i].data)
+            if(parsed && ("uid" in parsed) && ("summary" in parsed) &&(parsed.uid == uid)){
+                return parsed.summary
+    
+            }
+        }
+
+    }
+
+    return ""
 }
