@@ -31,6 +31,20 @@ export function getValueFromLocalStorage(keyName){
     return null
 }
 
+export function storeValuetoLocalStorage(keyName, keyValue){
+    if(typeof(window)==="undefined")
+    {
+        return 
+    }
+    if(!keyName){
+        return 
+    }
+    try{
+        return localStorage.setItem(keyName, keyValue)
+    }catch(e){
+        console.warn("storeValuetoLocalStorage",e)
+    }
+}
 /**
  * Saves calendar names from server to user storage.
  * @param {*} calendarsFromServer Calendar data from API

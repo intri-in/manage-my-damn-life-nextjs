@@ -7,6 +7,10 @@ import Form from 'react-bootstrap/Form';
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions";
 import { isValidFilter } from "@/helpers/frontend/filters";
 import * as _ from 'lodash'
+import { getValueFromLocalStorage, storeValuetoLocalStorage } from "@/helpers/frontend/localstorage";
+
+export const STORAGE_KEY_MENU_OPTION_SELECTED= "STORAGE_KEY_MENU_OPTION_SELECTED"
+
 interface homeTasksPropsInterface {
 
     router: object
@@ -43,13 +47,15 @@ function HomeTasks(props:homeTasksPropsInterface) {
     const [calendars_id, setCalendarsId] = useState(props.calendars_id)
     const [filter, setFilter] = useState<filterInterface | undefined | null>(defaultFilter)
     const [menuOptions, setMenuOptions]=useState<any | null>(defaultMenuOptions)
-    
+    const [selectedValue, setSelectedValue] = useState("MY_DAY")
+
     const fetchEvents =  () =>{
         var updated = Math.floor(Date.now() / 1000).toString()
         setUpdated(updated)
         props.fetchEvents()
     }
     useEffect( () => {
+        let isMounted = true
         const refreshMenuOptions = async () =>{
             const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions)
             //console.log(menuOptions, newMenuOptions)
@@ -58,66 +64,94 @@ function HomeTasks(props:homeTasksPropsInterface) {
 
             }
         }
-        refreshMenuOptions()
+        if(isMounted){
+            refreshMenuOptions().then(()=>{
+                // const selectedVal = getValueFromLocalStorage(STORAGE_KEY_MENU_OPTION_SELECTED)
+                // if(selectedVal){
+                //     setSelectedValue(selectedVal)
+                // }
+            })
+
+        }
+
+        return () =>{
+            isMounted = false
+        }
       }, [updated, menuOptions])
 
       useEffect(()=> {
         setUpdated(props.updated)
       },[props.updated])
+
+      useEffect(()=>{
+        let isMounted = true
+
+        if(isMounted){
+            const value = selectedValue
+            var filterValue = {logic: "or", filter:{}}
+            if(varNotEmpty(value) &&typeof(value=="string"))
+            {
+                var valueArray = value.split(',')
+                console.log("valueArray", valueArray)
+                if(Array.isArray(valueArray) && valueArray.length>1)
+                {
+                    var newTitle=valueArray[0]+" > "+i18next.t(valueArray[1])
+                    setTitle(newTitle)
+    
+                    if(varNotEmpty(menuOptions[valueArray[0]]) && Array.isArray(menuOptions[valueArray[0]]) && menuOptions[valueArray[0]].length>0)
+                    {
+                        for(const k in menuOptions[valueArray[0]])
+                        {
+                            if(valueArray[1] in menuOptions[valueArray[0]][k])
+                            {
+    
+                                filterValue= menuOptions[valueArray[0]][k][valueArray[1]]
+                                if(isValidFilter(filterValue))
+                                {
+                                    setFilter(filterValue)
+                                    setCaldavAccountsId(null)
+                                    setCalendarsId(null)
+        
+                                }else{
+                                    //Probably a calendar Object.
+                                    setFilter(null)
+                                    if(("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue) && filterValue.calendars_id)
+                                    {
+                                        setCaldavAccountsId(filterValue["caldav_accounts_id"])
+                                        setCalendarsId(filterValue["calendars_id"].toString())
+                                    }
+                                }
+    
+                                continue;
+                            }
+                        }
+    
+                    }
+    
+                    
+                }else{
+                    filterValue= menuOptions[value]
+                    setTitle(i18next.t(value))
+                    setFilter(filterValue)
+                    setCaldavAccountsId(null)
+                    setCalendarsId(null)
+    
+                }
+            }
+    
+        }
+
+        return ()=>{
+            isMounted = false
+        }
+
+      },[selectedValue, menuOptions])
       
     const menuOptionSelected = (e: { target: { value: any; }; }) =>{
         var value = e.target.value
         console.log("value", value)
-        var filterValue = {logic: "or", filter:{}}
-        if(varNotEmpty(value) &&typeof(value=="string"))
-        {
-            var valueArray = value.split(',')
-            console.log("valueArray", valueArray)
-            if(Array.isArray(valueArray) && valueArray.length>1)
-            {
-                var newTitle=valueArray[0]+" > "+i18next.t(valueArray[1])
-                setTitle(newTitle)
-
-                if(varNotEmpty(menuOptions[valueArray[0]]) && Array.isArray(menuOptions[valueArray[0]]) && menuOptions[valueArray[0]].length>0)
-                {
-                    for(const k in menuOptions[valueArray[0]])
-                    {
-                        if(valueArray[1] in menuOptions[valueArray[0]][k])
-                        {
-
-                            filterValue= menuOptions[valueArray[0]][k][valueArray[1]]
-                            if(isValidFilter(filterValue))
-                            {
-                                setFilter(filterValue)
-                                setCaldavAccountsId(null)
-                                setCalendarsId(null)
-    
-                            }else{
-                                //Probably a calendar Object.
-                                setFilter(null)
-                                if(("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue) && filterValue.calendars_id)
-                                {
-                                    setCaldavAccountsId(filterValue["caldav_accounts_id"])
-                                    setCalendarsId(filterValue["calendars_id"].toString())
-                                }
-                            }
-
-                            continue;
-                        }
-                    }
-
-                }
-
-                
-            }else{
-                filterValue= menuOptions[value]
-                setTitle(i18next.t(value))
-                setFilter(filterValue)
-                setCaldavAccountsId(null)
-                setCalendarsId(null)
-
-            }
-        }
+        setSelectedValue(value)
+        storeValuetoLocalStorage(STORAGE_KEY_MENU_OPTION_SELECTED, value)    
 
     }
     var allMenuOptions:any[] = []
@@ -148,7 +182,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
 
     
     var menuOptionsSelect =(  
-    <Form.Select onChange={menuOptionSelected} size="sm">
+    <Form.Select value={selectedValue} onChange={menuOptionSelected} size="sm">
             {allMenuOptions}
         </Form.Select>)
 
