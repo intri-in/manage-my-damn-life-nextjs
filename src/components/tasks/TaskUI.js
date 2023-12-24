@@ -23,7 +23,8 @@ import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import VTodoGenerator from "vtodogenerator";
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
-import { getEtagFromURL_Dexie } from "@/helpers/frontend/dexie/events_dexie";
+import { getEtagFromURL_Dexie, getSummaryforEventUID_fromDexie } from "@/helpers/frontend/dexie/events_dexie";
+import Stack from 'react-bootstrap/Stack';
 export default class TaskUI extends Component {
 
     constructor(props) {
@@ -69,11 +70,16 @@ export default class TaskUI extends Component {
         this.isRepeatingTask()
         this.taskObj = new VTODO(this.props.unparsedData[this.props.data.uid].data, true)
         if (this.props.todoList != null && this.props.data.relatedto != null && this.props.data.relatedto != "" && this.props.level == 0) {
-            var parentID = this.taskObj.getParent()
-                
+            
             try{
-                var newTaskTitle = (<div><span style={{ color: "gray" }}>{this.props.todoList[1][this.taskObj.getParent()].todo.summary + " > "}</span>  {this.props.title}</div>)
-            this.setState({ taskTitle: newTaskTitle })
+                var parentID = this.taskObj.getParent()
+                const parentSummary = await getSummaryforEventUID_fromDexie(parentID, this.props.data.calendar_id)
+                // console.log("parentSummary", parentSummary)
+                if(parentSummary){
+
+                    var newTaskTitle = (<div><span style={{ color: "gray" }}>{parentSummary}</span>  {this.props.title}</div>)
+                    this.setState({ taskTitle: newTaskTitle })
+                }
 
             }catch(e){
                 console.warn(e)
@@ -516,8 +522,10 @@ export default class TaskUI extends Component {
 
         var marginLevel = this.props.level * 30 + 20
         var borderLeft = "1px solid  gray"
+        var border = "1px solid  gray"
         if (this.props.listColor != null && this.props.listColor != "") {
             borderLeft = "10px solid " + this.props.listColor
+            border = "1px solid " + this.props.listColor
         }
 
         var repeatingTaskIcon = null
@@ -534,15 +542,15 @@ export default class TaskUI extends Component {
         return (
             <div>
                 <ContextMenuTrigger id={this.state.data.uid} >
-                    <div style={{ marginLeft: marginLevel, marginRight: 20, }}>
-                        <div style={{ border: '1px solid  gray', borderLeft: borderLeft, borderRadius: 20, padding: 5, justifyContent: 'center', display: 'flex', lineHeight: '12px', }} className="row">
+                    <div style={{marginLeft: marginLevel, marginRight: 20, }}>
+                        <Stack direction="horizontal" style={{ border: '1px solid  gray', borderLeft: borderLeft, borderRadius: 20, padding: 5, justifyContent: 'center', display: 'flex', lineHeight: '12px', }} className="row">
                             <div style={{ justifyContent: 'center', display: 'flex', }} className="col-1">
                                 <input onChange={this.checkBoxClicked} className="" type="checkbox" checked={this.state.taskChecked} />
                             </div>
                             <div onClick={this.taskClicked} style={{ justifyContent: 'center', alignItems: 'center', verticalAlign: 'middle', padding: 0 }} className="col-8">
                                 <div className="row">
                                     <div className="col-9" style={{}}>
-                                        <div className="textDefault"><span style={{ textOverflow: "ellipsis" }}>{this.state.taskTitle} {this.state.labelArray}</span> </div>
+                                        <div className="textDefault"><span style={{ overflowX: 'scroll', overflow:"hidden", textOverflow:"ellipsis"  }}>{this.state.taskTitle} {this.state.labelArray}</span> </div>
                                     </div>
                                     <div className="col-3">
                                         <div className="defaultText" style={{ color: dueDateColor, fontSize: 10 }}>{dueDateText}</div>
@@ -563,7 +571,7 @@ export default class TaskUI extends Component {
                                 </div>
                             </div>
                             {priorityStar}
-                        </div>
+                        </Stack>
                     </div>
                     <Offcanvas placement='end' show={this.state.showTaskEditor} onHide={this.taskEditorClosed}>
                         <Offcanvas.Header closeButton>

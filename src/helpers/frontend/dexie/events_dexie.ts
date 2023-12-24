@@ -240,9 +240,15 @@ export async function restoreEventtoDexie(oldEvent: Calendar_Events){
  * @param calendars_id Calendar ID for the task.
  * @returns String containing summary of parent. If task has no parent, empty string is returned
  */
-export async function getSummaryforEventUID_fromDexie(uid, calendars_id){
+export async function getSummaryforEventUID_fromDexie(uid, calendars_id?){
 
-    const eventsFromCalendar = await fetchEventsForCalendarsFromDexie(calendars_id)
+    let eventsFromCalendar:Calendar_Events[] | [] | null= []
+    if(calendars_id){
+
+        eventsFromCalendar = await fetchEventsForCalendarsFromDexie(calendars_id)
+    }else{
+        eventsFromCalendar = await fetchAllEventsFromDexie()
+    }
     if(eventsFromCalendar && isValidResultArray(eventsFromCalendar)){
 
         for(const i in eventsFromCalendar ){

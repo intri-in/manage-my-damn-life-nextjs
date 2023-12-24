@@ -58,7 +58,7 @@ export default function ParentTaskView(props: propTypes){
         return () => {
             isMounted = false;
           };    
-    }, [props.parentID, props.calendar_id])
+    }, [props.parentID, props.calendar_id, props.onParentSelect, props.removeParentClicked, props.uid])
     return(
     <>
     {output}

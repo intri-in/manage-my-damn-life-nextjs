@@ -35,7 +35,7 @@ class LabelManager extends Component{
     
     async updateLabels()
     {
-
+        toast.info(this.i18next.t("UPDATING_LABEL_CACHE"))
         this.setState({labels: {}, displayColorPicker: {}, color:{}})
         updateLabelCacheInDexie().then((response) =>{
             this.getLabelsFromDexie()

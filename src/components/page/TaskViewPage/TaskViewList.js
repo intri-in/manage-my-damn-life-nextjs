@@ -18,7 +18,6 @@ import { withRouter } from 'next/router'
 import { MYDAY_LABEL } from '@/config/constants'
 import { getI18nObject } from '@/helpers/frontend/general'
 import { APIRequests } from '@/helpers/frontend/classes/APIRequests'
-
 class TaskViewList extends Component {
 
   constructor(props) {
@@ -40,6 +39,7 @@ class TaskViewList extends Component {
     this.filterClicked = this.filterClicked.bind(this)
     this.showListColumnButtonClicked = this.showListColumnButtonClicked.bind(this)
     this.handleCloseOffcanvas = this.handleCloseOffcanvas.bind(this)
+    this.leftColumDragged = this.leftColumDragged.bind(this)
   }
 
   componentDidMount() {
@@ -48,7 +48,7 @@ class TaskViewList extends Component {
     if (window != undefined) {
       window.addEventListener('resize', this.updateDimensions);
 
-      if (window.innerWidth < 900) {
+      if (window.innerWidth < 768) {
         this.setState({ showListColumn: false })
 
       } else {
@@ -61,8 +61,16 @@ class TaskViewList extends Component {
   componentWillUnmount(){
 
   }
+
+  leftColumDragged(){
+    // console.log("DRAGGED!!!")
+    if(!this.state.showListColumn){
+      this.setState({showLeftColumnOffcanvas: true})
+    }
+  }
   updateDimensions = () => {
-    if (window.innerWidth < 700) {
+    // console.log(".innerWidth", window.innerWidth)
+    if (window.innerWidth < 768) {
       this.setState({ showListColumn: false })
 
     } else {
@@ -152,16 +160,15 @@ class TaskViewList extends Component {
     this.setState({ updated: updated, filter: filter, caldav_accounts_id: null, calendars_id: null, title: name, showLeftColumnOffcanvas: false })
   }
   render() {
-    var borderRight = this.state.showListColumn ? '3px solid ' + SECONDARY_COLOUR : ""
+    // var borderRight = this.state.showListColumn ? '3px solid ' + SECONDARY_COLOUR : ""
+    var expandColButton = <div> <AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={this.showListColumnButtonClicked} size={16} /></div>
 
-    var leftColumnMatter = (<GenericLists filterClicked={this.filterClicked} labelClicked={this.labelClicked} calendarNameClicked={this.calendarNameClicked} dueTodayClicked={this.dueTodayClicked} myDayClicked={this.myDayClicked} highPriorityClicked={this.highPriorityClicked} dueThisWeek={this.dueThisWeek} allTasksClicked={this.allTasksClicked} />
-    )
-    var listColumn = !this.state.showListColumn ? null : (
-      <Col lg={3} style={{ paddingTop: 30 }} >
-        {leftColumnMatter}
-      </Col>
-    )
-    var expandColButton = this.state.showListColumn ? null : <div style={{ marginTop: 20 }}><AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={this.showListColumnButtonClicked} size={24} /></div>
+    const borderRight = '3px solid' + SECONDARY_COLOUR
+
+    var leftColumnMatter = this.state.showListColumn || this.state.showLeftColumnOffcanvas? (<GenericLists filterClicked={this.filterClicked} labelClicked={this.labelClicked} calendarNameClicked={this.calendarNameClicked} dueTodayClicked={this.dueTodayClicked} myDayClicked={this.myDayClicked} highPriorityClicked={this.highPriorityClicked} dueThisWeek={this.dueThisWeek} allTasksClicked={this.allTasksClicked} />
+    ) : expandColButton
+
+
     return (
       <>
         <Head>
@@ -175,14 +182,15 @@ class TaskViewList extends Component {
 
           <Row>
             <Col>
-              <div  ></div>
+              <div ></div>
             </Col>
           </Row>
           <div className='row'>
-            {listColumn}
-            <Col lg={9} style={{ borderLeft: borderRight, }}>
+            <Col  onClick={this.leftColumDragged} xs={1} sm={1} md={3}  lg={3} style={{ paddingTop: 30, minHeight:"100vh" }}>
+              {leftColumnMatter}
+            </Col>
+            <Col xs={11} sm={11} md={9} lg={9} style={{ borderLeft: borderRight, minHeight:"100vh"}}>
               <AddTask  onSuccessAddTask={this.onSynComplete} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
-              {expandColButton}
               <TaskViewOptions changeView={this.taskViewChanged} />
               <TaskList view={this.state.taskView} fetchEvents={this.onSynComplete} updated={this.state.updated} router={this.props.router} title={this.state.title} filter={this.state.filter} caldav_accounts_id={this.state.caldav_accounts_id} calendars_id={this.state.calendars_id} />
 
@@ -198,7 +206,7 @@ class TaskViewList extends Component {
             <Offcanvas.Title></Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            {leftColumnMatter}
+          <GenericLists filterClicked={this.filterClicked} labelClicked={this.labelClicked} calendarNameClicked={this.calendarNameClicked} dueTodayClicked={this.dueTodayClicked} myDayClicked={this.myDayClicked} highPriorityClicked={this.highPriorityClicked} dueThisWeek={this.dueThisWeek} allTasksClicked={this.allTasksClicked} />
           </Offcanvas.Body>
         </Offcanvas>
 

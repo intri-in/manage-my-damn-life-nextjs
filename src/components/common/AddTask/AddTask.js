@@ -18,6 +18,7 @@ import { APIRequests } from "@/helpers/frontend/classes/APIRequests";
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { withRouter } from "next/router";
 import AddInfo from "./AddInfo";
+import Stack from 'react-bootstrap/Stack';
 import { fetchAllEventsFromDexie } from "@/helpers/frontend/dexie/events_dexie";
 class AddTask extends Component{
     constructor(props)
@@ -260,14 +261,14 @@ class AddTask extends Component{
         var borderColor='2px solid '+SECONDARY_COLOUR
         return(
         <>
-            <div style={{padding:20, textAlign:"center", borderBottom:borderColor}}> 
-            <Row style={{width: "100%"}}>
-            <Col sm={7} xs={8} lg={10}> 
+            <div style={{textAlign:"center", borderBottom:borderColor}}> 
+            <Stack gap={1} direction="horizontal" style={{width: "100%", marginTop:10, marginBottom:10}}>
+            <div style={{width:"100%"}} sm={7} xs={8} lg={10}> 
                     <Form.Control value={this.state.newTaskSummary} onChange={this.taskSummaryChanged} onKeyDown={this.onKeyDown} type="text" placeholder="Add a task" />
-                </Col>
-            <Col sm={2} xs={2} lg={1}><AddInfo /></Col>
-            <Col sm={3} xs={2} lg={1}><Button onClick={this.addTask}>Add</Button></Col>
-            </Row>
+            </div>
+            <div className="ms-auto" sm={2} xs={2} lg={1}><AddInfo /></div>
+            <div sm={3} xs={2} lg={1}><Button onClick={this.addTask}>Add</Button></div>
+            </Stack>
             {this.state.quickAddResults}
             </div>
          
