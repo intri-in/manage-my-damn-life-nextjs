@@ -20,7 +20,7 @@ class FilterList extends Component {
         this.generateList()
     }
     async generateList() {
-        var filtersFromServer = await getFiltersFromServer()
+        let filtersFromServer = await getFiltersFromServer()
         var finalOutput = []
         if (filtersFromServer != null && filtersFromServer.success != null && filtersFromServer.success == true) {
             if (Array.isArray(filtersFromServer.data.message)) {

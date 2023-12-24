@@ -1,3 +1,4 @@
+'use client'
 import { useSession } from "next-auth/react";
 import AppBarGeneric_ClassComponent from "./AppBarGenericClass";
 import { useRouter } from "next/router";
