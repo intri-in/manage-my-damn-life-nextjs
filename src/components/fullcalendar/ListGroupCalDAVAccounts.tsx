@@ -26,17 +26,17 @@ export function ListGroupCalDAVAccounts(props: customProps ){
       var index = JSON.parse(e.target.id)
       Preference_CalendarsToShow.update(index, e.target.checked)
       setPrefObject(getLatestPreferenceObject(props.caldav_accounts))
-      if(props.onChange()!=undefined){
+      if(props.onChange){
         props.onChange()
       }
     }
-    var output=[]
+    var output : JSX.Element[]=[]
     if(props.caldav_accounts && props.caldav_accounts.length>0 ) 
     {
       for(const i in props.caldav_accounts){
        
         output.push(<h3>{props.caldav_accounts[i].name}</h3>)
-        var calendarOutput =[]
+        var calendarOutput: JSX.Element[] =[]
         if(varNotEmpty(props.caldav_accounts[i].calendars) && props.caldav_accounts[i].calendars)
         {
           if(!isValidResultArray(props.caldav_accounts[i].calendars)){

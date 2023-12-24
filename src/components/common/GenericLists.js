@@ -16,8 +16,9 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import Link from "next/link";
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants";
 import { getAPIURL, logVar } from "@/helpers/general";
-import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
-
+import { getAllLabelsFromDexie, updateLabelCacheInDexie } from "@/helpers/frontend/dexie/dexie_labels";
+import { IoRefreshCircleOutline } from "react-icons/io5";
+import { PRIMARY_COLOUR } from "@/config/style";
 class GenericLists extends Component{
     constructor(props)
     {
@@ -31,7 +32,7 @@ class GenericLists extends Component{
         this.manageCalendarsClicked = this.manageCalendarsClicked.bind(this)
         this.labelSettingClicked = this.labelSettingClicked.bind(this)
         this.generateLabelListfromDexie = this.generateLabelListfromDexie.bind(this)
-
+        this.updateLabelCache = this.updateLabelCache.bind(this)
     }
 
     componentDidMount()
@@ -54,6 +55,12 @@ class GenericLists extends Component{
         this.props.router.push("/filters/manage")
     }
 
+    updateLabelCache(){
+        toast.info(this.i18next.t("UPDATING_LABEL_CACHE"))
+        updateLabelCacheInDexie().then(()=>{
+            this.generateLabelList()
+        })
+    }
     async generateLabelListfromDexie(){
         const labels = await getAllLabelsFromDexie()
         var temp_Labelcomponent=[]
@@ -225,14 +232,14 @@ class GenericLists extends Component{
                     <br />
                     <div style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
                     <Col><h3><AiOutlineFilter />{this.i18next.t("FILTERS")}</h3></Col>
-                    <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting /></Link></Col>
+                    <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={PRIMARY_COLOUR} /></Link></Col>
                     </div>
                     <Row style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
                     <Col><FilterList filterClicked={this.props.filterClicked} /></Col>
                     </Row>
                     <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
                         <Col><h3>By Labels</h3></Col>
-                        <Col> <Link href="/labels/manage"> <h3 style={{textAlign: "right"}}><AiOutlineSetting  /></h3></Link></Col>
+                        <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={this.updateLabelCache} color={PRIMARY_COLOUR} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={PRIMARY_COLOUR}/></Link></h3></Col>
                     </Row>
                     <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
                         <div className="col-12">

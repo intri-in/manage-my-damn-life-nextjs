@@ -34,7 +34,7 @@ export  interface Calendar_Events {
     type?: string;
     calendar_id?: string;
     deleted?: string;
-  }
+}
 
 export interface Labels {
   labels_id?: number;
@@ -68,7 +68,7 @@ export class MySubClassedDexie extends Dexie {
     });
 
     
-}
+  }
 }
 
 export const db = new MySubClassedDexie();

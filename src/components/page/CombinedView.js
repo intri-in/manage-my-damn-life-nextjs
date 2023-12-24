@@ -23,13 +23,22 @@ export default class CombinedView extends Component {
     this.showListColumnButtonClicked = this.showListColumnButtonClicked.bind(this)
     this.handleCloseOffcanvas = this.handleCloseOffcanvas.bind(this)
     this.onSynComplete = this.onSynComplete.bind(this)
+    this.leftColumDragged = this.leftColumDragged.bind(this)
+  }
+  
+  
+  leftColumDragged(){
+    // console.log("DRAGGED!!!")
+    if(!this.state.showListColumn){
+      this.setState({showLeftColumnOffcanvas: true})
+    }
   }
 
   componentDidMount(){
     if (window != undefined) {
-     // window.addEventListener('resize', this.updateDimensions);
+     window.addEventListener('resize', this.updateDimensions);
 
-      if (window.innerWidth < 900) {
+      if (window.innerWidth < 768) {
         this.setState({ showListColumn: false })
 
       } else {
@@ -49,7 +58,7 @@ export default class CombinedView extends Component {
   }
 
   updateDimensions = () => {
-    if (window.innerWidth < 700) {
+    if (window.innerWidth < 768) {
       
       this.setState({ showListColumn: false, calendarAR: 0.3 })
 
@@ -83,20 +92,18 @@ export default class CombinedView extends Component {
     }
   }
   render(){
-    var borderLeft = this.state.showListColumn ? '3px solid ' + SECONDARY_COLOUR : ""
-    var leftColumnMatter = ( <><AddTask onSuccessAddTask={this.fetchEvents} />
+    var borderLeft ='3px solid ' + SECONDARY_COLOUR 
+    var expandColButton = <div> <AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={this.showListColumnButtonClicked} size={16} /></div>
     
-    <HomeTasks scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{}} />
+    let leftMatter = ( <div><AddTask onSuccessAddTask={this.fetchEvents} />
     
-{/*       
-    <h3 style={{marginTop: 30}}>My Day</h3>
-<TaskList scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{logic: "or", filter: {due:[0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL]}}} />
- */}      </>)
-      var listColumn = !this.state.showListColumn ? null : (
-        <Col lg={4} style={{ paddingTop: 30 }} >
-          {leftColumnMatter}
-        </Col>
-      )
+    <HomeTasks scheduleItem={this.scheduleItem} updated={this.state.updated} fetchEvents={this.fetchEvents} view="tasklist" caldav_accounts_id={null} calendars_id={null} filter={{}} /></div>) 
+    var leftColumnMatter = this.state.showListColumn || this.state.showLeftColumnOffcanvas ?  leftMatter : expandColButton
+      // var listColumn = !this.state.showListColumn ? null : (
+      //   <Col lg={4} style={{ paddingTop: 30 }} >
+      //     {leftColumnMatter}
+      //   </Col>
+      // )
       var expandColButton = this.state.showListColumn ? null : <div style={{ marginTop: 20 }}><AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={this.showListColumnButtonClicked} size={24} /></div>
 
     return (
@@ -104,9 +111,10 @@ export default class CombinedView extends Component {
         
   
           <Row style={{}}>
-            {listColumn}
-            <Col lg={8} style={{paddingTop: 20, borderLeft: borderLeft}}>
-            {expandColButton}
+          <Col  onClick={this.leftColumDragged} xs={1} sm={1} md={3}  lg={3} style={{ paddingTop: 30, minHeight:"100vh" }}>
+            {leftColumnMatter}
+          </Col>
+            <Col xs={11} sm={11} md={9} lg={9} style={{paddingTop: 20, borderLeft: borderLeft}}>
 
             <DashboardView calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
             </Col>
@@ -116,7 +124,7 @@ export default class CombinedView extends Component {
             <Offcanvas.Title></Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            {leftColumnMatter}
+            {leftMatter}
           </Offcanvas.Body>
         </Offcanvas>
 

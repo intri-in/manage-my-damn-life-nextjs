@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
             var user = new User(userid)
             var caldav_accounts= await user.getCaldavAccountsAllData()
-            var finalResponse= []
+            var finalResponse: any= []
             if(caldav_accounts!=null&&Array.isArray(caldav_accounts)&&caldav_accounts.length>0)
             {
                 
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
                         //logVar(calendars, "calendars: "+LOGTAG)
                         
                         
-                        var tempCalList = []
+                        var tempCalList:any = []
                         if(isValidResultArray(calendars))
                         {
                             for (const j in calendars)

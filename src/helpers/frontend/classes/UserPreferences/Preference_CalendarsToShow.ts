@@ -7,9 +7,9 @@ export class Preference_CalendarsToShow{
         var toReturn = null
         try{
             const prefFromLocalStorage = localStorage.getItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
-            if(varNotEmpty(prefFromLocalStorage))
+            if(varNotEmpty(prefFromLocalStorage) && prefFromLocalStorage)
             {
-                toReturn = JSON.parse(prefFromLocalStorage)
+                return JSON.parse(prefFromLocalStorage)
             }
         }catch(e)
         {
@@ -43,7 +43,7 @@ export class Preference_CalendarsToShow{
 
     static generateFromCaldavObject(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
 
-        var objToReturn = []
+        var objToReturn : any= []
         for(const i in caldav_accounts){
             var entry = {}
 
@@ -51,7 +51,7 @@ export class Preference_CalendarsToShow{
             
             if(varNotEmpty(caldav_accounts[i].calendars) && Array.isArray(caldav_accounts[i].calendars) && caldav_accounts[i].calendars.length>0)
             {
-                var newCalendarEntry = []
+                var newCalendarEntry: {calendars_id: any, caldav_accounts_id: any, show: boolean}[] = []
                 
                 
                 for(const k in caldav_accounts[i].calendars){
@@ -161,8 +161,11 @@ export class Preference_CalendarsToShow{
     static  update(indexToUpdate: number[], newValue: boolean){
 
         var fromStorage = this.get()
-        fromStorage[indexToUpdate[0]].calendars[indexToUpdate[1]].show=newValue
-        this.set(fromStorage)
+        if(fromStorage){
+
+            fromStorage[indexToUpdate[0]].calendars[indexToUpdate[1]].show=newValue
+            this.set(fromStorage)
+        }
 
 
         return null
@@ -177,7 +180,7 @@ export class Preference_CalendarsToShow{
             var index= this.findIndex_Calendar(objectFromStorage, caldav_accounts_id, calendars_id)
             if(varNotEmpty(index)){
 
-                var toReturn=objectFromStorage[index[0]].calendars[index[1]].show
+                var toReturn=objectFromStorage[index![0]].calendars[index![1]].show
                 if(varNotEmpty(toReturn) && typeof(toReturn) =="boolean")
                 {
                     return toReturn

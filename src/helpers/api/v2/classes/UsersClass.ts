@@ -45,8 +45,12 @@ export class UsersClass{
             return await getUserIDFromNextAuthID_FromSession(req,res)
         }else{
             var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
-            const userid = await UsersClass.getUseridFromUserhash(userHash[0])
-            return userid
+            if(userHash && Array.isArray(userHash)){
+
+                const userid = await UsersClass.getUseridFromUserhash(userHash[0])
+                return userid
+            }
+            return null
         }
     
     }

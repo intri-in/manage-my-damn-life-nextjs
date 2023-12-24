@@ -17,20 +17,20 @@ export async function isUserLoggedIn(): Promise<boolean>{
 
     
     try{
-        switch (process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER.trim().toUpperCase()){
+        switch (process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER!.trim().toUpperCase()){
 
             case "KEYCLOAK": 
                 return silentCheckSSO_KeyCloak();
             case "":
                 return true
             default: 
-                throw new Error(i18next.t("ERROR_INVALID_VALUE_OPENID_PROVIDER"))
+                throw new Error(i18next.t("ERROR_INVALID_VALUE_OPENID_PROVIDER")!)
     
         }
     
     }catch(e){
         console.error(e)
-        throw new Error(i18next.t("ERROR_INVALID_VALUE_OPENID_PROVIDER"))
+        throw new Error(i18next.t("ERROR_INVALID_VALUE_OPENID_PROVIDER")!)
     }
 
     
@@ -43,8 +43,8 @@ export async function isUserLoggedIn(): Promise<boolean>{
 export async function silentCheckSSO_KeyCloak(){
     const keycloak = new Keycloak({
         url: process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER_URL,
-        realm: process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER_REALM,
-        clientId: process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER_CLIENT_ID
+        realm: process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER_REALM!,
+        clientId: process.env.NEXT_PUBLIC_OPEN_ID_PROVIDER_CLIENT_ID!
     });
 
    
