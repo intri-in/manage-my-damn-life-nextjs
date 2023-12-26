@@ -1,3 +1,7 @@
+v0.4.3
+- Version bump to 0.4.3
+- Fixed flickering in view select menu on Home Page (Combined View)
+
 v0.4.2
 - Bump to version 0.4.2
 - Removed toast warning if already syncing. Now the warning appears in the console.

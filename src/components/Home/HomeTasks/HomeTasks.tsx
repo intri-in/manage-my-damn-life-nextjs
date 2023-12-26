@@ -48,6 +48,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
     const [filter, setFilter] = useState<filterInterface | undefined | null>(defaultFilter)
     const [menuOptions, setMenuOptions]=useState<any | null>(defaultMenuOptions)
     const [selectedValue, setSelectedValue] = useState("MY_DAY")
+    const [menuOptionsSelect,setMenu] = useState<JSX.Element | null>(null)
 
     const fetchEvents =  () =>{
         var updated = Math.floor(Date.now() / 1000).toString()
@@ -154,46 +155,60 @@ function HomeTasks(props:homeTasksPropsInterface) {
         storeValuetoLocalStorage(STORAGE_KEY_MENU_OPTION_SELECTED, value)    
 
     }
-    var allMenuOptions:any[] = []
-    for(const key in menuOptions)
-    {
-        if(varNotEmpty(menuOptions[key]))
-        {
-            if(Array.isArray(menuOptions[key]))
-            {
-                //It is an array, and therefore has children
-                var tempChildren:any[] = []
-                for(const children in menuOptions[key] )
-                {
-                    for(const internalKey in menuOptions[key][children])
-                    {
-                        tempChildren.push(<option id={"menu_view_"+key+"_"+children+"_"+internalKey} value={[key, internalKey]}>{i18next.t(internalKey)}</option>)
 
+    useEffect(()=>{
+
+        let isMounted = true
+
+        if(isMounted){
+            let allMenuOptions:any[] = []
+            for(const key in menuOptions)
+            {
+                if(varNotEmpty(menuOptions[key]))
+                {
+                    if(Array.isArray(menuOptions[key]))
+                    {
+                        //It is an array, and therefore has children
+                        var tempChildren:any[] = []
+                        for(const children in menuOptions[key] )
+                        {
+                            for(const internalKey in menuOptions[key][children])
+                            {
+                                tempChildren.push(<option id={"menu_view_"+key+"_"+children+"_"+internalKey} value={[key, internalKey]}>{i18next.t(internalKey)}</option>)
+        
+                            }
+                        }
+        
+                        allMenuOptions.push(<optgroup key={"OPTGROUP_"+key} label={key}>{tempChildren}</optgroup>)
+                    }else{
+                        allMenuOptions.push(<option id={"menu_view_"+key} value={key}>{i18next.t(key)}</option>)
+            
                     }
                 }
-
-                allMenuOptions.push(<optgroup key={"OPTGROUP_"+key} label={key}>{tempChildren}</optgroup>)
-            }else{
-                allMenuOptions.push(<option id={"menu_view_"+key} value={key}>{i18next.t(key)}</option>)
-    
             }
-        }
-    }
-
+        
+            const temp_menu =(  
+                <Form.Select value={selectedValue}  onChange={menuOptionSelected} size="sm">
+                        {allMenuOptions}
+                    </Form.Select>
+        
+                    )
     
-    var menuOptionsSelect =(  
-    <Form.Select value={selectedValue} onChange={menuOptionSelected} size="sm">
-            {allMenuOptions}
-        </Form.Select>)
-
+            setMenu(temp_menu)
+    
+        }
+        return ()=>{
+            isMounted = false
+        }
+    },[menuOptions, selectedValue])
+    
     return(
+        <div style={{marginTop: 20}}>
 
-    <div style={{marginTop: 20}}>
         {menuOptionsSelect}
         <br />
         <TaskList scheduleItem={props.scheduleItem} view={taskView} fetchEvents={fetchEvents} updated={updated} router={props.router} title={title} filter={filter} caldav_accounts_id={caldav_accounts_id} calendars_id={calendars_id} />
-
-    </div>
+        </div>
     )
 }
 export default HomeTasks;
