@@ -1,2 +1,2 @@
-- Version bump to 0.4.3
-- Fixed flickering in view select menu on Home Page (Combined View)
+- Version bump to 0.4.4
+- Fixed bug #128
