@@ -2,7 +2,7 @@ import Settings from "@/helpers/api/classes/Settings"
 import { User } from "@/helpers/api/classes/User"
 import { getConnectionVar } from "@/helpers/api/db"
 import { getICS } from "@/helpers/api/ical"
-import { FINAL_TABLES, checkifDBExists, createMMDL_DB, getInstallDateFromDB, getListofTables, installTables, isInstalled } from "@/helpers/api/install"
+import { FINAL_TABLES, checkifDBExists, createMMDL_DB, getInstallDateFromDB, getListofTables, installTables, isInstalled, testDBConnection } from "@/helpers/api/install"
 import { middleWareForAuthorisation } from "@/helpers/api/user"
 import { logVar, varNotEmpty } from "@/helpers/general"
 import moment from "moment"
@@ -16,8 +16,7 @@ export default async function handler(req, res) {
         //     //Test reponse.
         //     return res.status(200).json({ success: true ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
         // }
-        var con = getConnectionVar()
-        var err =  con.ping()
+        var err =  await testDBConnection()
         if(varNotEmpty(err))
         {
             res.status(503).json({ success: false ,data: {message: err}})
