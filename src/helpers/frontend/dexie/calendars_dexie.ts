@@ -16,6 +16,13 @@ export async function getCalendarbyIDFromDexie(calendars_id){
  
 
 }
+export async function isValidCalendarsID(calendars_id){
+    const calendars = await getCalendarbyIDFromDexie(calendars_id)
+    if(isValidResultArray(calendars)){
+        return true
+    }
+    return false
+}
 export async function getCalendarNameByIDFromDexie(calendar_id){
     const calendar = await getCalendarbyIDFromDexie(calendar_id)
     if(isValidResultArray(calendar))

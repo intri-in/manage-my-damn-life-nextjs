@@ -267,7 +267,7 @@ class AddTask extends Component{
                     <Form.Control value={this.state.newTaskSummary} onChange={this.taskSummaryChanged} onKeyDown={this.onKeyDown} type="text" placeholder="Add a task" />
             </div>
             <div className="ms-auto" sm={2} xs={2} lg={1}><AddInfo /></div>
-            <div sm={3} xs={2} lg={1}><Button onClick={this.addTask}>Add</Button></div>
+            <div sm={3} xs={2} lg={1}><Button size="sm" onClick={this.addTask}>Add</Button></div>
             </Stack>
             {this.state.quickAddResults}
             </div>

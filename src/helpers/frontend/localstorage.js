@@ -12,6 +12,13 @@ export function clearLocalStorage(){
     }
 }
 
+export function deleteValueFromLocalStorage(keyName){
+    try{
+        localStorage.removeItem(keyName)
+    }catch(e){
+        console.error(e)
+    }
+}
 
 export function getValueFromLocalStorage(keyName){
 

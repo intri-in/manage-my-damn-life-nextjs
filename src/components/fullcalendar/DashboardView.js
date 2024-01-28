@@ -56,7 +56,6 @@ class DashboardView extends Component {
         this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
     }
 
-
     async componentDidMount() {
 
         const firstDay = getCalendarStartDay()
@@ -139,8 +138,7 @@ class DashboardView extends Component {
         }
 
         if(this.props.updated != prevProps.updated){
-            this.getAllEventsfromServer()
-
+            this.getAllEventsfromServer()    
         }
     }
 
