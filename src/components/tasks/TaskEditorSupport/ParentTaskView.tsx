@@ -24,7 +24,6 @@ export default function ParentTaskView(props: propTypes){
     const [output, setOutput] = useState(<Loading centered={true} />)
     useEffect(()=>{
         async function getParent(){
-            console.log("runnign")
             if(props.calendar_id && props.parentID){
                 const parentSummary = await getSummaryforEventUID_fromDexie(props.parentID, props.calendar_id)
 

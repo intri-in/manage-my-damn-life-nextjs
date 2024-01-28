@@ -1,5 +1,5 @@
 import { caldavAccountsfromServer } from "@/helpers/frontend/calendar";
-import { addAdditionalFieldsFromOldEvent, deleteEventFromServer, getEmptyEventDataObject, getEmptyRecurrenceObject, isAllDayEvent, postNewEvent, reccurence_torrule, rruleObjectToString, rruleObjecttoWords, rruleToObject, rrule_DataToFormData, updateEvent } from "@/helpers/frontend/events";
+import { addAdditionalFieldsFromOldEvent, deleteEventFromServer, getEmptyEventDataObject, getEmptyRecurrenceObject, handleDeleteEventUI, isAllDayEvent, postNewEvent, reccurence_torrule, rruleObjectToString, rruleObjecttoWords, rruleToObject, rrule_DataToFormData, updateEvent } from "@/helpers/frontend/events";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getObjectForAPICall, makeGenerateICSRequest } from "@/helpers/frontend/ics";
 import { getAPIURL, isValidResultArray, logVar, replaceNewLineCharacters, varNotEmpty } from "@/helpers/general";
@@ -25,7 +25,8 @@ import { checkifCalendarIDPresentinDexieSummary, getCaldavIDFromCalendarID_FromD
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 import Cookies from 'js-cookie'
-import { saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
+import { deleteEventFromDexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
+import { deleteValueFromLocalStorage } from "@/helpers/frontend/localstorage";
 
 export default class EventEditor extends Component {
     constructor(props) {
@@ -191,8 +192,8 @@ export default class EventEditor extends Component {
                 if(await checkifCalendarIDPresentinDexieSummary(calendar)){
                     this.setState({ calendar_id:  calendar})
                 }else{
-                    console.log("FALSEEEEE")
                     Cookies.remove("DEFAULT_CALENDAR_ID")
+                    deleteValueFromLocalStorage("DEFAULT_CALENDAR_ID")
                     
                 }
             }
@@ -544,6 +545,7 @@ export default class EventEditor extends Component {
     }
 
     async postNewEvent(calendar_id, data, etag) {
+        this.props.onDismiss()
 
         toast.info(this.i18next.t("ACTION_SENT_TO_CALDAV"))
         // Premptively save event.
@@ -556,7 +558,6 @@ export default class EventEditor extends Component {
         url += fileName
         
         saveEventToDexie(calendar_id, url, etag, data, "VEVENT").then(result =>{
-          this.props.onDismiss()
            
            postNewEvent(calendar_id, data, etag, this.state.caldav_accounts_id, this.state.calendarData["ctag"], this.state.calendarData["syncToken"], this.state.calendarData["url"],"VEVENT",fileName)
             .then(body =>{
@@ -691,28 +692,28 @@ export default class EventEditor extends Component {
     }
 
     async deleteEventFromServer() {
-        this.props.onDismiss()
-        toast.info(this.i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
-        deleteEventFromServer( this.state.caldav_accounts_id, this.props.eventData.event.calendar_id, this.props.eventData.event.url, this.props.eventData.event.etag ).then((body)=>{
-            var message = getMessageFromAPIResponse(body)
+        handleDeleteEventUI(this.state.caldav_accounts_id,this.props.eventData.event.calendar_id,this.props.eventData.event.url,this.props.eventData.event.etag, this.state.summary, this.props.onDismiss)
+        // toast.info(this.i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+        // deleteEventFromServer( this.state.caldav_accounts_id, this.props.eventData.event.calendar_id, this.props.eventData.event.url, this.props.eventData.event.etag ).then((body)=>{
+        //     var message = getMessageFromAPIResponse(body)
 
-            if (varNotEmpty(body) && body.success == true) {
-                    toast.success(this.i18next.t("DELETE_OK"))
-                    this.props.onDismiss()
+        //     if (varNotEmpty(body) && body.success == true) {
+        //             toast.success(this.i18next.t("DELETE_OK"))
+        //             this.props.onDismiss()
 
-            } else {
-                if(message){
-                    toast.error(this.i18next.t(message))
+        //     } else {
+        //         if(message){
+        //             toast.error(this.i18next.t(message))
 
-                }else{
+        //         }else{
 
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
-                }
-                this.props.onDismiss()
+        //             toast.error(this.i18next.t("ERROR_GENERIC"))
+        //         }
+        //         this.props.onDismiss()
 
-            }
+        //     }
 
-        })
+        // })
         // const url_api = getAPIURL() + "v2/calendars/events/delete"
 
         // const authorisationData = await getAuthenticationHeadersforUser()
@@ -861,13 +862,18 @@ export default class EventEditor extends Component {
 
         }
 
-        var buttons = this.state.loading ? (<div style={{ textAlign: "center" }}> <Loading /></div>) : (<div style={{ textAlign: "center", }}><Button onClick={this.saveButtonClicked} style={{ width: "100%" }}>{this.i18next.t("SAVE")}</Button> <br />{this.state.deleteButton}
+        const deleteButton = this.state.loading ? (<div style={{ textAlign: "center" }}> <Loading /></div>) : (<div style={{ textAlign: "center", }}>{this.state.deleteButton}
         </div>)
+        const saveButton = this.state.loading ? (<div style={{ textAlign: "center" }}> <Loading /></div>) : (<div><Button size="sm" onClick={this.saveButtonClicked} >{this.i18next.t("SAVE")}</Button> </div>)
 
         var alarm_form = this.getAlarmForm()
         var repeatInfo = this.getRepeatInfo()
         return (
             <>
+                <div style={{textAlign:"right"}}>
+                    {saveButton}
+                </div>
+
                 <h3>{this.i18next.t("EVENT_SUMMARY")}</h3>
                 <Form.Control onChange={this.onSummaryChanged} value={this.state.summary} />
                 <br />
@@ -912,7 +918,7 @@ export default class EventEditor extends Component {
                 <br />
                 {lastModified}
                 <br />
-                {buttons}
+                {deleteButton}
                 <br />
                 <DeleteEventConfirmation
                     show={this.state.showEventDeleteModal}

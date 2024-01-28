@@ -485,6 +485,7 @@ export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,eta
     // Preemptively delete event from Dexie.
     await deleteEventByURLFromDexie(url)
     deleteEventFromServer(caldav_accounts_id,calendar_id,url,etag, oldEvent).then((body)=>{
+        toast.success(i18next.t("DELETE_OK"))
         onDismissFunction(body, taskName)
 
     })

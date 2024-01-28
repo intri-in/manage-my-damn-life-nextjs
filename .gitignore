@@ -58,3 +58,4 @@ temp/
 # .sequelizerc
 
 .env
+env.local
