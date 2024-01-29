@@ -93,7 +93,6 @@ function HomeTasks(props:homeTasksPropsInterface) {
             if(varNotEmpty(value) &&typeof(value=="string"))
             {
                 var valueArray = value.split(',')
-                console.log("valueArray", valueArray)
                 if(Array.isArray(valueArray) && valueArray.length>1)
                 {
                     var newTitle=valueArray[0]+" > "+i18next.t(valueArray[1])
@@ -203,7 +202,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
     },[menuOptions, selectedValue])
     
     return(
-        <div style={{marginTop: 20}}>
+        <div  style={{marginTop: 20}}>
 
         {menuOptionsSelect}
         <br />

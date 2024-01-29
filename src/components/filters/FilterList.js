@@ -2,6 +2,7 @@ import { getRandomString } from "@/helpers/crypto";
 import { getFiltersFromServer } from "@/helpers/frontend/filters";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
+import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { withRouter } from "next/router";
 import { Component } from "react";
 import { FcEmptyFilter } from "react-icons/fc";
@@ -22,12 +23,13 @@ class FilterList extends Component {
     async generateList() {
         let filtersFromServer = await getFiltersFromServer()
         var finalOutput = []
+        const borderColor = isDarkModeEnabled() ? "white": "black"
         if (filtersFromServer != null && filtersFromServer.success != null && filtersFromServer.success == true) {
             if (Array.isArray(filtersFromServer.data.message)) {
                 for (let i = 0; i < filtersFromServer.data.message.length; i++) {
                     let jsonFilter = JSON.parse(filtersFromServer.data.message[i].filtervalue)
                     finalOutput.push(
-                        <div onClick={()=>this.props.filterClicked(jsonFilter, filtersFromServer.data.message[i].name)} className="textDefault" style={{ borderBottom: "1px solid black", padding: 4 }} key={i + "_words_" + filtersFromServer.data.message[i].name}> <FcEmptyFilter /> {filtersFromServer.data.message[i].name}</div>
+                        <div onClick={()=>this.props.filterClicked(jsonFilter, filtersFromServer.data.message[i].name)} className="textDefault" style={{ borderBottom: `1px solid ${borderColor}`, padding: 4 }} key={i + "_words_" + filtersFromServer.data.message[i].name}> <FcEmptyFilter /> {filtersFromServer.data.message[i].name}</div>
 
                     )
                 }

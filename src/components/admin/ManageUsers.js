@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { Loading } from "../common/Loading";
+import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 
 export default class ManageUsers extends Component{
     constructor(props)
@@ -161,8 +162,10 @@ export default class ManageUsers extends Component{
         {this.i18next.t("DELETE")}
         </Button>
 </>)
+        var backGround =  isDarkModeEnabled() ? "black" : BACKGROUND_GRAY
+
         return(
-            <div style={{background: BACKGROUND_GRAY, padding: 20}}>
+            <div style={{background: backGround, padding: 20}}>
             <h3>{this.i18next.t("USERS")}</h3>
             {this.state.userTable}
             <Modal show={this.state.showDeleteModal} onHide={this.deleteModalHidden}       centered>

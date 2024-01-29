@@ -4,6 +4,8 @@ import { getAPIURL, logVar, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
 import { clearLocalStorage } from './localstorage'
 
+export const DARK_MODE_COOKIE_NAME="DATA-BS-THEME"
+
 export function deleteAllCookies(){
     Cookies.remove("DEFAULT_CALENDAR_ID")
     Cookies.remove("MMDL_USERNAME")

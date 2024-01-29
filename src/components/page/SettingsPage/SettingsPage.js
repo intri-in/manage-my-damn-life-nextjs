@@ -24,6 +24,7 @@ import { checkifCalendarIDPresentinDexieSummary } from "@/helpers/frontend/dexie
 import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
 import MaintenanceTasks from "./MaintenanceTasks";
 import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
+import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -144,9 +145,9 @@ class SettingsPage extends Component {
                         ):null
 
                         var isAdmin = body.data.message.level=="1" ? true: false
-                      
+                        var backGround =  isDarkModeEnabled() ? "black" : BACKGROUND_GRAY
                         var userInfo = (
-                            <div style={{padding: 20, background: BACKGROUND_GRAY}}>
+                            <div style={{padding: 20, background: backGround}}>
                                 <Row>
                                     <Col xs={3}>
                                         <b>{this.i18next.t("USERNAME")}</b>

@@ -7,6 +7,7 @@ import { FilterHelper } from "@/helpers/frontend/classes/FilterHelper"
 import { filtertoWords, getFiltersFromServer } from "@/helpers/frontend/filters"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response"
+import { isDarkModeEnabled } from "@/helpers/frontend/theme"
 import { dateTimeReviver } from "@/helpers/general"
 import { useSession } from "next-auth/react"
 import Head from "next/head"
@@ -47,18 +48,17 @@ class ManageFilters extends Component{
             
             if(Array.isArray(filtersFromServer.data.message))
             {
-                try{
-
+                    const borderColor = isDarkModeEnabled() ? "white" : "#F1F1F1"
                     for (let i=0; i< filtersFromServer.data.message.length; i++)
                     {
                         
                         var jsonFilter= JSON.parse(filtersFromServer.data.message[i].filtervalue)
                         finalOutput.push(
-                            <div key={i+"_"+getRandomString(6)} style={{background: "#F1F1F1", padding: 20, marginBottom:20, borderRadius: 20}}>
+                            <div className="card" key={i+"_"+"filterName"} style={{border:`1px solid ${borderColor}`, padding: 20, marginBottom:20, borderRadius: 20}}>
                                 <Row>
                                     <Col>
-                                    <h3 >{filtersFromServer.data.message[i].name}</h3>
-                                    <p key={getRandomString(9)} id={getRandomString(6)}className="textDefault"> {filtertoWords(jsonFilter)}</p>
+                                    <h3>{filtersFromServer.data.message[i].name}</h3>
+                                    <p key={`${i}_${filtersFromServer.data.message[i].name}`} className="textDefault"> {filtertoWords(jsonFilter)}</p>
     
                                     </Col>
                                     <Col style={{textAlign: "right"}}>
@@ -68,9 +68,7 @@ class ManageFilters extends Component{
                             </div>
                         )
                     }
-                }catch(e){
-                    console.error("generateFilterList",e)
-                }
+              
             }
         }else{
             if(filtersFromServer==null)
