@@ -14,6 +14,7 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { saveLabelArrayToCookie } from "@/helpers/frontend/settings";
 import { getAPIURL, isValidResultArray } from "@/helpers/general";
 import { getAllLabelsFromDexie, updateLabelCacheInDexie, updateLabelColourinDexie } from "@/helpers/frontend/dexie/dexie_labels";
+import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 class LabelManager extends Component{
     constructor(props)
     {
@@ -219,12 +220,12 @@ class LabelManager extends Component{
     getLabelTable(){
         var labels= this.state.labels
         var temp_Labelcomponent=[]
-
+        const backGround = isDarkModeEnabled() ? "dimgray" : BACKGROUND_GRAY 
         for (const key in labels)
         {      
             
             var border="1px solid "+this.state.color[labels[key].name]
-                temp_Labelcomponent.push(<Row key={labels[key].name+"_ROW"} style={{background: BACKGROUND_GRAY, margin: 20, padding:20}}>
+                temp_Labelcomponent.push(<Row key={labels[key].name+"_ROW"} style={{background: backGround, margin: 20, padding:20}}>
                     <Col><Badge key={labels[key].name} value={labels[key].name}  bg="light" pill  style={{margin: 5, borderColor:"pink", border:border, color: this.state.color[labels[key].name],  textDecorationColor : 'white'}} >{this.state.labels[key].name}</Badge></Col>
                     <Col>
                     <div style={{                    padding: '5px',

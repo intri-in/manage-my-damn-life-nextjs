@@ -1,6 +1,7 @@
 
 import { getI18nObject } from '@/helpers/frontend/general';
 import { categoryArrayHasMyDayLabel } from '@/helpers/frontend/labels';
+import { isDarkModeEnabled } from '@/helpers/frontend/theme';
 import { varNotEmpty } from '@/helpers/general';
 import {  ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 import { AiOutlineEdit, AiOutlinePlusCircle } from "react-icons/ai";
@@ -21,7 +22,7 @@ contextMenuItems.push( <ContextMenuItem key="EDIT_TASK"  onClick={()=>props.onEd
   <AiOutlinePlusCircle />  &nbsp;  {i18next.t("ADD_SUBTASK")}        
 </ContextMenuItem>
 )
-  var myDayItem=( <ContextMenuItem key="ADD_TO_MY_DAY" data={{relatedto: props.id}}  onClick={()=>props.onAddtoMyday(props.id)}>
+  var myDayItem=( <ContextMenuItem    key="ADD_TO_MY_DAY" data={{relatedto: props.id}}  onClick={()=>props.onAddtoMyday(props.id)}>
   <BsFillSunriseFill /> &nbsp; {i18next.t("ADD_TO_MY_DAY")}
 </ContextMenuItem>)
   if(props.category!=null && Array.isArray(props.category))
@@ -45,10 +46,12 @@ contextMenuItems.push( <ContextMenuItem key="EDIT_TASK"  onClick={()=>props.onEd
   </ContextMenuItem>)
 
   }
-
+  const backgroundColor = isDarkModeEnabled() ? "black": "white"
   return(                
-    <ContextMenu key={"RIGHTCLICK_MENU_"+props.id} style={{background: "white", padding:5,border:"1px solid black"}} id={props.id}>
-      {contextMenuItems}
+    <ContextMenu  style={{backgroundColor:"yellow"}} key={"RIGHTCLICK_MENU_"+props.id} id={props.id}>
+        <div style={{background:backgroundColor}}>
+          {contextMenuItems}
+        </div>
 
       </ContextMenu>
   )

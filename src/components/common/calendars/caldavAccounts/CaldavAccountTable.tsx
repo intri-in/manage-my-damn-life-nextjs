@@ -8,6 +8,7 @@ import { Button, Col, Modal, Row } from "react-bootstrap";
 import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import { toast } from "react-toastify";
 import ColourPicker from "../../ColourPIcker";
+import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 
 interface functionalProps {
 
@@ -137,9 +138,12 @@ export const CaldavAccountTable = (props: functionalProps) => {
             }
 
             //                console.log("allCals", allCals)
+
+            const backgroundColor = isDarkModeEnabled() ? "black": "#f5f5f5"
+            const borderColor = isDarkModeEnabled() ? "white" : "#f5f5f5"
             output.push
                 (
-                    <div key={"cal_" + caldavAccounts[i].name} style={{ background: "#f5f5f5", borderRadius: 10, padding: 20, margin: 10, marginBottom: 30 }}>
+                    <div key={"cal_" + caldavAccounts[i].name} style={{ border:`1px solid ${borderColor}`, background: backgroundColor,  borderRadius: 10, padding: 20, margin: 10, marginBottom: 30 }}>
                         <Row>
                             <Col>
                                 <h1>{caldavAccounts[i].name}</h1>

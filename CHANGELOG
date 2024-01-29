@@ -4,6 +4,8 @@ v0.4.5
     - Event is now removed from view.
 - Fixed bug: Default calendar id is ignored if it isn't valid.
 - Changed button size in AddTask bar.
+-Dark mode
+- Now has dark mode for users of the vampiric persuasion.
 
 v0.4.4
 - Version bump to 0.4.4

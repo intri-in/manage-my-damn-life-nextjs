@@ -9,6 +9,7 @@ import { checkLogin_InBuilt, logoutUser_withRedirect } from '@/helpers/frontend/
 import { varNotEmpty } from '@/helpers/general'
 import { useRouter } from 'next/router'
 import { getIfInstalled, installCheck } from '@/helpers/install'
+import { useCustomTheme } from '@/helpers/frontend/theme'
 
 const i18next = getI18nObject()
 export default function HomePage() {
@@ -38,6 +39,7 @@ export default function HomePage() {
     
   //   // }, [userAuthenticated])
   const router = useRouter()
+  useCustomTheme()
 
    
 
@@ -60,7 +62,7 @@ export default function HomePage() {
     var finalOutput = (<CombinedView updated={updated} onSynComplete={onSynComplete} />)
 
     return(
-        <>
+        <div   >
         <Head>
           <title>{i18next.t("APP_NAME_TITLE")} - {i18next.t("HOME")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -70,7 +72,7 @@ export default function HomePage() {
         <div className='container-fluid'>
           {finalOutput}
         </div>     
-        </>
+        </div>
 
     )
 }

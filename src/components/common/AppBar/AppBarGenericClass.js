@@ -23,12 +23,14 @@ import { signOut, useSession } from "next-auth/react";
 import { getNextAuthSessionData, nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { installCheck, installCheck_Cookie } from "@/helpers/install";
 import { IS_SYNCING, getValueFromLocalStorage } from "@/helpers/frontend/localstorage";
-
+import { MdOutlineDarkMode } from "react-icons/md";
+import { MdOutlineLightMode } from "react-icons/md";
+import { isDarkModeEnabled, setThemeMode } from "@/helpers/frontend/theme";
 
 class AppBarGeneric_ClassComponent extends Component {
   constructor(props) {
     super(props)
-    this.state = {  isSyncing: this.props.isSyncing, username: "", installed: true }
+    this.state = {  isSyncing: this.props.isSyncing, username: "", installed: true, darkModeEnabled: false }
     this.i18next = getI18nObject()
     this.logoClicked = this.logoClicked.bind(this)
     this.taskViewClicked = this.taskViewClicked.bind(this)
@@ -39,6 +41,7 @@ class AppBarGeneric_ClassComponent extends Component {
     this.labelManageClicked = this.labelManageClicked.bind(this)
     this.manageCaldavClicked = this.manageCaldavClicked.bind(this)
     this.notInstalledBannerClicked = this.notInstalledBannerClicked.bind(this)
+    this.flipThemeMode = this.flipThemeMode.bind(this)
   }
 async componentDidMount(){
   this.setState({isSyncing: this.props.isSyncing})
@@ -72,6 +75,8 @@ async componentDidMount(){
     
   }
   this.setState({username: username})
+
+  this.setState({darkModeEnabled:isDarkModeEnabled()})
 
 }
 
@@ -127,12 +132,15 @@ async syncButtonClicked() {
         this.props.router.push("/accounts/caldav")
 
   }
+  flipThemeMode(){
+    const newMode = isDarkModeEnabled() ? "light" : "dark"
+    setThemeMode(newMode)
+    this.setState({darkModeEnabled: isDarkModeEnabled() })
+  }
   render() {
-  
     // const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
     const spinningButton = this.state.isSyncing || (isSyncing())
     var syncButton = spinningButton ? (   <Spinner
-    as="span"
     animation="border"
     size="sm"
     role="status"
@@ -143,10 +151,11 @@ async syncButtonClicked() {
     if(!this.state.installed){
     notInstalledBanner = (<div onClick={this.notInstalledBannerClicked} style={{background: "darkred", textAlign:"center", color:"white"}}>{this.i18next.t("MMDL_NOT_INSTALLED")}</div>)
     }
+    const darkModeButton = this.state.darkModeEnabled ? <MdOutlineDarkMode onClick={this.flipThemeMode} size={24}  /> : <MdOutlineLightMode onClick={this.flipThemeMode} size={24} />
     return (
       <>
             {notInstalledBanner}
-            <Navbar className="nav-pills nav-fill" style={{background: PRIMARY_COLOUR, padding: 20}} variant="dark" sticky="top"  expand="lg">
+            <Navbar  className="nav-pills nav-fill" style={{background: PRIMARY_COLOUR, padding: 20}} sticky="top"  expand="lg">
                 <Navbar.Brand  onClick={this.logoClicked} >
                         <Image
                   src="/logo.png"
@@ -163,12 +172,12 @@ async syncButtonClicked() {
                     <Link style={{color: "white", textDecoration: "none"}} href="/tasks/list"> {this.i18next.t("TASK_VIEW")}</Link>&nbsp; &nbsp;
                    <Link style={{color: "white", textDecoration: "none"}} href="/calendar/view"> {this.i18next.t("CALENDAR_VIEW")}</Link>
                   <Nav.Item>
-                  <Dropdown style={{color: "white"}} as={NavItem}>
+                  <Dropdown  style={{color: "white"}} as={NavItem}>
                     <Dropdown.Toggle  style={{color: "white"}} as={NavLink}>                            
                       <AiOutlineSetting  size={24} /> 
                     </Dropdown.Toggle>
                     <Dropdown.Menu id="DDL_MENU_SETTINGS">
-                      <Dropdown.Item onClick={this.labelManageClicked}>{this.i18next.t("LABEL_MANAGER")}</Dropdown.Item>
+                      <Dropdown.Item  onClick={this.labelManageClicked}>{this.i18next.t("LABEL_MANAGER")}</Dropdown.Item>
                       <Dropdown.Item onClick={this.manageFilterClicked}>{this.i18next.t("MANAGE_FILTERS")}</Dropdown.Item>
                       <Dropdown.Item onClick={this.manageCaldavClicked}>{this.i18next.t("MANAGE")+" "+this.i18next.t("CALDAV_ACCOUNTS")}</Dropdown.Item>
                       <Dropdown.Item onClick={this.settingsClicked}>{this.i18next.t("SETTINGS")}</Dropdown.Item>
@@ -198,7 +207,17 @@ async syncButtonClicked() {
                   </div>
                 </OverlayTrigger>
                 </NavItem>
+                <Nav.Item style={{}}>
+                  <OverlayTrigger key="DARK_MODE_KEY" placement='bottom'
+              overlay={
+                  <Tooltip id='tooltip_DARK_MODE_KEY'> 
+                              {this.i18next.t("THEME_MODE")}
 
+                  </Tooltip>
+                }>
+                  <div style={{color: "white", padding:5,}}>{darkModeButton} </div>
+                </OverlayTrigger>
+                  </Nav.Item>
                   <Nav.Item style={{}}>
                   <OverlayTrigger key="SYNC_KEY" placement='bottom'
               overlay={

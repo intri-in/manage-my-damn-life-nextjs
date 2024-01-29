@@ -1,6 +1,3 @@
-- Version bump to 0.4.5
-- Moved save button to top in TaskEditor and Event Editor.
-- Fixed #138
-    - Event is now removed from view.
-- Fixed bug: Default calendar id is ignored if it isn't valid.
-- Changed button size in AddTask bar.
+Dark mode
+- Now has dark mode for users of the vampiric persuasion.
+- Partially completes #137
