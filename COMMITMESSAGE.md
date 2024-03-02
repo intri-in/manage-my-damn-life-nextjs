@@ -1,6 +1,2 @@
-- Fixed #152
-    - Now Caldav registration is done via a POST request.
-- Fixed problems of duplication of calendars post adding a new CalDAV account.
-- Fixed list of caldav accounts not updating after adding or deleting a caldav account.
-- Fixed Force sync button's function in /accounts/caldav page.
-- Logout now deletes the local dexie db for security.
+Fixed #140
+ - Fixed flickering of Quick Add info modal.

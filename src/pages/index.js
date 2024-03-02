@@ -59,7 +59,7 @@ export default function HomePage() {
     
 
   
-    var finalOutput = (<CombinedView updated={updated} onSynComplete={onSynComplete} />)
+    let finalOutput = (<CombinedView updated={updated} onSynComplete={onSynComplete} />)
 
     return(
         <div   >
