@@ -15,7 +15,7 @@ import { getAuthenticationHeadersforUser, setLoginCookie } from '@/helpers/front
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { getAPIURL, logVar } from '@/helpers/general';
 import { getErrorResponse } from '@/helpers/errros';
-import { fetchLatestEvents, fetchLatestEventsV2 } from '@/helpers/frontend/sync';
+import { fetchLatestEvents, fetchLatestEventsV2, refreshCalendarListV2 } from '@/helpers/frontend/sync';
 import { setUserNameCookie } from '@/helpers/frontend/cookies';
 class Login extends Component{
 
@@ -155,7 +155,6 @@ class Login extends Component{
                     setUserNameCookie(this.state.username)
                     //Save userhash and SSID 
                     setLoginCookie(message.userhash, message.ssid)
-                    fetchLatestEventsV2()
                     var redirectURL="/"
                     if(window!=undefined){
                         const queryString = window.location.search;
@@ -167,8 +166,10 @@ class Login extends Component{
 
                         }
                     }
+                    fetchLatestEventsV2().then( () =>{
+                        this.props.router.push(redirectURL)
+                    })
 
-                    this.props.router.push(redirectURL)
                 }else{
                     toast.error(this.i18next.t("ERROR_GENERIC"))
 
