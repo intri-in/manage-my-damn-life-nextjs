@@ -1,2 +1,2 @@
-Fixed #140
- - Fixed flickering of Quick Add info modal.
+- Version Bump to 0.4.6
+- Fixed delay in login due to first sync with Caldav account.

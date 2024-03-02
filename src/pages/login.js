@@ -166,9 +166,9 @@ class Login extends Component{
 
                         }
                     }
-                    fetchLatestEventsV2().then( () =>{
-                        this.props.router.push(redirectURL)
-                    })
+                    fetchLatestEventsV2()
+                    this.props.router.push(redirectURL)
+                    
 
                 }else{
                     toast.error(this.i18next.t("ERROR_GENERIC"))
