@@ -1,3 +1,4 @@
+
 .extra-padding {
     padding: 50 !important
 }
@@ -60,3 +61,7 @@ a:hover{
     color: #cfa3f4;
 }
 
+.my-context-menu-dark{
+    background-color: "black" !important;
+    color: "red" !important
+};

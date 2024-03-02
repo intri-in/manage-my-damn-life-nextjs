@@ -1,6 +1,7 @@
 import AppBarGeneric from "@/components/common/AppBar";
 import SettingsPage from "@/components/page/SettingsPage/SettingsPage";
 import { getI18nObject } from "@/helpers/frontend/general";
+import { useCustomTheme } from "@/helpers/frontend/theme";
 import { checkLogin_InBuilt, logoutUser_withRedirect } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { signIn, useSession } from "next-auth/react";
@@ -13,6 +14,8 @@ export default function Settings(){
     const { data: session, status } = useSession()
     const router = useRouter()
     const i18next = getI18nObject()
+    useCustomTheme()
+
     useEffect(() =>{
       async function checkAuth(){
         if(await nextAuthEnabled()){

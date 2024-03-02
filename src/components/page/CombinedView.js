@@ -116,7 +116,7 @@ export default class CombinedView extends Component {
           </Col>
             <Col xs={11} sm={11} md={9} lg={9} style={{paddingTop: 20, borderLeft: borderLeft}}>
 
-            <DashboardView calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
+            <DashboardView updated={this.state.updated} calendarAR={this.state.calendarAR} scheduleItem={this.state.scheduleItem} />
             </Col>
           </Row> 
           <Offcanvas placement='start' show={this.state.showLeftColumnOffcanvas} onHide={this.handleCloseOffcanvas}>

@@ -19,6 +19,7 @@ import { getAPIURL, logVar } from "@/helpers/general";
 import { getAllLabelsFromDexie, updateLabelCacheInDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { IoRefreshCircleOutline } from "react-icons/io5";
 import { PRIMARY_COLOUR } from "@/config/style";
+import { getThemeMode, isDarkModeEnabled } from "@/helpers/frontend/theme";
 class GenericLists extends Component{
     constructor(props)
     {
@@ -196,33 +197,36 @@ class GenericLists extends Component{
         this.props.router.push("/accounts/caldav")
     }
     render(){
+        const darkMode= isDarkModeEnabled() 
+        const borderBottomColor = darkMode ? "white" : "black"
+        const settingButtonColor = darkMode ? "white" : PRIMARY_COLOUR
         return(
                 <div style={{overflowY: 'scroll',  height: this.state.height,}}>
-                    <div onClick={this.props.myDayClicked} style={{ margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
+                    <div onClick={this.props.myDayClicked} style={{ margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}} className="row">
                         <div className="col">
                             <FiSunrise className="textDefault"  />                         <span className="textDefault">{this.state.i18next.t("MY_DAY")}</span>
 
                         </div>
                     </div>
-                    <div onClick={this.props.dueTodayClicked} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
+                    <div onClick={this.props.dueTodayClicked} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div className="col">
                             <MdToday className="textDefault" /> <span className="textDefault" >{this.state.i18next.t("DUE_TODAY")}</span>
                         </div>
                     </div>
-                    <div onClick={this.props.dueThisWeek} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
+                    <div onClick={this.props.dueThisWeek} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div className="col">
                             <MdToday className="textDefault"/> <span className="textDefault">                        Due in Next Seven Days
 </span>
                         </div>
                     </div>
-                    <div onClick={this.props.highPriorityClicked} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
+                    <div onClick={this.props.highPriorityClicked} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div  className="col">
                             <AiFillStar className="textDefault"/> <span className="textDefault">  High Priority
 </span>
                         </div>
                     </div>
 
-                    <div onClick={this.props.allTasksClicked} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
+                    <div onClick={this.props.allTasksClicked} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div  className="col">
                             <MdToday className="textDefault"/> <span className="textDefault">  All tasks
 </span>
@@ -232,16 +236,16 @@ class GenericLists extends Component{
                     <br />
                     <div style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
                     <Col><h3><AiOutlineFilter />{this.i18next.t("FILTERS")}</h3></Col>
-                    <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={PRIMARY_COLOUR} /></Link></Col>
+                    <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={settingButtonColor} /></Link></Col>
                     </div>
                     <Row style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
                     <Col><FilterList filterClicked={this.props.filterClicked} /></Col>
                     </Row>
                     <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
                         <Col><h3>By Labels</h3></Col>
-                        <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={this.updateLabelCache} color={PRIMARY_COLOUR} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={PRIMARY_COLOUR}/></Link></h3></Col>
+                        <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={this.updateLabelCache} color={settingButtonColor} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={settingButtonColor}/></Link></h3></Col>
                     </Row>
-                    <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: '1px solid black'}} className="row">
+                    <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div className="col-12">
                             {this.state.allFilters}
                         </div>
@@ -250,7 +254,7 @@ class GenericLists extends Component{
                         <Col>
                         <h3><BsCalendar3 /> Calendars</h3>
                         </Col>
-                        <Col style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting  /></Link> </Col>
+                        <Col style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting color={settingButtonColor} /></Link> </Col>
 
                     </div>
                     <Row style={{ marginTop: 10, marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }}>

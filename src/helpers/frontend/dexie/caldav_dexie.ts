@@ -106,10 +106,9 @@ export async function findCalDAVAccountinDexie(url, username){
 }
 export async function saveCaldavAccountToDexie(caldavFromDB, username){
     const caldavFromDexie = await findCalDAVAccountinDexie(caldavFromDB["url"], caldavFromDB["username"])
-    // console.log("caldavFromDexie", caldavFromDexie)
     if(caldavFromDexie && caldavFromDexie.length==0){
-      insertNewCaldavAccountIntoDexie(caldavFromDB, username)
-      
+      await insertNewCaldavAccountIntoDexie(caldavFromDB, username)
+      return true
     }
 }
 

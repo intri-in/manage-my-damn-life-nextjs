@@ -1,3 +1,20 @@
+v0.4.5
+- Moved save button to top in TaskEditor and Event Editor.
+- Fixed #138
+    - Event is now removed from view.
+- Fixed bug: Default calendar id is ignored if it isn't valid.
+- Changed button size in AddTask bar.
+-Dark mode
+- Now has dark mode for users of the vampiric persuasion.
+- Fixed #152
+    - Now Caldav registration is done via a POST request.
+- Fixed problems of duplication of calendars post adding a new CalDAV account.
+- Fixed list of caldav accounts not updating after adding or deleting a caldav account.
+- Fixed Force sync button's function in /accounts/caldav page.
+- Logout now deletes the local dexie db for security.
+- Fixed #140
+ - Fixed flickering of Quick Add info modal.
+ 
 v0.4.4
 - Version bump to 0.4.4
 - Fixed bug #128

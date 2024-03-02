@@ -1,2 +1,2 @@
-- Version bump to 0.4.4
-- Fixed bug #128
+Fixed #140
+ - Fixed flickering of Quick Add info modal.
