@@ -1,6 +1,37 @@
 import { isValidResultArray } from "@/helpers/general"
 import { getCalDAVSummaryFromDexie } from "./caldav_dexie"
 import { fetchEventsForCalendarsFromDexie } from "./events_dexie"
+import { db } from "./dexieDB";
+
+export async function clearDexieDB(){
+
+    await db.caldav_accounts.clear()
+    await db.calendars.clear()
+    await db.calendar_events.clear()
+    await db.labels.clear()
+    return true
+    
+}
+
+export function compareCalDAVSummary_andGetIndex(rowToCompare, summaryToCompareWith){
+
+    let toReturn = -1
+    for(const j in summaryToCompareWith ){
+        if(summaryToCompareWith[j]["caldav_accounts_id"]==rowToCompare["caldav_accounts_id"]){
+            // console.log(summaryToCompareWith[j]["caldav_accounts_id"],rowToCompare["caldav_accounts_id"])
+            // console.log(summaryToCompareWith[j]["url"],rowToCompare["url"])
+            //Found. Now we check if the values match.
+            if(summaryToCompareWith[j]["url"]==rowToCompare["url"] && summaryToCompareWith[j]["username"]==rowToCompare["username"]){
+                return j
+
+            }
+        }
+    }
+    
+
+    return toReturn
+
+}
 
 export async function getEventsFromDexie_LikeAPI(){
     var toReturn: any =[]

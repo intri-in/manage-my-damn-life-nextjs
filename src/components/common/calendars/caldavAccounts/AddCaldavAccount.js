@@ -62,17 +62,18 @@ export default class AddCaldavAccount extends Component{
     async makeServerRequest()
     {
         this.setState({requestPending: true})
-        const url_api=getAPIURL()+"v2/caldav/register?url="+ addTrailingSlashtoURL(this.state.serverURL)+"&&username="+this.state.username+"&&password="+this.state.password+"&&accountname="+this.state.accountName
+        const url_api=getAPIURL()+"v2/caldav/register"
         const authorisationData=await getAuthenticationHeadersforUser()
     
         const requestOptions =
         {
-            method: 'GET',
-            url: this.state.serverURL,
-            username: this.state.username,
-            password: this.state.password,
-            accountname: this.state.accountName,
-            headers: new Headers({'authorization': authorisationData}),
+            method: 'POST',
+            body: JSON.stringify({url: this.state.serverURL,
+                username: this.state.username,
+                password: this.state.password,
+                accountname: this.state.accountName,
+            }),
+            headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
         }
     
         return new Promise( (resolve, reject) => {

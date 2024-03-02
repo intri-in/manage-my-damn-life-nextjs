@@ -16,7 +16,7 @@ export class CaldavAccountClass{
     /**
      * Check if a particular CalDAV account exists for a user.
      * @param username username of Caldav Account
-     * @param url Url of caldav accounbt
+     * @param url Url of caldav account
      * @returns caldav_accounts_id if the account exists. Null otherwise
      */
     async accountExists(username, url){
@@ -29,7 +29,6 @@ export class CaldavAccountClass{
             raw: true,
             nest: true,
         })
-        console.log("res", res)
         if(res && res.caldav_accounts_id){
             return res
         }

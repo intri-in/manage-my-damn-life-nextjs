@@ -114,7 +114,7 @@ export async function insertCalendarsIntoDexie(calendarsFromDB){
 
 export async function insertOneCalendarIntoDexie(calendar, caldav_accounts_id){
     try{
-//        console.log("calendar" , calendar)
+        // console.log("calendar" , calendar)
         const id = await db.calendars.add({
             caldav_accounts_id:  caldav_accounts_id,
             displayName: calendar["displayName"],

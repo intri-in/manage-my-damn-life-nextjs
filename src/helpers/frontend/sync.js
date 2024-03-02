@@ -117,10 +117,10 @@ export async function fetchLatestEventsV2(refreshCalList)
         //toast.warn(i18next.t("ALREADY_SYNCING"))
         console.warn("Sync already in progress. Will still sync, though.")
     }
-    
     localStorage.setItem(IS_SYNCING, true)
     await refreshCalendarListV2()
     const arrayFromDexie = await getCalDAVSummaryFromDexie()
+    console.log("arrayFromDexie_FINALLY", arrayFromDexie)
     if(isValidResultArray(arrayFromDexie)){
         for(const i in arrayFromDexie){
             if(isValidResultArray(arrayFromDexie[i]["calendars"])){
@@ -129,7 +129,7 @@ export async function fetchLatestEventsV2(refreshCalList)
                     console.log("Syncing Calendar: "+cal["displayName"])
                     const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
                     //Now we save these events in dexie.
-                    saveAPIEventReponseToDexie(cal["calendars_id"],events)
+                    await saveAPIEventReponseToDexie(cal["calendars_id"],events)
 
                 }
             }
@@ -237,19 +237,21 @@ export async function refreshCalendarListV2()
     return new Promise( (resolve, reject) => {
 
         
-            const response =  fetch(url_api, requestOptions)
+            fetch(url_api, requestOptions)
             .then(response => response.json())
             .then((body) =>{
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
                     const calDAVSummaryFromServer = body.data.details
-                    syncCalDAVSummary(calDAVSummaryFromServer)
+                    return syncCalDAVSummary(calDAVSummaryFromServer)
 
                 }else{
                     if(body && getMessageFromAPIResponse(body) =="NO_CALDAV_ACCOUNTS"){
-                        syncCalDAVSummary([])
+                        return syncCalDAVSummary([])
                     }
                 }
-                return resolve(body)     
+            }).then((answer)=>{
+                return resolve(true)     
+
             }).catch(e =>{
                 console.error(e, "refreshCalendarListV2")
                 return resolve(getErrorResponse(e))

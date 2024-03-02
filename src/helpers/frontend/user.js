@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { getAPIURL, varNotEmpty } from "../general";
 import axios from "axios";
 import { deleteAllCookies } from "./cookies";
+import { clearDexieDB } from "./dexie/dexie_helper";
 
 
 export async function getUserData() {
@@ -29,6 +30,7 @@ export async function logoutUser()
     Cookies.remove("USER_SETTING_SYNCTIMEOUT")
 
     deleteAllCookies()
+    clearDexieDB()
     //Logout nextAuth Sessions.
     if(await nextAuthEnabled()){
         signOut()

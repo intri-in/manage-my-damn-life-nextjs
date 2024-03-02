@@ -10,7 +10,6 @@ type ChildProps = {
 }
 const AddInfo: FC<ChildProps> = () => {
   const [showModal, setShow]=useState(false)
-
   const onClickInfo = () =>{
     setShow(true)
   }
