@@ -12,7 +12,9 @@ v0.4.5
 - Fixed list of caldav accounts not updating after adding or deleting a caldav account.
 - Fixed Force sync button's function in /accounts/caldav page.
 - Logout now deletes the local dexie db for security.
-
+- Fixed #140
+ - Fixed flickering of Quick Add info modal.
+ 
 v0.4.4
 - Version bump to 0.4.4
 - Fixed bug #128
