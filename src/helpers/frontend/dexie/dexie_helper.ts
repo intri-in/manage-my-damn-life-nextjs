@@ -1,7 +1,8 @@
 import { isValidResultArray } from "@/helpers/general"
 import { getCalDAVSummaryFromDexie } from "./caldav_dexie"
-import { fetchEventsForCalendarsFromDexie } from "./events_dexie"
+import { fetchEventsForCalendarsFromDexie, getEventFromDexieByID } from "./events_dexie"
 import { db } from "./dexieDB";
+import { returnGetParsedVTODO } from "../calendar";
 
 export async function clearDexieDB(){
 
@@ -117,4 +118,17 @@ export function basicTaskFilterForDexie(parsedTask){
     }else{
         return false
     }
+}
+
+export async function getTaskUIDFromEventsID(calendar_events_id: number){
+    const event = await getEventFromDexieByID(calendar_events_id)
+    if(event && event.length>0){
+        const parsedEvent = returnGetParsedVTODO(event[0].data)
+        if(parsedEvent){
+            return parsedEvent["uid"]
+        }
+    }
+
+    return ""
+
 }

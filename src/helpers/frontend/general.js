@@ -159,6 +159,30 @@ export function timeDifferencefromNowinWords(date)
     return timeDifferenceStatement
 
 }
+export function timeDifferencefromNowinWords_FromUnixSeconds(unixTime){
+    var timeDifference=Math.floor((unixTime - Math.floor(Date.now() / 1000))/86400)
+    var timeDifferenceStatement=""
+    if(isNaN(timeDifference))
+    {
+        timeDifferenceStatement =""
+    }
+    else
+    {
+        if(timeDifference<0)
+        {
+            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+        }else if(timeDifference ==0 ){
+            timeDifferenceStatement="(today)"
+        }
+        else{
+            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+        }
+        
+    }
+
+    return timeDifferenceStatement
+
+}
 
 export function fixNullDate(dateToCheck, newDate){
     if(dateToCheck){

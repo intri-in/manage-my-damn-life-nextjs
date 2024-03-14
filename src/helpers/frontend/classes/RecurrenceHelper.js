@@ -116,6 +116,23 @@ export class RecurrenceHelper extends RRuleHelper{
         return final
     }
 
+    /**
+     * Key of the next up repeating instance of the tasks
+     * @returns String key
+     */
+    getNextUpKey() {
+
+        for (const i in this.newObj) {
+            //console.log(this.state.repeatInfo.newObj[i])
+
+            if ((this.newObj[i].completed == "" || this.newObj[i].completed == null) && this.newObj[i].status != "COMPLETED") {
+                return i
+            }
+        }
+
+        return ""
+
+    }
     getNextDueDate()
     {
         for(const i in this.newObj)

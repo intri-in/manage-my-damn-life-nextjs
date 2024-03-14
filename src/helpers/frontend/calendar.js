@@ -250,6 +250,9 @@ export function returnEventType(data)
 
 export function returnGetParsedVTODO(vtodo)
 {
+    if(!vtodo){
+        return {}
+    }
     try{
         const  parsedData = ical.parseICS(vtodo);
         for (let k in parsedData) {
@@ -333,6 +336,13 @@ export function returnGetParsedVTODO(vtodo)
 
 }
 
+/**
+ * @deprecated
+ * @param {*} todoList List of filtered todos.
+ * @param {*} filter Any filter to be applied
+ * @param {*} allEvents List of all unfiltered events
+ * @returns 
+ */
 export function arrangeTodoListbyHierarchy(todoList, filter, allEvents)
 {
 
@@ -524,8 +534,9 @@ function findChildren(id, todoList)
 }
 
 
-function findIDinFilteredList(id, todoList)
+export function findIDinFilteredList(relatedto, todoList)
 {
+    const id = VTODO.getParentIDFromRelatedTo(relatedto)
     var found = false
     for(let i=0; i<todoList.length; i++)
     {

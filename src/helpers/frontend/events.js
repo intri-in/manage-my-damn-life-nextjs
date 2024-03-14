@@ -23,8 +23,7 @@ export async function getEvents(calendarEvents, filter)
     return [listofTodos, getParsedTodoList(calendarEvents), unparsedData]
 
 }
-
-function filterEvents(calendarEvents, filter)
+export function filterEvents(calendarEvents, filter)
 {
     var finalArray=[]
     if(calendarEvents!=null && Array.isArray(calendarEvents) && calendarEvents.length>0)
@@ -33,7 +32,7 @@ function filterEvents(calendarEvents, filter)
         {
             var todo = returnGetParsedVTODO(calendarEvents[i].data)
 
-            if(applyTaskFilter(todo, filter)==true && (calendarEvents[i].deleted==null || calendarEvents[i].deleted==""))
+            if(applyTaskFilter(todo, filter)==true )
             {
                 finalArray.push(calendarEvents[i])
             }
@@ -41,6 +40,25 @@ function filterEvents(calendarEvents, filter)
     
     }
     return finalArray
+}
+
+export function filterParsedEvents(parsedEvents, filter){
+    var finalArray=[]
+    if(parsedEvents!=null && Array.isArray(parsedEvents) && parsedEvents.length>0)
+    {
+        for(let i=0; i<parsedEvents.length; i++)
+        {
+            let todo = parsedEvents[i]
+
+            if(applyTaskFilter(todo, filter)==true && (parsedEvents[i].deleted==null || parsedEvents[i].deleted==""))
+            {
+                finalArray.push(parsedEvents[i])
+            }
+        }
+    
+    }
+    return finalArray
+
 }
 
 export function majorTaskFilter(todo)
@@ -485,7 +503,6 @@ export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,eta
     // Preemptively delete event from Dexie.
     await deleteEventByURLFromDexie(url)
     deleteEventFromServer(caldav_accounts_id,calendar_id,url,etag, oldEvent).then((body)=>{
-        toast.success(i18next.t("DELETE_OK"))
         onDismissFunction(body, taskName)
 
     })

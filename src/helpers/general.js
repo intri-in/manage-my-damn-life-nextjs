@@ -84,7 +84,7 @@ export function dateTimeReviver(key, value) {
 
 export function haystackHasNeedle(needle, haystack)
 {
-    console.log(haystack)
+    // console.log(haystack)
     if(haystack==null || haystack==undefined)
     {
         return false
@@ -188,7 +188,14 @@ export function getAPIURL()
     return "/api/"
     */
 }
+export function fixDueDate(inputDate) {
+    let dueDate = ""
+    let dueDateUnix = moment(inputDate, 'D/M/YYYY H:mm').unix() * 1000;
+    dueDate = moment(dueDateUnix).format('YYYYMMDD');
+    dueDate += "T" + moment(dueDateUnix).format('HHmmss');
 
+    return dueDate
+}
 export function getISO8601Date(date, skipTime)
 {
     var toReturn = ""
@@ -216,5 +223,27 @@ export function dayNameFromNumber(dayNumber){
     }
 
     return ""
+
+}
+
+export function isEmptyObj(obj) {
+    for (const prop in obj) {
+      if (Object.hasOwn(obj, prop)) {
+        return false;
+      }
+    }
+  
+    return true;
+  }
+
+export function stringInStringArray(toSearch, haystackArray){
+    for (const i in haystackArray)
+    {
+        if(haystackArray[i]==toSearch)
+        {
+            return true
+        }
+    }
+    return false
 
 }

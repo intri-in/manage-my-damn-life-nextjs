@@ -12,9 +12,17 @@ export async function getCalendarbyIDFromDexie(calendars_id){
         return calendars
     }catch(e){
         console.error("getCalendarbyIDFromDexie", e)
+        return []
     }
  
 
+}
+export async function getCalendarURLByID_Dexie(calendars_id: string | number){
+    const calendar = await getCalendarbyIDFromDexie(calendars_id)
+    if(calendar && calendar.length>0){
+        return calendar[0].url
+    }
+    return ""
 }
 export async function isValidCalendarsID(calendars_id){
     const calendars = await getCalendarbyIDFromDexie(calendars_id)
@@ -97,6 +105,7 @@ export async function getCalendarColorFromDexie(calendars_id){
     if(isValidResultArray(calendars)){
         return calendars[0]["calendarColor"]
     }
+    return "black"
 }
 export async function insertCalendarsIntoDexie(calendarsFromDB){
     //console.log("calendarsFromDB insertCalendarIntoDexie", calendarsFromDB)

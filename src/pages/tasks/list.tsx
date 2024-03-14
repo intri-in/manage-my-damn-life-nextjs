@@ -1,4 +1,6 @@
 import TaskViewList from "@/components/page/TaskViewPage/TaskViewList";
+import { TaskViewListWithStateManagement } from "@/components/page/TaskViewPage/TaskViewListWithStateManagement";
+import { TaskEditorViewManager } from "@/components/tasks/TaskEditorSupport/TaskEditorViewManager";
 import { useCustomTheme } from "@/helpers/frontend/theme";
 import { checkLogin_InBuilt } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
@@ -34,7 +36,8 @@ export default function TaskListPage(){
     
     return(
         <>
-        <TaskViewList />
+        <TaskViewListWithStateManagement />
+        <TaskEditorViewManager />
         </>
     )
 }

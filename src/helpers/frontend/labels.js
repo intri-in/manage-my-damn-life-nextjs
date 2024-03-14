@@ -127,7 +127,7 @@ export async function makeUpdateLabelRequest()
 }
 export function searchLabelObject(objectToSearch, searchTerm)
 {
-    var resultArray=[]
+    let resultArray=[]
 
     if(isValidObject(objectToSearch)&&searchTerm!=null&&searchTerm.trim()!="")
     {
@@ -152,7 +152,15 @@ export function searchLabelObject(objectToSearch, searchTerm)
 
 export function categoryArrayHasMyDayLabel(categoryArray)
 {
-    var found = false
+    if(!categoryArray)
+    {
+        return false
+    }
+    if(categoryArray.length==0)
+    {
+        return false
+    }
+    let found = false
     for (const i in categoryArray)
     {
         if(categoryArray[i]==MYDAY_LABEL)
@@ -163,10 +171,18 @@ export function categoryArrayHasMyDayLabel(categoryArray)
 
     return found
 }
-
+export function removeLabelFromCategoryArray(categoryArray, labelToRemove){
+    let newArray = []
+    for (const i in categoryArray) {
+        if (categoryArray[i].toLowerCase().trim() != labelToRemove.toLowerCase()) {
+            newArray.push(categoryArray[i])
+        }
+    }
+    return newArray
+}
 export function categoryArrayHasLabel(categoryArray, label)
 {
-    var found = false
+    let found = false
     for (const i in categoryArray)
     {
         if(categoryArray[i].toLowerCase()==label.toLowerCase())
@@ -180,7 +196,7 @@ export function categoryArrayHasLabel(categoryArray, label)
 
 export function removeMyDayLabelFromArray(categoryArray)
 {
-    var newArray = []
+    let newArray = []
     for (const i in categoryArray)
     {
         if(categoryArray[i]!=MYDAY_LABEL)

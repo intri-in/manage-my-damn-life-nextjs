@@ -266,6 +266,11 @@ export function filtertoWords(filter)
 
 export function applyEventFilter(event, filter)
 {
+    if(!filter || ("filter" in filter) ==false ){
+        //Filter is invalid.
+        //Let all events through!!
+        return true
+    }
     var logic="and"
     if(filter.logic!=null && filter.logic!=undefined)
     {
@@ -278,7 +283,7 @@ export function applyEventFilter(event, filter)
         if(filter.filter.label!=null)
         {
             var filterByLabelResult= filterbyLabel(filter.filter.label, event.category)
-            
+            // console.log("filterByLabelResult", filterByLabeleResult, event.category, filter.filter.label)
         }
         var filterByDueResult= false
         if(filter.filter.due!=null)
@@ -361,7 +366,8 @@ export function applyEventFilter(event, filter)
 
 function filterbyLabel(filterArray, categoryArray)
 {
-    var toReturn = false
+    let toReturn = false
+    // console.log("filterArray", filterArray, "categoryArray", categoryArray)
     if(filterArray!=null && filterArray.length>0 )
     {
         if(categoryArray!=null )
@@ -420,7 +426,7 @@ function filterbyPriority(priorityFilter, priority)
     var toReturn = false
     if(priorityFilter!=null)
     {
-        if(priority!=null && priority<priorityFilter)
+        if(priority!=null && priority!=0 && priority!="0" && priority<priorityFilter)
         {
                 return true
            
