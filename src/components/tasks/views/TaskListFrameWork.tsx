@@ -2,7 +2,7 @@ import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from "@/hel
 import { filterEvents } from "@/helpers/frontend/events"
 import { getI18nObject } from "@/helpers/frontend/general"
 import {  useAtomValue, useSetAtom } from "jotai"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
 import { TaskArrayItem, TaskSection, arrangeTodoListbyHierarchyV2,  getCaldavAndCalendarNameForView } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { Loading } from "@/components/common/Loading"
@@ -11,7 +11,7 @@ import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/Task
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
 import { isValidResultArray } from "@/helpers/general"
 import { TaskViewSectionsManager } from "./TaskViewMain/TaskViewSectionsManager"
-import { GanttViewWithState } from "./GanttViewWithState"
+import { GanttViewWithState } from "./GanttView/GanttViewWithState"
 
 const i18next = getI18nObject()
 
@@ -31,24 +31,20 @@ export const TaskListFrameWork = () =>{
      */
     const [taskListSection, setTaskListSection] = useState<TaskSection[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    useEffect(() => {
-        let isMounted = true
-        if(isMounted)
-        {
-            if(("caldav_accounts_id" in currentCalDavObjectAtom) && ("calendars_id" in currentCalDavObjectAtom) && currentCalDavObjectAtom.calendars_id && currentCalDavObjectAtom.caldav_accounts_id){
-                //Fetch events for the calendar.
-                fetchEventsForCalendar()
-            }else{
-                //Fetch all events and apply filters.
-                fetchAllEvents()
-            }
-        }
-        return ()=>{
-            isMounted = false
-        }
-    }, [currentPageFilter, updateView])
 
-    const fetchEventsForCalendar = async () => {
+    const nothingToShow =useCallback(() =>{
+        setIsLoading(false)
+        setTaskListSection([])
+    },[setIsLoading, setTaskListSection])
+
+    const renderTaskListUI = useCallback((todoList: TaskSection[]) => {
+
+        setTaskListSection(todoList)
+        setIsLoading(false)
+
+    },[setTaskListSection, setIsLoading])
+
+    const fetchEventsForCalendar = useCallback(async () => {
         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(currentCalDavObjectAtom.calendars_id,"VTODO")
         // console.log(eventsFromDexie)
         getCaldavAndCalendarNameForView(currentCalDavObjectAtom.caldav_accounts_id, currentCalDavObjectAtom.calendars_id).then(name =>{
@@ -70,14 +66,9 @@ export const TaskListFrameWork = () =>{
             nothingToShow()
         }
 
-    }
+    },[renderTaskListUI,nothingToShow, currentCalDavObjectAtom,currentPageFilter, setPageTitleAtom])
 
-    const nothingToShow =() =>{
-        setIsLoading(false)
-        setTaskListSection([])
-    }
-
-    const fetchAllEvents = async () => {
+    const fetchAllEvents = useCallback(async () => {
         console.time("dexie_COMBINED_TASK_TIMER")
         const allSummary = await getCalDAVSummaryFromDexie()
         let finalToPush:TaskSection[] = []
@@ -112,15 +103,30 @@ export const TaskListFrameWork = () =>{
         // console.log("todoList_heirarchy", todoList_heirarchy)
         console.timeEnd("dexie_COMBINED_TASK_TIMER")
         
-    }
-    const renderTaskListUI = (todoList: TaskSection[]) => {
+    },[renderTaskListUI,currentPageFilter])
+    useEffect(() => {
+        let isMounted = true
+        if(isMounted)
+        {
+            if(("caldav_accounts_id" in currentCalDavObjectAtom) && ("calendars_id" in currentCalDavObjectAtom) && currentCalDavObjectAtom.calendars_id && currentCalDavObjectAtom.caldav_accounts_id){
+                //Fetch events for the calendar.
+                fetchEventsForCalendar()
+            }else{
+                //Fetch all events and apply filters.
+                fetchAllEvents()
+            }
+        }
+        return ()=>{
+            isMounted = false
+        }
+    }, [currentPageFilter, updateView, fetchAllEvents, fetchEventsForCalendar,currentCalDavObjectAtom])
 
-        setTaskListSection(todoList)
-        setIsLoading(false)
+    
 
-    }
 
-    const view_Final = (currentView=="ganttview") ? <GanttViewWithState /> : <TaskViewSectionsManager taskListSections={taskListSection} />
+    
+
+    const view_Final = (currentView=="ganttview") ? <GanttViewWithState taskListSections={taskListSection} /> : <TaskViewSectionsManager taskListSections={taskListSection} />
     return(
         <>
         {isLoading ? <Loading centered={true} />: view_Final}

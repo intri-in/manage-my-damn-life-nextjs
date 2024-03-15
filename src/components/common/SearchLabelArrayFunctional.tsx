@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { Component, useCallback } from "react";
 import Form from 'react-bootstrap/Form';
 import { Col, Row } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
@@ -16,22 +16,13 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
     const [labelSearchTerm, setLabelSearchTerm] = useState("")
     const [searchOutput, setSearchOutput] = useState<JSX.Element[]>([])
 
-    useEffect(()=>{
-        let isMounted = true
-        if (isMounted) {
-            
-            getAllLabelsFromDexie().then(labels =>{
-                setLabelsFromDexie(labels)
-            })
-            generateLabelOutput()
-        }
-        return () => {
-            isMounted = false
-        }
+    const removeLabelFromCategory = useCallback((labelToRemove) =>{
+        let newArray: string[] = removeLabelFromCategoryArray(category, labelToRemove)
+        onLabelRemoved(newArray)
 
-    },[category])
+    },[onLabelRemoved, category])
 
-    const generateLabelOutput = ()=>{
+    const generateLabelOutput = useCallback(()=>{
         let labelArray: JSX.Element[] = []
         if (isValidResultArray(category)) {
             
@@ -51,7 +42,23 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
         }
         setLabelOutput(labelArray)
         
-    }
+    },[setLabelOutput, allLabelsFromDexie, category, removeLabelFromCategory])
+
+    useEffect(()=>{
+        let isMounted = true
+        if (isMounted) {
+            
+            getAllLabelsFromDexie().then(labels =>{
+                setLabelsFromDexie(labels)
+            })
+            generateLabelOutput()
+        }
+        return () => {
+            isMounted = false
+        }
+
+    },[category, generateLabelOutput])
+
     const addNewLabelToCategory = (label) =>{
         if(categoryArrayHasLabel(category, label)==false){
             if(Array.isArray(category)){
@@ -63,12 +70,6 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
         }
         setSearchOutput([])
         setLabelSearchTerm("")
-    }
-    const removeLabelFromCategory = (labelToRemove) =>{
-        let newArray: string[] = removeLabelFromCategoryArray(category, labelToRemove)
-        console.log("asdas", newArray)
-        onLabelRemoved(newArray)
-
     }
     const generateListofResults = (searchTerm) =>{
         let finalOutput:JSX.Element[]=[]
@@ -88,7 +89,7 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
     
 
        
-            setSearchOutput([<ListGroup style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>])
+            setSearchOutput([<ListGroup key="labelListGroups" style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>])
 
         
     }

@@ -1,7 +1,7 @@
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { useSetAtom } from "jotai"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Col, ListGroup, Row } from "react-bootstrap"
 import { AiOutlinePlusCircle } from "react-icons/ai"
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
@@ -21,49 +21,41 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
      */
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[] | JSX.Element>([])
+    const [update, setUpdate] = useState(Date.now())
 
-    useEffect(() => {
-        let isMounted = true
-        if(isMounted)
-        {
-            getCaldavAccountsfromDexie()
-        }
-        return ()=>{
-            isMounted = false
-        }
-    }, [])
 
-    const getCaldavAccountsfromDexie = async () =>{
-        const caldavSummary = await getCalDAVSummaryFromDexie()
-        renderCalendarList(caldavSummary)
-    }
 
-    const showAddCalendarScreen = (caldav_account) =>{
-              
-        setFinalOutput(<AddNewCalendar onClose={()=>getCaldavAccountsfromDexie()} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
-    }
-
-    const addCalendarResponse = (response) =>{
-        if(response!=null && response.success!= null && response.success==true && response.data.message[0].status>=200 && response.data.message[0].status<300)
-        {
-            // Successful creation.
-            toast.success("Calendar added successfully.")
-        }
-        else
-        {
-            toast.error("Calendar couldn't be added. Check the console log.")
-            console.log(response)
-        }
-        getCaldavAccountsfromDexie()
-
-    }
-    const calendarNameClicked = (caldav_accounts_id, calendars_id) =>{
+    
+    const calendarNameClicked = useCallback((caldav_accounts_id, calendars_id)=>{
         setCurrentPageTitle("")
         setFilterAtom({})
         setCalDavAtom({caldav_accounts_id: caldav_accounts_id, calendars_id: calendars_id})
         postClick()
-    }
-    const renderCalendarList = async (caldavSummary) =>{
+    },[postClick, setCalDavAtom, setFilterAtom, setCurrentPageTitle])
+
+    const renderCalendarList = useCallback(async (caldavSummary) =>{
+
+        const addCalendarResponse = (response) =>{
+            if(response!=null && response.success!= null && response.success==true && response.data.message[0].status>=200 && response.data.message[0].status<300)
+            {
+                // Successful creation.
+                toast.success("Calendar added successfully.")
+            }
+            else
+            {
+                toast.error("Calendar couldn't be added. Check the console log.")
+                console.log(response)
+            }
+            
+    
+        }
+    
+        const showAddCalendarScreen = (caldav_account)=>{
+              
+            setFinalOutput(<AddNewCalendar onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
+        }
+
+    
         let finalOutput : JSX.Element[]= []
         for(let j=0; j<caldavSummary.length; j++)
         {
@@ -94,7 +86,30 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
             setFinalOutput(finalOutput)
         }
 
-    }
+    },[calendarNameClicked,])
+
+    const getCaldavAccountsfromDexie = useCallback( async () => {
+        const caldavSummary = await getCalDAVSummaryFromDexie()
+        renderCalendarList(caldavSummary)
+    },[renderCalendarList])
+
+
+
+
+
+    useEffect(() => {
+        let isMounted = true
+        if(isMounted)
+        {
+            getCaldavAccountsfromDexie()
+        }
+        return ()=>{
+            isMounted = false
+        }
+    }, [getCaldavAccountsfromDexie, update])
+
+
+
     return(
     <>
     {finalOutput}

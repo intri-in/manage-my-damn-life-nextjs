@@ -6,7 +6,7 @@ import { getI18nObject } from "@/helpers/frontend/general"
 import { isDarkModeEnabled } from "@/helpers/frontend/theme"
 import { PAGE_VIEW_JSON, PAGE_VIEW_NAME_ALL_TASKS, PAGE_VIEW_NAME_DUE_NEXT_SEVEN, PAGE_VIEW_NAME_DUE_TODAY, PAGE_VIEW_NAME_HIGH_PRIORITY, PAGE_VIEW_NAME_MY_DAY } from "@/helpers/viewHelpers/pages"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Badge, Col, Row } from "react-bootstrap"
 import { AiFillStar, AiOutlineFilter, AiOutlineSetting } from "react-icons/ai"
 import { FiSunrise } from "react-icons/fi"
@@ -43,26 +43,8 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
         setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
         postClick()
     }
-    useEffect(() => {
-        let isMounted = true
-        if(isMounted)
-        {
-            generateLabelListfromDexie()
-        }
-        if(window!=undefined)
-        {
-            setTotalHeight(window.innerHeight-100);
 
-            window.addEventListener('resize', updateDimensions);
-
-        }
-
-        return ()=>{
-            isMounted = false
-        }
-    }, [])
-
-    const labelClicked = (e) =>{
+    const labelClicked = useCallback((e) =>{
         const labelName = e.target.textContent
         const currentFilter = {label: [labelName]}
         const title = "Label: " + labelName
@@ -70,14 +52,8 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
         setFilterAtom({logic: "or", filter: currentFilter})
         setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
         postClick()
-    }
-    const updateLabelCache = () =>{
-        toast.info(i18next.t("UPDATING_LABEL_CACHE"))
-        updateLabelCacheInDexie().then(()=>{
-            generateLabelListfromDexie()
-        })
-    }
-    const generateLabelListfromDexie = async () =>{
+    },[postClick,setCalDavAtom, setFilterAtom, setCurrentPageTitle])
+    const generateLabelListfromDexie = useCallback(async () =>{
         const labels = await getAllLabelsFromDexie()
         var temp_Labelcomponent: JSX.Element[] =[]
         if(labels!=null)
@@ -95,6 +71,33 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
 
             setAllFilters(temp_Labelcomponent)
         }
+    },[labelClicked])
+
+    useEffect(() => {
+        let isMounted = true
+        if(isMounted)
+        {
+            generateLabelListfromDexie()
+        }
+        if(window!=undefined)
+        {
+            setTotalHeight(window.innerHeight-100);
+
+            window.addEventListener('resize', updateDimensions);
+
+        }
+
+        return ()=>{
+            isMounted = false
+        }
+    }, [generateLabelListfromDexie])
+
+    
+    const updateLabelCache = () =>{
+        toast.info(i18next.t("UPDATING_LABEL_CACHE"))
+        updateLabelCacheInDexie().then(()=>{
+            generateLabelListfromDexie()
+        })
     }
 
     const darkMode= isDarkModeEnabled() 

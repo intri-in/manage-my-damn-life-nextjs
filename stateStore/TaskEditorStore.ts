@@ -6,7 +6,10 @@ export interface TaskEditorInputType{
     parentId?: string,
     category?: string[],
     priority?:number,
-    taskDone?: boolean
+    taskDone?: boolean,
+    due?: Date,
+    start?:Date
+
 }
 export const showTaskEditorAtom = atom(false)
 export const taskEditorInputAtom = atom<TaskEditorInputType>({id: null})

@@ -36,12 +36,10 @@ export default function App({ Component, pageProps: {session, ...pageProps }}) {
   },[counter])
 
   return (
-        <SSRProvider >
-          <SessionProvider session={session} refetchOnWindowFocus={true}>
-            <NextNProgress  color="#ff0000"  height={5} options={{ showSpinner: false }}/>
-              <Component {...pageProps} />
-            <Toastify />
-            </SessionProvider>
-        </SSRProvider>
+        <SessionProvider session={session} refetchOnWindowFocus={true}>
+          <NextNProgress  color="#ff0000"  height={5} options={{ showSpinner: false }}/>
+            <Component {...pageProps} />
+          <Toastify />
+        </SessionProvider>
     )
 }

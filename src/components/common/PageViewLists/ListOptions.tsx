@@ -7,7 +7,6 @@ import { MdToday } from "react-icons/md"
 const i18next = getI18nObject()
 
 export const MyDayOption = ({borderBottomColor}) =>{
-    const [borderBottomColor]
     return(
         <div  style={{ margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}} className="row">
                 <div className="col">

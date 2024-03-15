@@ -4,7 +4,7 @@ import GenericLists from "@/components/common/GenericLists"
 import { GenericListsWithStateManagement } from "@/components/common/PageViewLists/GenericListsWithStateManagement"
 import { ViewSelector } from "@/components/common/PageViewLists/ViewSelector"
 import TaskViewOptions from "@/components/common/TaskViewOptions"
-import { GanttViewWithState } from "@/components/tasks/views/GanttViewWithState"
+import { GanttViewWithState } from "@/components/tasks/views/GanttView/GanttViewWithState"
 import { TaskListFrameWork } from "@/components/tasks/views/TaskListFrameWork"
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from "@/config/style"
 import { getI18nObject } from "@/helpers/frontend/general"
@@ -43,15 +43,23 @@ export const TaskViewListWithStateManagement =  () =>{
     }
   }
   useEffect(() =>{
-    if (window != undefined) {
-      window.addEventListener('resize', updateDimensions);
-
-      if (window.innerWidth < 768) {
-        setShowListColumn(false)
-      } else {
-        setShowListColumn(true)
-
+    let isMounted = true
+    if(isMounted)
+    {
+      if (window != undefined) {
+        window.addEventListener('resize', updateDimensions);
+  
+        if (window.innerWidth < 768) {
+          setShowListColumn(false)
+        } else {
+          setShowListColumn(true)
+  
+        }
       }
+  
+    }
+    return ()=>{
+      isMounted = false
     }
 
   }, [])
@@ -71,11 +79,11 @@ export const TaskViewListWithStateManagement =  () =>{
     }
   }
 
-  var expandColButton = <div> <AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={()=>setShowLeftColumnOffcanvas(true)} size={16} /></div>
+  const expandColButton = <div> <AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={()=>setShowLeftColumnOffcanvas(true)} size={16} /></div>
 
   const borderRight = '3px solid' + SECONDARY_COLOUR
 
-  var leftColumnMatter = showListColumn || showLeftColumnOffcanvas? (<GenericListsWithStateManagement postClick={postClick}  />
+  const leftColumnMatter = showListColumn || showLeftColumnOffcanvas? (<GenericListsWithStateManagement postClick={postClick}  />
   ) : expandColButton
 
     return(
@@ -87,7 +95,6 @@ export const TaskViewListWithStateManagement =  () =>{
         </Head>
         <AppBarGeneric />
         <div className='container-fluid'>
-
         <Row>
           <Col>
             <div ></div>

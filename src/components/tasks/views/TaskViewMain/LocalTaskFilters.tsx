@@ -1,14 +1,13 @@
 import Accordion from 'react-bootstrap/Accordion';
 import { getI18nObject } from "@/helpers/frontend/general";
-import { Col, Container, Form, Row } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
+import { Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { useCallback, useEffect, useState } from 'react';
 import { TaskArrayItem, TaskSection } from '@/helpers/frontend/TaskUI/taskUIHelpers';
 import { isValidResultArray, stringInStringArray } from '@/helpers/general';
 import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
 import { getEventFromDexieByID } from '@/helpers/frontend/dexie/events_dexie';
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from '@/config/constants';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
+import { FaSearch } from "react-icons/fa";
 import { SortBySelect } from './SortByButton';
 
 const i18next = getI18nObject()
@@ -17,25 +16,13 @@ export interface labelSelector{
     name: string,
     selected: boolean
 }
-export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSelectedChangedHook, sortSelectChangeHook}:{taskListSections: TaskSection[], showDoneChangedHook: Function, labelSelectedChangedHook: Function, sortSelectChangeHook: Function}) =>{
+export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSelectedChangedHook, sortSelectChangeHook, taskSearchChangedHook}:{taskListSections: TaskSection[], showDoneChangedHook: Function, labelSelectedChangedHook: Function, sortSelectChangeHook: Function, taskSearchChangedHook: Function}) =>{
 
     const [showDone, setShowDone] = useState(false)
     const [filterList, setFilterList] = useState<labelSelector[]>([])
+    const [search, setSearch] = useState("")
 
-    useEffect(()=>{
-        let isMounted = true
-        // console.log(Array.isArray(taskListSections), "taskListSection")
-        if(isMounted){
-            //Generate List of filters on mount.
-            generateFilterList()
-        }
-
-        return ()=>{
-            isMounted = false
-        }
-    },[taskListSections])
-
-    const generateFilterList = async () =>{
+    const generateFilterList = useCallback(async () =>{
         
         if(taskListSections && Array.isArray(taskListSections)){
             let finalList: labelSelector[] = []
@@ -72,7 +59,21 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
             labelSelectedChangedHook(finalList)
 
         }
-    }
+    },[setFilterList,labelSelectedChangedHook,taskListSections])
+    useEffect(()=>{
+        let isMounted = true
+        // console.log(Array.isArray(taskListSections), "taskListSection")
+        if(isMounted){
+            //Generate List of filters on mount.
+            setSearch("")
+            generateFilterList()
+        }
+
+        return ()=>{
+            isMounted = false
+        }
+    },[taskListSections, generateFilterList,setSearch])
+
 
     const searchLabelArray = (needle: string, currentLabel: labelSelector[]) =>{
         for(const k in currentLabel){
@@ -108,13 +109,18 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
     const onChangeSort = (value) =>{
         sortSelectChangeHook(value)
     }
+
+    const searchTasks = (e) =>{
+        setSearch(e.target.value)
+        taskSearchChangedHook(e.target.value)
+    }
     return(
-    <Accordion>
+    <Accordion >
         <Accordion.Item eventKey="0">
             <Accordion.Header>{i18next.t("FILTERS")}</Accordion.Header>
             <Accordion.Body>
             <Container fluid>
-            <Row >
+            <Row className=' d-flex  align-items-center' style={{marginBottom: 5}}>
                 <Col><FilterListSelector onChange={selectedLabelsChanged} filterList={filterList} /></Col>
                 <Col className='d-flex justify-content-center' style={{alignItems:"center"}}>
                 <Form.Check 
@@ -129,6 +135,17 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
                 </Col>
 
             </Row>
+            <Row className=' d-flex  align-items-center'>
+                <Col md={1} lg={1}>
+                </Col>
+                <Col md={11} lg={11}>
+                </Col>
+            </Row>
+            <InputGroup className="mb-3">
+                <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
+                       
+                    <Form.Control size="sm" value={search} onChange={searchTasks} placeholder={i18next.t("SEARCH")} />
+            </InputGroup>
 
             </Container>
             </Accordion.Body>
@@ -166,7 +183,7 @@ const FilterListSelector = ({filterList, onChange}:{filterList: labelSelector[],
         return ()=>{
             isMounted = false
         }
-    },[filterList])
+    },[filterList,onChange])
 
 
     return(

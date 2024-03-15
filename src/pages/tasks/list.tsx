@@ -15,19 +15,27 @@ export default function TaskListPage(){
     useCustomTheme()
 
     useEffect(() =>{
-      async function checkAuth(){
-        
-        if(await nextAuthEnabled()){
-          if (status=="unauthenticated" ) {
-            signIn()
+      let isMounted = true
+      if(isMounted)
+      {
+        const checkAuth = async () =>{
+          
+          if(await nextAuthEnabled()){
+            if (status=="unauthenticated" ) {
+              signIn()
+            }
+          }else{
+            // Check login using inbuilt function.
+    
+            checkLogin_InBuilt(router, "/tasks/list")
           }
-        }else{
-          // Check login using inbuilt function.
-  
-          checkLogin_InBuilt(router, "/tasks/list")
         }
+        checkAuth()
       }
-      checkAuth()
+      return ()=>{
+        isMounted = false
+      }
+
     }, [status,router])
     
 

@@ -1,8 +1,8 @@
 import { Loading } from "@/components/common/Loading"
 import { useAtomValue } from "jotai"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Alert, Button, Col, Form, Row } from "react-bootstrap"
-import {  currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
+import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
 import Datetime from 'react-datetime';
 import { getI18nObject } from "@/helpers/frontend/general"
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
@@ -32,7 +32,7 @@ import { SearchLabelArrayFunctional } from "@/components/common/SearchLabelArray
 import { TaskPending } from "@/helpers/api/tasks"
 
 const i18next = getI18nObject()
-export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog:Function, onServerResponse: Function, closeEditor: Function }) => {
+export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
     /**
      * Jotai
@@ -65,36 +65,69 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [uid, setUID] = useState("")
     const [parentID, setParentID] = useState("")
     const [relatedto, setRelatedTo] = useState<"" | any>("")
-    const [category, setCategory]  = useState<string[]>([])
+    const [category, setCategory] = useState<string[]>([])
 
-    useEffect(() => {
-        let isMounted = true
-        if (isMounted) {
-            
-            fetchTaskInfoFromDexie(input.id)
-        }
-        return () => {
-            isMounted = false
-        }
-    }, [input])
+    const changeDoneStatus = useCallback((isDone: boolean) => {
+        if (isDone) {
+            const completedDate = getISO8601Date(moment().toISOString())
+            // console.log(completedDate)
+            setCompleted(completedDate!)
+            setCompletion("100")
+            setStatus("COMPLETED")
+        } else {
+            setCompleted("")
+            setStatus("")
+            if (completion && parseInt(completion) == 100) {
+                setCompletion("0")
+            }
 
-    const checkInputForNewTask = async () =>{
-        if(input)
-        {
-            if(!input.id){
+        }
+    },[setCompleted,setCompletion,setStatus, completion])
+    const generateCalendarDDL = useCallback(async (calendar_id?) => {
+
+        let calendarOutput: JSX.Element[] = []
+        const calendarsFromServer = await getCalDAVSummaryFromDexie()
+        if (isValidResultArray(calendarsFromServer)) {
+            calendarOutput.push(<option key="calendar-select-empty" ></option>)
+
+            for (let i = 0; i < calendarsFromServer.length; i++) {
+                let tempOutput: JSX.Element[] = []
+                if (!isValidResultArray(calendarsFromServer[i].calendars)) {
+                    continue
+                }
+                for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
+                    const value = calendarsFromServer[i].calendars[j].calendars_id
+                    const key = j + "." + value
+                    tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
+                }
+                calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
+
+            }
+            let disabled = calendar_id ? true : false
+
+            setCalendarOptions([<Form.Select key="calendarOptions" onChange={calendarSelected} disabled={disabled} value={calendar_id}>{calendarOutput}</Form.Select>])
+
+        }
+
+        // console.log("this.state.calendar_id at DDL", this.state.calendar_id)
+    },[setCalendarOptions])
+
+    const checkInputForNewTask = useCallback(async () => {
+        if (input) {
+            if (!input.id) {
                 //Task is New.
                 // Set variables for the new task.
-                if(input.parentId) {
+                if (input.parentId) {
                     // Sub task is probably being added.
                     const event = await getEventFromDexieByID(parseInt(input.parentId))
-                    if(event && event.length>0){
+                    if (event && event.length > 0) {
                         const parsedEvent = returnGetParsedVTODO(event[0].data)
-                        if(parsedEvent){
-                            const parentTaskUID =  parsedEvent["uid"]
-                            if(event[0].calendar_id){
+                        if (parsedEvent) {
+                            const parentTaskUID = parsedEvent["uid"]
+                            if (event[0].calendar_id) {
 
                                 setCalendarID(event[0].calendar_id)
-                                if(parentTaskUID && input.parentId){
+                                if (parentTaskUID && input.parentId) {
                                     setParentID(parentTaskUID)
                                     setRelatedTo(parentTaskUID)
                                 }
@@ -103,33 +136,42 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
                         }
                     }
-                    
-                }   
+
+                }
             }
 
             //Process label info .
-            if(input.category && Array.isArray(input.category) && input.category.length>0){
+            if (input.category && Array.isArray(input.category) && input.category.length > 0) {
                 setCategory(input.category)
             }
 
             //Process done info .
-            if(input.taskDone){
+            if (input.taskDone) {
                 setTaskDone(true)
                 changeDoneStatus(true)
 
             }
 
             //Process priority info.
-            if(input.priority){
+            if (input.priority) {
                 setPriority(input.priority.toString())
             }
+            // Process due date info.
+            console.log("input.due")
+            if (input.due) {
+                setDueDate(new Date(moment(input.due).unix() * 1000).toString())
+            }
+            if (input.start){
+                setTaskStart(new Date(moment(input.start).unix() * 1000).toString())
+            }
         }
-    }
-    const fetchTaskInfoFromDexie = async (idInput) => {
-        
+    },[setDueDate,setTaskStart, setPriority, setCategory, generateCalendarDDL, setCalendarID, changeDoneStatus, input])
+
+    const fetchTaskInfoFromDexie = useCallback(async (idInput) => {
+
         let id_local = idInput
-        if(typeof(input.id)!=="number"){
-            id_local=parseInt(idInput)
+        if (typeof (input.id) !== "number") {
+            id_local = parseInt(idInput)
         }
         if (!id_local) {
             setIsNewTask(true)
@@ -140,7 +182,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
             const parsedData = returnGetParsedVTODO(unParsedData)
-            if(unParsedData) setUnparsedDataFromDexie(unParsedData)
+            if (unParsedData) setUnparsedDataFromDexie(unParsedData)
             setParsedDataFromDexie(parsedData)
             const calendar_id = eventInfoFromDexie[0].calendar_id
             if (calendar_id) {
@@ -148,32 +190,32 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
             generateCalendarDDL(calendar_id)
             if (parsedData) {
-                if(TaskPending(parsedData)==false){
+                if (TaskPending(parsedData) == false) {
                     setTaskDone(true)
                 }
                 setSummary(parsedData["summary"])
                 setUID(parsedData["uid"])
-                if(parsedData["due"]) {
-                    setDueDate(new Date(moment(parsedData["due"]).unix()*1000).toString())
+                if (parsedData["due"]) {
+                    setDueDate(new Date(moment(parsedData["due"]).unix() * 1000).toString())
                 }
                 setDescription(parsedData["description"])
                 const parentID = VTODO.getParentIDFromRelatedTo(parsedData.relatedto)
                 setParentID(parentID)
-                if(parsedData["relatedto"]){
+                if (parsedData["relatedto"]) {
                     setRelatedTo(parsedData["relatedto"])
                 }
                 //Check and set repeating task parameters.
                 setRrule(rruleToObject(parsedData["rrule"]))
-                if(parsedData["rrule"]) {
+                if (parsedData["rrule"]) {
                     setIsRepeatingTask(true)
                 }
-                if(parsedData["priority"]) setPriority(parsedData["priority"])
-                if(parsedData["completion"]) setCompletion(parsedData["completion"])
-                if(parsedData["completed"]) setCompleted(parsedData["completed"])
-            
-                if(parsedData["category"]) setCategory(parsedData["category"])
-                if(parsedData["start"]) {
-                    setTaskStart(new Date(moment(parsedData["start"]).unix()*1000).toString())
+                if (parsedData["priority"]) setPriority(parsedData["priority"])
+                if (parsedData["completion"]) setCompletion(parsedData["completion"])
+                if (parsedData["completed"]) setCompleted(parsedData["completed"])
+
+                if (parsedData["category"]) setCategory(parsedData["category"])
+                if (parsedData["start"]) {
+                    setTaskStart(new Date(moment(parsedData["start"]).unix() * 1000).toString())
                 }
                 // console.log(parsedData)
                 // getLabels(parsedData["category"])
@@ -182,10 +224,23 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         }
 
         return null
-    }
-    const saveTask = async() => {
+    },[setTaskStart, setPriority, setCompletion, setCompleted,setCategory, checkInputForNewTask, generateCalendarDDL, input.id])
+    useEffect(() => {
+        let isMounted = true
+        
+    
+        if (isMounted) {
+
+            fetchTaskInfoFromDexie(input.id)
+        }
+        return () => {
+            isMounted = false
+        }
+    }, [input, setIsNewTask, fetchTaskInfoFromDexie])
+
+    const saveTask = async () => {
         let recurrences: null | {} = null
-        if(isRepeatingTask){
+        if (isRepeatingTask) {
             /**
              * Forgot why we need to do this.
              * {TODO}: Figure it out
@@ -203,8 +258,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
         }
 
-        if(!summary)
-        {
+        if (!summary) {
             toast.error(i18next.t("CANT_CREATE_EMPTY_TASK"))
             return
         }
@@ -216,65 +270,65 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         if (valid) {
             if (taskDone) {
 
-            }        
+            }
             setSubmitting(true)
             const todoData = { due: dueDate, start: taskStart, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, recurrences: recurrences }
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
             var todo = new VTodoGenerator(finalTodoData, { strict: false })
             var finalVTODO = todo.generate()
             console.log(todo, finalTodoData, finalVTODO)
-            
-           if(isNewTask){
-            const etag = getRandomString(32)
 
-            postNewTodo(calendar_id, finalVTODO, etag)
-           }else{
-            // Make an update request.
-                if(input.id){
+            if (isNewTask) {
+                const etag = getRandomString(32)
+
+                postNewTodo(calendar_id, finalVTODO, etag)
+            } else {
+                // Make an update request.
+                if (input.id) {
 
                     const etag = await getEtagFromEventID_Dexie(input.id)
                     if (!etag) {
                         console.error("Etag is null!")
                         toast.error(i18next.t("ERROR_GENERIC"))
-        
+
                     }
-                    const eventURL = await getEventURLFromDexie(input.id)
-        
+                    const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
+
                     await updateTodoLocal(calendar_id, eventURL, etag, finalVTODO)
-                } 
-           }
+                }
+            }
 
         }
 
     }
-    const postNewTodo = async (calendar_id, data, etag) =>{
-        const message =  summary ? summary + ": " : ""
+    const postNewTodo = async (calendar_id, data, etag) => {
+        const message = summary ? summary + ": " : ""
         toast.info(message + i18next.t("ACTION_SENT_TO_CALDAV"))
         let fileName = getRandomString(64) + ".ics"
         const calendarFromDexie = await getCalendarbyIDFromDexie(calendar_id)
-        if(calendarFromDexie && calendarFromDexie.length>0){
+        if (calendarFromDexie && calendarFromDexie.length > 0) {
             let url = calendarFromDexie[0].url
-            if(url){
+            if (url) {
                 const lastChar = url.substr(-1);
                 if (lastChar != '/') {
                     url = url + '/';
                 }
-        
+
                 url += fileName
                 console.log(data)
-    
+
                 await saveEventToDexie(calendar_id, url, etag, data, "VTODO")
                 const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
                 postNewEvent(calendar_id, data, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], "VTODO", fileName).then((body) => {
                     onServerResponse(body, summary)
                 })
                 closeEditor()
-            }else{
+            } else {
                 toast.error(i18next.t("ERROR_GENERIC"))
                 console.error("postNewTodo: url is empty.")
             }
-            
-        }else{
+
+        } else {
             toast.error(i18next.t("ERROR_GENERIC"))
             console.error("postNewTodo: event from dexie was empty.")
 
@@ -284,7 +338,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
 
     }
-    const updateTodoLocal = async (calendar_id, url, etag, data) =>{
+    const updateTodoLocal = async (calendar_id, url, etag, data) => {
         const message = summary ? summary + ": " : ""
         toast.info(message + i18next.t("ACTION_SENT_TO_CALDAV"))
         const oldEvent = await preEmptiveUpdateEvent(calendar_id, url, etag, data, "VTODO")
@@ -330,11 +384,11 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         onChange()
     }
     const startDateChange = (value) => {
-        if(typeof(value)==="string"){
+        if (typeof (value) === "string") {
             setTaskStart(value)
-        }else{
+        } else {
             //probably a date object
-            if(value._d){
+            if (value._d) {
                 setTaskStart(value._d)
 
             }
@@ -343,11 +397,11 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     }
 
     const dueDateChanged = (value) => {
-        if(typeof(value)==="string"){
+        if (typeof (value) === "string") {
             setDueDate(value)
-        }else{
+        } else {
             //probably a date object
-            if(value._d){
+            if (value._d) {
                 setDueDate(value._d)
 
             }
@@ -376,14 +430,14 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         showDeleteDailog()
     }
 
-    const removeParentClicked = () =>{
+    const removeParentClicked = () => {
         const newRelatedTo = VTODO.removeParentFromRelatedTo(relatedto)
         setParentID("")
         setRelatedTo(newRelatedTo)
         onChange()
 
     }
-    const onParentSelect = (uid) =>{
+    const onParentSelect = (uid) => {
         let newRelatedTo = _.cloneDeep(relatedto)
         newRelatedTo = VTODO.addParentToRelatedTo(uid, newRelatedTo)
         const parentID = VTODO.getParentIDFromRelatedTo(newRelatedTo)
@@ -392,32 +446,17 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         onChange()
     }
 
-    const calendarSelected = (e) =>{
+    const calendarSelected = (e) => {
 
     }
-    const changeDoneStatus = (isDone: boolean) =>{
-        if(isDone){
-            const completedDate =getISO8601Date(moment().toISOString())
-        // console.log(completedDate)
-            setCompleted(completedDate!)
-            setCompletion("100")
-            setStatus("COMPLETED")
-        }else{
-            setCompleted("")
-            setStatus("")
-            if(completion && parseInt(completion)==100){
-                setCompletion("0")
-            } 
-                
-        }
-    }
-    const taskDoneChanged = (e)=>{
+    
+    const taskDoneChanged = (e) => {
         setTaskDone(e.target.checked)
         changeDoneStatus(e.target.checked)
-        
+
     }
-    const statusValueChanged = (e) =>{
-      
+    const statusValueChanged = (e) => {
+
         setStatus(e.target.value)
     }
     const getStatusDropdown = () => {
@@ -434,7 +473,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
     }
 
-    const removeLabel = (newArray) =>{
+    const removeLabel = (newArray) => {
         // let newArray: string[] = []
         // console.log(label, category)
         // for (const i in category) {
@@ -446,7 +485,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         // getLabels(newArray)
         onChange()
     }
-    const onLabelAdded =(newLabelArray) =>{
+    const onLabelAdded = (newLabelArray) => {
         setCategory(newLabelArray)
         onChange()
     }
@@ -455,7 +494,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     //     let labelArray: JSX.Element[] = []
     //     const allLabelsFromDexie = await getAllLabelsFromDexie()
     //     if (isValidResultArray(category)) {
-            
+
     //         for (const i in categoryArray) {
     //             let labelColour: string | undefined = ""
     //             if (isValidResultArray(allLabelsFromDexie)) {
@@ -476,34 +515,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     // }
 
 
-    const generateCalendarDDL = async (calendar_id?) =>{
-
-        let calendarOutput: JSX.Element[] = []
-        const calendarsFromServer = await getCalDAVSummaryFromDexie()
-        if (isValidResultArray(calendarsFromServer)) {
-            calendarOutput.push(<option key="calendar-select-empty" ></option>)
-
-            for (let i = 0; i < calendarsFromServer.length; i++) {
-                let tempOutput: JSX.Element[] = []
-                if (!isValidResultArray(calendarsFromServer[i].calendars)) {
-                    continue
-                }
-                for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
-                    const value = calendarsFromServer[i].calendars[j].calendars_id
-                    const key = j + "." + value
-                    tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
-                }
-                calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
-
-            }
-            let disabled = calendar_id ? true: false
-            
-            setCalendarOptions([<Form.Select key="calendarOptions" onChange={calendarSelected} disabled={disabled} value={calendar_id}>{calendarOutput}</Form.Select>])
-
-        }
-    
-        // console.log("this.state.calendar_id at DDL", this.state.calendar_id)
-    }
+   
     const saveButton = !isSubmitting ? <Button size="sm" onClick={saveTask} >Save</Button> : <Loading centered={true} />
 
     let repeatInfoMessage: JSX.Element = <></>
@@ -514,7 +526,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         repeatInfoMessage = (<Alert variant="warning">{i18next.t("REPEAT_TASK_MESSAGE") + moment(new Date(repeatingInfo.getNextDueDate())).format(dateFormat)}</Alert>)
     }
 
-    
+
     return (
         <div key={"TaskEditor_" + input.id}>
             <div style={{ textAlign: "right" }}>
@@ -544,10 +556,10 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 <ParentTaskView parentID={parentID} uid={uid} calendar_id={calendar_id} removeParentClicked={removeParentClicked} onParentSelect={onParentSelect} />
             </div>
             <h4>Start Date</h4>
-            <div style={{ marginBottom: 10 }}><Datetime  value={moment(taskStart)} onChange={startDateChange} dateFormat={dateFormat} timeFormat="HH:mm" /></div>
+            <div style={{ marginBottom: 10 }}><Datetime value={moment(taskStart)} onChange={startDateChange} dateFormat={dateFormat} timeFormat="HH:mm" /></div>
             <h4>Due Date</h4>
             <Row style={{ marginBottom: 10 }}>
-            {isRepeatingTask ? <p>{dueDateFixed}</p> : <Datetime value={moment(dueDate)} input={true} onChange={dueDateChanged} dateFormat={dateFormat} timeFormat="HH:mm" closeOnSelect={true} />}
+                {isRepeatingTask ? <p>{dueDateFixed}</p> : <Datetime value={moment(dueDate)} input={true} onChange={dueDateChanged} dateFormat={dateFormat} timeFormat="HH:mm" closeOnSelect={true} />}
             </Row>
             <h4>Labels</h4>
             <div style={{ marginBottom: 10 }}>

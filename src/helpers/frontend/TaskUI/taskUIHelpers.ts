@@ -3,7 +3,7 @@ import { findIDinFilteredList, returnGetParsedVTODO } from "../calendar"
 import { Calendar_Events } from "../dexie/dexieDB"
 import { filterEvents, majorTaskFilter } from "../events"
 import { VTODO } from "../classes/VTODO"
-import { isValidObject, isValidResultArray } from "@/helpers/general"
+import { haystackHasNeedle, isValidObject, isValidResultArray } from "@/helpers/general"
 import { Calendar } from "@fullcalendar/core"
 import { getEventFromDexieByID } from "../dexie/events_dexie"
 import { RecurrenceHelper } from "../classes/RecurrenceHelper"
@@ -305,7 +305,23 @@ export async function removeDoneTasksFromTaskListArray(taskList: TaskArrayItem[]
     return newTaskArrayList
 }
 
+export async function filterTaskListArrayFromSearchTerm(taskList: TaskArrayItem[], searchTerm: string)
+{
+    let newTaskArrayList: TaskArrayItem[] = []
+    for(const k in taskList)
+    {
+        const event = await getEventFromDexieByID(parseInt(taskList[k].id.toString()))
+        if(event && Array.isArray(event) && event.length>0){
+            const todo = returnGetParsedVTODO(event[0].data)
+            if(haystackHasNeedle(searchTerm.trim(), todo?.summary) || haystackHasNeedle(searchTerm.trim(), todo?.description)){
+                newTaskArrayList.push(taskList[k])
+            }
 
+        }
+    }
+
+    return newTaskArrayList
+}
 /**
  * 
  */

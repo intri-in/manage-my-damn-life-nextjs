@@ -3,7 +3,7 @@ import { FcCollapse, FcExpand } from 'react-icons/fc'
 import { Col, Row } from 'react-bootstrap';
 
 
-export const TaskGroup = ({ key, parent, children }: { key: string, parent: JSX.Element, children: JSX.Element | null }) => {
+export const TaskGroup = ({ keyName, parent, children }: {keyName: string, parent: JSX.Element, children: JSX.Element | null }) => {
 
   const [childrenOutput, setChildrenOutput] = useState<JSX.Element | null>(<></>)
   const [collapsed, setCollapsed] = useState(true)
@@ -13,7 +13,7 @@ export const TaskGroup = ({ key, parent, children }: { key: string, parent: JSX.
     if (!collapsed) {
 
       setChildrenOutput(
-        <Row key={`${key}`}>
+        <Row key={`${keyName}_Children`}>
           <Col>
             {children}
           </Col>
@@ -22,7 +22,7 @@ export const TaskGroup = ({ key, parent, children }: { key: string, parent: JSX.
     } else {
       setChildrenOutput(null)
     }
-  }, [collapsed, parent, children])
+  }, [collapsed, parent, children,keyName, setChildrenOutput])
 
   let collapseButton: JSX.Element | null = null
   if (children) {
@@ -34,7 +34,7 @@ export const TaskGroup = ({ key, parent, children }: { key: string, parent: JSX.
     setCollapsed(prev => !prev)
   }
   return (
-    <div key={key}>
+    <div key={keyName}>
       <Row>
         <Col sm={11} md={11} lg={11}>
           {parent}

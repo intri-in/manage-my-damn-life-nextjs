@@ -78,6 +78,7 @@ export const TaskEditorViewManager = () =>{
                 if(calendar_id){
 
                     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+                    console.log("caldav_accounts_id", caldav_accounts_id)
                     handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse)
                     setShowConfirmDeleteDialog(false)
                     destroy()
