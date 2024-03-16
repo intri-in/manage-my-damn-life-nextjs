@@ -4,7 +4,7 @@ import { getMessageFromAPIResponse } from '@/helpers/frontend/response'
 import { isDarkModeEnabled } from '@/helpers/frontend/theme'
 import { useSetAtom } from 'jotai'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FcEmptyFilter } from 'react-icons/fc'
 import { toast } from 'react-toastify'
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from 'stateStore/ViewStore'
@@ -25,7 +25,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
 
 
-    const generateList = useCallback(async() =>{
+    const generateList = async() =>{
 
         const filterClicked = (jsonFilter, filterName) =>{
             setCurrentPageTitle(filterName)
@@ -91,7 +91,8 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
         }
 
         setFinalOutput(finalOutput)
-    },[setCurrentPageTitle,setFilterAtom,setCalDavAtom,postClick, setFinalOutput])
+    }
+    
     useEffect(() => {
         let isMounted = true
         if(isMounted)
@@ -101,7 +102,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
         return ()=>{
             isMounted = false
         }
-    }, [generateList])
+    }, [])
 
     return(
         <>

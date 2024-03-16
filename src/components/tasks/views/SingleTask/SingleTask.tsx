@@ -6,7 +6,7 @@ import { letterSpacing } from "@mui/system"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import moment from "moment"
 import { ContextMenuTrigger } from "rctx-contextmenu"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Col, Row, Stack } from "react-bootstrap"
 import { AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { MdRepeatOne, MdSpeakerNotes } from "react-icons/md"
@@ -42,12 +42,12 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     const [taskColour, setTaskColour] = useState("black")
     var marginLevel = level * 30 + 20
 
-    const checkifRepeating = useCallback(() =>{
+    const checkifRepeating = () =>{
         if ("rrule" in parsedTask && parsedTask.rrule) {
             setIsRepeating(true)
         }
 
-    },[setIsRepeating, parsedTask])
+    }
     useEffect(() => {
         let isMounted = true
         const getTaskColour = async () =>{
@@ -67,7 +67,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
         return () => {
             isMounted = false
         }
-    }, [parsedTask, id, level, checkifRepeating, setTaskColour, setLabelArray])
+    }, [parsedTask, id, level])
 
     const checkBoxClicked = () => {
         // setTaskChecked(prev => !prev)

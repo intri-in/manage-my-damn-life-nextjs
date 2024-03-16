@@ -1,7 +1,7 @@
 import Accordion from 'react-bootstrap/Accordion';
 import { getI18nObject } from "@/helpers/frontend/general";
 import { Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TaskArrayItem, TaskSection } from '@/helpers/frontend/TaskUI/taskUIHelpers';
 import { isValidResultArray, stringInStringArray } from '@/helpers/general';
 import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
@@ -22,7 +22,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
     const [filterList, setFilterList] = useState<labelSelector[]>([])
     const [search, setSearch] = useState("")
 
-    const generateFilterList = useCallback(async () =>{
+    const generateFilterList = async () =>{
         
         if(taskListSections && Array.isArray(taskListSections)){
             let finalList: labelSelector[] = []
@@ -59,7 +59,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
             labelSelectedChangedHook(finalList)
 
         }
-    },[setFilterList,labelSelectedChangedHook,taskListSections])
+    }
     useEffect(()=>{
         let isMounted = true
         // console.log(Array.isArray(taskListSections), "taskListSection")
@@ -72,7 +72,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
         return ()=>{
             isMounted = false
         }
-    },[taskListSections, generateFilterList,setSearch])
+    },[taskListSections])
 
 
     const searchLabelArray = (needle: string, currentLabel: labelSelector[]) =>{

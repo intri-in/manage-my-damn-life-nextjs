@@ -1,3 +1,1 @@
-- Implemented task search in task filters.
-- Gantt View implemented with Jotai.
-- Fixed build warnings, and used callbacks in the new functional components.
+- Removed god forsaken useCallbacks for now.

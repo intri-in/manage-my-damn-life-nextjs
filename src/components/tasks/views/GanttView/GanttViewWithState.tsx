@@ -4,7 +4,7 @@ import { Gantt, ViewMode, Task } from "gantt-task-react"
 import "gantt-task-react/dist/index.css";
 import { DummyTaskListComponent } from "../../gantt_Dummy/DummyTaskListComponent"
 import { DummyTaskHeaderComponent } from "../../gantt_Dummy/DummyTaskHeaderComponent"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { getEventColourbyID, getEventFromDexieByID } from "@/helpers/frontend/dexie/events_dexie"
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper"
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar"
@@ -45,7 +45,7 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
     const [showWithoutDue, setShowWithoutDue] = useState(true)
     const [view, setView] = useState(ViewMode.Week)
 
-    const generateGanttList = useCallback(async(taskList: TaskArrayItem[]) =>{
+    const generateGanttList = async(taskList: TaskArrayItem[]) =>{
 
         let toReturn: Task[] = []
         for(const k in taskList)
@@ -153,9 +153,9 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
             }
         }
         return toReturn
-    },[showChildren, showTasksWithoutDue])
+    }
 
-    const processTaskListSections  = useCallback(async() =>{
+    const processTaskListSections  = async() =>{
         setIsLoading(true)
         let finalGanttArray : Task[]  = []
         for(const i in taskListSections){
@@ -168,7 +168,7 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
         // console.log(finalGanttArray)
         setGanttTasks(finalGanttArray)
         setIsLoading(false)
-    },[setIsLoading,setGanttTasks, generateGanttList, taskListSections])
+    }
 
 
     useEffect(()=>{
@@ -181,7 +181,7 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
             isMounted = false
         }
         
-    },[processTaskListSections, taskListSections, showChildren,showWithoutDue,showTasksWithoutDue])
+    },[taskListSections])
     const taskClicked =async (e) =>{
         // console.log(e)
         if(e && e.id){

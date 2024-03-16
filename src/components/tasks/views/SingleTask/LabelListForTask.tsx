@@ -1,13 +1,13 @@
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels"
 import { isValidResultArray, varNotEmpty } from "@/helpers/general"
-import { useCallback, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 import { ParsedTask } from "types/tasks/tasks"
 
 export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: string}) => {
 
     const [finalOutput, setFinalOutput] = useState([<></>])
 
-    const generateList = useCallback(async () =>{
+    const generateList = async () =>{
         let labelArray: JSX.Element[] = []
         let labelColour = "black"
         let labelArrayFromCookie = await getAllLabelsFromDexie()
@@ -31,7 +31,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
         
             }
             setFinalOutput(labelArray)
-    },[setFinalOutput, parsedTask.categories])
+    }
 
     useEffect(()=>{
         let isMounted = true
@@ -41,7 +41,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
         return () => {
             isMounted = false
         }
-    },[parsedTask, id, generateList, setFinalOutput])
+    },[parsedTask, id])
 
     
 

@@ -1,4 +1,3 @@
-import { Component, useCallback } from "react";
 import Form from 'react-bootstrap/Form';
 import { Col, Row } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
@@ -16,13 +15,13 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
     const [labelSearchTerm, setLabelSearchTerm] = useState("")
     const [searchOutput, setSearchOutput] = useState<JSX.Element[]>([])
 
-    const removeLabelFromCategory = useCallback((labelToRemove) =>{
+    const removeLabelFromCategory = (labelToRemove) =>{
         let newArray: string[] = removeLabelFromCategoryArray(category, labelToRemove)
         onLabelRemoved(newArray)
 
-    },[onLabelRemoved, category])
+    }
 
-    const generateLabelOutput = useCallback(()=>{
+    const generateLabelOutput = ()=>{
         let labelArray: JSX.Element[] = []
         if (isValidResultArray(category)) {
             
@@ -42,7 +41,7 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
         }
         setLabelOutput(labelArray)
         
-    },[setLabelOutput, allLabelsFromDexie, category, removeLabelFromCategory])
+    }
 
     useEffect(()=>{
         let isMounted = true
@@ -57,7 +56,7 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
             isMounted = false
         }
 
-    },[category, generateLabelOutput])
+    },[category])
 
     const addNewLabelToCategory = (label) =>{
         if(categoryArrayHasLabel(category, label)==false){

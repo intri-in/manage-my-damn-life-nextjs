@@ -1,7 +1,7 @@
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { useSetAtom } from "jotai"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Col, ListGroup, Row } from "react-bootstrap"
 import { AiOutlinePlusCircle } from "react-icons/ai"
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
@@ -26,14 +26,14 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
 
 
     
-    const calendarNameClicked = useCallback((caldav_accounts_id, calendars_id)=>{
+    const calendarNameClicked = (caldav_accounts_id, calendars_id)=>{
         setCurrentPageTitle("")
         setFilterAtom({})
         setCalDavAtom({caldav_accounts_id: caldav_accounts_id, calendars_id: calendars_id})
         postClick()
-    },[postClick, setCalDavAtom, setFilterAtom, setCurrentPageTitle])
+    }
 
-    const renderCalendarList = useCallback(async (caldavSummary) =>{
+    const renderCalendarList = async (caldavSummary) =>{
 
         const addCalendarResponse = (response) =>{
             if(response!=null && response.success!= null && response.success==true && response.data.message[0].status>=200 && response.data.message[0].status<300)
@@ -86,12 +86,12 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
             setFinalOutput(finalOutput)
         }
 
-    },[calendarNameClicked,])
+    }
 
-    const getCaldavAccountsfromDexie = useCallback( async () => {
+    const getCaldavAccountsfromDexie =async () => {
         const caldavSummary = await getCalDAVSummaryFromDexie()
         renderCalendarList(caldavSummary)
-    },[renderCalendarList])
+    }
 
 
 
@@ -106,7 +106,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
         return ()=>{
             isMounted = false
         }
-    }, [getCaldavAccountsfromDexie, update])
+    }, [update])
 
 
 

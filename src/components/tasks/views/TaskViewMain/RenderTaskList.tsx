@@ -2,7 +2,7 @@ import { TaskArrayItem } from "@/helpers/frontend/TaskUI/taskUIHelpers";
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { getEventFromDexieByID } from "@/helpers/frontend/dexie/events_dexie";
 import { ISODatetoHuman, getI18nObject, timeDifferencefromNowinWords } from "@/helpers/frontend/general";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SingleTask } from "../SingleTask/SingleTask";
 import { sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort";
 import { TaskGroup } from "./TaskGroup";
@@ -11,7 +11,7 @@ const i18next = getI18nObject()
 export const RenderTaskList = ({taskList, level, sortBy}: {taskList: TaskArrayItem[], level: number, sortBy: string}) =>{
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
-    const renderList = useCallback(async () =>{
+    const renderList = async () =>{
 
         let final:JSX.Element[] = []
         for(const k in taskList){
@@ -36,7 +36,7 @@ export const RenderTaskList = ({taskList, level, sortBy}: {taskList: TaskArrayIt
                         taskChildren = <RenderTaskList sortBy={sortBy} taskList={sortedKids} level={levelTask+1} />
                     }
                     final.push(
-                    <TaskGroup keyName={taskList[k].id.toString()} parent={taskParent}>
+                    <TaskGroup key={`${taskList[k].id.toString()}_taskGroup`} keyName={`${taskList[k].id.toString()}_taskGroup`} parent={taskParent}>
                             {taskChildren}
                     </TaskGroup> )
                 }
@@ -49,7 +49,7 @@ export const RenderTaskList = ({taskList, level, sortBy}: {taskList: TaskArrayIt
         }else{
             setFinalOutput([<p key="RenderTaskList_nothing_toShow">{i18next.t("NOTHING_TO_SHOW")}</p>])
         }
-    },[setFinalOutput, level,sortBy, taskList])
+    }
 
     useEffect(()=>{
         let isMounted = true
@@ -60,7 +60,7 @@ export const RenderTaskList = ({taskList, level, sortBy}: {taskList: TaskArrayIt
         return ()=>{
             isMounted = false
         }
-    },[taskList, sortBy, renderList])
+    },[taskList])
     return(
         <>
         {finalOutput}

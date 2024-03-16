@@ -2,7 +2,7 @@ import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from "@/hel
 import { filterEvents } from "@/helpers/frontend/events"
 import { getI18nObject } from "@/helpers/frontend/general"
 import {  useAtomValue, useSetAtom } from "jotai"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
 import { TaskArrayItem, TaskSection, arrangeTodoListbyHierarchyV2,  getCaldavAndCalendarNameForView } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { Loading } from "@/components/common/Loading"
@@ -32,19 +32,18 @@ export const TaskListFrameWork = () =>{
     const [taskListSection, setTaskListSection] = useState<TaskSection[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const nothingToShow =useCallback(() =>{
+    const nothingToShow =() =>{
         setIsLoading(false)
         setTaskListSection([])
-    },[setIsLoading, setTaskListSection])
-
-    const renderTaskListUI = useCallback((todoList: TaskSection[]) => {
+    }
+    const renderTaskListUI = (todoList: TaskSection[]) => {
 
         setTaskListSection(todoList)
         setIsLoading(false)
 
-    },[setTaskListSection, setIsLoading])
+    }
 
-    const fetchEventsForCalendar = useCallback(async () => {
+    const fetchEventsForCalendar = async () => {
         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(currentCalDavObjectAtom.calendars_id,"VTODO")
         // console.log(eventsFromDexie)
         getCaldavAndCalendarNameForView(currentCalDavObjectAtom.caldav_accounts_id, currentCalDavObjectAtom.calendars_id).then(name =>{
@@ -66,9 +65,9 @@ export const TaskListFrameWork = () =>{
             nothingToShow()
         }
 
-    },[renderTaskListUI,nothingToShow, currentCalDavObjectAtom,currentPageFilter, setPageTitleAtom])
+    }
 
-    const fetchAllEvents = useCallback(async () => {
+    const fetchAllEvents = async () => {
         console.time("dexie_COMBINED_TASK_TIMER")
         const allSummary = await getCalDAVSummaryFromDexie()
         let finalToPush:TaskSection[] = []
@@ -103,7 +102,7 @@ export const TaskListFrameWork = () =>{
         // console.log("todoList_heirarchy", todoList_heirarchy)
         console.timeEnd("dexie_COMBINED_TASK_TIMER")
         
-    },[renderTaskListUI,currentPageFilter])
+    }
     useEffect(() => {
         let isMounted = true
         if(isMounted)
@@ -119,7 +118,7 @@ export const TaskListFrameWork = () =>{
         return ()=>{
             isMounted = false
         }
-    }, [currentPageFilter, updateView, fetchAllEvents, fetchEventsForCalendar,currentCalDavObjectAtom])
+    }, [currentPageFilter, updateView, currentCalDavObjectAtom])
 
     
 

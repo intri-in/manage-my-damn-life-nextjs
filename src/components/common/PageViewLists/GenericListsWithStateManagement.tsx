@@ -6,7 +6,7 @@ import { getI18nObject } from "@/helpers/frontend/general"
 import { isDarkModeEnabled } from "@/helpers/frontend/theme"
 import { PAGE_VIEW_JSON, PAGE_VIEW_NAME_ALL_TASKS, PAGE_VIEW_NAME_DUE_NEXT_SEVEN, PAGE_VIEW_NAME_DUE_TODAY, PAGE_VIEW_NAME_HIGH_PRIORITY, PAGE_VIEW_NAME_MY_DAY } from "@/helpers/viewHelpers/pages"
 import Link from "next/link"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Badge, Col, Row } from "react-bootstrap"
 import { AiFillStar, AiOutlineFilter, AiOutlineSetting } from "react-icons/ai"
 import { FiSunrise } from "react-icons/fi"
@@ -44,7 +44,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
         postClick()
     }
 
-    const labelClicked = useCallback((e) =>{
+    const labelClicked = (e) =>{
         const labelName = e.target.textContent
         const currentFilter = {label: [labelName]}
         const title = "Label: " + labelName
@@ -52,8 +52,8 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
         setFilterAtom({logic: "or", filter: currentFilter})
         setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
         postClick()
-    },[postClick,setCalDavAtom, setFilterAtom, setCurrentPageTitle])
-    const generateLabelListfromDexie = useCallback(async () =>{
+    }
+    const generateLabelListfromDexie = async () =>{
         const labels = await getAllLabelsFromDexie()
         var temp_Labelcomponent: JSX.Element[] =[]
         if(labels!=null)
@@ -71,7 +71,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
 
             setAllFilters(temp_Labelcomponent)
         }
-    },[labelClicked])
+    }
 
     useEffect(() => {
         let isMounted = true
@@ -90,7 +90,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
         return ()=>{
             isMounted = false
         }
-    }, [generateLabelListfromDexie])
+    }, [])
 
     
     const updateLabelCache = () =>{

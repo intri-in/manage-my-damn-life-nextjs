@@ -1,5 +1,5 @@
 import { TaskArrayItem, TaskSection, filterTaskListArray, filterTaskListArrayFromSearchTerm, removeDoneTasksFromTaskListArray } from "@/helpers/frontend/TaskUI/taskUIHelpers";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LocalTaskFilters, labelSelector } from "./LocalTaskFilters";
 import { Loading } from "@/components/common/Loading";
 import { RenderTaskList } from "./RenderTaskList";
@@ -14,7 +14,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
     const [sortOption, setSortOption] = useState(DEFAULT_SORT_OPTION)
     const [search, setSearch] = useState("")
 
-    const refilterAndSortTaskList = useCallback(async (showDoneLocal, labelListLocal, taskListLocal: TaskArrayItem[], sortByOption:string, searchTerm) =>{
+    const refilterAndSortTaskList = async (showDoneLocal, labelListLocal, taskListLocal: TaskArrayItem[], sortByOption:string, searchTerm) =>{
         
         let taskListAfterSearch : TaskArrayItem[] = []
         //First we search the tasks. 
@@ -54,8 +54,8 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         return newSortedRow
 
 
-    },[sortOption])
-    const generateFinalOutput = useCallback(async (showDoneLocal,labelListLocal, taskListSectionsLocal: TaskSection[], sortByLocal:string, searchTerm: string ) =>{
+    }
+    async function generateFinalOutput(showDoneLocal,labelListLocal, taskListSectionsLocal: TaskSection[], sortByLocal:string, searchTerm: string ){
         let finalOutput: JSX.Element[] = []
         // setLoading(true)
         if(taskListSectionsLocal.length==0)
@@ -83,7 +83,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
             )
         }
         setFinalOutput(finalOutput)
-    },[setFinalOutput, refilterAndSortTaskList])
+    }
 
     useEffect(()=>{
         let isMounted = true
@@ -96,7 +96,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         return ()=>{
             isMounted = false
         }
-    },[taskListSections, generateFinalOutput, setLoading,labelList, search, showDone, sortOption])
+    },[taskListSections])
     
     const showDoneChangedHook =async (selected: boolean) =>{
         setShowDone(selected)

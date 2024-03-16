@@ -1,6 +1,6 @@
 import { Loading } from "@/components/common/Loading"
 import { useAtomValue } from "jotai"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
 import Datetime from 'react-datetime';
@@ -67,7 +67,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [relatedto, setRelatedTo] = useState<"" | any>("")
     const [category, setCategory] = useState<string[]>([])
 
-    const changeDoneStatus = useCallback((isDone: boolean) => {
+    const changeDoneStatus = (isDone: boolean) => {
         if (isDone) {
             const completedDate = getISO8601Date(moment().toISOString())
             // console.log(completedDate)
@@ -82,8 +82,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
 
         }
-    },[setCompleted,setCompletion,setStatus, completion])
-    const generateCalendarDDL = useCallback(async (calendar_id?) => {
+    }
+    const generateCalendarDDL = async (calendar_id?) => {
 
         let calendarOutput: JSX.Element[] = []
         const calendarsFromServer = await getCalDAVSummaryFromDexie()
@@ -110,9 +110,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         }
 
         // console.log("this.state.calendar_id at DDL", this.state.calendar_id)
-    },[setCalendarOptions])
+    }
 
-    const checkInputForNewTask = useCallback(async () => {
+    const checkInputForNewTask = async () => {
         if (input) {
             if (!input.id) {
                 //Task is New.
@@ -165,9 +165,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setTaskStart(new Date(moment(input.start).unix() * 1000).toString())
             }
         }
-    },[setDueDate,setTaskStart, setPriority, setCategory, generateCalendarDDL, setCalendarID, changeDoneStatus, input])
+    }
 
-    const fetchTaskInfoFromDexie = useCallback(async (idInput) => {
+    const fetchTaskInfoFromDexie = async (idInput) => {
 
         let id_local = idInput
         if (typeof (input.id) !== "number") {
@@ -224,7 +224,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         }
 
         return null
-    },[setTaskStart, setPriority, setCompletion, setCompleted,setCategory, checkInputForNewTask, generateCalendarDDL, input.id])
+    }
+
     useEffect(() => {
         let isMounted = true
         
@@ -236,7 +237,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         return () => {
             isMounted = false
         }
-    }, [input, setIsNewTask, fetchTaskInfoFromDexie])
+    }, [input])
 
     const saveTask = async () => {
         let recurrences: null | {} = null
