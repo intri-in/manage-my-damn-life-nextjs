@@ -11,6 +11,11 @@ v0.5.0
 - TaskEditor rewritten
 - Implemented task search in task filters.
 - Gantt View implemented with Jotai.
+- Removed god forsaken useCallbacks for now.
+- Logo updated.
+- Rewrote Addtask component
+    - Uses Jotai
+- TaskEditor now uses default calendar for new tasks.
 
 v0.4.6
 - Version Bump to 0.4.6

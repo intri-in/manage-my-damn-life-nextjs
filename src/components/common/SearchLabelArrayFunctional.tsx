@@ -21,32 +21,32 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
 
     }
 
-    const generateLabelOutput = ()=>{
-        let labelArray: JSX.Element[] = []
-        if (isValidResultArray(category)) {
-            
-            for (const i in category) {
-                let labelColour: string | undefined = ""
-                if (isValidResultArray(allLabelsFromDexie)) {
-                    for (let j = 0; j < allLabelsFromDexie.length; j++) {
-                        if (allLabelsFromDexie[j].name == category[i]) {
-                            labelColour = (("colour" in allLabelsFromDexie[j]) && allLabelsFromDexie[j].colour) ? allLabelsFromDexie[j].colour: "black"
-                        }
-                    }
-                }
-
-                labelArray.push(<span onClick={()=>removeLabelFromCategory(category[i])} id={category[i]} key={category[i]+"_"+i} className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{category[i]}</span>)
-
-            }
-        }
-        setLabelOutput(labelArray)
-        
-    }
+    
 
     useEffect(()=>{
         let isMounted = true
         if (isMounted) {
-            
+            const generateLabelOutput = ()=>{
+                let labelArray: JSX.Element[] = []
+                if (isValidResultArray(category)) {
+                    
+                    for (const i in category) {
+                        let labelColour: string | undefined = ""
+                        if (isValidResultArray(allLabelsFromDexie)) {
+                            for (let j = 0; j < allLabelsFromDexie.length; j++) {
+                                if (allLabelsFromDexie[j].name == category[i]) {
+                                    labelColour = (("colour" in allLabelsFromDexie[j]) && allLabelsFromDexie[j].colour) ? allLabelsFromDexie[j].colour: "black"
+                                }
+                            }
+                        }
+        
+                        labelArray.push(<span onClick={()=>removeLabelFromCategory(category[i])} id={category[i]} key={category[i]+"_"+i} className="badge rounded-pill textDefault" style={{ marginLeft: 3, marginRight: 3, padding: 3, backgroundColor: labelColour, color: "white" }}>{category[i]}</span>)
+        
+                    }
+                }
+                setLabelOutput(labelArray)
+                
+            }
             getAllLabelsFromDexie().then(labels =>{
                 setLabelsFromDexie(labels)
             })

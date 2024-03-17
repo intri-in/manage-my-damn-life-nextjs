@@ -8,7 +8,9 @@ export interface TaskEditorInputType{
     priority?:number,
     taskDone?: boolean,
     due?: Date,
-    start?:Date
+    start?:Date,
+    summary?:string,
+    calendar_id?:string | number
 
 }
 export const showTaskEditorAtom = atom(false)

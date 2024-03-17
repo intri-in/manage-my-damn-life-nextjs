@@ -1,4 +1,5 @@
 import AddTask from "@/components/common/AddTask/AddTask"
+import { AddTaskFunctional } from "@/components/common/AddTask/AddTaskFunctional"
 import AppBarGeneric from "@/components/common/AppBar"
 import GenericLists from "@/components/common/GenericLists"
 import { GenericListsWithStateManagement } from "@/components/common/PageViewLists/GenericListsWithStateManagement"
@@ -105,7 +106,7 @@ export const TaskViewListWithStateManagement =  () =>{
             {leftColumnMatter}
           </Col>
           <Col xs={11} sm={11} md={9} lg={9} style={{ borderLeft: borderRight, minHeight:"100vh"}}>
-          <AddTask   />
+         <AddTaskFunctional />
           <ViewSelector  />
           <br />
           <h2>{currentPageTitle}</h2>

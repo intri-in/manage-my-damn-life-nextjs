@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
 import Datetime from 'react-datetime';
+import "react-datetime/css/react-datetime.css";
 import { getI18nObject } from "@/helpers/frontend/general"
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
 import Recurrence from "@/components/common/Recurrence";
@@ -20,8 +21,6 @@ import { fixDueDate, getISO8601Date, isValidResultArray, varNotEmpty } from "@/h
 import * as _ from 'lodash'
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper"
 import VTodoGenerator from 'vtodogenerator'
-import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels"
-import SearchLabelArray from "@/components/common/SearchLabelArray"
 import { toast } from "react-toastify"
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarURLByID_Dexie, getCalendarbyIDFromDexie, isValidCalendarsID } from "@/helpers/frontend/dexie/calendars_dexie"
 import { generateNewTaskObject } from "@/helpers/frontend/tasks"
@@ -30,6 +29,7 @@ import { getRandomString } from "@/helpers/crypto"
 import { Labels } from "@/helpers/frontend/dexie/dexieDB"
 import { SearchLabelArrayFunctional } from "@/components/common/SearchLabelArrayFunctional"
 import { TaskPending } from "@/helpers/api/tasks"
+import { getDefaultCalendarID } from "@/helpers/frontend/cookies"
 
 const i18next = getI18nObject()
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
@@ -83,7 +83,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
         }
     }
-    const generateCalendarDDL = async (calendar_id?) => {
+    const generateCalendarDDL = async (calendar_id, disabled: boolean) => {
 
         let calendarOutput: JSX.Element[] = []
         const calendarsFromServer = await getCalDAVSummaryFromDexie()
@@ -103,7 +103,6 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
 
             }
-            let disabled = calendar_id ? true : false
 
             setCalendarOptions([<Form.Select key="calendarOptions" onChange={calendarSelected} disabled={disabled} value={calendar_id}>{calendarOutput}</Form.Select>])
 
@@ -131,12 +130,33 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                                     setParentID(parentTaskUID)
                                     setRelatedTo(parentTaskUID)
                                 }
-                                generateCalendarDDL(event[0].calendar_id)
+                                generateCalendarDDL(event[0].calendar_id, true)
                             }
 
                         }
                     }
 
+                }else{
+                    //Process calendar_id
+                    if(input.calendar_id){
+
+                        setCalendarID(input.calendar_id.toString())
+                        generateCalendarDDL(input.calendar_id, false)
+                    }else{
+                        // No input.
+                        // Get default calendar from perferences and store.
+                        
+                        const defaultCalendarID = await getDefaultCalendarID()
+                        if(defaultCalendarID){
+                            setCalendarID(defaultCalendarID)
+                        }
+                        generateCalendarDDL(defaultCalendarID, false)
+                    }
+
+                }
+                //Process summary info for new task.
+                if(input.summary){
+                    setSummary(input.summary)
                 }
             }
 
@@ -157,7 +177,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setPriority(input.priority.toString())
             }
             // Process due date info.
-            console.log("input.due")
+            console.log("input.due", input.due)
             if (input.due) {
                 setDueDate(new Date(moment(input.due).unix() * 1000).toString())
             }
@@ -188,7 +208,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (calendar_id) {
                 setCalendarID(calendar_id)
             }
-            generateCalendarDDL(calendar_id)
+            generateCalendarDDL(calendar_id,true)
             if (parsedData) {
                 if (TaskPending(parsedData) == false) {
                     setTaskDone(true)
@@ -448,7 +468,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     }
 
     const calendarSelected = (e) => {
-
+        setCalendarID(e.target.value)
     }
     
     const taskDoneChanged = (e) => {

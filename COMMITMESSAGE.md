@@ -1,1 +1,5 @@
 - Removed god forsaken useCallbacks for now.
+- Logo updated.
+- Rewrote Addtask component
+    - Uses Jotai
+- TaskEditor now uses default calendar for new tasks.

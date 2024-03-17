@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import AppBarGeneric_ClassComponent from "./AppBarGenericClass";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import AppBarFunctionalComponents from "./AppBarFunctionalComponents";
 
 interface propsType{
     isSyncing?: boolean,
@@ -26,10 +27,9 @@ const AppBarGeneric= ({isSyncing, onSynComplete}:propsType) =>{
     // },[])
 
     const session = useSession()
-    const router = useRouter()
     return (
     <>
-        <AppBarGeneric_ClassComponent router={router} session={session} isSyncing={isSyncing} onSynComplete={onSynComplete} />
+        <AppBarFunctionalComponents session={session} isSyncing={isSyncing} onSynComplete={onSynComplete} />
     </>)
 }
 
