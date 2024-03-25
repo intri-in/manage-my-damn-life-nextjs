@@ -139,8 +139,9 @@ export async function fetchLatestEventsV2(refreshCalList)
     }
     localStorage.setItem(IS_SYNCING, false)
     localStorage.setItem(LASTSYNC, Date.now())
-
 }
+
+
 
 export async function fetchLatestEventsWithoutCalendarRefresh()
 {
@@ -242,11 +243,11 @@ export async function refreshCalendarListV2()
             .then((body) =>{
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
                     const calDAVSummaryFromServer = body.data.details
-                    return syncCalDAVSummary(calDAVSummaryFromServer)
+                    return resolve(syncCalDAVSummary(calDAVSummaryFromServer))
 
                 }else{
                     if(body && getMessageFromAPIResponse(body) =="NO_CALDAV_ACCOUNTS"){
-                        return syncCalDAVSummary([])
+                        return resolve(syncCalDAVSummary([]))
                     }
                 }
             }).then((answer)=>{

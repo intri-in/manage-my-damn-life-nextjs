@@ -58,6 +58,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const setShow = useSetAtom(showEventEditorAtom)
     const setEditorInput = useSetAtom(eventEditorInputAtom)
     const updated = useAtomValue(updateCalendarViewAtom)
+    const setUpdatedCalendarView = useSetAtom(updateCalendarViewAtom)
     const allUpdated = useAtomValue(updateViewAtom)
     /**
      * Local State
@@ -333,35 +334,38 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         // console.log(moment(e.date).toISOString(),moment(end).toISOString())
         setShow(true)
     }
-    const makeQuickRequesttoCaldav= async(eventData, eventInfoFromDexie) =>{
+    const makeQuickRequesttoCaldav= async(eventData, eventInfoFromDexie, summary) =>{
         const obj = getObjectForAPICallV2(eventData)
         var ics = await makeGenerateICSRequest({ obj })
         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventInfoFromDexie[0].calendar_id)
+        const messageHeader = summary ? summary+": ":""
+        // console.log("messageHeader", messageHeader)
+        // console.log(ics)
         if (varNotEmpty(ics)) {
             const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
             if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
-                toast.success(i18next.t("UPDATE_OK"))
+                toast.success(messageHeader+i18next.t("UPDATE_OK"))
 
 
             } else {
-                var message = getMessageFromAPIResponse(response)
+                let message = getMessageFromAPIResponse(response)
                 if (message != "" && varNotEmpty(message)) {
-                    toast.error(i18next.t(message.toString()))
+                    toast.error(messageHeader+i18next.t(message.toString()))
                     console.log(response)
                 } else {
-                    toast.error((i18next.t("ERROR_GENERIC")))
+                    toast.error(messageHeader+(i18next.t("ERROR_GENERIC")))
 
                 }
             }
 
         } else {
-            toast.error((i18next.t("ERROR_GENERIC")))
-
+            toast.error(messageHeader+i18next.t("ERROR_GENERIC"))
+            console.log("makeQuickRequesttoCaldav: ics is null")
         }
-
+        setUpdatedCalendarView(Date.now())
     }
     const eventDrop = async (e) => {
-        console.log(e)
+        // console.log("eventDrop", e)
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
@@ -378,7 +382,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     
             eventData.start = newStart
             eventData.end = newEnd
-            makeQuickRequesttoCaldav(eventData, eventInfoFromDexie)
+            makeQuickRequesttoCaldav(eventData, eventInfoFromDexie, eventData["summary"])
+        }else{
+            console.error("eventDrop: eventInfoFromDexie is empty")
         }
 
 
@@ -398,7 +404,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             //console.log(newStart, newEnd)
 
             eventData.end = newEnd
-            makeQuickRequesttoCaldav(eventData, eventInfoFromDexie)
+            makeQuickRequesttoCaldav(eventData, eventInfoFromDexie, eventData["summary"])
 
         }
 

@@ -23,6 +23,7 @@ export const QUICK_ADD_FORMATS = [
     "YYYY/MM/DD",
 ];
 
+
 export const QUICK_ADD_OUTPUT_FORMATS = [
     "MM/DD/YYYY HH:mm",
     "M/D/YYYY HH:mm",

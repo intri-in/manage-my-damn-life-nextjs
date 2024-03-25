@@ -66,7 +66,7 @@ export function AddTaskFunctional(props) {
         }
         // console.log("taskSummaryChanged", parsedTaskFromUserInput)
         processQuickAddResults(parsedTaskFromUserInput, dueDate);
-        if(dueDate){
+        if(dueDate && dueDate.isValid()){
             newTask.due = new Date(dueDate.toString())
         }
         setNewTaskSummary(e.target.value);
@@ -99,7 +99,7 @@ export function AddTaskFunctional(props) {
     const processQuickAddResults = (newTask, dueDate) => {
         const output: JSX.Element[] = [];
         if (varNotEmpty(dueDate) && dueDate !== "" && dueDate.isValid() && varNotEmpty(dueDate._i) && dueDate._i !== "") {
-            output.push(<div><Badge key="QUICK_ADD_DUE" pill bg="warning" text="dark">{i18next.t("DUE") + ": " + dueDate._i.toString()}</Badge></div>);
+            output.push(<div key={`due_${dueDate._i.toString()}`}><Badge key="QUICK_ADD_DUE" pill bg="warning" text="dark">{i18next.t("DUE") + ": " + dueDate._i.toString()}</Badge></div>);
         }
         if (varNotEmpty(newTask.label) && newTask.label.length > 0) {
             let labelNames = "";

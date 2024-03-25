@@ -6,13 +6,34 @@ import { getMessageFromAPIResponse } from "../response";
 import { displayErrorMessageFromAPIResponse, getI18nObject } from "../general";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
+import { SETTING_NAME_CALENDAR_START_DAY, SETTING_NAME_DATE_FORMAT, SETTING_NAME_DEFAULT_CALENDAR, SETTING_NAME_DEFAULT_VIEW_CALENDAR, SETTING_NAME_TIME_FORMAT, USER_SETTING_SYNCTIMEOUT } from "../settings";
 
 const i18next= getI18nObject()
 
 export default class SettingsHelper
 {
 
+    static async getAllFromServerAndSave(){
+        const defaultCalendar = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_CALENDAR)
+        localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalendar)
 
+        const defaultView = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_VIEW_CALENDAR)
+        localStorage.setItem(SETTING_NAME_DEFAULT_VIEW_CALENDAR, defaultView)
+
+        const startingDay = await SettingsHelper.getFromServer(SETTING_NAME_CALENDAR_START_DAY)
+        localStorage.setItem(SETTING_NAME_CALENDAR_START_DAY, startingDay)
+
+        const syncTimeout = await SettingsHelper.getFromServer(USER_SETTING_SYNCTIMEOUT)
+        localStorage.setItem(USER_SETTING_SYNCTIMEOUT, syncTimeout)
+
+        const dateFormat = await SettingsHelper.getFromServer(SETTING_NAME_DATE_FORMAT)
+        localStorage.setItem(SETTING_NAME_DATE_FORMAT, dateFormat)
+
+        const timeFormat = await SettingsHelper.getFromServer(SETTING_NAME_TIME_FORMAT)
+        localStorage.setItem(SETTING_NAME_TIME_FORMAT, timeFormat)
+        
+
+    }
     static async getFromServer(keyName: string): Promise<string>
     {
         const authorisationData = await getAuthenticationHeadersforUser()

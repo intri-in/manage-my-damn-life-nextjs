@@ -180,12 +180,12 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                         </Row>
                     </Col>
                     <Col onClick={taskClicked} xs={3} sm={3} md={5} lg={3}>
-                            <div style={{ overflowX: 'scroll', overflow: "hidden", textOverflow: "ellipsis", maxHeight: "14px" , color: dueDateColor}} className="textDefault">{dueDateText} </div>
+                            <div style={{ overflowX: 'scroll', overflow: "hidden", textOverflow: "ellipsis", maxHeight: "14px" , color: dueDateColor}} className="textDefault"><SummaryText text={dueDateText}/> </div>
 
 
                     </Col>
                     <Col  onClick={taskClicked} className="d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={3}>
-                        <div style={{ overflowX: 'scroll', overflow: "hidden", textOverflow: "ellipsis", width: "80%"}} className="textDefault">
+                        <div style={{  width: "80%"}} className="textDefault">
                             <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
                         </div>
                         

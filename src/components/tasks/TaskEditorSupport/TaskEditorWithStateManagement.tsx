@@ -194,11 +194,11 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
             // Process due date info.
             // console.log("input.due", input.due)
-            if (input.due) {
-                setDueDate(new Date(moment(input.due).unix() * 1000).toString())
+            if (input.due && moment(input.due).isValid()) {
+                setDueDate(moment(input.due).toISOString())
             }
-            if (input.start){
-                setTaskStart(new Date(moment(input.start).unix() * 1000).toString())
+            if (input.start && moment(input.start).isValid()){
+                setTaskStart(moment(input.start).toISOString())
             }
         }
     }

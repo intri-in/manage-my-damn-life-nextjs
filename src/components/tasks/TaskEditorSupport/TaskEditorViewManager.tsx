@@ -78,7 +78,7 @@ export const TaskEditorViewManager = () =>{
                 if(calendar_id){
 
                     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
-                    console.log("caldav_accounts_id", caldav_accounts_id)
+                    // console.log("caldav_accounts_id", caldav_accounts_id)
                     handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse)
                     setShowConfirmDeleteDialog(false)
                     destroy()
@@ -97,7 +97,7 @@ export const TaskEditorViewManager = () =>{
     }
     const onServerResponse = (body, taskName) =>{
         let message= getMessageFromAPIResponse(body)
-        console.log("body and message", body, message, taskName)
+        // console.log("body and message", body, message, taskName)
         const finalToast = taskName ? taskName+": ": ""
         if (body != null) {
             if (body.success == true) {

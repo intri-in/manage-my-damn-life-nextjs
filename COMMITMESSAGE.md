@@ -1,6 +1,7 @@
-- Ganttview fixed show tasks without no due date toggle not working
-- Event editor
-    - Now works
-    - Uses Jotai
-    - Supports all fields that were supported by 0.4. version.
-    
+- Removed some console logs
+- Fixed invalid date being parsed by TaskEditor
+- Fixed message displayed on drag and drop of event in calendar view.
+- Introduced a new setup page post login 
+    - All events are synced before redirecting to home page
+    - Settings are synced too
+- Introduced setting to set default time and date format.
