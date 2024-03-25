@@ -121,7 +121,7 @@ export const TaskEditorViewManager = () =>{
     }
     
     return(
-        <>
+    <>
     <Offcanvas placement='end' show={show} onHide={taskEditorClosed}>
         <Offcanvas.Header closeButton>
             <Offcanvas.Title>Edit Task</Offcanvas.Title>

@@ -64,7 +64,7 @@ export function AddTaskFunctional(props) {
         } catch (e) {
             logVar(e, "taskSummaryChanged, QuickAdd");
         }
-        console.log("taskSummaryChanged", parsedTaskFromUserInput)
+        // console.log("taskSummaryChanged", parsedTaskFromUserInput)
         processQuickAddResults(parsedTaskFromUserInput, dueDate);
         if(dueDate){
             newTask.due = new Date(dueDate.toString())

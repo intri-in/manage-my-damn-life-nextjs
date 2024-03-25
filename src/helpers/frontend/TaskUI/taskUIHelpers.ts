@@ -38,15 +38,15 @@ export interface TaskArrayItem{
 export function arrangeTodoListbyHierarchyV2(todoList: Calendar_Events[], allEvents): TaskArrayItem[]
 {
 
-    console.time("time1")
+    console.time("arrangeTodoListbyHierarchyV2: Time to get top level UID")
     const listofTasks_Obj= getTopLevelUID_V2(todoList)
     // console.log(listofTasks_Obj.rest.length, listofTasks_Obj.topLevelTasks.length, todoList.length, listofTasks_Obj.rest.length+listofTasks_Obj.topLevelTasks.length-todoList.length)    
-    console.timeEnd("time1")
+    console.timeEnd("arrangeTodoListbyHierarchyV2: Time to get top level UID")
     // console.log("listofTasks", listofTasks)
 
-    console.time("time2")
+    console.time("arrangeTodoListbyHierarchyV2: Time to get children")
     recursivelyAddChildren_V2(listofTasks_Obj.topLevelTasks, allEvents, 0)
-    console.timeEnd("time2")
+    console.timeEnd("arrangeTodoListbyHierarchyV2: Time to get children")
     return listofTasks_Obj.topLevelTasks
 
 }
@@ -343,8 +343,13 @@ export const onServerResponse_UI = (body, taskName) =>{
     if (body != null) {
         if (body.success == true) {
             
-            toast.success(finalToast+i18next.t(message))
-            
+            if(typeof(message)==="string"){
+
+                toast.success(finalToast+i18next.t(message))
+            }else{
+                toast.success(finalToast+i18next.t("Done")+"!")
+            }
+        
         }
         else {
             if(message){

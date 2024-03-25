@@ -45,6 +45,10 @@ export function getTodaysDateUnixTimeStamp()
     return dueDatetoUnixStamp(date)
 
 }
+export function isValidDateString(dateString){
+    let date = new Date(dateString);
+    return date instanceof Date && !isNaN(date.valueOf())
+}
 
 export function addTrailingSlashtoURL(url)
 {
@@ -196,6 +200,15 @@ export function fixDueDate(inputDate) {
 
     return dueDate
 }
+export function fixDueDateWithFormat(inputDate, dateFormat) {
+    let dueDate = ""
+    let dueDateUnix = moment(inputDate, dateFormat).unix() * 1000;
+    dueDate = moment(dueDateUnix).format('YYYYMMDD');
+    dueDate += "T" + moment(dueDateUnix).format('HHmmss');
+
+    return dueDate
+}
+
 export function getISO8601Date(date, skipTime)
 {
     var toReturn = ""

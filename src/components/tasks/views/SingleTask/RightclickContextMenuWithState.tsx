@@ -19,6 +19,9 @@ import { RRuleHelper } from '@/helpers/frontend/classes/RRuleHelper';
 import { updateTodo_WithUI } from '@/helpers/frontend/tasks';
 import { onServerResponse_UI } from '@/helpers/frontend/TaskUI/taskUIHelpers';
 import { updateViewAtom } from 'stateStore/ViewStore';
+import { eventEditorInputAtom, showEventEditorAtom } from 'stateStore/EventEditorStore';
+import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
+import moment from 'moment';
 const i18next = getI18nObject()
 interface propsType {
   id: number | string,
@@ -33,6 +36,9 @@ export function RightclickContextMenuWithState(props: propsType) {
   const setShowTaskEditor = useSetAtom(showTaskEditorAtom)
   const setTaskEditorInput = useSetAtom(taskEditorInputAtom)
   const setUpdateViewTime = useSetAtom(updateViewAtom)
+
+  const showEventEditor = useSetAtom(showEventEditorAtom)
+  const setEventEditorInput = useSetAtom(eventEditorInputAtom)
 
   /**
    * Local State
@@ -142,6 +148,25 @@ export function RightclickContextMenuWithState(props: propsType) {
   }
   const scheduleItem = () => {
 
+    getEventFromDexieByID(parseInt(props.id.toString())).then(event =>{
+      if(event && event.length>0){
+        const parsedTask = returnGetParsedVTODO(event[0].data)
+        const start = moment().toISOString()
+        const end = moment((moment().unix()+60*60)*1000).toString()
+        if(parsedTask){
+
+          setEventEditorInput({
+            id:null,
+            calendar_id:calendar_id,
+            summary: parsedTask["summary"],
+            start: start,
+            end: end
+      
+          })
+          showEventEditor(true)
+        }
+      }
+    })
   }
   contextMenuItems.push(<ContextMenuItem key="EDIT_TASK" onClick={() => onEditTask(props.id)} >
     <AiOutlineEdit />  &nbsp;  {i18next.t("EDIT")}

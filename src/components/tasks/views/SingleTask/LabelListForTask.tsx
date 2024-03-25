@@ -26,7 +26,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                     }
                     
                        
-                    labelArray.push(<span key={`labels_${i}_${parsedTask.categories[i]}`} className="badge rounded-pill textDefault" style={{ fontSize:9, marginLeft: 3, marginRight: 3,  backgroundColor: labelColour, color: "white" }}>{parsedTask.categories[i]}</span>)
+                    labelArray.push(<span key={`labels_${i}_${parsedTask.categories[i]}_${id}`} className="badge rounded-pill textDefault" style={{ fontSize:9, marginLeft: 3, marginRight: 3,  backgroundColor: labelColour, color: "white" }}>{parsedTask.categories[i]}</span>)
                     }
         
                     

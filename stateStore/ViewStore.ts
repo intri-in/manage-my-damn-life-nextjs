@@ -14,6 +14,7 @@ export const currentPageTitleAtom = atom(i18next.t("MY_DAY"))
 export const calDavObjectAtom = atom<calDavObject>({caldav_accounts_id: null, calendars_id:null})
 
 export const updateViewAtom = atom(Date.now())
+export const updateCalendarViewAtom = atom(Date.now())
 export const filterAtom =  atom<TaskFilter | {}>(PAGE_VIEW_JSON["MY_DAY"])
 
 //Filter value provided to the component.

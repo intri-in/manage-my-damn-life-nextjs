@@ -8,6 +8,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         if(await middleWareForAuthorisation(req,res))
         {
+            console.log("input obj", req.body.obj)
             if(varNotEmpty(req.body.obj))
             {
                     

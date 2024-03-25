@@ -170,20 +170,21 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     <Col xs={1} m={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
                         <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
                     </Col>
-                    <Col xs={9} sm={9} md={10} lg={5} onClick={taskClicked} >
+                    <Col xs={6} sm={6} md={5} lg={3} onClick={taskClicked} >
                         <Row>
                             <Col >
-                                <div style={{ overflowX: 'scroll', overflow: "scroll", textOverflow: "ellipsis", maxHeight: "16px" }} className="textDefault"><SummaryText text={parsedTask["summary"]} /></div>
+                                <div style={{  overflow: "hidden", textOverflow: "ellipsis",  }} className="textDefault"><SummaryText text={parsedTask["summary"]} /></div>
 
                             </Col>
-                            <Col >
+                            
+                        </Row>
+                    </Col>
+                    <Col onClick={taskClicked} xs={3} sm={3} md={5} lg={3}>
                             <div style={{ overflowX: 'scroll', overflow: "hidden", textOverflow: "ellipsis", maxHeight: "14px" , color: dueDateColor}} className="textDefault">{dueDateText} </div>
 
 
-                            </Col>
-                        </Row>
                     </Col>
-                    <Col  onClick={taskClicked} className="d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={4}>
+                    <Col  onClick={taskClicked} className="d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={3}>
                         <div style={{ overflowX: 'scroll', overflow: "hidden", textOverflow: "ellipsis", width: "80%"}} className="textDefault">
                             <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
                         </div>

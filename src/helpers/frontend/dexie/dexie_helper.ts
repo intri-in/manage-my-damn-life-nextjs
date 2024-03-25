@@ -1,8 +1,20 @@
 import { isValidResultArray } from "@/helpers/general"
 import { getCalDAVSummaryFromDexie } from "./caldav_dexie"
 import { fetchEventsForCalendarsFromDexie, getEventFromDexieByID } from "./events_dexie"
-import { db } from "./dexieDB";
+import { Calendar_Events, db } from "./dexieDB";
 import { returnGetParsedVTODO } from "../calendar";
+
+export interface EventsLikeAPIType{
+    info:EventsLikeAPIType_Info,
+    events:Calendar_Events[]
+
+}
+interface EventsLikeAPIType_Info{
+    caldav_account:string,
+    caldav_accounts_id:number,
+    calendar: string,
+    color:string
+}
 
 export async function clearDexieDB(){
 

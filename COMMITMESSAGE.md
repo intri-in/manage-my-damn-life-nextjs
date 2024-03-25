@@ -1,5 +1,6 @@
-- Removed god forsaken useCallbacks for now.
-- Logo updated.
-- Rewrote Addtask component
+- Ganttview fixed show tasks without no due date toggle not working
+- Event editor
+    - Now works
     - Uses Jotai
-- TaskEditor now uses default calendar for new tasks.
+    - Supports all fields that were supported by 0.4. version.
+    

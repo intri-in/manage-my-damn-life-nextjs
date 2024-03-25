@@ -465,6 +465,12 @@ export function getEmptyEventDataObject()
     return toReturn
 }
 
+/**
+ * @deprecated
+ * @param {*} newEventData 
+ * @param {*} oldEventData 
+ * @returns 
+ */
 export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
 {
     var missingKeys=[]
@@ -490,6 +496,39 @@ export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
     for (const l in missingKeys)
     {
         toReturn.data[missingKeys[l]]=oldEventData.data[missingKeys[l]]
+    }
+    return newEventData
+
+}
+
+export function addAdditionalFieldsFromOldEventV2(newEventData, oldEventData)
+{
+    if(!oldEventData){
+        return newEventData
+    }
+    let missingKeys=[]
+    let toReturn=newEventData
+
+    for (const i in oldEventData)
+    {
+        let found = false
+        for (const k in newEventData)
+        {
+            if(k==i)
+            {
+                found=true
+            }
+        }
+
+        if(found==false)
+        {
+            missingKeys.push(i)
+        }
+
+    }
+    for (const l in missingKeys)
+    {
+        toReturn[missingKeys[l]]=oldEventData[missingKeys[l]]
     }
     return newEventData
 

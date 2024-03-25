@@ -42,7 +42,6 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
     const [isLoading, setIsLoading] = useState(true)
     const [showTasksWithoutDue, setShowTasksWithoutDue] = useState(false)
     const [showChildren, setShowChildren] = useState(true)
-    const [showWithoutDue, setShowWithoutDue] = useState(true)
     const [view, setView] = useState(ViewMode.Week)
 
     const generateGanttList = async(taskList: TaskArrayItem[]) =>{
@@ -55,6 +54,7 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
             if(task && task.length>0){
                 
                 const parsedTasks = returnGetParsedVTODO(task[0].data)
+                // console.log(TaskPending(parsedTasks))
                 if(parsedTasks && TaskPending(parsedTasks)){
                     let dueDate= new Date()
                     let hasDueDate = false
@@ -181,7 +181,7 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
             isMounted = false
         }
         
-    },[taskListSections])
+    },[taskListSections, showTasksWithoutDue, showChildren])
     const taskClicked =async (e) =>{
         // console.log(e)
         if(e && e.id){
