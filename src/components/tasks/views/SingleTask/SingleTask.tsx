@@ -189,7 +189,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
                     {repeatingTaskIcon} {hasDescriptionIcon}
                     </Col>
-                    <Col xs={2} sm={1} md={1} lg={1} >
+                    <Col  style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center"}} xs={2} sm={1} md={1} lg={1} >
                      {priorityStar}
                     </Col>
                 </Row>

@@ -5,17 +5,7 @@ import { Form } from "react-bootstrap"
 
 export const CalendarPicker = ({calendar_id, disabled, onSelectedHook}:{calendar_id:string | number,disabled?: boolean,onSelectedHook: Function}) =>{
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
-    useEffect(()=>{
-        let isMounted =true
-        if(isMounted){
-            generateCalendarDDL()
-        }
-        return ()=>{
-            isMounted=false
-        }
-
-    },[])
-
+   
 
     useEffect(()=>{
         let isMounted =true

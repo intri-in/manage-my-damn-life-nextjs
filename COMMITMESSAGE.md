@@ -1,2 +1,3 @@
-- Added new feature: Ability to move/copy events to other calendars. 
-    - Solves: #132
+- Added move to calendar option to Task Editor.
+- Before setting a default calendar in Event and Taskeditors, added a check to make sure it is a valid id.
+- UI Improvement to Home Page

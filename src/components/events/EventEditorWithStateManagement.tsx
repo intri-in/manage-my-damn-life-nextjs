@@ -18,7 +18,7 @@ import { CalendarPicker } from "../common/Calendarpicker";
 import {  getDefaultCalendarIDFromLocalStorage } from "@/helpers/frontend/cookies";
 import { getObjectForAPICallV2, makeGenerateICSRequest } from "@/helpers/frontend/ics";
 import { getRandomString } from "@/helpers/crypto";
-import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
+import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie, isValidCalendarsID } from "@/helpers/frontend/dexie/calendars_dexie";
 import { getAPIURL, varNotEmpty } from "@/helpers/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { parseVALARMTIME } from "@/helpers/frontend/rfc5545";
@@ -89,7 +89,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                 }else{
                     //Get Default calendar and set.
                     const default_calendar_id = await getDefaultCalendarIDFromLocalStorage()
-                    if(default_calendar_id){
+                    if(default_calendar_id && await isValidCalendarsID(default_calendar_id)){
                         setCalendarID(default_calendar_id)
                     }
 
@@ -218,9 +218,17 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         setCalendarID(value)
     }
     const saveButtonClicked = async () =>{
+        let finalFromDate = fromDate
+        let finalToDate = toDate
+        if(allDay){
+            finalFromDate = moment(fromDate).startOf("day").toISOString()
+            finalToDate = moment(toDate).add(1, "day").startOf("day").toISOString()
+        }
 
-        let eventData = {summary: summary, start: fromDate, end: toDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
+        let eventData = {summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
+        
         if(isValidEvent()){
+            // console.log("calendar_id", finalFromDate, finalToDate)
             eventData = addAdditionalFieldsFromOldEventV2(eventData, parsedData)
             const obj = getObjectForAPICallV2(eventData)
             const ics = await makeGenerateICSRequest({ obj })
@@ -343,7 +351,8 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <br />
         <h3>{i18next.t("CALENDAR")}</h3>
             <CalendarPicker disabled={calendarDisabled} onSelectedHook={calendarSelected} calendar_id={calendar_id} />
-            <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, padding:5}}>{i18next.t("COPY_MOVE")}</p>
+            {showMoveEventOption ? <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, }}>{i18next.t("COPY_MOVE")}</p> : null }
+            <br />
             <Form.Check
                 type="switch"
                 label={i18next.t("ALL_DAY_EVENT")}

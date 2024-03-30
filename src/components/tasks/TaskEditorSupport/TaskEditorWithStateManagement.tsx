@@ -1,5 +1,5 @@
 import { Loading } from "@/components/common/Loading"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
@@ -31,6 +31,8 @@ import { TaskPending } from "@/helpers/api/tasks"
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies"
 import { Datepicker } from "@/components/common/Datepicker/Datepicker"
 import { CalendarPicker } from "@/components/common/Calendarpicker"
+import { PRIMARY_COLOUR } from "@/config/style"
+import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore"
 
 const i18next = getI18nObject()
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
@@ -40,6 +42,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     */
     const dateFormat = useAtomValue(currentSimpleDateFormatAtom)
     const dateFullFormat = useAtomValue(currentDateFormatAtom)
+    const showMoveModal = useSetAtom(showMoveEventModal)
+    const setMoveEventInput = useSetAtom(moveEventModalInput)
 
 
     /**
@@ -70,7 +74,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [relatedto, setRelatedTo] = useState<"" | any>("")
     const [category, setCategory] = useState<string[]>([])
     const [calendarDDLDisabled, setCalendarDDLDisabled] = useState(false)
-
+    const [showMoveEventOption, setShowMoveEventOption]= useState(false)
     const changeDoneStatus = (isDone: boolean) => {
         if (isDone) {
             const completedDate = getISO8601Date(moment().toISOString())
@@ -164,7 +168,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                         // Get default calendar from perferences and store.
                         
                         const defaultCalendarID = await getDefaultCalendarID()
-                        if(defaultCalendarID){
+                        if(defaultCalendarID && await isValidCalendarsID(defaultCalendarID)){
                             setCalendarID(defaultCalendarID)
                         }
                         // generateCalendarDDL(defaultCalendarID, false)
@@ -226,6 +230,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (calendar_id) {
                 setCalendarID(calendar_id)
                 setCalendarDDLDisabled(true)
+                setShowMoveEventOption(true)
+
             }
             // generateCalendarDDL(calendar_id,true)
             if (parsedData) {
@@ -548,6 +554,14 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         setCategory(newLabelArray)
         onChange()
     }
+    const copyMoveClicked =() =>{
+        setMoveEventInput({
+            id: input.id
+        })
+        closeEditor()
+        showMoveModal(true)
+
+    }
     // const getLabels =  async (categoryArray?) => {
     //     console.log("getLabels", categoryArray, category)
     //     let labelArray: JSX.Element[] = []
@@ -612,6 +626,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <div style={{ marginBottom: 10 }}>
                 <CalendarPicker onSelectedHook={calendarSelected} key={uid} calendar_id={calendar_id} disabled={calendarDDLDisabled} />
             </div>
+            {showMoveEventOption ? <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, }}>{i18next.t("COPY_MOVE")}</p> : null }
+
             <h4>Parent Task</h4>
             <div style={{ marginBottom: 10 }}>
                 <ParentTaskView parentID={parentID} uid={uid} calendar_id={calendar_id} removeParentClicked={removeParentClicked} onParentSelect={onParentSelect} />

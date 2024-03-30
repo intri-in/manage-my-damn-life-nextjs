@@ -105,7 +105,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
 
     }
     const handleDelete = async (eventFromDexie: Calendar_Events[], caldav_accounts_id)=>{
-        console.log(eventFromDexie[0].url)
+        // console.log(eventFromDexie[0].url)
         await deleteEventByURLFromDexie(eventFromDexie[0].url)
         //Make delete request to server.
         const responseDelete = await deleteEventFromServer(caldav_accounts_id,eventFromDexie[0].calendar_id,eventFromDexie[0].url,eventFromDexie[0].etag, eventFromDexie[0])
@@ -124,18 +124,18 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
             
             if(parsedEventLocal && ("uid" in parsedEventLocal)){
                 parsedEventLocal.uid=""
-                console.log("parsedEventLocal", parsedEventLocal)
+                // console.log("parsedEventLocal", parsedEventLocal)
                 const todo = new VTodoGenerator(parsedEventLocal, { strict: false })
                 const finalVTODO = todo.generate()
 
-                console.log(finalVTODO)
+                // console.log(finalVTODO)
                 goMakeRequests(finalVTODO, deleteTask)
             }
 
         }else if(eventFromDexie[0].type=="VEVENT"){
             parsedEventLocal = {...parsedEvent}
             parsedEventLocal["uid"]=""
-            console.log("parsedEventLocal", parsedEventLocal)
+            // console.log("parsedEventLocal", parsedEventLocal)
             const obj = getObjectForAPICallV2(parsedEventLocal)
             const ics = await makeGenerateICSRequest({ obj })
             goMakeRequests(ics, deleteTask)
@@ -163,7 +163,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
         await saveEventToDexie(calendar_id, url, etag, finalVTODO, type)
         toast.info(i18next.t("ACTION_SENT_TO_CALDAV"))
         const responseBody = await postNewEvent(calendar_id, finalVTODO, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], type, fileName)
-        console.log("responseBody", responseBody)
+        // console.log("responseBody", responseBody)
         if(!deleteTask){
             onServerResponse(responseBody, summary)
             handleClose()

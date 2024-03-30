@@ -1,9 +1,9 @@
-import { Col, Row, Offcanvas } from 'react-bootstrap';
+import { Col, Row, Offcanvas, Accordion } from 'react-bootstrap';
 import {  varNotEmpty } from '@/helpers/general';
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from '@/config/style';
 import { getI18nObject } from '@/helpers/frontend/general';
 import { AiOutlineMenuUnfold } from 'react-icons/ai';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AddTaskFunctional } from '@/components/common/AddTask/AddTaskFunctional';
 import { HomeTasksDDL } from '@/components/Home/HomeTasks/HomeTasksDDL';
 import { TaskListFrameWork } from '@/components/tasks/views/TaskListFrameWork';
@@ -11,91 +11,89 @@ import { currentPageTitleAtom } from 'stateStore/ViewStore';
 import { useAtomValue } from 'jotai';
 import { CalendarViewWithStateManagement } from '@/components/fullcalendar/CalendarViewWithStateManagement';
 
+const i18next = getI18nObject();
 export const CombinedViewFunctional = (props) => {
 
   const currentPageTitle = useAtomValue(currentPageTitleAtom)
 
-  const [scheduleItem, setScheduleItem] = useState(null);
   const [showListColumn, setShowListColumn] = useState(true);
-  const [showLeftColumnOffcanvas, setShowLeftColumnOffcanvas] = useState(false);
   const [calendarAR, setCalendarAR] = useState(1.35);
-  const i18next = getI18nObject();
 
 
-  const scheduleItemHandler = (data) => {
-    console.log(data);
-    if (varNotEmpty(data) && varNotEmpty(data.summary) && varNotEmpty(data.calendar_id)) {
-      setScheduleItem(data);
-    }
-  };
 
   const updateDimensions = () => {
+    console.log(window.innerWidth)
     if (window.innerWidth < 768) {
       setShowListColumn(false);
       setCalendarAR(0.3);
     } else {
       setShowListColumn(true);
+      setCalendarAR(1.35);
+
     }
   };
 
-  const leftColumDragged = () => {
-    if (!showListColumn) {
-      setShowLeftColumnOffcanvas(true);
-    }
-  };
+  // const leftColumDragged = () => {
+  //   if (!showListColumn) {
+  //     setShowLeftColumnOffcanvas(true);
+  //   }
+  // };
 
-  const showListColumnButtonClicked = () => {
-    setShowLeftColumnOffcanvas(true);
-  };
+  // const showListColumnButtonClicked = () => {
+  //   setShowLeftColumnOffcanvas(true);
+  // };
 
-  const handleCloseOffcanvas = () => {
-    setShowLeftColumnOffcanvas(false);
-  };
+  // const handleCloseOffcanvas = () => {
+  //   setShowLeftColumnOffcanvas(false);
+  // };
 
   useEffect(() => {
+    updateDimensions()
     window.addEventListener('resize', updateDimensions);
     return () => {
       window.removeEventListener('resize', updateDimensions);
     };
   }, []);
 
-
+  const allTaskLists = (
+  <>
+    <AddTaskFunctional />
+    <HomeTasksDDL />
+    <br />
+    <h2>{currentPageTitle}</h2>              
+    <TaskListFrameWork />
+  </>
+  )
+  const taskOutput = showListColumn ? (<></>) : <GetAccordionTaskList body={allTaskLists} />
+  const borderLeft = !showListColumn ? "" : `3px solid ${SECONDARY_COLOUR}`
   return (
     <>
+      {taskOutput}
       <Row style={{}}>
-        <Col onClick={leftColumDragged} xs={1} sm={1} md={3} lg={4} style={{ paddingTop: 30, minHeight: '100vh' }}>
-          {showListColumn || showLeftColumnOffcanvas ? (
-            <div>
-              <AddTaskFunctional />
-              <HomeTasksDDL />
-              <br />
-              <h2>{currentPageTitle}</h2>              
-              <TaskListFrameWork />
-            </div>
-          ) : (
-            <div style={{ marginTop: 20 }}>
-              <AiOutlineMenuUnfold color={PRIMARY_COLOUR} onClick={showListColumnButtonClicked} size={24} />
-            </div>
-          )}
+        <Col className='d-none d-sm-none d-md-block' md={4} lg={4} style={{ paddingTop: 30, minHeight: '100vh' }}>
+          {allTaskLists}
         </Col>
-        <Col xs={11} sm={11} md={9} lg={8} style={{ paddingTop: 20, borderLeft: `3px solid ${SECONDARY_COLOUR}` }}>
+        <Col xs={12} sm={12} md={8} lg={8} style={{ paddingTop: 20, borderLeft: borderLeft}}>
           <CalendarViewWithStateManagement calendarAR={calendarAR} />
         </Col>
       </Row>
-      <Offcanvas placement="start" show={showLeftColumnOffcanvas} onHide={handleCloseOffcanvas}>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title></Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-              <AddTaskFunctional />
-              <HomeTasksDDL />
-              <br />
-              <h2>{currentPageTitle}</h2>              
-              <TaskListFrameWork />
-
-        </Offcanvas.Body>
-      </Offcanvas>
     </>
   );
 };
 
+const GetAccordionTaskList = ({body}) =>{
+  return(
+    <div style={{marginTop: 20}}>
+        <Accordion >
+          <Accordion.Item eventKey="taskList_HomePage">
+            <Accordion.Header>{i18next.t("TASKS")}</Accordion.Header>
+            <Accordion.Body>
+              {body}
+            </Accordion.Body>
+
+          </Accordion.Item>
+        </Accordion>
+
+    </div>
+  )
+}
