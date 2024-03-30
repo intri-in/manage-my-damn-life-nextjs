@@ -29,9 +29,12 @@ export function setCookie(cname, cvalue, exdays=10000)
 
 }
 
+export async function getDefaultCalendarIDFromLocalStorage(){
+    return localStorage.getItem("DEFAULT_CALENDAR_ID")
+}
 export async function getDefaultCalendarID()
 {
-    var fromCookie=localStorage.getItem("DEFAULT_CALENDAR_ID")
+    const fromCookie=localStorage.getItem("DEFAULT_CALENDAR_ID")
     if(varNotEmpty(fromCookie) && fromCookie!=""){
         return fromCookie
     }

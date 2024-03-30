@@ -24,11 +24,45 @@ export class VTODO {
         }
     }
 
+    hasParent(){
+        let relatedTo = this.parsedData.relatedto
 
+        if(typeof (relatedTo) == "string"){
+            // The object has basic related to relationship, which we will ascertain as having a parent.
+            if(relatedTo){
+                return true
+            }        
+            return false
+        }
+
+        //Related to is an object
+
+        if (Array.isArray(relatedTo)) {
+            for (const k in relatedTo) {
+                if (varNotEmpty(relatedTo[k].params) && varNotEmpty(relatedTo[k].params.RELTYPE)) {
+                    if (relatedTo[k].params.RELTYPE == "PARENT") {
+                        return true
+                    }
+                }
+
+
+            }
+        } else {
+            if (varNotEmpty(relatedTo.params) && varNotEmpty(relatedTo.params.RELTYPE)) {
+                if (relatedTo.params.RELTYPE == "PARENT") {
+                    return true
+                }
+            }
+        }
+
+
+        return false
+
+           
+    }
     hasNoRelatedParent() {
 
-        var hasNoRelatedParent = true
-        var relatedTo = this.parsedData.relatedto
+        let relatedTo = this.parsedData.relatedto
         if (varNotEmpty(relatedTo) && relatedTo != "") {
 
             if (typeof (relatedTo) != "string") {
@@ -51,7 +85,7 @@ export class VTODO {
                 }
 
 
-                return hasNoRelatedParent
+                return true
 
             } else {
                 return false

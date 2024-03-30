@@ -3,35 +3,44 @@ import { isValidResultArray } from "@/helpers/general";
 import Form from 'react-bootstrap/Form';
 import { Col, Row } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
-import { searchLabelObject } from "@/helpers/frontend/labels";
 import ListGroup from 'react-bootstrap/ListGroup';
+import { searchLabelObject } from "@/helpers/frontend/labels";
+import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 
 export default class SearchLabelArray extends Component{
     constructor(props)
     {
         super(props)
-        this.state={searchResults: props.dataList, finalOutput: null, labelSearchValue:"" }
+        this.state={dataList: [], finalOutput: null, labelSearchValue:"", labels: this.props.labels }
         this.generateListofResults - this.generateListofResults.bind(this)
         this.labelSearch = this.labelSearch.bind(this)
     }
     componentDidMount()
     {
-
+        getAllLabelsFromDexie().then(labels =>{
+            this.setState({dataList: labels})
+        })
     }
+    componentDidUpdate(prevProps, prevState) {
+        if(prevProps.labels!=this.props.labels){
+            this.setState({labels: this.props.labels})
+        }
+    }
+
     addLabelClicked(label)
     {
         this.setState({finalOutput: null, labelSearchValue:""})
-        var incomingLabelArray = [] 
-        if(isValidResultArray(this.props.labels))
+        let incomingLabelArray = [] 
+        if(isValidResultArray(this.state.labels))
         {
             incomingLabelArray= this.props.labels
         }
         if(label!=null&&label.trim()!="")
         {
             var found=false
-            for(const i in this.props.labels)
+            for(const i in this.state.labels)
             {
-                if(label.trim()==this.props.labels[i])
+                if(label.trim()==this.state.labels[i])
                 {
                     found = true
                 }
@@ -46,9 +55,9 @@ export default class SearchLabelArray extends Component{
     generateListofResults(searchTerm){
         var finalOutput=[]
         var result=[]
-        if(isValidResultArray(this.props.dataList))
+        if(isValidResultArray(this.state.dataList))
         {
-             result = searchLabelObject(this.props.dataList, searchTerm);
+             result = searchLabelObject(this.state.dataList, searchTerm);
 
             for(const i in result)
             {

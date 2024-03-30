@@ -206,7 +206,6 @@ function HomeTasks(props:homeTasksPropsInterface) {
 
         {menuOptionsSelect}
         <br />
-        <TaskList scheduleItem={props.scheduleItem} view={taskView} fetchEvents={fetchEvents} updated={updated} router={props.router} title={title} filter={filter} caldav_accounts_id={caldav_accounts_id} calendars_id={calendars_id} />
         </div>
     )
 }

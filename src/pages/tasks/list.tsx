@@ -1,4 +1,8 @@
+import { GlobalViewManager } from "@/components/common/GlobalViewManager/GlobalViewManager";
+import { EventEditorViewManager } from "@/components/events/EventEditorViewManager";
 import TaskViewList from "@/components/page/TaskViewPage/TaskViewList";
+import { TaskViewListWithStateManagement } from "@/components/page/TaskViewPage/TaskViewListWithStateManagement";
+import { TaskEditorViewManager } from "@/components/tasks/TaskEditorSupport/TaskEditorViewManager";
 import { useCustomTheme } from "@/helpers/frontend/theme";
 import { checkLogin_InBuilt } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
@@ -13,19 +17,27 @@ export default function TaskListPage(){
     useCustomTheme()
 
     useEffect(() =>{
-      async function checkAuth(){
-        
-        if(await nextAuthEnabled()){
-          if (status=="unauthenticated" ) {
-            signIn()
+      let isMounted = true
+      if(isMounted)
+      {
+        const checkAuth = async () =>{
+          
+          if(await nextAuthEnabled()){
+            if (status=="unauthenticated" ) {
+              signIn()
+            }
+          }else{
+            // Check login using inbuilt function.
+    
+            checkLogin_InBuilt(router, "/tasks/list")
           }
-        }else{
-          // Check login using inbuilt function.
-  
-          checkLogin_InBuilt(router, "/tasks/list")
         }
+        checkAuth()
       }
-      checkAuth()
+      return ()=>{
+        isMounted = false
+      }
+
     }, [status,router])
     
 
@@ -34,7 +46,8 @@ export default function TaskListPage(){
     
     return(
         <>
-        <TaskViewList />
+        <TaskViewListWithStateManagement />
+        <GlobalViewManager />
         </>
     )
 }

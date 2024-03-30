@@ -1,3 +1,39 @@
+v0.5.0
+- Version Bump to 0.5.0
+- Added Jotai for state management
+    - Central state management for the calendar and caldav account the user has selected.
+    - Rewrote entire task rendering components.
+    - Prevents prop drilling, which was so bad I should be on the crew in the movie Armageddon.
+- Task Rendering Changed
+    - Much smoother
+    - Instant update without any loading (only mild flickering)
+    
+- TaskEditor rewritten
+- Implemented task search in task filters.
+- Gantt View implemented with Jotai.
+- Removed god forsaken useCallbacks for now.
+- Logo updated.
+- Rewrote Addtask component
+    - Uses Jotai
+- TaskEditor now uses default calendar for new tasks.
+- Ganttview fixed show tasks without no due date toggle not working
+- Event editor V2
+    - Now works
+    - Uses Jotai
+    - Supports all fields that were supported by 0.4. version.
+- Removed some console logs
+- Fixed invalid date being parsed by TaskEditor
+- Fixed message displayed on drag and drop of event in calendar view.
+- Introduced a new setup page post login 
+    - All events are synced before redirecting to home page
+    - Settings are synced too
+- Introduced setting to set default time and date format.
+- Added new feature: Ability to move/copy events to other calendars. 
+    - Solves: #132
+- Added move to calendar option to Task Editor.
+- Before setting a default calendar in Event and Taskeditors, added a check to make sure it is a valid id.
+- UI Improvement to Home Page
+
 v0.4.6
 - Version Bump to 0.4.6
 - Fixed delay in login due to first sync with Caldav account.

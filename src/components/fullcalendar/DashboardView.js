@@ -631,7 +631,7 @@ class DashboardView extends Component {
         return (<>
 
             <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", }} >
-                <Col >
+                <Col>
                     <Form.Select value={this.state.viewValue} onChange={this.viewChanged}>
                         {options}
                     </Form.Select>

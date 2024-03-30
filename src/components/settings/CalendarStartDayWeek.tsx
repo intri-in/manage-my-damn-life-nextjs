@@ -50,7 +50,7 @@ function CalendarStartDayWeek(props:null){
         }
     }
 
-    var finalOptions: Object[]  = []
+    let finalOptions: JSX.Element[]  = []
 
     for(const i in DAY_ARRAY)
     {

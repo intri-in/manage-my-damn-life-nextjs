@@ -139,8 +139,37 @@ export async function fetchLatestEventsV2(refreshCalList)
     }
     localStorage.setItem(IS_SYNCING, false)
     localStorage.setItem(LASTSYNC, Date.now())
-
 }
+export async function fetchLatestEvents_withoutCalendarRefresh()
+{
+    if(isSyncing()){
+        //toast.warn(i18next.t("ALREADY_SYNCING"))
+        console.warn("Sync already in progress.")
+    }
+    localStorage.setItem(IS_SYNCING, true)
+    const arrayFromDexie = await getCalDAVSummaryFromDexie()
+    console.log("arrayFromDexie_FINALLY", arrayFromDexie)
+    if(isValidResultArray(arrayFromDexie)){
+        for(const i in arrayFromDexie){
+            if(isValidResultArray(arrayFromDexie[i]["calendars"])){
+                for(const j in arrayFromDexie[i]["calendars"]){
+                    const cal = arrayFromDexie[i]["calendars"][j]
+                    console.log("Syncing Calendar: "+cal["displayName"])
+                    const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
+                    //Now we save these events in dexie.
+                    await saveAPIEventReponseToDexie(cal["calendars_id"],events)
+
+                }
+            }
+            //saveEventsIntoDexie(caldav_account)
+
+        }
+    }
+    localStorage.setItem(IS_SYNCING, false)
+    localStorage.setItem(LASTSYNC, Date.now())
+}
+
+
 
 export async function fetchLatestEventsWithoutCalendarRefresh()
 {
@@ -242,11 +271,11 @@ export async function refreshCalendarListV2()
             .then((body) =>{
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
                     const calDAVSummaryFromServer = body.data.details
-                    return syncCalDAVSummary(calDAVSummaryFromServer)
+                    return resolve(syncCalDAVSummary(calDAVSummaryFromServer))
 
                 }else{
                     if(body && getMessageFromAPIResponse(body) =="NO_CALDAV_ACCOUNTS"){
-                        return syncCalDAVSummary([])
+                        return resolve(syncCalDAVSummary([]))
                     }
                 }
             }).then((answer)=>{

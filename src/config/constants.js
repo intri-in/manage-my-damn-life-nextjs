@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.4.6" 
+export const VERSION_NUMBER = "0.5.0" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -22,6 +22,7 @@ export const QUICK_ADD_FORMATS = [
     "YYYY-MM-DD",
     "YYYY/MM/DD",
 ];
+
 
 export const QUICK_ADD_OUTPUT_FORMATS = [
     "MM/DD/YYYY HH:mm",

@@ -44,7 +44,7 @@ function DefaultCalendarViewSelect(props:null) {
     
         }
     }
-    var finalOptions: Object[] = []
+    let finalOptions: JSX.Element[] = []
     for(const i in defaultOptions)
     {
        finalOptions.push(<option key={defaultOptions[i].name} value={defaultOptions[i].name}>{i18next.t(defaultOptions[i].saneName)}</option>)

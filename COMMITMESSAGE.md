@@ -1,2 +1,3 @@
-- Version Bump to 0.4.6
-- Fixed delay in login due to first sync with Caldav account.
+- Added move to calendar option to Task Editor.
+- Before setting a default calendar in Event and Taskeditors, added a check to make sure it is a valid id.
+- UI Improvement to Home Page
