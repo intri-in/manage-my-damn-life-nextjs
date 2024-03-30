@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         if(await middleWareForAuthorisation(req,res))
         {
-            console.log(req.body)
+            // console.log(req.body)
             //console.log(req.body)
             if(req.body.etag!=null && req.body.etag.trim()!="" && req.body.data!=null && req.body.data.trim()!="" && req.body.updated!=null && req.body.updated.toString().trim()!="" && req.body.type!=null && req.body.type.trim()!="" && req.body.caldav_accounts_id!=null && req.body.ctag && req.body.syncToken && req.body.url && req.body.fileName )
             {

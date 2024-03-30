@@ -19,7 +19,7 @@ export default async function handler(req, res) {
                 var vevent = comp.getFirstSubcomponent(type);
                 var veventJSON = vevent.toJSON()
 
-                console.log(veventJSON)
+                // console.log(veventJSON)
                 if(isValidResultArray(veventJSON) && veventJSON.length>=2)
                 {
                     var data = veventJSON[1]
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
                             var arrayValue = []
                             var value = data[i][3]
                             var additional = data[i][1]
-                            console.log(data[i].length, data[i][0])
+                            // console.log(data[i].length, data[i][0])
                             if(data[i].length>4)
                             {
                                 for (let j=3;j<data[i].length; j++)
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
                 logError(e, "parseics_ical.js API")
             }
         
-            console.log(json)
+            // console.log(json)
             res.status(200).json({ success: true, data: { message: json} })
 
         }

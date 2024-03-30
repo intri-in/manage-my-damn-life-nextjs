@@ -10,6 +10,11 @@ import { varNotEmpty } from '@/helpers/general'
 import { useRouter } from 'next/router'
 import { getIfInstalled, installCheck } from '@/helpers/install'
 import { useCustomTheme } from '@/helpers/frontend/theme'
+import { CombinedViewFunctional } from '@/components/page/CombinedView/CombinedViewFunctional'
+import { TaskEditorViewManager } from '@/components/tasks/TaskEditorSupport/TaskEditorViewManager'
+import { TaskListFrameWork } from '@/components/tasks/views/TaskListFrameWork'
+import { EventEditorViewManager } from '@/components/events/EventEditorViewManager'
+import { GlobalViewManager } from '@/components/common/GlobalViewManager/GlobalViewManager'
 
 const i18next = getI18nObject()
 export default function HomePage() {
@@ -59,7 +64,6 @@ export default function HomePage() {
     
 
   
-    let finalOutput = (<CombinedView updated={updated} onSynComplete={onSynComplete} />)
 
     return(
         <div   >
@@ -70,7 +74,8 @@ export default function HomePage() {
         </Head>
         <AppBarGeneric  onSynComplete={onSynComplete} isSyncing={isSyncing}/>
         <div className='container-fluid'>
-          {finalOutput}
+          <CombinedViewFunctional />
+          <GlobalViewManager />         
         </div>     
         </div>
 

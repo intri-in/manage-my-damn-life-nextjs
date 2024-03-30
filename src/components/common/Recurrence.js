@@ -13,7 +13,7 @@ export default class rrule extends Component{
     {
         super(props)
         this.i18next = getI18nObject()
-        var rrule =RRuleHelper.getEmptyObject()
+        let rrule =RRuleHelper.getEmptyObject()
         if(RRuleHelper.isValidObject(props.rrule))
         {
             rrule= _.cloneDeep(props.rrule)
@@ -27,6 +27,12 @@ export default class rrule extends Component{
 
     }
 
+    componentDidUpdate(prevProps, prevState) {
+
+        if (this.props.rrule !== prevProps.rrule ) {
+            this.setState({rrule: _.cloneDeep(this.props.rrule)})
+        }
+    }
     removeRecurrence() {
         var recurrenceTemp = JSON.parse(JSON.stringify(RRuleHelper.getEmptyObject()))
         this.setState({rrule: recurrenceTemp, recurrence: recurrenceTemp})

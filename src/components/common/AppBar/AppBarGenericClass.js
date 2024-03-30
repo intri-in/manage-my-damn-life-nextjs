@@ -242,4 +242,4 @@ async syncButtonClicked() {
   }
 }
 
-export default withRouter(AppBarGeneric_ClassComponent)
+// export default withRouter(AppBarGeneric_ClassComponent)

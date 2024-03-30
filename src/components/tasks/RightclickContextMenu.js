@@ -10,9 +10,9 @@ import { MdSchedule } from 'react-icons/md';
 
 export function RightclickContextMenu(props)
 {
-  var i18next = getI18nObject()
+  const i18next = getI18nObject()
 
-  var contextMenuItems=[]
+  let contextMenuItems=[]
 contextMenuItems.push( <ContextMenuItem key="EDIT_TASK"  onClick={()=>props.onEditTask(props.id)} >
   <AiOutlineEdit />  &nbsp;  {i18next.t("EDIT")}        
 </ContextMenuItem>

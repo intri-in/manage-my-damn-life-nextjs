@@ -25,6 +25,7 @@ import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
 import MaintenanceTasks from "./MaintenanceTasks";
 import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
+import { TimeFormatSetting } from "./TimeFormatSetting";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -71,7 +72,9 @@ class SettingsPage extends Component {
                                 checkifCalendarIDPresentinDexieSummary(defaultCalValue).then((resultofCheck) =>{
                                     
                                     if( resultofCheck){
-                                        localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalValue)
+                                        if (typeof window !== 'undefined') {
+                                            localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalValue)
+                                        }
                                         this.setState({defaultCalendar: defaultCalValue})
                                     }
                                 })
@@ -388,6 +391,10 @@ class SettingsPage extends Component {
                         </div>
                         <br />
                         <AutoSyncSetting />
+                        <br />
+                        <br />
+                        <h2>{this.i18next.t("DATE_TIME_FORMAT")}</h2>
+                        <TimeFormatSetting />
                         <br />
                         <br />
                         <MaintenanceTasks />

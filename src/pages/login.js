@@ -155,18 +155,17 @@ class Login extends Component{
                     setUserNameCookie(this.state.username)
                     //Save userhash and SSID 
                     setLoginCookie(message.userhash, message.ssid)
-                    var redirectURL="/"
+                    let redirectURL=`/setup`
                     if(window!=undefined){
                         const queryString = window.location.search;
                         const params = new URLSearchParams(queryString);
-                        var redirectTo = params.get('redirect')
+                        let redirectTo = params.get('redirect')
                         if(redirectTo!=null && redirectTo!=undefined && redirectTo!="")
                         {
-                            redirectURL=redirectTo
+                            redirectURL+=`?redirect=${redirectTo}`
 
                         }
                     }
-                    fetchLatestEventsV2()
                     this.props.router.push(redirectURL)
                     
 
