@@ -30,6 +30,10 @@ v0.5.0
 - Introduced setting to set default time and date format.
 - Added new feature: Ability to move/copy events to other calendars. 
     - Solves: #132
+- Added move to calendar option to Task Editor.
+- Before setting a default calendar in Event and Taskeditors, added a check to make sure it is a valid id.
+- UI Improvement to Home Page
+
 v0.4.6
 - Version Bump to 0.4.6
 - Fixed delay in login due to first sync with Caldav account.
