@@ -167,33 +167,29 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
             <div style={{ marginLeft: marginLevel, }}>
                 <div style={{border: '1px solid  gray', borderLeft: borderLeft, borderRadius: 20, padding:10}}>
                 <Row style={{   display: 'flex', }} >
-                    <Col xs={1} m={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
+                    <Col xs={1} sm={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
                         <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
                     </Col>
-                    <Col xs={6} sm={6} md={5} lg={3} onClick={taskClicked} >
+                    <Col xs={8} sm={6} md={5} lg={3} onClick={taskClicked} >
                         <Row>
                             <Col >
-                                <div style={{  overflow: "hidden", textOverflow: "ellipsis",  }} className="textDefault"><SummaryText text={parsedTask["summary"]} /></div>
-
+                                <SummaryText text={parsedTask["summary"]} />
                             </Col>
-                            
                         </Row>
                     </Col>
-                    <Col onClick={taskClicked} xs={3} sm={3} md={5} lg={3}>
-                            <div style={{ overflowX: 'scroll', overflow: "hidden", textOverflow: "ellipsis", maxHeight: "14px" , color: dueDateColor}} className="textDefault"><SummaryText text={dueDateText}/> </div>
-
-
+                    <Col onClick={taskClicked} className="d-none d-sm-block" sm={3} md={5} lg={3}>
+                           <SummaryText color={dueDateColor} text={dueDateText}/> 
                     </Col>
-                    <Col  onClick={taskClicked} className="d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={3}>
+                    <Col  onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={3}>
                         <div style={{  width: "80%"}} className="textDefault">
                             <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
                         </div>
                         
                     </Col>
-                    <Col onClick={taskClicked} className="d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
+                    <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
                     {repeatingTaskIcon} {hasDescriptionIcon}
                     </Col>
-                    <Col xs={1} sm={1} md={1} lg={1} >
+                    <Col xs={2} sm={1} md={1} lg={1} >
                      {priorityStar}
                     </Col>
                 </Row>

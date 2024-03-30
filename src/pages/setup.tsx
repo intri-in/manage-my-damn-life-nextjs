@@ -2,12 +2,13 @@ import { Loading } from "@/components/common/Loading"
 import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
-import { fetchLatestEventsV2,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
+import { fetchLatestEventsV2,  fetchLatestEvents_withoutCalendarRefresh,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
 import { useSetAtom } from "jotai"
 import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
 
 
@@ -19,6 +20,7 @@ export default function SetupPage() {
     const setDateFormat = useSetAtom(currentSimpleDateFormatAtom)
     const setTimeFormat = useSetAtom(currentSimpleTimeFormatAtom)
     const [isLoading, setIsLoading] = useState(true)
+    const [hasFetched, setHasFetched] = useState(false)
     const [currentWork, setCurrentWork] = useState("Fetching events and tasks...")
     const router= useRouter()
     const setupEverything = useCallback(async() =>{
@@ -26,19 +28,21 @@ export default function SetupPage() {
         let isMounted =true
         if(isMounted){
 
-            await refreshCalendarListV2
-            await fetchLatestEventsV2()
-            setCurrentWork("Fetching settings...")
-            await SettingsHelper.getAllFromServerAndSave()
-            const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
-            if(dateFormat){
-                setDateFormat(dateFormat)
-            }
-            const timeFormat = localStorage.getItem(SETTING_NAME_TIME_FORMAT)
-            if(timeFormat){
-                setTimeFormat(timeFormat)
-            }
-            redirect()
+
+                const calResponse = await refreshCalendarListV2()
+                await fetchLatestEvents_withoutCalendarRefresh()
+
+                setCurrentWork("Fetching settings...")
+                await SettingsHelper.getAllFromServerAndSave()
+                const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
+                if(dateFormat){
+                    setDateFormat(dateFormat)
+                }
+                const timeFormat = localStorage.getItem(SETTING_NAME_TIME_FORMAT)
+                if(timeFormat){
+                    setTimeFormat(timeFormat)
+                }
+                redirect()
         }
         return ()=>{
             isMounted=false
@@ -47,19 +51,22 @@ export default function SetupPage() {
     useEffect(()=>{
         let isMounted =true
         if(isMounted){
-            setupEverything()
+
+            if(!hasFetched){
+                setupEverything()
+            }
         }
         return ()=>{
             isMounted=false
         }
 
-    },[setupEverything])
+    },[setupEverything, hasFetched])
 
 
   
     const redirect =() =>{
         setIsLoading(false)
-        let redirectURL ="/"
+        let redirectURL ="/tasks/list/"
         if(window!=undefined){
             const queryString = window.location.search;
             const params = new URLSearchParams(queryString);

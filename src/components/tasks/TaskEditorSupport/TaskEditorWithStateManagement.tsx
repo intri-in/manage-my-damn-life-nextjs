@@ -30,6 +30,7 @@ import { SearchLabelArrayFunctional } from "@/components/common/SearchLabelArray
 import { TaskPending } from "@/helpers/api/tasks"
 import { getDefaultCalendarID } from "@/helpers/frontend/cookies"
 import { Datepicker } from "@/components/common/Datepicker/Datepicker"
+import { CalendarPicker } from "@/components/common/Calendarpicker"
 
 const i18next = getI18nObject()
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
@@ -92,7 +93,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     
         if (isMounted) {
 
-            generateCalendarDDL(calendar_id, calendarDDLDisabled)
+            // generateCalendarDDL(calendar_id, calendarDDLDisabled)
         }
         return () => {
             isMounted = false
@@ -145,7 +146,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                                     setParentID(parentTaskUID)
                                     setRelatedTo(parentTaskUID)
                                 }
-                                generateCalendarDDL(event[0].calendar_id, true)
+                                // generateCalendarDDL(event[0].calendar_id, true)
                                 setCalendarDDLDisabled(true)
                             }
 
@@ -157,7 +158,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     if(input.calendar_id){
 
                         setCalendarID(input.calendar_id.toString())
-                        generateCalendarDDL(input.calendar_id, false)
+                        // generateCalendarDDL(input.calendar_id, false)
                     }else{
                         // No input.
                         // Get default calendar from perferences and store.
@@ -166,7 +167,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                         if(defaultCalendarID){
                             setCalendarID(defaultCalendarID)
                         }
-                        generateCalendarDDL(defaultCalendarID, false)
+                        // generateCalendarDDL(defaultCalendarID, false)
                     }
 
                 }
@@ -217,22 +218,23 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         const eventInfoFromDexie = await getEventFromDexieByID(id_local)
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
-            console.log(unParsedData)
+            // console.log(unParsedData)
             const parsedData = returnGetParsedVTODO(unParsedData)
             if (unParsedData) setUnparsedDataFromDexie(unParsedData)
             setParsedDataFromDexie(parsedData)
             const calendar_id = eventInfoFromDexie[0].calendar_id
             if (calendar_id) {
                 setCalendarID(calendar_id)
+                setCalendarDDLDisabled(true)
             }
-            generateCalendarDDL(calendar_id,true)
+            // generateCalendarDDL(calendar_id,true)
             if (parsedData) {
                 if (TaskPending(parsedData) == false) {
                     setTaskDone(true)
                 }
                 setSummary(parsedData["summary"])
                 setUID(parsedData["uid"])
-                console.log(parsedData["due"], new Date(moment(parsedData["due"]).unix() * 1000).toString())
+                // console.log(parsedData["due"], new Date(moment(parsedData["due"]).unix() * 1000).toString())
                 if (parsedData["due"]) {
                     // setDueDate(new Date(moment(parsedData["due"]).unix() * 1000).toString())
                     setDueDate(moment(parsedData["due"]).toISOString())
@@ -283,6 +285,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         if (isRepeatingTask) {
             /**
              * Forgot why we need to do this.
+             * Probably to set done for the new recurrenceid.
              * {TODO}: Figure it out
              */
             let recurrenceObj = new RecurrenceHelper(parsedDataFromDexie)
@@ -316,8 +319,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             setSubmitting(true)
             const todoData = { due: dueDate, start: taskStart, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, recurrences: recurrences }
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
-            var todo = new VTodoGenerator(finalTodoData, { strict: false })
-            var finalVTODO = todo.generate()
+            const todo = new VTodoGenerator(finalTodoData, { strict: false })
+            const finalVTODO = todo.generate()
             // console.log(todo, finalTodoData, finalVTODO)
 
             if (isNewTask) {
@@ -503,8 +506,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     }
 
     const calendarSelected = (e) => {
-        console.log("e.target.value",e.target.value)
-        setCalendarID(e.target.value)
+        setCalendarID(e)
     }
     
     const taskDoneChanged = (e) => {
@@ -607,7 +609,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder="Enter a summary" /></div>
             {repeatInfoMessage}
             <h4>Calendar</h4>
-            <div style={{ marginBottom: 10 }}>{calendarOptions}</div>
+            <div style={{ marginBottom: 10 }}>
+                <CalendarPicker onSelectedHook={calendarSelected} key={uid} calendar_id={calendar_id} disabled={calendarDDLDisabled} />
+            </div>
             <h4>Parent Task</h4>
             <div style={{ marginBottom: 10 }}>
                 <ParentTaskView parentID={parentID} uid={uid} calendar_id={calendar_id} removeParentClicked={removeParentClicked} onParentSelect={onParentSelect} />

@@ -6,7 +6,7 @@ import { getI18nObject } from '@/helpers/frontend/general';
 import { categoryArrayHasMyDayLabel, removeMyDayLabelFromArray } from '@/helpers/frontend/labels';
 import { isDarkModeEnabled } from '@/helpers/frontend/theme';
 import { varNotEmpty } from '@/helpers/general';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 import { useEffect, useState } from 'react';
 import { AiOutlineEdit, AiOutlinePlusCircle } from "react-icons/ai";
@@ -21,7 +21,9 @@ import { onServerResponse_UI } from '@/helpers/frontend/TaskUI/taskUIHelpers';
 import { updateViewAtom } from 'stateStore/ViewStore';
 import { eventEditorInputAtom, showEventEditorAtom } from 'stateStore/EventEditorStore';
 import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
+import { MdOutlineContentCopy } from "react-icons/md";
 import moment from 'moment';
+import { moveEventModalInput, showMoveEventModal } from 'stateStore/MoveEventStore';
 const i18next = getI18nObject()
 interface propsType {
   id: number | string,
@@ -36,18 +38,18 @@ export function RightclickContextMenuWithState(props: propsType) {
   const setShowTaskEditor = useSetAtom(showTaskEditorAtom)
   const setTaskEditorInput = useSetAtom(taskEditorInputAtom)
   const setUpdateViewTime = useSetAtom(updateViewAtom)
+  const setShowMoveEventModal = useSetAtom(showMoveEventModal)
 
   const showEventEditor = useSetAtom(showEventEditorAtom)
   const setEventEditorInput = useSetAtom(eventEditorInputAtom)
-
+  const setMoveEventInput = useSetAtom(moveEventModalInput)
   /**
    * Local State
    */
   const [eventID, setEventID] = useState(-1)
   const [calendar_id, setCalendarsID] =  useState(0)
   const [eventURL, setEventURL] = useState("")
-  let contextMenuItems: JSX.Element[] = []
-
+  const [options, setOptions] = useState<JSX.Element[]>([])
   
   useEffect(() => {
     let isMounted = true
@@ -69,6 +71,8 @@ export function RightclickContextMenuWithState(props: propsType) {
           }
         })
       }
+
+      addItemsToMenu()
     
     }
     return () => {
@@ -76,7 +80,42 @@ export function RightclickContextMenuWithState(props: propsType) {
     }
   }, [props.id, props.parsedTask])
 
-  
+  const addItemsToMenu = () =>{
+      let contextMenuItems: JSX.Element[] = []
+
+      contextMenuItems.push(<ContextMenuItem key="EDIT_TASK" onClick={() => onEditTask(props.id)} >
+      <AiOutlineEdit />  &nbsp;  {i18next.t("EDIT")}
+    </ContextMenuItem>
+    )
+
+    contextMenuItems.push(<ContextMenuItem key="ADD_SUBTASK" onClick={() => onAddSubtask(props.id)} >
+      <AiOutlinePlusCircle />  &nbsp;  {i18next.t("ADD_SUBTASK")}
+    </ContextMenuItem>
+    )
+    let myDayItem = (<ContextMenuItem key="ADD_TO_MY_DAY" onClick={() => onAddtoMyday()}>
+      <BsFillSunriseFill /> &nbsp; {i18next.t("ADD_TO_MY_DAY")}
+    </ContextMenuItem>)
+    if (props.parsedTask.categories != null && Array.isArray(props.parsedTask.categories)) {
+      if (categoryArrayHasMyDayLabel(props.parsedTask.categories)) {
+        myDayItem = (
+          <ContextMenuItem key="REMOVE_FROM_MY_DAY" onClick={() => removeFromMyDay()}>
+            <BsFillSunriseFill /> &nbsp; {i18next.t("REMOVE_FROM_MY_DAY")}
+          </ContextMenuItem>)
+
+      }
+    }
+
+      contextMenuItems.push(myDayItem)
+
+      contextMenuItems.push(<ContextMenuItem key="SCHEDULE_ITEM" onClick={() => scheduleItem()}>
+        <MdSchedule /> &nbsp; {i18next.t("SCHEDULE")}
+      </ContextMenuItem>)
+
+      contextMenuItems.push(<ContextMenuItem key="COPY_MOVE" onClick={() => copyOrMoveItem()}>
+      <MdOutlineContentCopy /> &nbsp; {i18next.t("COPY_MOVE")}
+    </ContextMenuItem>)
+      setOptions(contextMenuItems)
+  }
   const onEditTask = (id) => {
     setTaskEditorInput({id: id
     })
@@ -146,6 +185,12 @@ export function RightclickContextMenuWithState(props: propsType) {
     }
 
   }
+  const copyOrMoveItem = () =>{
+    setMoveEventInput({
+      id: props.id
+    })
+    setShowMoveEventModal(true)
+  }
   const scheduleItem = () => {
 
     getEventFromDexieByID(parseInt(props.id.toString())).then(event =>{
@@ -168,39 +213,13 @@ export function RightclickContextMenuWithState(props: propsType) {
       }
     })
   }
-  contextMenuItems.push(<ContextMenuItem key="EDIT_TASK" onClick={() => onEditTask(props.id)} >
-    <AiOutlineEdit />  &nbsp;  {i18next.t("EDIT")}
-  </ContextMenuItem>
-  )
-
-  contextMenuItems.push(<ContextMenuItem key="ADD_SUBTASK" onClick={() => onAddSubtask(props.id)} >
-    <AiOutlinePlusCircle />  &nbsp;  {i18next.t("ADD_SUBTASK")}
-  </ContextMenuItem>
-  )
-  var myDayItem = (<ContextMenuItem key="ADD_TO_MY_DAY" onClick={() => onAddtoMyday()}>
-    <BsFillSunriseFill /> &nbsp; {i18next.t("ADD_TO_MY_DAY")}
-  </ContextMenuItem>)
-  if (props.parsedTask.categories != null && Array.isArray(props.parsedTask.categories)) {
-    if (categoryArrayHasMyDayLabel(props.parsedTask.categories)) {
-      myDayItem = (
-        <ContextMenuItem key="REMOVE_FROM_MY_DAY" onClick={() => removeFromMyDay()}>
-          <BsFillSunriseFill /> &nbsp; {i18next.t("REMOVE_FROM_MY_DAY")}
-        </ContextMenuItem>)
-
-    }
-  }
-
-  contextMenuItems.push(myDayItem)
-
-  contextMenuItems.push(<ContextMenuItem key="SCHEDULE_ITEM" onClick={() => scheduleItem()}>
-    <MdSchedule /> &nbsp; {i18next.t("SCHEDULE")}
-  </ContextMenuItem>)
+  
 
   const backgroundColor = isDarkModeEnabled() ? "black" : "white"
   return (
     <ContextMenu key={"RIGHTCLICK_MENU_" + props.id} id={"RIGHTCLICK_MENU_" + props.id}>
       <div style={{ background: backgroundColor }}>
-        {contextMenuItems}
+        {options}
       </div>
 
     </ContextMenu>

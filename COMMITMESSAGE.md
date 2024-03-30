@@ -1,7 +1,2 @@
-- Removed some console logs
-- Fixed invalid date being parsed by TaskEditor
-- Fixed message displayed on drag and drop of event in calendar view.
-- Introduced a new setup page post login 
-    - All events are synced before redirecting to home page
-    - Settings are synced too
-- Introduced setting to set default time and date format.
+- Added new feature: Ability to move/copy events to other calendars. 
+    - Solves: #132

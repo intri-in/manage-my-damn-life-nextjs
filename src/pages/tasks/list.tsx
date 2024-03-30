@@ -1,3 +1,5 @@
+import { GlobalViewManager } from "@/components/common/GlobalViewManager/GlobalViewManager";
+import { EventEditorViewManager } from "@/components/events/EventEditorViewManager";
 import TaskViewList from "@/components/page/TaskViewPage/TaskViewList";
 import { TaskViewListWithStateManagement } from "@/components/page/TaskViewPage/TaskViewListWithStateManagement";
 import { TaskEditorViewManager } from "@/components/tasks/TaskEditorSupport/TaskEditorViewManager";
@@ -45,7 +47,7 @@ export default function TaskListPage(){
     return(
         <>
         <TaskViewListWithStateManagement />
-        <TaskEditorViewManager />
+        <GlobalViewManager />
         </>
     )
 }

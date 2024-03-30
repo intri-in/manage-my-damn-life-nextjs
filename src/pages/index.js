@@ -14,6 +14,7 @@ import { CombinedViewFunctional } from '@/components/page/CombinedView/CombinedV
 import { TaskEditorViewManager } from '@/components/tasks/TaskEditorSupport/TaskEditorViewManager'
 import { TaskListFrameWork } from '@/components/tasks/views/TaskListFrameWork'
 import { EventEditorViewManager } from '@/components/events/EventEditorViewManager'
+import { GlobalViewManager } from '@/components/common/GlobalViewManager/GlobalViewManager'
 
 const i18next = getI18nObject()
 export default function HomePage() {
@@ -74,9 +75,7 @@ export default function HomePage() {
         <AppBarGeneric  onSynComplete={onSynComplete} isSyncing={isSyncing}/>
         <div className='container-fluid'>
           <CombinedViewFunctional />
-          <TaskEditorViewManager />
-          <EventEditorViewManager />
-         
+          <GlobalViewManager />         
         </div>     
         </div>
 

@@ -1,6 +1,6 @@
 import { PRIMARY_COLOUR } from "@/config/style";
 import { useRouter } from "next/router";
-import { Button, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { Button, Container, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { useEffect, useState } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -17,8 +17,19 @@ import { installCheck_Cookie } from "@/helpers/install";
 import { fetchLatestEventsV2, isSyncing } from "@/helpers/frontend/sync";
 import { logoutUser_withRedirect } from "@/helpers/frontend/user";
 import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
+import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
+import { useSetAtom } from "jotai";
 
-const AppBarFunctionalComponents = ({ session, onSynComplete }:{isSyncing, session, onSynComplete}) => {
+const AppBarFunctionalComponent = ({ session}) => {
+  /**
+   * Jotai
+   */
+
+  const setUpdated = useSetAtom(updateViewAtom)
+  const setUpdatedCalendarView = useSetAtom(updateCalendarViewAtom)
+  /**
+   * Local State
+   */
   const [username, setUsername] = useState("");
   const [installed, setInstalled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
@@ -59,11 +70,10 @@ const AppBarFunctionalComponents = ({ session, onSynComplete }:{isSyncing, sessi
   };
 
   const syncButtonClicked = async () => {
-    try {
-      await fetchLatestEventsV2();
-    } catch (error) {
-      console.error("Error syncing data:", error);
-    }
+      await fetchLatestEventsV2()
+      setUpdated(Date.now())
+      setUpdatedCalendarView(Date.now())
+   
   };
 
   const logoClicked = () => {
@@ -124,10 +134,11 @@ const AppBarFunctionalComponents = ({ session, onSynComplete }:{isSyncing, sessi
     );
   }
 
+  const navVariant = darkModeEnabled ? "light": "dark"
   return (
     <>
       {notInstalledBanner}
-      <Navbar className="nav-pills nav-fill" style={{ background: PRIMARY_COLOUR, padding: 20 }} sticky="top" expand="lg">
+      <Navbar  variant={navVariant} className="nav-pills nav-fill" style={{ background: PRIMARY_COLOUR, padding: 20,  }} sticky="top" expand="lg">
         <Navbar.Brand onClick={logoClicked}>
           <Image
             src="/logo.png"
@@ -138,8 +149,8 @@ const AppBarFunctionalComponents = ({ session, onSynComplete }:{isSyncing, sessi
           />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav style={{ display: "flex", margin: 5, justifyContent: "space-evenly", alignItems: "center" }} className="justify-content-end">
+        <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
+          <Nav style={{ display: "flex", margin: 5, justifyContent: "space-evenly", alignItems: "center"  }} >
             <Link style={{ color: "white", textDecoration: "none" }} href="/">{i18next.t("HOME")}</Link> &nbsp; &nbsp;
             <Link style={{ color: "white", textDecoration: "none" }} href="/tasks/list">{i18next.t("TASK_VIEW")}</Link>&nbsp; &nbsp;
             <Link style={{ color: "white", textDecoration: "none" }} href="/calendar/view">{i18next.t("CALENDAR_VIEW")}</Link>
@@ -157,48 +168,48 @@ const AppBarFunctionalComponents = ({ session, onSynComplete }:{isSyncing, sessi
               </Dropdown>
             </Nav.Item>
           </Nav>
+            <Nav  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} className="ms-auto">
+              <NavItem style={{ color: "white", display: "flex", margin: 10, justifyContent: "space-evenly", alignItems: "center" }}>
+                <OverlayTrigger key="KEY_USERNAME" placement='bottom'
+                  overlay={
+                    <Tooltip id='tooltip_USERNAME'>
+                      {i18next.t("USERNAME")}
+                    </Tooltip>
+                  }>
+                  <div>
+                    <AiOutlineUser />
+                    {username}
+                  </div>
+                </OverlayTrigger>
+              </NavItem>
+              <Nav.Item style={{}}>
+                <OverlayTrigger key="DARK_MODE_KEY" placement='bottom'
+                  overlay={
+                    <Tooltip id='tooltip_DARK_MODE_KEY'>
+                      {i18next.t("THEME_MODE")}
+                    </Tooltip>
+                  }>
+                  <div style={{ color: "white", padding: 5 }}>{darkModeButton} </div>
+                </OverlayTrigger>
+              </Nav.Item>
+              <Nav.Item style={{}}>
+                <OverlayTrigger key="SYNC_KEY" placement='bottom'
+                  overlay={
+                    <Tooltip id='tooltip_SYNC'>
+                      {i18next.t("SYNC")}
+                    </Tooltip>
+                  }>
+                  <div style={{ color: "white", padding: 5 }}>{syncButton} </div>
+                </OverlayTrigger>
+              </Nav.Item>
+              <Nav.Item style={{ color: "white", padding: 5 }}>
+                <BiLogOut onClick={logOutClicked} size={24} />
+              </Nav.Item>
+            </Nav>
         </Navbar.Collapse>
-        <Nav style={{ display: "flex", justifyContent: "space-evenly", alignItems: "center" }} className="justify-content-end">
-          <NavItem style={{ color: "white", display: "flex", margin: 10, justifyContent: "space-evenly", alignItems: "center" }}>
-            <OverlayTrigger key="KEY_USERNAME" placement='bottom'
-              overlay={
-                <Tooltip id='tooltip_USERNAME'>
-                  {i18next.t("USERNAME")}
-                </Tooltip>
-              }>
-              <div>
-                <AiOutlineUser />
-                {username}
-              </div>
-            </OverlayTrigger>
-          </NavItem>
-          <Nav.Item style={{}}>
-            <OverlayTrigger key="DARK_MODE_KEY" placement='bottom'
-              overlay={
-                <Tooltip id='tooltip_DARK_MODE_KEY'>
-                  {i18next.t("THEME_MODE")}
-                </Tooltip>
-              }>
-              <div style={{ color: "white", padding: 5 }}>{darkModeButton} </div>
-            </OverlayTrigger>
-          </Nav.Item>
-          <Nav.Item style={{}}>
-            <OverlayTrigger key="SYNC_KEY" placement='bottom'
-              overlay={
-                <Tooltip id='tooltip_SYNC'>
-                  {i18next.t("SYNC")}
-                </Tooltip>
-              }>
-              <div style={{ color: "white", padding: 5 }}>{syncButton} </div>
-            </OverlayTrigger>
-          </Nav.Item>
-          <Nav.Item style={{ color: "white", padding: 5 }}>
-            <BiLogOut onClick={logOutClicked} size={24} />
-          </Nav.Item>
-        </Nav>
       </Navbar>
     </>
   );
 };
 
-export default AppBarFunctionalComponents;
+export default AppBarFunctionalComponent;

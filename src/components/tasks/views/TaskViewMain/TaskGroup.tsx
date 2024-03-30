@@ -36,11 +36,11 @@ export const TaskGroup = ({ keyName, parent, children }: {keyName: string, paren
   return (
     <div key={keyName}>
       <Row>
-        <Col sm={11} md={11} lg={11}>
+        <Col xs={10} sm={10} md={11} lg={11}>
           {parent}
         </Col>
         <Col onClick={collapseClicked} className=' d-flex  align-items-center'
-          sm={1} md={1} lg={1}>
+          xs= {2} sm={2} md={1} lg={1}>
           {collapseButton}
         </Col>
       </Row>

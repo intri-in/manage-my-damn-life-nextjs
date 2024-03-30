@@ -4,7 +4,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { EventEditorInputType } from "stateStore/EventEditorStore";
 import { Loading } from "../common/Loading";
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import Recurrence from "@/components/common/Recurrence";
 import { getEtagFromEventID_Dexie, getEventFromDexieByID, getEventURLFromDexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
 import { addAdditionalFieldsFromOldEventV2, getParsedEvent, postNewEvent, preEmptiveUpdateEvent, rruleToObject, updateEvent} from "@/helpers/frontend/events";
@@ -24,6 +24,8 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { parseVALARMTIME } from "@/helpers/frontend/rfc5545";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
+import { PRIMARY_COLOUR } from "@/config/style";
+import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore";
 
 const i18next = getI18nObject()
 
@@ -35,7 +37,12 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
 
     const dateFormat = useAtomValue(currentSimpleDateFormatAtom)
     const dateFullFormat = useAtomValue(currentDateFormatAtom)
+    const showMoveModal = useSetAtom(showMoveEventModal)
+    const setMoveEventInput = useSetAtom(moveEventModalInput)
 
+    /**
+     * Local State
+     */
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [parsedData, setParsedData] = useState<any>(null)
     const [alarms, setAlarms] = useState<AlarmType[]>([])
@@ -43,6 +50,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [allDay, setAllDay] = useState(false)
     const [calendar_id, setCalendarID] = useState('')
     const [calendarDisabled, setCalendarDisabled] =useState(false)
+    const [showMoveEventOption, setShowMoveEventOption]= useState(false)
     const [fromDate, setFromDate]= useState("")
     const [fromDateValid, setFromDateValid] = useState(true)
     const [fromTimeFormat, setFromTimeFormat]= useState("HH:mm")
@@ -105,7 +113,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
             const parsedData = getParsedEvent(unParsedData)
-            console.log(parsedData)
+            // console.log(parsedData)
             setSummary(parsedData["summary"])
             setFromDate(moment(parsedData["start"]).toISOString())
             setToDate(moment(parsedData["end"]).toISOString())
@@ -115,6 +123,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             if(eventInfoFromDexie[0].calendar_id){
                 setCalendarID(eventInfoFromDexie[0].calendar_id)
                 setCalendarDisabled(true)
+                setShowMoveEventOption(true)
             }
             setDescription(parsedData["description"])
             setLastModified(moment(parsedData["dtstamp"]).format(dateFullFormat))
@@ -282,6 +291,14 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
 
     }
 
+    const copyMoveClicked = () =>{
+        setMoveEventInput({
+            id: input.id
+        })
+        closeEditor()
+        showMoveModal(true)
+    }
+
     const alarmsChanged = (newAlarmsArray) =>{
         setAlarms(newAlarmsArray)
     }
@@ -325,8 +342,8 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                 <Form.Control onChange={(e)=>setSummary(e.target.value)} value={summary} />
         <br />
         <h3>{i18next.t("CALENDAR")}</h3>
-            <CalendarPicker onSelectedHook={calendarSelected} calendar_id={calendar_id} />
-        <br />
+            <CalendarPicker disabled={calendarDisabled} onSelectedHook={calendarSelected} calendar_id={calendar_id} />
+            <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, padding:5}}>{i18next.t("COPY_MOVE")}</p>
             <Form.Check
                 type="switch"
                 label={i18next.t("ALL_DAY_EVENT")}

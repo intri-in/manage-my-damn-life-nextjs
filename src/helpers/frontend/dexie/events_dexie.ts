@@ -288,7 +288,8 @@ export async function deleteAllEventsFromDexie() {
 
 export async function restoreEventtoDexie(oldEvent: Calendar_Events) {
     await saveEventToDexie(oldEvent["calendar_id"], oldEvent["url"], oldEvent["etag"], oldEvent["data"], oldEvent["type"])
-} const allEvents = fetchEventsForCalendarsFromDexie
+} 
+
 
 /**
  * Gets the summary of a task by UID and the id of calendar it is in.
