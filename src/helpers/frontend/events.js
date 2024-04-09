@@ -255,6 +255,7 @@ export function getParsedEvent(dataInput)
     {
         for(const key in data)
         {
+            // console.log("data[key]", data[key])
             if(data[key].type=="VEVENT")
             {
                 return data[key]

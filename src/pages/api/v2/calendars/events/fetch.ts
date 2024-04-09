@@ -40,12 +40,12 @@ export default async function handler(req, res) {
                     });
                     if(calendarObjects && isValidResultArray(calendarObjects)){
                         for(const i in calendarObjects){
-                            var type = checkifObjectisVTODO(calendarObjects[i])
-                            // console.log("type", type)
+                            const type = checkifObjectisVTODO(calendarObjects[i].data)
                             calendarObjects[i]["type"]=type
                         }
                     }
-                    res.status(200).json({ version:2, success: true, data: { message: calendarObjects} })
+                    // console.log("calendarObjects", calendarObjects)
+                    return res.status(200).json({ version:2, success: true, data: { message: calendarObjects} })
 
                 }else{
                     return res.status(401).json({ success: false, data: { message: 'ERROR_GENERIC'} })
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
                 }
 
             }else{
-                res.status(401).json({ success: false, data: { message: 'USER_DOESNT_HAVE_ACCESS'} })
+                return  res.status(401).json({ success: false, data: { message: 'USER_DOESNT_HAVE_ACCESS'} })
 
             } 
 
