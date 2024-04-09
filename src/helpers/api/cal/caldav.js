@@ -178,8 +178,10 @@ export function checkifObjectisVTODO(data)
     try{
         const  parsedData = ical.parseICS(data);
         for (let k in parsedData) {
-            // console.log("parse Success")
-            return parsedData[k].type
+            // console.log("parse Success",k, parsedData[k])
+            if(parsedData[k].type=="VTODO" || parsedData[k].type=="VEVENT") {
+                return parsedData[k].type
+            }
         }
     
     }catch(e){
@@ -191,9 +193,9 @@ export function checkifObjectisVTODO(data)
     if(type=="")
     {
         const  parsedData = parseICSWithICALJS(data, "VTODO");
-        // console.log("parse Success", parsedData)
+        console.log("parse Success", parsedData)
 
-        if(varNotEmpty(parsedData) && parsedData!={})
+        if(varNotEmpty(parsedData) && ("summary" in parsedData) && parsedData!={})
         {
             return "VTODO"
         }else{

@@ -33,6 +33,7 @@ import { Datepicker } from "@/components/common/Datepicker/Datepicker"
 import { CalendarPicker } from "@/components/common/Calendarpicker"
 import { PRIMARY_COLOUR } from "@/config/style"
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore"
+import next from "next/types"
 
 const i18next = getI18nObject()
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
@@ -75,6 +76,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [category, setCategory] = useState<string[]>([])
     const [calendarDDLDisabled, setCalendarDDLDisabled] = useState(false)
     const [showMoveEventOption, setShowMoveEventOption]= useState(false)
+    const [recurrenceObj, setRecurrenceObj] = useState<any>({})
     const changeDoneStatus = (isDone: boolean) => {
         if (isDone) {
             const completedDate = getISO8601Date(moment().toISOString())
@@ -131,7 +133,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         // console.log("this.state.calendar_id at DDL", this.state.calendar_id)
     }
 
-    const checkInputForNewTask = async () => {
+    const checkInputForNewTask = async (isRecurring?: boolean) => {
         if (input) {
             if (!input.id) {
                 //Task is New.
@@ -189,7 +191,10 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             //Process done info .
             if (input.taskDone) {
                 setTaskDone(true)
-                changeDoneStatus(true)
+                // console.log("isRepeatingTask", isRepeatingTask)
+                if(!isRecurring){
+                    changeDoneStatus(true)
+                }
 
             }
 
@@ -253,7 +258,11 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 }
                 //Check and set repeating task parameters.
                 setRrule(rruleToObject(parsedData["rrule"]))
+                const isRecurring = parsedData["rrule"] ? true : false
                 if (parsedData["rrule"]) {
+                    const parsedRecurrenceObj = new RecurrenceHelper(parsedData)
+                    // console.log(parsedRecurrenceObj)
+                    setRecurrenceObj(parsedRecurrenceObj)
                     setIsRepeatingTask(true)
                 }
                 if (parsedData["priority"]) setPriority(parsedData["priority"])
@@ -266,7 +275,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 }
                 // console.log(parsedData)
                 // getLabels(parsedData["category"])
-                checkInputForNewTask()
+                checkInputForNewTask(isRecurring)
             }
         }
 
@@ -294,17 +303,43 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
              * Probably to set done for the new recurrenceid.
              * {TODO}: Figure it out
              */
-            let recurrenceObj = new RecurrenceHelper(parsedDataFromDexie)
             recurrences = _.cloneDeep(recurrenceObj.newRecurrence)
-            if (Object.keys(recurrenceObj.newObj).length > 0 && recurrences) {
-                const nextupKey = recurrenceObj.getNextUpKey()
-                recurrences[nextupKey] = recurrenceObj.newObj[nextupKey]
+            try{
 
-                if (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) == false || (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) && recurrences[nextupKey]["recurrenceid"] == "")) {
-                    recurrences[nextupKey]["recurrenceid"] = getISO8601Date(nextupKey)
+                if (Object.keys(recurrenceObj.newObj).length > 0 && recurrences) {
+                    const nextupKey = recurrenceObj.getNextUpKey()
+                    if(!nextupKey){
+                        toast.error("NextUpKey is empty!")
+                        return
+                    }
+                    recurrences[nextupKey] = recurrenceObj.newObj[nextupKey]
+                    const completedDate = getISO8601Date(moment().toISOString())
+                    /**
+                     * If done, set next repeating instance as completed.
+                     */
+                    if(taskDone){
+                        recurrences[nextupKey]["completed"] = completedDate
+                        recurrences[nextupKey]["completion"] = "100"
+                        recurrences[nextupKey]["status"] = "COMPLETED"
+        
+                    }else{
+                        recurrences[nextupKey]["completed"] = ""
+                        recurrences[nextupKey]["completion"] = ""
+                        recurrences[nextupKey]["status"] = ""
+                    }
+        
+    
+                    if (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) == false || (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) && recurrences[nextupKey]["recurrenceid"] == "")) {
+                        recurrences[nextupKey]["recurrenceid"] = getISO8601Date(nextupKey)
+                    }
+
+
                 }
-
+            }catch(e){
+                console.warn("Recurrence problem: "+summary, e, )
             }
+
+
         }
 
         if (!summary) {
@@ -316,12 +351,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             //dueDateToSave = fixDueDate(dueDate)
             dueDateToSave = moment(moment(dueDate).format(dateFullFormat)).toISOString()
         }
-        console.log("due date to save", dueDate, taskStart)
+        // console.log("due date to save", dueDate, taskStart)
         const valid = await checkifValid()
         if (valid) {
-            if (taskDone) {
-
-            }
             setSubmitting(true)
             const todoData = { due: dueDate, start: taskStart, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, recurrences: recurrences }
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
@@ -438,6 +470,11 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
             }
         }
+
+        if(isRepeatingTask){
+            //Check if the task can even be saved.
+
+        }
         return true
     }
 
@@ -517,7 +554,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     
     const taskDoneChanged = (e) => {
         setTaskDone(e.target.checked)
-        changeDoneStatus(e.target.checked)
+        if(!isRepeatingTask){
+            changeDoneStatus(e.target.checked)
+        }
 
     }
     const statusValueChanged = (e) => {
@@ -594,9 +633,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     let repeatInfoMessage: JSX.Element = <></>
     let dueDateFixed = ""
     if (isRepeatingTask) {
-        const repeatingInfo = new RecurrenceHelper(parsedDataFromDexie)
-        dueDateFixed = moment(repeatingInfo.getNextDueDate()).format(dateFullFormat)
-        repeatInfoMessage = (<Alert variant="warning">{i18next.t("REPEAT_TASK_MESSAGE") + moment(new Date(repeatingInfo.getNextDueDate())).format(dateFormat)}</Alert>)
+        dueDateFixed = moment(recurrenceObj.getNextDueDate()).format(dateFullFormat)
+        repeatInfoMessage = (<Alert variant="warning">{i18next.t("REPEAT_TASK_MESSAGE") + moment(recurrenceObj.getNextDueDate()).format(dateFormat)}</Alert>)
     }
 
 

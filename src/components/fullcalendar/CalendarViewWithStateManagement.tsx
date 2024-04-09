@@ -174,8 +174,10 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     if (event.deleted == "1" || event.deleted == "TRUE") {
                         continue
                     }
+                    // console.log(event.type, event.calendar_events_id)
                     if (event.type != "VTODO" && event.type != "VTIMEZONE") {
                         const data = getParsedEvent(allEvents[i].events[j].data)
+                        // console.log("Parsed Event", data.summary,  event.calendar_id, data)
                         if (varNotEmpty(data) == false) {
                             continue
                         }
