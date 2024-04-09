@@ -87,11 +87,12 @@ export function AddTaskFunctional(props) {
     const openTaskEditor = () =>{
 
         let dataToPush = {...data}
-
+        
         if(calDavObject && calDavObject.calendars_id){
             dataToPush.calendar_id= calDavObject.calendars_id
         }
         setTaskInputAtom(dataToPush)
+        setNewTaskSummary("")
 
         showTaskEditor(true)
 

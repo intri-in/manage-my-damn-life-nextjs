@@ -236,7 +236,10 @@ export function returnEventType(data)
     try{
         const  parsedData = ical.parseICS(data);
         for (let k in parsedData) {
-            return parsedData[k].type
+
+            if(parsedData[k].type=="VTODO" || parsedData[k].type=="VEVENT") {
+                return parsedData[k].type
+            }        
         }
     
     }
