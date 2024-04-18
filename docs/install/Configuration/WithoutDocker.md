@@ -12,7 +12,7 @@ Configuration will be done by making changes to ```.env.local``` file in the roo
 If you have cloned the git repository, clone the env file.
     
 ```
-cp .env.local.sample .env.local
+cp sample.env.local .env.local
 ```
 If you are running via docker image, or Docker Compose, fetch the ```.env.local.sample``` file as follows:
 
