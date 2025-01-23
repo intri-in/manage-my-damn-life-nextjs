@@ -15,7 +15,7 @@ import { AlarmForm, AlarmType } from "./AlarmForm";
 import { toast } from "react-toastify";
 import moment from "moment";
 import { CalendarPicker } from "../common/Calendarpicker";
-import {  getDefaultCalendarIDFromLocalStorage } from "@/helpers/frontend/cookies";
+import {  getDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getObjectForAPICallV2, makeGenerateICSRequest } from "@/helpers/frontend/ics";
 import { getRandomString } from "@/helpers/crypto";
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie, isValidCalendarsID } from "@/helpers/frontend/dexie/calendars_dexie";
@@ -88,7 +88,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                     setCalendarID(input.calendar_id.toString())
                 }else{
                     //Get Default calendar and set.
-                    const default_calendar_id = await getDefaultCalendarIDFromLocalStorage()
+                    const default_calendar_id = await getDefaultCalendarID()
                     if(default_calendar_id && await isValidCalendarsID(default_calendar_id)){
                         setCalendarID(default_calendar_id)
                     }

@@ -20,7 +20,7 @@ import { setDefaultCalendarID } from "@/helpers/frontend/cookies";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import CalendarStartDayWeek from "@/components/settings/CalendarStartDayWeek";
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
-import { checkifCalendarIDPresentinDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
+import { checkifCalendarIDPresentinDexieSummary, checkifCalendarUrlPresentinDexieSummary } from "@/helpers/frontend/dexie/dexie_helper";
 import { SETTING_NAME_DEFAULT_CALENDAR } from "@/helpers/frontend/settings";
 import MaintenanceTasks from "./MaintenanceTasks";
 import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
@@ -69,7 +69,7 @@ class SettingsPage extends Component {
                             if(body.data.message.user[i]["name"]=="DEFAULT_CALENDAR")
                             {
                                 const defaultCalValue = body.data.message.user[i]["value"]
-                                checkifCalendarIDPresentinDexieSummary(defaultCalValue).then((resultofCheck) =>{
+                                checkifCalendarUrlPresentinDexieSummary(defaultCalValue).then((resultofCheck) =>{
                                     
                                     if( resultofCheck){
                                         if (typeof window !== 'undefined') {
@@ -334,19 +334,19 @@ class SettingsPage extends Component {
     }
     getCalendarOutput()
     {
-        var calendarsFromServer = this.state.calendarsFromServer
-        var calendarOutput = null
+        let calendarsFromServer = this.state.calendarsFromServer
+        let calendarOutput = null
         if (isValidResultArray(calendarsFromServer)) {
             calendarOutput = []
             calendarOutput.push(<option key="calendar-select-empty" ></option>)
             for (let i = 0; i < calendarsFromServer.length; i++) {
-                var tempOutput = []
+                let tempOutput = []
                 if(!isValidResultArray(calendarsFromServer[i].calendars)){
                     continue
                 }
                 for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
-                    var value = calendarsFromServer[i].calendars[j].calendars_id
-                    var key = j + "." + value
+                    let value = calendarsFromServer[i].calendars[j].url
+                    let key = j + "." + value
                     tempOutput.push(<option key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
                 }
                 calendarOutput.push(<optgroup key={calendarsFromServer[i].name} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)

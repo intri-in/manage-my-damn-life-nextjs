@@ -1,3 +1,7 @@
+v0.5.2
+- npm audit fix run. Multiple dependencies updated. IMP: NextJS version updated to v15.1.6.
+- Default calendar is now presisted through backend.
+    - Saves calendar URL instead of id(which would change on dexie db refresh)
 v0.5.1
 - Fixed bug with recurring task.
     - Editing the task will now only set done status for the current recurrence id.

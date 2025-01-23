@@ -121,6 +121,25 @@ export async function checkifCalendarIDPresentinDexieSummary(calendar_id){
 
 }
 
+export async function checkifCalendarUrlPresentinDexieSummary(url){
+    const  summaryToCheck=  await getCalDAVSummaryFromDexie()
+    let toReturn = false
+    if(isValidResultArray(summaryToCheck )){
+        for(const i in summaryToCheck ){
+            if(isValidResultArray(summaryToCheck[i]["calendars"])){
+                for(const j in summaryToCheck[i]["calendars"]){
+                    if(summaryToCheck[i]["calendars"][j]["url"]==url){
+                        return true
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    return toReturn
+}
 export function basicTaskFilterForDexie(parsedTask){
 
     // console.log("parsedTask", parsedTask)

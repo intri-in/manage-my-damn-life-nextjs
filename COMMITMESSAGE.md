@@ -1,6 +1,3 @@
-- Fixed bug with recurring task.
-    - Editing the task will now only set done status for the current recurrence id.
-- Add task component's input is now cleared with the task editor box opens
-- Fixed #159
-    - Problem arose because of the type of any event created in other clients was not being recognised.
-- Version bump to 0.5.1
+- npm audit fix run. Multiple dependencies updated. IMP: NextJS version updated to v15.1.6.
+- Default calendar is now presisted through backend.
+    - Saves calendar URL instead of id(which would change on dexie db refresh)
