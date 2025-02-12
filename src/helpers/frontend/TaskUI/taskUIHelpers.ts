@@ -37,10 +37,11 @@ export interface TaskArrayItem{
 
 export function arrangeTodoListbyHierarchyV2(todoList: Calendar_Events[], allEvents): TaskArrayItem[]
 {
-
+    //console.log(todoList)
     console.time("arrangeTodoListbyHierarchyV2: Time to get top level UID")
     const listofTasks_Obj= getTopLevelUID_V2(todoList)
-    // console.log(listofTasks_Obj.rest.length, listofTasks_Obj.topLevelTasks.length, todoList.length, listofTasks_Obj.rest.length+listofTasks_Obj.topLevelTasks.length-todoList.length)    
+
+    //console.log(listofTasks_Obj)    
     console.timeEnd("arrangeTodoListbyHierarchyV2: Time to get top level UID")
     // console.log("listofTasks", listofTasks)
 
@@ -168,6 +169,7 @@ function getTopLevelUID_V2(todoList: Calendar_Events[])
                 continue;
             }
             let todoObj = new VTODO(todoList[i])
+            //console.log("todoObj", todo,todoObj)
             let dueDate = todo.due
             if(checkifRepeatingTask(todo)){
                 //Repeating task

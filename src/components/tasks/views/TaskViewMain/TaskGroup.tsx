@@ -6,7 +6,7 @@ import { Col, Row } from 'react-bootstrap';
 export const TaskGroup = ({ keyName, parent, children }: {keyName: string, parent: JSX.Element, children: JSX.Element | null }) => {
 
   const [childrenOutput, setChildrenOutput] = useState<JSX.Element | null>(<></>)
-  const [collapsed, setCollapsed] = useState(true)
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
 

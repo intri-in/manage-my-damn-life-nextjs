@@ -5,7 +5,7 @@ import { getRandomColourCode } from "../general";
 export async function getCalendarbyIDFromDexie(calendars_id){
     try{
         const calendars_id_int = parseInt(calendars_id)
-        console.log("calendars_id", calendars_id)
+        //console.log("calendars_id", calendars_id)
         const calendars =  await db.calendars
         .where('calendars_id')
         .equals(calendars_id_int)

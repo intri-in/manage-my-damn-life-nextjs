@@ -5,7 +5,7 @@ export class VTODO {
 
     constructor(objectFromServer, isJustUnparsed) {
         if (varNotEmpty(isJustUnparsed) && isJustUnparsed == false || !varNotEmpty(isJustUnparsed)) {
-            var todo = returnGetParsedVTODO(objectFromServer.data)
+            let todo = returnGetParsedVTODO(objectFromServer.data)
             todo["url_internal"] = objectFromServer.url
             todo["etag"] = objectFromServer.etag
             todo["calendar_id"] = objectFromServer.calendar_id
@@ -17,7 +17,7 @@ export class VTODO {
 
 
         } else {
-            var todo = returnGetParsedVTODO(objectFromServer)
+            let todo = returnGetParsedVTODO(objectFromServer)
             this.parsedData = todo
             this.unparsedData = objectFromServer
 
@@ -26,7 +26,7 @@ export class VTODO {
 
     hasParent(){
         let relatedTo = this.parsedData.relatedto
-
+        // console.log("relatedTo", relatedTo)
         if(typeof (relatedTo) == "string"){
             // The object has basic related to relationship, which we will ascertain as having a parent.
             if(relatedTo){
