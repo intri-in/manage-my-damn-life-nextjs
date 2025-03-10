@@ -3,6 +3,7 @@ import { getAuthenticationHeadersforUser } from './user'
 import { getAPIURL, logVar, varNotEmpty } from '../general'
 import { getMessageFromAPIResponse } from './response'
 import { clearLocalStorage } from './localstorage'
+import { getCalendarIDFromUrl_Dexie } from './dexie/calendars_dexie'
 
 export const DARK_MODE_COOKIE_NAME="DATA-BS-THEME"
 
@@ -33,6 +34,57 @@ export async function getDefaultCalendarIDFromLocalStorage(){
     return localStorage.getItem("DEFAULT_CALENDAR_ID")
 }
 export async function getDefaultCalendarID()
+{
+    const fromCookie=localStorage.getItem("DEFAULT_CALENDAR_ID")
+    if(varNotEmpty(fromCookie) && fromCookie!=""){
+        const id = await getCalendarIDFromUrl_Dexie(fromCookie)
+        return id
+    }
+    const url_api=getAPIURL()+"settings/getone?name=DEFAULT_CALENDAR"
+    const authorisationData=await getAuthenticationHeadersforUser()
+
+    const requestOptions =
+    {
+        method: 'GET',
+        mode: 'cors',
+        headers: new Headers({'authorization': authorisationData}),
+
+    }
+
+    return new Promise( (resolve, reject) => {
+
+            fetch(url_api, requestOptions)
+            .then(response =>{
+                return response.json()
+            } )
+            .then((body) =>{
+                if(varNotEmpty(body) && varNotEmpty(body.success))
+                {
+                    var message= getMessageFromAPIResponse(body)
+                    if(varNotEmpty(message) && message!="")
+                    {
+                        console.log("id__1",message)
+                        getCalendarIDFromUrl_Dexie(message).then(id =>{
+                            console.log("id__",id)
+                            setDefaultCalendarID(message)
+                            return resolve(message)
+                        })
+
+                    }
+                    return resolve('')
+                    
+                }else{
+                    return resolve('')
+                }
+            }).catch(e =>{
+                console.error(e, "getDefaultCalendarID")
+                return resolve('')
+            })
+
+    })
+
+}
+export async function getDefaultCalendarIDOld()
 {
     const fromCookie=localStorage.getItem("DEFAULT_CALENDAR_ID")
     if(varNotEmpty(fromCookie) && fromCookie!=""){
@@ -76,6 +128,7 @@ export async function getDefaultCalendarID()
     })
 
 }
+
 export function setDefaultCalendarID(calendars_id)
 {
     localStorage.setItem("DEFAULT_CALENDAR_ID", calendars_id, { expires: 3650 })

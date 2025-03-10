@@ -5,6 +5,7 @@ import { getRandomColourCode } from "../general";
 export async function getCalendarbyIDFromDexie(calendars_id){
     try{
         const calendars_id_int = parseInt(calendars_id)
+        //console.log("calendars_id", calendars_id)
         const calendars =  await db.calendars
         .where('calendars_id')
         .equals(calendars_id_int)
@@ -17,6 +18,30 @@ export async function getCalendarbyIDFromDexie(calendars_id){
  
 
 }
+
+export async function getCalendarIDFromUrl_Dexie(url){
+    try{
+        
+        
+        const calendars =  await db.calendars
+        .where('url')
+        .equals(url)
+        .toArray();
+        
+        if(calendars && Array.isArray(calendars) && calendars.length>0){
+            return calendars[0].calendars_id
+        }
+    }
+    catch(e){
+        console.error("getCalendarbyUrlFromDexie", e)
+        return null
+    }
+
+    return null
+  
+
+}
+
 export async function getCalendarURLByID_Dexie(calendars_id: string | number){
     const calendar = await getCalendarbyIDFromDexie(calendars_id)
     if(calendar && calendar.length>0){

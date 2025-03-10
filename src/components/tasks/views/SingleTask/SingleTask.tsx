@@ -170,7 +170,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     <Col xs={1} sm={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
                         <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
                     </Col>
-                    <Col xs={8} sm={6} md={5} lg={3} onClick={taskClicked} >
+                    <Col xs={9} sm={6} md={5} lg={3} onClick={taskClicked} >
                         <Row>
                             <Col >
                                 <SummaryText text={parsedTask["summary"]} />
@@ -189,7 +189,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
                     {repeatingTaskIcon} {hasDescriptionIcon}
                     </Col>
-                    <Col  style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center"}} xs={2} sm={1} md={1} lg={1} >
+                    <Col  style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center"}} xs={1} sm={1} md={1} lg={1} >
                      {priorityStar}
                     </Col>
                 </Row>
