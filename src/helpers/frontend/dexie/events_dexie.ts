@@ -45,8 +45,11 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     if (isValidResultArray(eventArray)) {
 
         for (const i in eventArray) {
-            const labelArray = returnGetParsedVTODO(eventArray[i]["data"])!.category
             const parsed = returnGetParsedVTODO(eventArray[i]["data"])
+            if(!parsed){
+                continue
+            }
+            const labelArray = parsed!.category
 
             // console.log("parsed",parsed.summary, parsed, calendars_id)
             const type = returnEventType(eventArray[i]["data"])

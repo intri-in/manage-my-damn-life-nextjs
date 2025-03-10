@@ -4,7 +4,7 @@ export class Preference_CalendarsToShow{
 
 
     static get(){
-        var toReturn = null
+        let toReturn = null
         try{
             const prefFromLocalStorage = localStorage.getItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
             if(varNotEmpty(prefFromLocalStorage) && prefFromLocalStorage)
@@ -102,7 +102,7 @@ export class Preference_CalendarsToShow{
     }
 
     static isUptoDate(caldav_accounts:{name: string, caldav_accounts_id: number, calendars: any }[]){
-        var fromStorage = Preference_CalendarsToShow.get()
+        const fromStorage = Preference_CalendarsToShow.get()
         if(varNotEmpty(fromStorage) && Array.isArray(fromStorage)){
             for(const i in caldav_accounts){
                 if(this.findIndex_CaldavAccount(fromStorage, caldav_accounts[i].caldav_accounts_id)==null){
@@ -110,7 +110,7 @@ export class Preference_CalendarsToShow{
                 }else{
                     for (const j in caldav_accounts[i].calendars)
                     {
-                        var index = this.findIndex_Calendar(fromStorage, caldav_accounts[i].caldav_accounts_id,caldav_accounts[i].calendars[j].calendars_id)
+                        const index = this.findIndex_Calendar(fromStorage, caldav_accounts[i].caldav_accounts_id,caldav_accounts[i].calendars[j].calendars_id)
 
                         if(index==null ){
                             return false
@@ -160,7 +160,7 @@ export class Preference_CalendarsToShow{
 
     static  update(indexToUpdate: number[], newValue: boolean){
 
-        var fromStorage = this.get()
+        let fromStorage = this.get()
         if(fromStorage){
 
             fromStorage[indexToUpdate[0]].calendars[indexToUpdate[1]].show=newValue

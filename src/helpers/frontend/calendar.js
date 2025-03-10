@@ -251,6 +251,22 @@ export function returnEventType(data)
     
 }
 
+/***
+ * Since Thunderbird and other clients tend to add a lot of timezone data not yet supported in MMDL, we check if the parsedData row is a VTODO or not.
+ */
+function isValidParsedVTODO(parsedDataEntry){
+    if(("type" in parsedDataEntry)==false)
+    {
+        return false
+    }
+    if(parsedDataEntry["type"]!="VTODO")
+    {
+        return false
+    }
+
+    return true
+}
+
 export function returnGetParsedVTODO(vtodo)
 {
     if(!vtodo){
@@ -258,7 +274,12 @@ export function returnGetParsedVTODO(vtodo)
     }
     try{
         const  parsedData = ical.parseICS(vtodo);
+        //console.log("parsedData", parsedData)
         for (let k in parsedData) {
+            if(!isValidParsedVTODO(parsedData[k]))
+            {
+                continue;
+            }
             
             var entries = Object.entries(parsedData[k])
             //console.log(parsedData[k].recurrences)
@@ -301,7 +322,25 @@ export function returnGetParsedVTODO(vtodo)
             }
     
             //console.log("recurrences", recurrences, typeof(parsedData[k].recurrences))
-            var toReturn= {
+            let description =""
+            //console.log(parsedData[k].description)
+            if(parsedData[k].description){
+                if(typeof(parsedData[k].description)=="string"){
+                    description=parsedData[k].description
+                }else{
+                    if(("params" in parsedData[k].description) && ("ALTREP" in parsedData[k].description["params"])){
+                        // This will support HTML in the future, perhaps.
+                        //description = parsedData[k].description["params"]["ALTREP"]
+                        description = parsedData[k].description["val"]
+                    }else{
+                        if("val" in parsedData[k].description){
+                            description=parsedData[k].description["val"]
+                        }
+                    }
+                }
+            }
+            
+            let toReturn= {
                 summary:parsedData[k].summary,
                 created: parsedData[k].created,
                 due: duedate,
@@ -315,7 +354,7 @@ export function returnGetParsedVTODO(vtodo)
                 relatedto:relatedto,
                 lastmodified:parsedData[k].lastmodified,
                 dtstamp: parsedData[k].dtstamp,
-                description: parsedData[k].description,
+                description: description,
                 rrule: parsedData[k].rrule,
                 recurrences: recurrences
     

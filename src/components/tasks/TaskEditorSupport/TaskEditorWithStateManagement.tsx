@@ -247,6 +247,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setUID(parsedData["uid"])
                 // console.log(parsedData["due"], new Date(moment(parsedData["due"]).unix() * 1000).toString())
                 if (parsedData["due"]) {
+                    // console.log(parsedData["due"],moment(parsedData["due"]).toISOString())
                     // setDueDate(new Date(moment(parsedData["due"]).unix() * 1000).toString())
                     setDueDate(moment(parsedData["due"]).toISOString())
                 }
