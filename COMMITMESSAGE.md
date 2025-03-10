@@ -1,5 +1,1 @@
-- Made some changes to make MMDL play nicely with Radicale.
-- Made some changes to make MMDL play nicely with Thunderbird.
-- Removed some console logs
-- Fixed text clipping issue #176
-- Changed default collapse behaviour. Now it shows children on fresh render. Will add an option for user to control this behaviour.
+- Fixed "Calendars to Show" toggle in CalendarView.
