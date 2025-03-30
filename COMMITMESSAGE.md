@@ -1,1 +1,5 @@
-- Fixed "Calendars to Show" toggle in CalendarView.
+- Bumped version number to 0.6.0
+- Fixed deleteExtraEventsFromDexie function being called on each array iteration in saveAPIEventReponseToDexie
+- Changes to dexie db structure!
+- Improved rendering:
+    - Now uses stored parent data, rather than looping over the tasks.

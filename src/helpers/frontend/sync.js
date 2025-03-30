@@ -120,7 +120,7 @@ export async function fetchLatestEventsV2(refreshCalList)
     localStorage.setItem(IS_SYNCING, true)
     await refreshCalendarListV2()
     const arrayFromDexie = await getCalDAVSummaryFromDexie()
-    console.log("arrayFromDexie_FINALLY", arrayFromDexie)
+    console.log("arrayFromDexie_caldavAccounts", arrayFromDexie)
     if(isValidResultArray(arrayFromDexie)){
         for(const i in arrayFromDexie){
             if(isValidResultArray(arrayFromDexie[i]["calendars"])){

@@ -4,7 +4,7 @@ import { getI18nObject } from "@/helpers/frontend/general"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
-import { TaskArrayItem, TaskSection, arrangeTodoListbyHierarchyV2, getCaldavAndCalendarNameForView } from "@/helpers/frontend/TaskUI/taskUIHelpers"
+import { TaskArrayItem, TaskSection, arrangeTodoListbyHierarchyV2, getCaldavAndCalendarNameForView, returnTaskListFilteredandSorted } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { Loading } from "@/components/common/Loading"
 import { TaskViewMain } from "./TaskViewMain/TaskViewMain"
 import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort"
@@ -53,11 +53,9 @@ export const TaskListFrameWork = () => {
         getCaldavAndCalendarNameForView(currentCalDavObjectAtom.caldav_accounts_id, currentCalDavObjectAtom.calendars_id).then(name => {
             setPageTitleAtom(name)
         })
-        const filteredTodos = filterEvents(eventsFromDexie, currentPageFilter)
-        const todoList_heirarchy = arrangeTodoListbyHierarchyV2(filteredTodos, eventsFromDexie)
-        // console.log(todoList_heirarchy)
-        const sortedTodoList = sortTasksByRequest(todoList_heirarchy, DEFAULT_SORT_OPTION)
-        if (filteredTodos != null && Array.isArray(filteredTodos) && filteredTodos.length > 0) {
+     
+        const sortedTodoList =  await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
+        if (sortedTodoList != null && Array.isArray(sortedTodoList) && sortedTodoList.length > 0) {
             let finalToPush: TaskSection[] = []
             finalToPush.push({
                 name: null,
@@ -81,9 +79,8 @@ export const TaskListFrameWork = () => {
                     for (const j in allSummary[i]["calendars"]) {
                         let cal = allSummary[i]["calendars"][j]
                         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(cal["calendars_id"], "VTODO")
-                        const filteredTodos = filterEvents(eventsFromDexie, currentPageFilter)
-                        const todoList_heirarchy = arrangeTodoListbyHierarchyV2(filteredTodos, eventsFromDexie)
-                        const sortedTodoList = sortTasksByRequest(todoList_heirarchy, DEFAULT_SORT_OPTION)
+                     
+                        const sortedTodoList = await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
                         // console.log("eventsFromDexie", eventsFromDexie,"filteredTodos",filteredTodos, "todoList_heirarchy", todoList_heirarchy, "sortedTodoList", sortedTodoList)
                         if (sortedTodoList.length > 0) {
 

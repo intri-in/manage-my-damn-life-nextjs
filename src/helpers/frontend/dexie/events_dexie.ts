@@ -5,6 +5,8 @@ import { saveLabelToDexie } from "./dexie_labels";
 import { basicTaskFilterForDexie } from "./dexie_helper";
 import { majorTaskFilter } from "../events";
 import { getCalendarColorFromDexie } from "./calendars_dexie";
+import { VTODO } from "../classes/VTODO";
+import { getParsedTaskParent } from "../TaskUI/taskUIHelpers";
 
 export async function getEventColourbyID(calendar_events_id): Promise<string> {
 
@@ -53,19 +55,24 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
 
             // console.log("parsed",parsed.summary, parsed, calendars_id)
             const type = returnEventType(eventArray[i]["data"])
-            if (type == "VTODO" && basicTaskFilterForDexie(parsed)) {
+            if (type == "VTODO") {
+                if(basicTaskFilterForDexie(parsed)){
 
-                await saveLabelToDexie(labelArray)
+                    await saveLabelToDexie(labelArray)
+                }
+
             }
-            await saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"])
-            await deleteExtraEventsFromDexie(calendars_id, eventArray)
+            await saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"],parsed)
+
         }
+        //Delete extra events not located on CalDAV server.
+        await deleteExtraEventsFromDexie(calendars_id, eventArray)
     }
 
-    //Delete extra events not located on CalDAV server.
 
 
 }
+
 export async function getEtagFromEventID_Dexie(calendar_events_id: number | string){
     let id_toSearch = calendar_events_id
     if(typeof(calendar_events_id)!=="number")
@@ -109,7 +116,106 @@ export async function getEtagFromURL_Dexie(url) {
 
 }
 
-export async function saveEventToDexie(calendars_id, url, etag, data, type) {
+export async function getAllChildrenforTask_FromDexie(parent_id){
+
+    try {
+        const events = await db.event_parents
+            .where('parent_id')
+            .equals(parent_id)
+            .toArray();
+        return events;
+
+    } catch (e) {
+        console.warn("getAllChildrenforTask_FromDexie", e)
+        return null
+    }
+
+
+
+}
+
+/**
+ * Gets the id of events from calendar_events from uid 
+ */
+
+export async function getCalendarEventFromUID_Dexie(uid){
+
+    try {
+        const events = await db.calendar_events
+            .where('uid')
+            .equals(uid)
+            .toArray();
+        return events;
+
+    } catch (e) {
+        console.warn("getCalendarEventFromUID_Dexie", e)
+        return null
+    }
+
+
+
+}
+/**
+ * Gets the dexie id of the parent
+ * @param uid 
+ */
+export async function getIdFromEvent_ParentsDexie(uid){
+    try {
+        const events = await db.event_parents
+            .where('uid')
+            .equals(uid)
+            .toArray();
+
+        if (isValidResultArray(events)) {
+            return events[0]["id"]
+        } else {
+            return null
+        }
+
+    } catch (e) {
+        console.warn("getIdFromEvent_ParentsDexie", e)
+        return null
+    }
+
+}
+/**
+ * Saves parent of a task in dexie database.
+ * @param parsed parsed Event or Task
+ */
+export async function saveEventParenttoDexie(parsed){
+    const parent = getParsedTaskParent(parsed)
+    if(parent){
+        const id_ofChild = await getIdFromEvent_ParentsDexie(parsed["uid"])
+        if(id_ofChild){
+            // Data already exists. Update
+            const updated = await db.event_parents.update(id_ofChild, {parent_id:parent}).catch( e=>{
+                console.error("saveEventParenttoDexie", e)
+            })
+        
+        }else{
+            // New entry. Create.
+            const id = await db.event_parents.add({
+                uid:parsed["uid"],
+                parent_id:parent
+
+            }).catch(e => {
+                console.log(e)
+            })
+    
+        }
+
+    }
+    
+
+}
+
+export async function saveEventToDexie(calendars_id, url, etag, data, type, parsed?) {
+    if(!parsed){
+
+        parsed = returnGetParsedVTODO(data)
+    }
+
+
     //Check if event exists in Dexie already, if so, we update it.
     const eventID = await getEventbyURLFromDexie(url)
     const parsedType = returnEventType(data)
@@ -123,7 +229,10 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type) {
         //console.log("events etag",eventID["etag"], etag,  eventID["etag"]==etag )
         // console.log("typeToInsert", typeToInsert, type, parsedType)
 
-        const updated = await db.calendar_events.update(eventID, { etag: etag, data: data, type: typeToInsert })
+        const updated = await db.calendar_events.update(eventID, { etag: etag, data: data, type: typeToInsert,uid: parsed["uid"],
+        parsedData:parsed
+    })
+        //Update parsed value
         // console.log("updated", updated)
     } else {
 
@@ -135,13 +244,18 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type) {
             data: data,
             calendar_id: calendars_id.toString(),
             type: typeToInsert,
-            updated: Date.now().toString()
+            updated: Date.now().toString(),
+            uid: parsed["uid"],
+            parsedData:parsed
         }).catch(e => {
             console.log(e)
         })
+
         // console.log("id", id)
 
     }
+    await saveEventParenttoDexie(parsed)
+    
 }
 
 /**

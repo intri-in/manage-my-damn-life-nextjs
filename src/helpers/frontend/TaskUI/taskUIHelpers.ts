@@ -1,11 +1,11 @@
 import { TaskPending } from "@/helpers/api/tasks"
-import { findIDinFilteredList, returnGetParsedVTODO } from "../calendar"
+import { findIDinFilteredList, parentInFilteredList, returnGetParsedVTODO } from "../calendar"
 import { Calendar_Events } from "../dexie/dexieDB"
 import { filterEvents, majorTaskFilter } from "../events"
 import { VTODO } from "../classes/VTODO"
-import { haystackHasNeedle, isValidObject, isValidResultArray } from "@/helpers/general"
+import { haystackHasNeedle, isValidObject, isValidResultArray, varNotEmpty } from "@/helpers/general"
 import { Calendar } from "@fullcalendar/core"
-import { getEventFromDexieByID } from "../dexie/events_dexie"
+import { getAllChildrenforTask_FromDexie, getCalendarEventFromUID_Dexie, getEventFromDexieByID } from "../dexie/events_dexie"
 import { RecurrenceHelper } from "../classes/RecurrenceHelper"
 import { getCalDAVAccountbyCalDAVId_Dexie } from "../dexie/caldav_dexie"
 import { getCalendarNameByIDFromDexie } from "../dexie/calendars_dexie"
@@ -14,6 +14,8 @@ import { toast } from "react-toastify"
 import { getI18nObject } from "../general"
 import { useSetAtom } from "jotai"
 import { updateViewAtom } from "stateStore/ViewStore"
+import { TaskFilter } from "types/tasks/filters"
+import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort"
 
 export interface TaskSection{
     name: string | null,
@@ -27,6 +29,153 @@ export interface TaskArrayItem{
     due?: number,
     children: TaskArrayItem[]
 }
+
+
+export async function returnTaskListFilteredandSorted(eventsFromDexie: Calendar_Events[] | null, currentPageFilter: {} | TaskFilter, sortOption?: string){
+    // console.time("returnTaskListFilteredandSorted: Time to get event list.")
+
+    const sortby = sortOption?? DEFAULT_SORT_OPTION
+    const filteredTodos = filterEvents(eventsFromDexie, currentPageFilter)
+    //console.log(filteredTodos)
+
+    
+    //const todoList_heirarchy = arrangeTodoListbyHierarchyV2(filteredTodos, eventsFromDexie)
+
+    const listofTasks_Obj= await getTopLevelUID_V3(filteredTodos)
+
+    // console.log(todoList_heirarchy)
+    const sortedTodoList = sortTasksByRequest(listofTasks_Obj, sortby)
+
+    //console.log("sortedTodoList", sortedTodoList)
+    // console.timeEnd("returnTaskListFilteredandSorted: Time to get event list.")
+
+    return sortedTodoList
+}
+
+async function getAllChildrenforTask(uid):Promise<TaskArrayItem[]>{
+    const childrenFromDexie = await getAllChildrenforTask_FromDexie(uid)
+    let toReturn: TaskArrayItem[] = []
+    if(childrenFromDexie && Array.isArray(childrenFromDexie) && childrenFromDexie.length>0){
+
+        for(const child in childrenFromDexie){
+            if(childrenFromDexie[child]["uid"]){
+                //get Dexie Events ID from this uid
+                const event = await getCalendarEventFromUID_Dexie(childrenFromDexie[child]["uid"])
+                if(!event){
+                    continue;
+                }
+                // console.log(event[0]["parsedData"]["summary"])
+                if(event && Array.isArray(event) && event.length>0){
+                    // This is a valid event.
+   
+                    let dueDate = event[0]["parsedData"]["due"]
+                    if(checkifRepeatingTask(event[0]["parsedData"])){
+                        //Repeating task
+                        const recurrenceObj = new RecurrenceHelper(event[0]["parsedData"])
+                        dueDate = recurrenceObj.getNextDueDate()
+            
+                    }
+
+                    const children =  await getAllChildrenforTask(event[0]["uid"])
+                    if(!checkifUIDAlreadyinChildren(event[0]["uid"], toReturn)){
+
+                        toReturn.push({uid: event[0]["uid"]!, id: event[0].calendar_events_id!, summary: event[0]["parsedData"]["summary"], priority: event[0]["parsedData"]["priority"], due: dueDate, children:children})
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    return toReturn
+
+}
+
+/**
+ * Removes any duplicates from
+ * @param eventArrayToReturn 
+ */
+function checkifUIDAlreadyinChildren(uid_toCheck, eventArrayToReturn){
+    
+    for(const j in eventArrayToReturn){
+        if(eventArrayToReturn[j].uid==uid_toCheck){
+            return true
+        }
+    }
+    
+    return false
+}
+/**
+ * Instead of older approach (in arrangeTodoListbyHierarchyV2) instead  of recursively going through the list, we check if a tasks that has a parent. If yes, we check if the parent is in the filtered list. If yes, we skip the present task, else we add. By doing this we are left with the Top Level Tasks that have been filtered. We will then add children later.
+ */
+async function getTopLevelUID_V3(todoList: Calendar_Events[])
+{
+    let finalArray: TaskArrayItem[]=[]
+    
+    // We will keep removing the events that have been added to Top Level Array and Let the remaining be left for further processing.
+
+    let remainingArray: Calendar_Events[] = [] 
+
+    if(todoList!=null && Array.isArray(todoList) && todoList.length>0)
+    {
+
+        for(let i=0; i<todoList.length; i++)
+        {
+            let todo: {} | undefined  = undefined
+            if(todoList[i].parsedData){
+                
+                todo = todoList[i].parsedData
+            }else{
+                todo = returnGetParsedVTODO(todoList[i].data)
+
+            }
+            if(!todo){
+                continue;
+            }
+            //let todoObj = new VTODO(todoList[i])
+            //console.log("todoObj", todo,todoObj)
+            const parent = getParsedTaskParent(todo)
+            let dueDate = todo["due"]
+            if(checkifRepeatingTask(todo)){
+                //Repeating task
+                const recurrenceObj = new RecurrenceHelper(todo)
+                dueDate = recurrenceObj.getNextDueDate()
+    
+            }
+            // console.log(todoObj.parsedData.summary, todoObj.hasNoRelatedParent(), todoObj.parsedData.relatedto)
+
+            if(!parent)
+            {
+                //Probably a parent task with no relations to anyone. We add it to our top-level list.
+                const children = await getAllChildrenforTask(todo["uid"])
+                finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:children, summary: todo["summary"], priority: todo["priority"], due: dueDate })
+
+                
+            }else{
+                // The task has a parent.
+
+                if(parentInFilteredList(parent, todoList)==false)
+                {
+                    // console.log(todo.summary, todo.relatedto)
+
+                    // Task is a sub task. Its parent however is not in the filtered list. Therefore, this is a top-level task for our current parameters. We add it to the array.
+                    
+                    finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:[], summary: todo["summary"], priority: todo["priority"], due: dueDate })
+                    
+                }
+            }
+
+            
+        }
+
+    }
+
+    return finalArray
+    
+}
+
+
 
 /**
  * @param {*} todoList List of filtered todos.
@@ -151,6 +300,43 @@ export function checkifRepeatingTask(parsedTask){
     }
     return false
 }
+
+export function getParsedTaskParent(parsedTask){
+    var relatedTo = parsedTask.relatedto
+
+    if (varNotEmpty(relatedTo) && relatedTo != "") {
+
+        if (typeof (relatedTo) != "string") {
+            if (Array.isArray(relatedTo)) {
+                for (const k in relatedTo) {
+                    if (varNotEmpty(relatedTo[k].params) && varNotEmpty(relatedTo[k].params.RELTYPE)) {
+                        if (relatedTo[k].params.RELTYPE == "PARENT") {
+                            return relatedTo[k].val
+                        }
+                    }
+
+
+                }
+            } else {
+                if (varNotEmpty(relatedTo.params) && varNotEmpty(relatedTo.params.RELTYPE)) {
+                    if (relatedTo.params.RELTYPE == "PARENT") {
+                        return relatedTo.val
+                    }
+                }
+            }
+
+
+
+        } else {
+            return relatedTo
+        }
+    } else {
+        return ""
+    }
+
+
+
+}
 function getTopLevelUID_V2(todoList: Calendar_Events[])
 {
     let finalArray: TaskArrayItem[]=[]
@@ -164,13 +350,21 @@ function getTopLevelUID_V2(todoList: Calendar_Events[])
 
         for(let i=0; i<todoList.length; i++)
         {
-            let todo = returnGetParsedVTODO(todoList[i].data)
+            let todo: {} | undefined  = undefined
+            if(todoList[i].parsedData){
+                
+                todo = todoList[i].parsedData
+            }else{
+                todo = returnGetParsedVTODO(todoList[i].data)
+
+            }
             if(!todo){
                 continue;
             }
-            let todoObj = new VTODO(todoList[i])
+            //let todoObj = new VTODO(todoList[i])
             //console.log("todoObj", todo,todoObj)
-            let dueDate = todo.due
+            const parent = getParsedTaskParent(todo)
+            let dueDate = todo["due"]
             if(checkifRepeatingTask(todo)){
                 //Repeating task
                 const recurrenceObj = new RecurrenceHelper(todo)
@@ -178,21 +372,22 @@ function getTopLevelUID_V2(todoList: Calendar_Events[])
     
             }
             // console.log(todoObj.parsedData.summary, todoObj.hasNoRelatedParent(), todoObj.parsedData.relatedto)
-            if(todoObj.hasParent()==false)
+
+            if(!parent)
             {
                 //Probably a parent task with no relations to anyone.
-                finalArray.push({uid:todo.uid, id: todoList[i].calendar_events_id!, children:[], summary: todo.summary, priority: todo.priority, due: dueDate })
+                finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:[], summary: todo["summary"], priority: todo["priority"], due: dueDate })
 
                 
             }else{
                 
-                if(findIDinFilteredList(todo?.relatedto, todoList)==false)
+                if(parentInFilteredList(parent, todoList)==false)
                 {
                     // console.log(todo.summary, todo.relatedto)
 
                     // Task is a sub task. If parent is in todoList, then we don't add it at top level. If the parent is not here, we add.
                     
-                    finalArray.push({uid:todo.uid, id: todoList[i].calendar_events_id!, children:[], summary: todo.summary, priority: todo.priority, due: dueDate })
+                    finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:[], summary: todo["summary"], priority: todo["priority"], due: dueDate })
                     
                 }
                 else

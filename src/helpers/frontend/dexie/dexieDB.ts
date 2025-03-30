@@ -34,6 +34,9 @@ export  interface Calendar_Events {
     type?: string;
     calendar_id?: string;
     deleted?: string;
+    uid?:string;
+    parsedData?:any
+  
 }
 
 export interface Labels {
@@ -50,12 +53,21 @@ export interface Settings{
   value?: string;
 
 }
+
+export interface Event_Parents{
+  id?: number;
+  uid?: string;
+  parent_id?:string
+}
+
 export class MySubClassedDexie extends Dexie {
   caldav_accounts!: Table<Caldav_Accounts>; 
   calendars!: Table<Calendars>;
   calendar_events!: Table<Calendar_Events>;
   labels!: Table<Labels>
   settings!:Table<Settings>
+  event_parents!:Table<Event_Parents>
+
   constructor() {
     super('mmdl_dexie_db');
     this.version(1).stores({
@@ -67,7 +79,21 @@ export class MySubClassedDexie extends Dexie {
 
     });
 
-    
+
+    this.version(2).stores({
+      event_parents:'++id,calendar_events_id,parent_id',
+      calendar_events:'++calendar_events_id,url,etag,data, updated, type, calendar_id, deleted,calendar_events_id,uid,parsedData'
+    })
+    this.version(3).stores({
+      event_parents:'++id,calendar_events_id,parent_id',
+    })
+
+    this.version(4).stores({
+      event_parents:'++id,uid,parent_id',
+
+    })
+   
+
   }
 }
 
