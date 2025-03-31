@@ -145,12 +145,12 @@ async function getTopLevelUID_V3(todoList: Calendar_Events[])
             }
             // console.log(todoObj.parsedData.summary, todoObj.hasNoRelatedParent(), todoObj.parsedData.relatedto)
 
+            let addToList = false
+
             if(!parent)
             {
                 //Probably a parent task with no relations to anyone. We add it to our top-level list.
-                const children = await getAllChildrenforTask(todo["uid"])
-                finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:children, summary: todo["summary"], priority: todo["priority"], due: dueDate })
-
+                addToList=true
                 
             }else{
                 // The task has a parent.
@@ -160,11 +160,17 @@ async function getTopLevelUID_V3(todoList: Calendar_Events[])
                     // console.log(todo.summary, todo.relatedto)
 
                     // Task is a sub task. Its parent however is not in the filtered list. Therefore, this is a top-level task for our current parameters. We add it to the array.
-                    
-                    finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:[], summary: todo["summary"], priority: todo["priority"], due: dueDate })
+                    addToList=true
                     
                 }
             }
+            if(addToList){
+
+                const children = await getAllChildrenforTask(todo["uid"])
+                finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:children, summary: todo["summary"], priority: todo["priority"], due: dueDate })
+            }
+
+
 
             
         }
