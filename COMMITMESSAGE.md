@@ -1,2 +1,1 @@
-- Added a way to view RAW ICS data in both TaskEditor and Event Editor
-- Fixed bug with Event addition, which was caused due to recent commits.
+- Fixed label, priority, etc. persisting even after clicking add task on Quick Task Edit Feature

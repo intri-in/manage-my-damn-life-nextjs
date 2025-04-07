@@ -93,7 +93,7 @@ export function AddTaskFunctional(props) {
         }
         setTaskInputAtom(dataToPush)
         setNewTaskSummary("")
-
+        setQuickAddResults([])
         showTaskEditor(true)
 
     }
