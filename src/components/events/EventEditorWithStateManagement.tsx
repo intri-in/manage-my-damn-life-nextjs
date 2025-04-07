@@ -1,6 +1,6 @@
 import { getI18nObject } from "@/helpers/frontend/general";
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
 import { EventEditorInputType } from "stateStore/EventEditorStore";
 import { Loading } from "../common/Loading";
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore";
@@ -63,6 +63,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [isNewEvent, setIsNewEvent]= useState(false)
     const [lastModified, setLastModified]= useState("")
     const [isNewTask, setIsNewTask] = useState(false)
+    const [rawICS, setRawICS] = useState('')
 
     useEffect(()=>{
         let isMounted =true
@@ -112,6 +113,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(input.id.toString()))
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
+            if(unParsedData) setRawICS(unParsedData)
             const parsedData = getParsedEvent(unParsedData)
             // console.log(parsedData)
             setSummary(parsedData["summary"])
@@ -276,7 +278,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             const etag = getRandomString(32)
 
             const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
-            postNewEvent(calendar_id, ics, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], "VTODO", fileName).then((body) => {
+            postNewEvent(calendar_id, ics, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], "VEVENT", fileName).then((body) => {
                 onServerResponse(body, summary)
             })
             closeEditor()
@@ -392,6 +394,16 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <br />
         <p style={{ textAlign: "center" }}><b>{i18next.t('LAST_MODIFIED') + ": "}</b>{lastModified}</p>
         <br />
+        <br />
+        <Accordion>
+                <Accordion.Item eventKey="0">
+                    <Accordion.Header>Raw ICS</Accordion.Header>
+                    <Accordion.Body>
+                        {rawICS}
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
+
         </>
     )
 

@@ -1,7 +1,7 @@
 import { Loading } from "@/components/common/Loading"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
-import { Alert, Button, Col, Form, Row } from "react-bootstrap"
+import { Accordion, Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
 import "react-datetime/css/react-datetime.css";
 import { getI18nObject } from "@/helpers/frontend/general"
@@ -77,6 +77,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [calendarDDLDisabled, setCalendarDDLDisabled] = useState(false)
     const [showMoveEventOption, setShowMoveEventOption]= useState(false)
     const [recurrenceObj, setRecurrenceObj] = useState<any>({})
+    const [rawICS, setRawICS] = useState('')
     const changeDoneStatus = (isDone: boolean) => {
         if (isDone) {
             const completedDate = getISO8601Date(moment().toISOString())
@@ -227,6 +228,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         const eventInfoFromDexie = await getEventFromDexieByID(id_local)
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
+            if(unParsedData) setRawICS(unParsedData)
             // console.log(unParsedData)
             const parsedData = returnGetParsedVTODO(unParsedData)
             if (unParsedData) setUnparsedDataFromDexie(unParsedData)
@@ -729,6 +731,14 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <p style={{ textAlign: "center" }}><b>{i18next.t('LAST_MODIFIED') + ": "}</b>{moment(lastmodified).format(getStandardDateFormat())}</p>
             <br />
             <br />
+            <Accordion >
+                <Accordion.Item eventKey="0">
+                    <Accordion.Header>Raw ICS</Accordion.Header>
+                    <Accordion.Body>
+                        {rawICS}
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
         </div>
     )
 }

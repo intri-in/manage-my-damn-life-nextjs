@@ -1,1 +1,2 @@
-- Fixed some children not being added in getTopLevelUID_V3.
+- Added a way to view RAW ICS data in both TaskEditor and Event Editor
+- Fixed bug with Event addition, which was caused due to recent commits.

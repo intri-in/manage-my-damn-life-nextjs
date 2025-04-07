@@ -3,7 +3,7 @@ import { Calendar_Events, db } from "./dexieDB";
 import { returnEventType, returnGetParsedVTODO } from "../calendar";
 import { saveLabelToDexie } from "./dexie_labels";
 import { basicTaskFilterForDexie } from "./dexie_helper";
-import { majorTaskFilter } from "../events";
+import { getParsedEvent, majorTaskFilter } from "../events";
 import { getCalendarColorFromDexie } from "./calendars_dexie";
 import { VTODO } from "../classes/VTODO";
 import { getParsedTaskParent } from "../TaskUI/taskUIHelpers";
@@ -209,11 +209,18 @@ export async function saveEventParenttoDexie(parsed){
 
 }
 
-export async function saveEventToDexie(calendars_id, url, etag, data, type, parsed?) {
-    if(!parsed){
+export async function saveEventToDexie(calendars_id, url, etag, data, type, parsedInput?) {
+    let parsed = parsedInput
+    if(!parsedInput){
 
-        parsed = returnGetParsedVTODO(data)
+        if (type=="VTODO"){
+            parsed = returnGetParsedVTODO(data)
+        }else if(type=="VEVENT"){
+            parsed = getParsedEvent(data)
+        }
     }
+
+    console.log("parsed,type", parsed,type,data)
 
 
     //Check if event exists in Dexie already, if so, we update it.
@@ -248,7 +255,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
             uid: parsed["uid"],
             parsedData:parsed
         }).catch(e => {
-            console.log(e)
+            console.log("saveEventToDexie", e)
         })
 
         // console.log("id", id)
