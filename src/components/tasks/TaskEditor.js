@@ -608,7 +608,7 @@ export default class TaskEditor extends Component {
         url += fileName
 
         // Pre-emptively save event.
-        await (calendar_id, url, etag, data, "VTODO")
+        await saveEventToDexie(calendar_id, url, etag, data, "VTODO")
         postNewEvent(calendar_id, data, etag, this.state.caldav_accounts_id, this.state.calendarData["ctag"], this.state.calendarData["syncToken"], this.state.calendarData["url"], "VTODO", fileName).then((body) => {
             this.props.onDismiss(body, this.state.summary)
         })
