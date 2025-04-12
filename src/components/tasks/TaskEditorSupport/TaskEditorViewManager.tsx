@@ -124,7 +124,7 @@ export const TaskEditorViewManager = () =>{
     <>
     <Offcanvas placement='end' show={show} onHide={taskEditorClosed}>
         <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Edit Task</Offcanvas.Title>
+            <Offcanvas.Title>{i18next.t("EDIT_TASK")}</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
         <TaskEditorWithStateManagement closeEditor={()=>destroy()} onServerResponse={onServerResponse} showDeleteDailog={()=>setShowConfirmDeleteDialog(true)} onChange={onChange} input={taskEditorInput} />

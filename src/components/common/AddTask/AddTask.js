@@ -274,7 +274,7 @@ class AddTask extends Component{
          
             <Offcanvas placement='end' show={this.state.showTaskEditor} onHide={this.taskEditorClosed}>
                 <Offcanvas.Header closeButton>
-                     <Offcanvas.Title>Edit Task</Offcanvas.Title>
+                     <Offcanvas.Title>{this.i18next.t("EDIT_TASK")}</Offcanvas.Title>
                 </Offcanvas.Header>
                     <Offcanvas.Body>
                         <TaskEditor todoList={this.state.todoList} onChange={this.taskDataChanged} onDismiss={this.taskEditorDismissed} newTask={true} calendar_id={this.state.calendar_id}  data={this.state.data} />

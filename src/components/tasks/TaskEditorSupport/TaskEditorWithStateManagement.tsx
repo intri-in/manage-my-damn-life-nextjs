@@ -569,7 +569,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         var validStatuses = VTodoGenerator.getValidStatusValues()
         var finalOutput: JSX.Element[] = []
         for (const i in validStatuses) {
-            finalOutput.push(<option key={validStatuses[i]} value={validStatuses[i]}>{validStatuses[i]}</option>)
+            finalOutput.push(<option key={validStatuses[i]} value={validStatuses[i]}>{i18next.t(validStatuses[i])}</option>)
         }
 
         return (<Form.Select key="status_ddl" value={status} onChange={statusValueChanged} >
@@ -649,7 +649,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     <div style={{ height: "50px", display: "flex", justifyContent: "flex-start", alignContent: "flex-start" }}>
 
                         <Form.Check
-                            label="Task Done?"
+                            label={i18next.t("TASK_DONE")+"?"}
                             className="align-middle"
                             style={{}}
                             checked={taskDone}
@@ -658,33 +658,33 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     </div>
                 </Col>
             </Row>
-            <h4>Task Summary</h4>
+            <h4>{i18next.t("TASK")+" "+i18next.t("SUMMARY")}</h4>
             <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder="Enter a summary" /></div>
             {repeatInfoMessage}
-            <h4>Calendar</h4>
+            <h4>{i18next.t("CALENDAR")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <CalendarPicker onSelectedHook={calendarSelected} key={uid} calendar_id={calendar_id} disabled={calendarDDLDisabled} />
             </div>
             {showMoveEventOption ? <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, }}>{i18next.t("COPY_MOVE")}</p> : null }
 
-            <h4>Parent Task</h4>
+            <h4>{i18next.t("PARENT")+" "+i18next.t("TASK")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <ParentTaskView parentID={parentID} uid={uid} calendar_id={calendar_id} removeParentClicked={removeParentClicked} onParentSelect={onParentSelect} />
             </div>
-            <h4>Start Date</h4>
+            <h4>{i18next.t("START_DATE")}</h4>
             {/* <div style={{ marginBottom: 10 }}><Datetime value={moment(taskStart)} closeOnSelect={true} onChange={startDateChange} dateFormat={dateFormat} timeFormat="HH:mm" /></div> */}
             <div style={{ marginBottom: 10 }}>
                 <Datepicker value={taskStart} onChangeHook={startDateChange} />
             </div>
             
 
-            <h4>Due Date</h4>
+            <h4>{i18next.t("DUE_DATE")}</h4>
             <Row style={{ marginBottom: 10 }}>
                 {isRepeatingTask ? <p>{dueDateFixed}</p> : (<>
                 <Datepicker value={dueDate}  onChangeHook={dueDateChanged}  />
                 </>)}
             </Row>
-            <h4>Labels</h4>
+            <h4>{i18next.t("LABELS")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <SearchLabelArrayFunctional category={category} onLabelAdded={onLabelAdded} onLabelRemoved={removeLabel} />
             </div>
@@ -692,22 +692,22 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <div style={{ marginBottom: 10 }}>
                 {getStatusDropdown()}
             </div>
-            <h4>Priority</h4>
+            <h4>{i18next.t("PRIORITY")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <Form.Select onChange={priorityChanged} value={priority} >
                     <option value="0"></option>
-                    <optgroup key="High" label="High">
+                    <optgroup key="High" label={i18next.t("HIGH")}>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
                     </optgroup>
-                    <optgroup key="Medium" label="Medium">
+                    <optgroup key="Medium" label={i18next.t("MEDIUM")}>
                         <option value="5">5</option>
                         <option value="6">6</option>
                         <option value="7">7</option>
                     </optgroup>
-                    <optgroup key="Low" label="Low">
+                    <optgroup key="Low" label={i18next.t("LOW")}>
                         <option value="8">8</option>
                         <option value="9">9</option>
                         <option value="10">10</option>
@@ -715,15 +715,15 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
                 </Form.Select>
             </div>
-            <h4>Completion</h4>
+            <h4>{i18next.t("COMPLETION")}</h4>
             <div>{completion}%</div>
             <Form.Range onChange={completionChanged} value={completion} />
-            <h4>Notes</h4>
-            <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder="Enter your notes here." />
+            <h4>{i18next.t("NOTES")}</h4>
+            <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={i18next.t("ENTER_NOTES")} />
             <br />
             <Recurrence onRruleSet={onRruleSet} rrule={rrule} />
             <br />
-            {isSubmitting ? <Loading centered={true} /> : <div onClick={deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>Delete Task</div>}
+            {isSubmitting ? <Loading centered={true} /> : <div onClick={deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{i18next.t("DELETE_TASK")}</div>}
             <br />
             <br />
             <p style={{ textAlign: "center" }}><b>{i18next.t('LAST_MODIFIED') + ": "}</b>{moment(lastmodified).format(getStandardDateFormat())}</p>

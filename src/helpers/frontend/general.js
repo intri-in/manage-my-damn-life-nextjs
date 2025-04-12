@@ -148,12 +148,12 @@ export function timeDifferencefromNowinWords(date)
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -172,12 +172,12 @@ export function timeDifferencefromNowinWords_FromUnixSeconds(unixTime){
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -204,12 +204,12 @@ export function timeDifferencefromNowinWords_Generic(date)
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -279,10 +279,10 @@ export const findPath = (ob, key) => {
     var message = getMessageFromAPIResponse(body)
     if(varNotEmpty(message) && message!="")
     {
-        toast.error(this.state.i18next.t(message))
+        toast.error(i18next.t(message))
 
     }else{
-        toast.error(this.state.i18next.t("ERROR_GENERIC"))
+        toast.error(i18next.t("ERROR_GENERIC"))
     }
     
   }
