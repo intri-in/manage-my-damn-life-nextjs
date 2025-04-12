@@ -3,6 +3,7 @@ import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import allLocales from '@fullcalendar/core/locales-all'
 import { getAllEvents, getCaldavAccountsfromServer, getParsedTodoList, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
@@ -479,6 +480,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 eventDrop={eventDrop}
                 eventResize={eventResize}
                 firstDay={firstDay}
+                locales={allLocales}
+                locale={i18next.language}
             />
         </>
     )
