@@ -130,7 +130,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div  onClick={() =>pageViewClicked(PAGE_VIEW_NAME_ALL_TASKS)} style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div  className="col">
-                            <MdToday className="textDefault"/> <span className="textDefault">  All tasks
+                            <MdToday className="textDefault"/> <span className="textDefault">  {i18next.t("ALL_TASKS")}
 </span>
                         </div>
                     </div>
@@ -145,7 +145,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                     <Col><FilterListWithStateManagement postClick={postClick}  /></Col>
                 </Row>
                 <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
-                    <Col><h3>By Labels</h3></Col>
+                    <Col><h3>{i18next.t("BY_LABELS")}</h3></Col>
                     <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={updateLabelCache} color={settingButtonColor} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={settingButtonColor}/></Link></h3></Col>
                 </Row>
                 <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
@@ -155,7 +155,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div style={{marginTop: 40, marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
                         <Col>
-                        <h3><BsCalendar3 /> Calendars</h3>
+                        <h3><BsCalendar3 /> {i18next.t("CALENDARS")}</h3>
                         </Col>
                         <Col style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting color={settingButtonColor} /></Link> </Col>
 

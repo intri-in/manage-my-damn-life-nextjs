@@ -124,10 +124,10 @@ export function AddTaskFunctional(props) {
             <div style={{ textAlign: "center", borderBottom: borderColor }}>
                 <Stack gap={1} direction="horizontal" style={{ width: "100%", marginTop: 10, marginBottom: 10 }}>
                     <div style={{ width: "100%" }} >
-                        <Form.Control value={newTaskSummary} onChange={taskSummaryChanged} onKeyDown={onKeyDown} type="text" placeholder="Add a task" />
+                        <Form.Control value={newTaskSummary} onChange={taskSummaryChanged} onKeyDown={onKeyDown} type="text" placeholder={i18next.t("ADD_A_TASK")} />
                     </div>
                     <div className="ms-auto" ><AddInfo /></div>
-                    <div ><Button size="sm" onClick={addTask}>Add</Button></div>
+                    <div ><Button size="sm" onClick={addTask}>{i18next.t("ADD")}</Button></div>
                 </Stack>
                 {quickAddResults}
             </div>

@@ -264,10 +264,10 @@ class AddTask extends Component{
             <div style={{textAlign:"center", borderBottom:borderColor}}> 
             <Stack gap={1} direction="horizontal" style={{width: "100%", marginTop:10, marginBottom:10}}>
             <div style={{width:"100%"}} sm={7} xs={8} lg={10}> 
-                    <Form.Control value={this.state.newTaskSummary} onChange={this.taskSummaryChanged} onKeyDown={this.onKeyDown} type="text" placeholder="Add a task" />
+                    <Form.Control value={this.state.newTaskSummary} onChange={this.taskSummaryChanged} onKeyDown={this.onKeyDown} type="text" placeholder={this.i18next.t("ADD_A_TASK")} />
             </div>
             <div className="ms-auto" sm={2} xs={2} lg={1}><AddInfo /></div>
-            <div sm={3} xs={2} lg={1}><Button size="sm" onClick={this.addTask}>Add</Button></div>
+            <div sm={3} xs={2} lg={1}><Button size="sm" onClick={this.addTask}>{this.i18next.t("ADD")}</Button></div>
             </Stack>
             {this.state.quickAddResults}
             </div>
