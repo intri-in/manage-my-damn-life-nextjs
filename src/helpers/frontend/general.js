@@ -4,16 +4,18 @@ import *  as translations from '@/i18n/strings.json'
 import * as moment from 'moment';
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
+import LanguageDetector from 'i18next-browser-languagedetector';
 
 export function getI18nObject()
 {
-    i18next.init({
-        lng: 'en', // if you're using a language detector, do not define the lng option
-        debug: false,
-        resources: 
-            translations
-        
-      });
+    i18next
+        .use(LanguageDetector)
+        .init({
+            fallbackLng: 'en',
+            debug: false,
+            resources: 
+                translations,
+          });
 
       return i18next
 
