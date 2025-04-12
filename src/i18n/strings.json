@@ -315,7 +315,7 @@
       "DESCRIPTION": "Beschreibung",
       "DUE": "Fällig",
       "DUE_NEXT_SEVEN_DAYS": "Fällig in den nächsten sieben Tagen",
-      "DUE_TODAY": "Fällig heute",
+      "DUE_TODAY": "Heute fällig",
       "EDIT": "Bearbeiten",
       "EDITING_IN_PROGRESS": "Bearbeitung läuft",
       "EDIT_EVENT": "Ereignis bearbeiten",
