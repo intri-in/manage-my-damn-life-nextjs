@@ -62,7 +62,7 @@ export const TimeFormatSetting = () =>{
                 if(response && response.status  && response.status==200){
                     toast.success(i18next.t("DATE_FORMAT")+": "+i18next.t("UPDATE_OK"))
                     setDateFormatJotai(dateFormat)
-                    
+                    localStorage.setItem(SETTING_NAME_DATE_FORMAT, dateFormat)
                 }else{
                     console.error(response)
                     toast.error(i18next.t("DATE_FORMAT")+": "+i18next.t("ERROR_GENERIC"))
@@ -77,10 +77,12 @@ export const TimeFormatSetting = () =>{
                 if(response && response.status  && response.status==200){
                     toast.success(i18next.t("TIME_FORMAT")+": "+i18next.t("UPDATE_OK"))
                     setTimeFormatJotai(timeFormat)
+                    localStorage.setItem(SETTING_NAME_TIME_FORMAT, timeFormat)
 
                 }else{
                     console.error(response)
                     toast.error(i18next.t("TIME_FORMAT")+": "+i18next.t("ERROR_GENERIC"))
+
                 }
             })
 

@@ -26,6 +26,7 @@ import MaintenanceTasks from "./MaintenanceTasks";
 import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { TimeFormatSetting } from "./TimeFormatSetting";
+import AdvancedSettings from "./AdvancedSettings";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -395,6 +396,9 @@ class SettingsPage extends Component {
                         <br />
                         <h2>{this.i18next.t("DATE_TIME_FORMAT")}</h2>
                         <TimeFormatSetting />
+                        <br />
+                        <br />
+                        <AdvancedSettings />
                         <br />
                         <br />
                         <MaintenanceTasks />

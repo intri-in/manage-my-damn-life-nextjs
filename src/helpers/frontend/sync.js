@@ -21,10 +21,9 @@ export function isSyncing(){
 export function shouldSync(){
     const userSetTimeout = getSyncTimeout()
     const isSyncing = getValueFromLocalStorage(IS_SYNCING)
-    // if(isSyncing){
-    //     return false
-    // }
-    
+    if(isSyncing){
+        return false
+    }
     let lastSync = getValueFromLocalStorage(LASTSYNC)
     if(!lastSync || isNaN(Number(lastSync))){
         lastSync = Date.now()
@@ -43,7 +42,6 @@ export function shouldSync(){
     
 export async function initAutoSync(){
     localStorage.setItem(LASTSYNC, Date.now())
-    
     //Check if the user even has any CalDAV accounts.
     const calDAVSummary = await getCalDAVSummaryFromDexie()
     let continueSync = false
@@ -114,13 +112,13 @@ export async function fetchLatestEvents(refreshCalList)
 export async function fetchLatestEventsV2(refreshCalList)
 {
     if(isSyncing()){
-        //toast.warn(i18next.t("ALREADY_SYNCING"))
-        console.warn("Sync already in progress. Will still sync, though.")
+        // toast.warn(i18next.t("ALREADY_SYNCING"))
+        console.warn("Sync already in progress.")
     }
     localStorage.setItem(IS_SYNCING, true)
     await refreshCalendarListV2()
     const arrayFromDexie = await getCalDAVSummaryFromDexie()
-    console.log("arrayFromDexie_FINALLY", arrayFromDexie)
+    // console.log("arrayFromDexie_caldavAccounts", arrayFromDexie)
     if(isValidResultArray(arrayFromDexie)){
         for(const i in arrayFromDexie){
             if(isValidResultArray(arrayFromDexie[i]["calendars"])){
@@ -140,6 +138,7 @@ export async function fetchLatestEventsV2(refreshCalList)
     localStorage.setItem(IS_SYNCING, false)
     localStorage.setItem(LASTSYNC, Date.now())
 }
+
 export async function fetchLatestEvents_withoutCalendarRefresh()
 {
     if(isSyncing()){
@@ -148,7 +147,7 @@ export async function fetchLatestEvents_withoutCalendarRefresh()
     }
     localStorage.setItem(IS_SYNCING, true)
     const arrayFromDexie = await getCalDAVSummaryFromDexie()
-    console.log("arrayFromDexie_FINALLY", arrayFromDexie)
+    //console.log("fetchLatestEvents_withoutCalendarRefresh: arrayFromDexie", arrayFromDexie)
     if(isValidResultArray(arrayFromDexie)){
         for(const i in arrayFromDexie){
             if(isValidResultArray(arrayFromDexie[i]["calendars"])){

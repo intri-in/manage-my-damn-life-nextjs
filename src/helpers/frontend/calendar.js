@@ -591,6 +591,20 @@ export function findIDinFilteredList(relatedto, todoList)
     return found
 }
 
+export function parentInFilteredList(parent, todoList){
+    let found = false
+    for(let i=0; i<todoList.length; i++)
+    {
+        
+        if(todoList[i]["uid"]==parent)
+        {
+            found=true
+        }
+    }
+
+
+    return found 
+}
 function path(c, name, v, currentPath, t){
     var currentPath = currentPath || "root";
     var v = v || ''

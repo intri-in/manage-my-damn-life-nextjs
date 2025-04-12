@@ -3,8 +3,11 @@ import { deleteCalDAVAccountFromDexie, getCalDAVSummaryFromDexie, saveCaldavAcco
 import { deleteOneCalendarFromDexie, insertOneCalendarIntoDexie } from "./calendars_dexie";
 import { caldavAccountsfromServer } from "../calendar";
 import { compareCalDAVSummary_andGetIndex } from "./dexie_helper";
+import { getUserDataFromCookies } from "../user";
+import { getUserIDForCurrentUser_Dexie, getUserIDFromHash_Dexie } from "./users_dexie";
 
 export async function syncCalDAVSummary(calDavSummaryFromServer){
+    const userid = await getUserIDForCurrentUser_Dexie()
     const calDavFromDexie = await getCalDAVSummaryFromDexie()
     for (const i in calDavSummaryFromServer){
         const indexInDexie = compareCalDAVSummary_andGetIndex(calDavSummaryFromServer[i], calDavFromDexie)
@@ -12,7 +15,7 @@ export async function syncCalDAVSummary(calDavSummaryFromServer){
         if(indexInDexie==-1 || indexInDexie=="-1"){
             //Not found in dexie summary.
                 //We need to create the caldav account in dexie.
-            await saveCaldavAccountToDexie(calDavSummaryFromServer[i],calDavSummaryFromServer[i].username)
+            await saveCaldavAccountToDexie(calDavSummaryFromServer[i],calDavSummaryFromServer[i].username,userid)
         }
 
     }

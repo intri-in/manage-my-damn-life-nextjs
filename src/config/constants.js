@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.5.2" 
+export const VERSION_NUMBER = "0.6.0" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
