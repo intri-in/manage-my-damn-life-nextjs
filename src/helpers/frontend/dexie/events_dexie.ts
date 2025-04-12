@@ -220,7 +220,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         }
     }
 
-    console.log("parsed,type", parsed,type,data)
+    // console.log("parsed,type", parsed,type,data)
 
 
     //Check if event exists in Dexie already, if so, we update it.

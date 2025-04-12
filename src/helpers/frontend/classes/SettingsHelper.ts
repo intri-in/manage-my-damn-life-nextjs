@@ -6,7 +6,7 @@ import { getMessageFromAPIResponse } from "../response";
 import { displayErrorMessageFromAPIResponse, getI18nObject } from "../general";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import { SETTING_NAME_CALENDAR_START_DAY, SETTING_NAME_DATE_FORMAT, SETTING_NAME_DEFAULT_CALENDAR, SETTING_NAME_DEFAULT_VIEW_CALENDAR, SETTING_NAME_TIME_FORMAT, USER_SETTING_SYNCTIMEOUT } from "../settings";
+import { SETTING_NAME_CALENDAR_START_DAY, SETTING_NAME_DATE_FORMAT, SETTING_NAME_DEFAULT_CALENDAR, SETTING_NAME_DEFAULT_VIEW_CALENDAR, SETTING_NAME_NUKE_DEXIE_ON_LOGOUT, SETTING_NAME_TIME_FORMAT, USER_SETTING_SYNCTIMEOUT } from "../settings";
 
 const i18next= getI18nObject()
 
@@ -14,24 +14,73 @@ export default class SettingsHelper
 {
 
     static async getAllFromServerAndSave(){
-        const defaultCalendar = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_CALENDAR)
-        localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalendar)
+        // const defaultCalendar = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_CALENDAR)
+        // localStorage.setItem(SETTING_NAME_DEFAULT_CALENDAR, defaultCalendar)
 
-        const defaultView = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_VIEW_CALENDAR)
-        localStorage.setItem(SETTING_NAME_DEFAULT_VIEW_CALENDAR, defaultView)
+        // const defaultView = await SettingsHelper.getFromServer(SETTING_NAME_DEFAULT_VIEW_CALENDAR)
+        // localStorage.setItem(SETTING_NAME_DEFAULT_VIEW_CALENDAR, defaultView)
 
-        const startingDay = await SettingsHelper.getFromServer(SETTING_NAME_CALENDAR_START_DAY)
-        localStorage.setItem(SETTING_NAME_CALENDAR_START_DAY, startingDay)
+        // const startingDay = await SettingsHelper.getFromServer(SETTING_NAME_CALENDAR_START_DAY)
+        // localStorage.setItem(SETTING_NAME_CALENDAR_START_DAY, startingDay)
 
-        const syncTimeout = await SettingsHelper.getFromServer(USER_SETTING_SYNCTIMEOUT)
-        localStorage.setItem(USER_SETTING_SYNCTIMEOUT, syncTimeout)
+        // const syncTimeout = await SettingsHelper.getFromServer(USER_SETTING_SYNCTIMEOUT)
+        // localStorage.setItem(USER_SETTING_SYNCTIMEOUT, syncTimeout)
 
-        const dateFormat = await SettingsHelper.getFromServer(SETTING_NAME_DATE_FORMAT)
-        localStorage.setItem(SETTING_NAME_DATE_FORMAT, dateFormat)
+        // const dateFormat = await SettingsHelper.getFromServer(SETTING_NAME_DATE_FORMAT)
+        // localStorage.setItem(SETTING_NAME_DATE_FORMAT, dateFormat)
 
-        const timeFormat = await SettingsHelper.getFromServer(SETTING_NAME_TIME_FORMAT)
-        localStorage.setItem(SETTING_NAME_TIME_FORMAT, timeFormat)
+        // const timeFormat = await SettingsHelper.getFromServer(SETTING_NAME_TIME_FORMAT)
+        // localStorage.setItem(SETTING_NAME_TIME_FORMAT, timeFormat)
+
+        // const nukeDexie = await SettingsHelper.getAllFromServerAndSave(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)
+        const output = await SettingsHelper.getAllFromServer()
+        if(output && output["user"] && Array.isArray(output["user"])){
+            for(const i in output["user"]){
+                if(output["user"][i]["name"] && output["user"][i]["value"]){
+                    
+                    // console.log(output["user"][i]["name"], output["user"][i]["value"])
+
+                    localStorage.setItem(output["user"][i]["name"], output["user"][i]["value"])
+                }
+            }
+
+        }
+        // console.log("output", output)
+
+    }
+
+    static async getAllFromServer(){
+        const authorisationData = await getAuthenticationHeadersforUser()
+        return new Promise( (resolve, reject) => {
+            try{
+                axios({
+                    method: 'get',
+                    url: getAPIURL() + "settings/get",
+                    headers: { 'authorization': authorisationData, 'Content-Type': 'application/json' }
+                  }).then(function (response) {
+    
+                    if(varNotEmpty(response) && varNotEmpty(response.status) && response.status==200 && varNotEmpty(response.data))
+                    {
+                        const toReturn= getMessageFromAPIResponse(response.data)
+                        return resolve(toReturn)
+    
+                    }else{
+                        return resolve("")
+                    }
+                  }).catch(function (error) {
+                    logError(error, "SettingsHelper.getFromServer");
+                    return resolve("")
+                  });
         
+               }
+               catch(e)
+               {
+                logError(e, "SettingsHelper.getFromServer")
+                return resolve("")
+               }
+    
+        })
+
 
     }
     static async getFromServer(keyName: string): Promise<string>

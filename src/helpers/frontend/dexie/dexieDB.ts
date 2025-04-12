@@ -1,5 +1,10 @@
 import Dexie, { Table } from 'dexie';
 
+export interface Users{
+  id?: number,
+  hash?: string
+}
+
 export interface Caldav_Accounts{
   id?: number;
   caldav_accounts_id: number;
@@ -7,6 +12,7 @@ export interface Caldav_Accounts{
   url: number;
   name: string;
   authMethod?: string;
+  userid:number
 }
 
 export interface Calendars{
@@ -67,6 +73,7 @@ export class MySubClassedDexie extends Dexie {
   labels!: Table<Labels>
   settings!:Table<Settings>
   event_parents!:Table<Event_Parents>
+  users!:Table<Users>
 
   constructor() {
     super('mmdl_dexie_db');
@@ -92,7 +99,11 @@ export class MySubClassedDexie extends Dexie {
       event_parents:'++id,uid,parent_id',
 
     })
-   
+    this.version(5).stores({
+      users:'++id,hash',
+      caldav_accounts: '++id,caldav_accounts_id, username, url, name, authMethod,userid',
+    })
+
 
   }
 }

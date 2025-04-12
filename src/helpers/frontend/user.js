@@ -7,6 +7,7 @@ import { getAPIURL, varNotEmpty } from "../general";
 import axios from "axios";
 import { deleteAllCookies } from "./cookies";
 import { clearDexieDB } from "./dexie/dexie_helper";
+import { SETTING_NAME_NUKE_DEXIE_ON_LOGOUT } from "./settings";
 
 
 export async function getUserData() {
@@ -23,6 +24,12 @@ export function setLoginCookie(userhash, ssid) {
 
 export async function logoutUser()
 {
+    if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE"){
+
+        clearDexieDB()
+    }
+
+    
     // Just deleted the cookies. 
     Cookies.remove("USERHASH")
     Cookies.remove("SSID")
@@ -30,7 +37,6 @@ export async function logoutUser()
     Cookies.remove("USER_SETTING_SYNCTIMEOUT")
 
     deleteAllCookies()
-    clearDexieDB()
     //Logout nextAuth Sessions.
     if(await nextAuthEnabled()){
         signOut()
@@ -46,7 +52,7 @@ export async function logoutUser_withRedirect(router, redirectURL){
         if(await nextAuthEnabled()){
             router.push('/')
         }else{
-            var url = '/login'
+            let url = '/login'
             if(varNotEmpty(redirectURL)){
                 url+="/?redirect="+redirectURL
             }
