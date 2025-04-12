@@ -696,18 +696,18 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <div style={{ marginBottom: 10 }}>
                 <Form.Select onChange={priorityChanged} value={priority} >
                     <option value="0"></option>
-                    <optgroup key="High" label={i18next.t("HIGH")}>
+                    <optgroup key="High" label={i18next.t("HIGH")!}>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
                     </optgroup>
-                    <optgroup key="Medium" label={i18next.t("MEDIUM")}>
+                    <optgroup key="Medium" label={i18next.t("MEDIUM")!}>
                         <option value="5">5</option>
                         <option value="6">6</option>
                         <option value="7">7</option>
                     </optgroup>
-                    <optgroup key="Low" label={i18next.t("LOW")}>
+                    <optgroup key="Low" label={i18next.t("LOW")!}>
                         <option value="8">8</option>
                         <option value="9">9</option>
                         <option value="10">10</option>
