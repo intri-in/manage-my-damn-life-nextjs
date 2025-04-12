@@ -17,7 +17,7 @@ import { readdir } from 'fs/promises'
 
   return new Promise((resolve, reject) => {
     const migrate = exec(
-      "npx sequelize-cli db:migrate --env=local --url 'mysql://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+"/"+process.env.DB_NAME+"'",
+      "npx sequelize-cli db:migrate --env=local --url 'mysql://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+":"+process.env.DB_PORT+"/"+process.env.DB_NAME+"'",
       {env: process.env},
       err => (err ? reject(err): resolve(true))
     );
