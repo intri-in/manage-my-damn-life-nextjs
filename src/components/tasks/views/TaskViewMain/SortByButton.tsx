@@ -14,9 +14,9 @@ export const SortBySelect = ({onChangeHandler}:{onChangeHandler: Function}) =>{
     return (
         <>
         <Form.Select onChange={optionSelected} value={value} style={{maxHeight: "50px"}} size="sm">
-        <option value="due_asc">Sort by Due (ASC)</option>
-        <option value="due_desc">Sort by Due (DESC)</option>
-        <option value="priority_desc">Sort by Priority (DESC)</option>
+        <option value="due_asc">{i18next.t("SORT_BY")} {i18next.t("DUE")} ({i18next.t("ASC")})</option>
+        <option value="due_desc">{i18next.t("SORT_BY")} {i18next.t("DUE")} ({i18next.t("DESC")})</option>
+        <option value="priority_desc">{i18next.t("SORT_BY")} {i18next.t("PRIORITY")} ({i18next.t("DESC")})</option>
         </Form.Select>
         </>
       );
