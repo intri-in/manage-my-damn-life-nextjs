@@ -94,6 +94,7 @@
       "ENTER_A_SERVER_NAME": "Enter a valid server URL.",
       "ENTER_CALDAV_PASSWORD": "Enter CalDAV password",
       "ENTER_CALDAV_USERNAME": "Enter CalDAV user name",
+      "ENTER_CALENDAR_NAME": "Enter calendar name.",
       "ENTER_EMAIL": "Enter email",
       "ENTER_FILTER_NAME": "Enter filter name.",
       "ENTER_OTP": "Enter OTP",
@@ -265,7 +266,13 @@
       "LOW": "Low",
       "NEEDS-ACTION": "Needs Action",
       "COMPLETED": "Completed",
-      "IN-PROCESS": "In Process"
+      "IN-PROCESS": "In Process",
+      "ADD_CALDAV_ACCOUNT": "Add CalDAV Account",
+      "ACCOUNT_NAME": "Account Name",
+      "SERVER_URL": "Server URL",
+      "CALDAV_USERNAME": "CalDAV Username",
+      "CALDAV_PASSWORD": "CalDAV Password",
+      "YOUR_ACCOUNTS": "Your Accounts" 
     }
   },
   "de": {
@@ -362,6 +369,7 @@
       "ENTER_A_SERVER_NAME": "Geben Sie eine gültige Server-URL ein.",
       "ENTER_CALDAV_PASSWORD": "Geben Sie das CalDAV-Passwort ein",
       "ENTER_CALDAV_USERNAME": "Geben Sie den CalDAV-Benutzernamen ein",
+      "ENTER_CALENDAR_NAME": "Geben Sie den Kalendernamen ein.",
       "ENTER_EMAIL": "Geben Sie eine E-Mail-Adresse ein",
       "ENTER_FILTER_NAME": "Geben Sie den Filternamen ein.",
       "ENTER_OTP": "Geben Sie den OTP ein",
@@ -534,7 +542,13 @@
       "LOW": "Niedrig",
       "NEEDS-ACTION": "Aktion benötigt",
       "COMPLETED": "Abgeschlossen",
-      "IN-PROCESS": "In Bearbeitung"
+      "IN-PROCESS": "In Bearbeitung",
+      "ADD_CALDAV_ACCOUNT": "CalDAV-Konto hinzufügen",
+      "ACCOUNT_NAME": "Kontoname",
+      "SERVER_URL": "Server URL",
+      "CALDAV_USERNAME": "CalDAV Benutzername",
+      "CALDAV_PASSWORD": "CalDAV Passwort",
+      "YOUR_ACCOUNTS": "Deine Konten" 
     }
   }
 }
