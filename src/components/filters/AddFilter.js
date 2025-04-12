@@ -532,8 +532,8 @@ class AddFilters extends Component {
                         <br />
                         <p>{this.i18next.t("FILTER_LOGIC")}</p>
                         <Form.Select value={this.state.filterLogic} onChange={this.logicOptionSelected} aria-label="Default select example">
-                            <option value="and">AND</option>
-                            <option value="or">OR</option>
+                            <option value="and">{this.i18next.t("AND")}</option>
+                            <option value="or">{this.i18next.t("OR")}</option>
                         </Form.Select>
                         <br />
                         <Form.Check
