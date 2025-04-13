@@ -75,6 +75,23 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const [caldav_accounts, setCaldavAccounts] = useState([])
     const [updateLocal, setUpdateLocal] = useState(Date.now())
 
+    useEffect(() =>{
+
+        if (calendarRef && calendarRef.current) {
+
+            const calendarApi = calendarRef.current.getApi()
+            // calendarApi.eventDragStart = this.eventDrag
+            const view = getDefaultViewForCalendar()
+            if (view) {
+                calendarApi.changeView(view)
+                setViewValue(view)
+
+            }
+        }
+
+
+    },[])
+
     useEffect(() => {
         let isMounted = true
         if (isMounted) {
@@ -90,18 +107,6 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     setCaldavAccounts(caldav_accounts)
                 }
             })
-            if (calendarRef && calendarRef.current) {
-
-                const calendarApi = calendarRef.current.getApi()
-                // calendarApi.eventDragStart = this.eventDrag
-                const view = getDefaultViewForCalendar()
-                if (view) {
-                    calendarApi.changeView(view)
-                    setViewValue(view)
-
-                }
-            }
-
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
                 setEventsArrayFromDexie(allEventsFromDexie)
             })
