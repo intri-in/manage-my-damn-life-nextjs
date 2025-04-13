@@ -41,7 +41,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
 
                     const smallID = `${id}_small`
                     labelArray.push(getLabelPill(i, parsedTask.categories[i].charAt(0), smallID, labelColour, 6))
-                    //toolTipData.push(getLabelPill(`${i}_large`, parsedTask.categories[i], `${id}_large`, labelColour, 10 ))
+                    toolTipData.push(getLabelPill(`${i}_large`, parsedTask.categories[i], `${id}_large`, labelColour, 10 ))
 
                 }
         
@@ -59,7 +59,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                 >
 
                 <span>
-                    <div style={{overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px", zIndex:-999 }} className="textDefault">
+                    <div style={{textAlign:"center", margin:"auto",   display: "block", overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px", zIndex:999 }} className="textDefault">
                     {labelArray}
 
                     </div>
