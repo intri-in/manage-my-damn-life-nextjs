@@ -141,7 +141,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                     <Col><h3><AiOutlineFilter />{i18next.t("FILTERS")}</h3></Col>
                     <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={settingButtonColor} /></Link></Col>
                 </div>
-                <Row style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
+                <Row style={{borderBottom: `1px solid ${borderBottomColor}`, margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
                     <Col><FilterListWithStateManagement postClick={postClick}  /></Col>
                 </Row>
                 <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >

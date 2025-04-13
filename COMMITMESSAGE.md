@@ -1,1 +1,1 @@
-- Fixed build errors in LabelListforTask
+- Fixed filter not showing any output incase the user has no filters.

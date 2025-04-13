@@ -9,7 +9,6 @@ import { FcEmptyFilter } from 'react-icons/fc'
 import { toast } from 'react-toastify'
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from 'stateStore/ViewStore'
 
-const i18next = getI18nObject()
 
 export const FilterListWithStateManagement = ({postClick}: {postClick: Function}) =>{
     /**
@@ -24,6 +23,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
 
+    const i18next =  getI18nObject()
 
     const generateList = async() =>{
 
@@ -34,7 +34,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
             postClick()
         }
         let filtersFromServer = await getFiltersFromServer()
-        var finalOutput : JSX.Element[]= []
+        let finalOutput : JSX.Element[]= []
         const borderColor = isDarkModeEnabled() ? "white": "black"
         if (filtersFromServer != null && filtersFromServer.success != null && filtersFromServer.success == true) {
             if (Array.isArray(filtersFromServer.data.message)) {
@@ -51,12 +51,13 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
             {
                 toast.error(i18next.t("ERROR_GENERIC"))
             }else{
-                var message= getMessageFromAPIResponse(filtersFromServer)
+                const message= getMessageFromAPIResponse(filtersFromServer)
                 console.error("generateList", message, filtersFromServer)
 
                 if(message!=null)
                 {
                     if(message!="PLEASE_LOGIN")
+            
                     {
                     //     toast.error(this.i18next.t(message))
 
@@ -90,7 +91,12 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
 
         }
 
-        setFinalOutput(finalOutput)
+        if(finalOutput.length>0){
+
+            setFinalOutput(finalOutput)
+        }else{
+            setFinalOutput([<>{i18next.t("NO_FILTERS_TO_SHOW")}</>])
+        }
     }
     
     useEffect(() => {
