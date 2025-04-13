@@ -1,1 +1,1 @@
-- UI Changes -- label size decreased, summary text no longer clips on large screens.
+- Fixed build errors in LabelListforTask

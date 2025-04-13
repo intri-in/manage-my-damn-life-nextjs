@@ -10,7 +10,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
     const [finalOutput, setFinalOutput] = useState([<></>])
     const [toolTipOutput, setToolTipOutput] = useState([<></>])
     const renderTooltip = (props) => (
-        <Tooltip id="button-tooltip" {...props}>
+        <Tooltip key={id} id={`button-tooltip-${id}`} {...props}>
           {toolTipOutput}
         </Tooltip>
       );
@@ -39,8 +39,9 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                     
                     //toolTipData.push(<span key={`labels_${i}_${parsedTask.categories[i]}_${id}`} className="badge rounded-pill textDefault" style={{ fontSize:8, marginLeft: 1, marginRight: 1,  backgroundColor: labelColour, color: "white" }}>{parsedTask.categories[i].charAt(0)}</span>)
 
-                    labelArray.push(getLabelPill(i, parsedTask.categories[i].charAt(0), id, labelColour, 6 ))
-                    toolTipData.push(getLabelPill(i, parsedTask.categories[i], `${id}_large`, labelColour, 10 ))
+                    const smallID = `${id}_small`
+                    labelArray.push(getLabelPill(i, parsedTask.categories[i].charAt(0), smallID, labelColour, 6))
+                    //toolTipData.push(getLabelPill(`${i}_large`, parsedTask.categories[i], `${id}_large`, labelColour, 10 ))
 
                 }
         
@@ -54,6 +55,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                 <OverlayTrigger
                 placement="top"
                 overlay={renderTooltip}
+                key={`${id}_key_Overlay`}
                 >
 
                 <span>
