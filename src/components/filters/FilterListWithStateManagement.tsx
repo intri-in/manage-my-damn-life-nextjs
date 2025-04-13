@@ -95,7 +95,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
 
             setFinalOutput(finalOutput)
         }else{
-            setFinalOutput([<>{i18next.t("NO_FILTERS_TO_SHOW")}</>])
+            setFinalOutput([<div key="no_filters_toShow">{i18next.t("NO_FILTERS_TO_SHOW")}</div>])
         }
     }
     

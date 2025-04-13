@@ -55,7 +55,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
     }
     const generateLabelListfromDexie = async () =>{
         const labels = await getAllLabelsFromDexie()
-        var temp_Labelcomponent: JSX.Element[] =[]
+        let temp_Labelcomponent: JSX.Element[] =[]
         if(labels!=null)
         {
             for (const key in labels)
@@ -69,7 +69,13 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 }
             }
 
-            setAllFilters(temp_Labelcomponent)
+            if(temp_Labelcomponent.length==0){
+                setAllFilters([<>{i18next.t("NO_LABELS_TO_SHOW")}</>])
+            }else{
+
+                setAllFilters(temp_Labelcomponent)
+            }
+
         }
     }
 

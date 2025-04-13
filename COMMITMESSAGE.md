@@ -1,1 +1,1 @@
-- Fixed filter not showing any output incase the user has no filters.
+- Changed Labels table in dexie; labels have a "userid" column. Made relevant fixes to UI.
