@@ -1,1 +1,1 @@
-- Fixed Calendar view changing to default value after adding/editing event.
+- UI Changes -- label size decreased, summary text no longer clips on large screens.
