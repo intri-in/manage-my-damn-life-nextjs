@@ -8,7 +8,9 @@ v0.6.0
  - Manages mutiple user locally
  - Removed the default feature of Nuking Dexie on logout. Now the user can set it in Settings.
  - Made login setup a bit more smoother -- if the user has saved data, the setup page doesn't wait for sync.
- 
+ - Changed Labels table in dexie; labels have a "userid" column. Made relevant fixes to UI.
+Bug Fixes:
+ - Fixed Calendar view changing to default value after adding/editing event.
 
 v0.5.2
 - npm audit fix run. Multiple dependencies updated. IMP: NextJS version updated to v15.1.6.

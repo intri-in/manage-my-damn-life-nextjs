@@ -170,6 +170,7 @@
       "NO_ACCESS_TO_DB": "You don't have access to database specified in your configuration. Check your database settings in your .env file.",
       "NO_CALDAV_ACCOUNTS_TO_SHOW": "No CalDAV accounts to show.",
       "NO_FILTERS_TO_SHOW": "No filters to show.",
+      "NO_LABELS_TO_SHOW": "No labels to show.",
       "NO_RESPONSE_FROM_SERVER": "Couldn't reach server.",
       "NUKE_DEXIE_ON_LOGOUT":"Nuke Local Data on Logout?",
       "NUKE_DEXIE_ON_LOGOUT_DESC":"If enabled, when the user logs out, the local data, which includes almost all data on your CalDAV server (eg. events, tasks), is removed from storage. This ensures that no one else with access to your device can read the data after logout. The downside of turning it on means the data will have to be refetched from your CalDAV server everytime your login.",

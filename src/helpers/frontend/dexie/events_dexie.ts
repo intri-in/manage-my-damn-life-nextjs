@@ -4,9 +4,11 @@ import { returnEventType, returnGetParsedVTODO } from "../calendar";
 import { saveLabelToDexie } from "./dexie_labels";
 import { basicTaskFilterForDexie } from "./dexie_helper";
 import { getParsedEvent, majorTaskFilter } from "../events";
-import { getCalendarColorFromDexie } from "./calendars_dexie";
+import { getAllCalendarsFromCalDavAccountIDFromDexie, getCalendarColorFromDexie } from "./calendars_dexie";
 import { VTODO } from "../classes/VTODO";
 import { getParsedTaskParent } from "../TaskUI/taskUIHelpers";
+import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
+import { getAllCalDavAccountsFromDexie } from "./caldav_dexie";
 
 export async function getEventColourbyID(calendar_events_id): Promise<string> {
 
@@ -295,26 +297,52 @@ export async function getEventbyURLFromDexie(url) {
 }
 
 export async function fetchAllEventsFromDexie(type?) {
-    try {
 
+    const userid = await getUserIDForCurrentUser_Dexie()
+    const caldavAccounts = await getAllCalDavAccountsFromDexie(userid)
+    let toReturn :any = []
+    if(Array.isArray(caldavAccounts)){
+      for(const i in caldavAccounts){
+        const allCals = await getAllCalendarsFromCalDavAccountIDFromDexie(caldavAccounts[i]["caldav_accounts_id"])
+        if(isValidResultArray(allCals)){
+            for (const j in allCals){
+                const events =  await getAllEventsFromCalendarID_Dexie(allCals[j].calendars_id, type)
+                // console.log("events", events, allCals[j].calendars_id)
+                if(events && events.length>0){
+                    toReturn = [...toReturn, ...events]
+                }
+            }
+
+        }
+      }
+    }
+    // console.log(toReturn)
+    return toReturn
+  
+    
+
+}
+
+export async function getAllEventsFromCalendarID_Dexie(calendars_id, type?:string| undefined){
+    try {    
         if (type) {
             const events = await db.calendar_events
-                .where('type')
-                .equalsIgnoreCase(type)
-                .toArray();
-
-            return events
+            .where("calendar_id")
+            .equals(calendars_id.toString())
+            .and(event => event.type?.toUpperCase()==type.toUpperCase())
+            .toArray();
+           return events
         } else {
             const events = await db.calendar_events
-                .toArray();
-
+            .where("calendars_id")
+            .equals(calendars_id)
+            .toArray();
             return events
 
         }
-
     } catch (e) {
         console.warn("fetchEventsForCalendarsFromDexie", e)
-        return null
+        return []
     }
 
 }
