@@ -41,12 +41,15 @@ interface EventObject {
     id: string,
     title: string,
     start?: string,
+    startTime?:string,
     end: string,
+    endTime?:string,
     allDay: boolean,
     editable: boolean,
     draggable: boolean,
     displayEventEnd?: boolean,
     displayEventStart?: boolean,
+    duration?: {seconds?: number}
     rrule?: { freq: string, interval: number, dtstart: string, until: string },
     backgroundColor: string
 }
@@ -139,7 +142,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     const eventinArray = (eventObject, newEntry) => {
         if (varNotEmpty(eventObject) && varNotEmpty(newEntry) && varNotEmpty(newEntry.id)) {
-            var found = false
+            let found = false
             for (const i in eventObject) {
 
                 if (varNotEmpty(eventObject[i].id)) {
@@ -198,8 +201,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         let eventObject: EventObject = {
                             id: event.calendar_events_id!.toString(),
                             title: data.summary,
-                            start: data.start,
-                            end: data.end,
+                            start: moment(data.start).toISOString(),
+                            end: moment(data.end).toISOString(),
                             allDay: allDay,
                             editable: true,
                             draggable: true,
@@ -211,15 +214,26 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         //Check if the event has a recurrence rule.
                         if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
 
-                            //var dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
-                            var until = rrule["UNTIL"]
+                            //let dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
+                            let eventDuration = {seconds: 3600}
+                            if(data.end && data.start){
+                                const eventDurationValue = moment(data.end).unix() - moment(data.start).unix()
+                                eventDuration = {seconds: eventDurationValue }
+
+                            }
+
+                            let until = rrule["UNTIL"]
                             eventObject.rrule = {
                                 freq: rrule["FREQ"].toLowerCase(),
                                 interval: parseInt(rrule["INTERVAL"]),
                                 dtstart: data.start.toISOString(),
-                                until: until
+                                until: until,
                             }
-                            // console.log(eventObject.title, eventObject.rrule)
+                            eventObject.editable=false
+                            eventObject.draggable=false
+                            eventObject.duration=eventDuration
+
+                            // console.log("eventObject", eventObject.title, eventObject)
                             finalEvents.push(eventObject)
 
                         }
@@ -238,7 +252,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         }
 
-                        var eventToPush = {}
+                        let eventToPush = {}
+
                         eventToPush[data.uid] = { data: data, event: allEvents[i].events[j] }
                         // this.allEvents[data.uid] = { data: data, event: allEvents[i].events[j] }
 
@@ -251,16 +266,16 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         let eventObject: {} | EventObject = {}
                         if (majorTaskFilter(data) && data) {
-                            var title = "[" + i18next.t("TASK") + "] " + data.summary
+                            const title = "[" + i18next.t("TASK") + "] " + data.summary
 
-                            var rrule = rruleToObject(data.rrule)
+                            let rrule = rruleToObject(data.rrule)
 
                             //Check if the event has a recurrence rule.
                             if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
 
-                                var recurrenceObj = new RecurrenceHelper(data)
-                                var dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
-                                var startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
+                                let recurrenceObj = new RecurrenceHelper(data)
+                                let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
+                                let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
                                 //console.log("REPEATING", startDate, title, dueDate)
 
                                 eventObject = {
@@ -282,8 +297,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                             } else {
                                 if (varNotEmpty(data.due) && data.due != "") {
 
-                                    var dueDate = moment(data.due).toISOString()
-                                    var startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
+                                    let dueDate = moment(data.due).toISOString()
+                                    let startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
                                     //console.log(startDate, title, dueDate)
 
                                     eventObject = {
@@ -308,7 +323,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         }
                         // this.setState((prevState, props) => {
-                        //     var newAllEvents = _.cloneDeep(prevState.allEvents)
+                        //     let newAllEvents = _.cloneDeep(prevState.allEvents)
                         //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
                         //     return({allEvents: newAllEvents})
 
@@ -356,11 +371,11 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     }
     const makeQuickRequesttoCaldav = async (eventData, eventInfoFromDexie, summary) => {
         const obj = getObjectForAPICallV2(eventData)
-        var ics = await makeGenerateICSRequest({ obj })
+        let ics = await makeGenerateICSRequest({ obj })
         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventInfoFromDexie[0].calendar_id)
         const messageHeader = summary ? summary + ": " : ""
         // console.log("messageHeader", messageHeader)
-        // console.log(ics)
+        console.log(ics)
         if (varNotEmpty(ics)) {
             const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
             if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {

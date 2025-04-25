@@ -133,7 +133,6 @@ export async function findCalDAVAccountinDexie(url, username, userid){
 
 export async function saveCaldavAccountToDexie(caldavFromDB, username, userid){
     const caldavFromDexie = await findCalDAVAccountinDexie(caldavFromDB["url"], caldavFromDB["username"],userid)
-
     if(caldavFromDexie && caldavFromDexie.length==0){
       await insertNewCaldavAccountIntoDexie(caldavFromDB, username,userid)
       return true
@@ -141,18 +140,18 @@ export async function saveCaldavAccountToDexie(caldavFromDB, username, userid){
 }
 
 export async function insertNewCaldavAccountIntoDexie(caldavFromDB, username,userid){
-    try{
-        if(!userid) return 
-        const id = await db.caldav_accounts.add({
-            name: caldavFromDB["name"],
-            username: username,
-            url:  caldavFromDB["url"],
-            caldav_accounts_id:  caldavFromDB["caldav_accounts_id"],
-            userid:parseInt(userid),
-        })
-    }catch(e){
-        console.error("insertNewCaldavAccountIntoDexie", e)
-    }
+
+  if(!userid) return 
+    const id = await db.caldav_accounts.add({
+        name: caldavFromDB["name"],
+        username: username,
+        url:  caldavFromDB["url"],
+        caldav_accounts_id:  caldavFromDB["caldav_accounts_id"],
+        userid:parseInt(userid),
+    }).catch(e =>{
+      console.error("insertNewCaldavAccountIntoDexie", e)
+    })
+
 
 
   }

@@ -54,6 +54,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [fromDate, setFromDate]= useState("")
     const [fromDateValid, setFromDateValid] = useState(true)
     const [fromTimeFormat, setFromTimeFormat]= useState("HH:mm")
+    const [sequence, setSequence] = useState(-1)
     const [toDate, setToDate] = useState("")
     const [toDateValid, setToDateValid] = useState(true)
     const [status, setStatus]= useState("")
@@ -64,6 +65,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [lastModified, setLastModified]= useState("")
     const [isNewTask, setIsNewTask] = useState(false)
     const [rawICS, setRawICS] = useState('')
+    const [uid, setUID] = useState('')
 
     useEffect(()=>{
         let isMounted =true
@@ -117,6 +119,14 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             const parsedData = getParsedEvent(unParsedData)
             // console.log(parsedData)
             setSummary(parsedData["summary"])
+            if(parsedData["uid"]){
+                setUID(parsedData["uid"])
+            }
+            if(parsedData["sequence"]){
+                setSequence(parseInt(parsedData["sequence"]))
+
+                console.log("setSequence", parsedData["sequence"])
+            }
             setFromDate(moment(parsedData["start"]).toISOString())
             setToDate(moment(parsedData["end"]).toISOString())
             if(moment(parsedData["end"]).unix()-moment(parsedData["start"]).unix()>=86400){
@@ -227,13 +237,14 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             finalToDate = moment(toDate).add(1, "day").startOf("day").toISOString()
         }
 
-        let eventData = {summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
+        let eventData = {uid: uid, summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
         
         if(isValidEvent()){
             // console.log("calendar_id", finalFromDate, finalToDate)
             eventData = addAdditionalFieldsFromOldEventV2(eventData, parsedData)
             const obj = getObjectForAPICallV2(eventData)
             const ics = await makeGenerateICSRequest({ obj })
+            console.log("ics Event Editor", ics)
             if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if(ics){
                 setIsSubmitting(true)

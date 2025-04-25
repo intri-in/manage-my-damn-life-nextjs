@@ -13,7 +13,7 @@ export default async function handler(req, res) {
             {
                     
                 try{
-                    var obj = new Object()
+                    let obj = new Object()
                     for(const i in req.body.obj["obj"])
                     {
                         if(i!="start" || i!="end" )
@@ -25,14 +25,18 @@ export default async function handler(req, res) {
                    
                     obj["start"] = new Date(req.body.obj["obj"]["start"])                   
 
-                    
+                    if(req.body.obj["obj"]["uid"]){
+                        obj["uid"]=req.body.obj["obj"]["uid"]
+                    }
                     obj["end"] = new Date(req.body.obj["obj"]["end"]) 
+                    if(req.body.obj["obj"]["sequence"]) obj["sequence"]=req.body.obj["obj"]["sequence"]
+                    
                     if(varNotEmpty(req.body.obj["obj"].repeating) && varNotEmpty(req.body.obj["obj"].repeating.until))
                     {
                         if(req.body.obj["obj"].repeating.until.toString().trim()=="")
                         {
                             //Enter until date as 1year from now. Just a random default value.
-                            var timetoRepeat = Date.now()+(86400*365*1)*1000
+                            let timetoRepeat = Date.now()+(86400*365*1)*1000
                             obj.repeating.until = new Date(moment(timetoRepeat))
 
                         }else{
@@ -45,31 +49,31 @@ export default async function handler(req, res) {
                     {
                         obj.stamp = new Date(obj.stamp)
                     }
-                    console.log(obj)
+                    if(process.env.NEXT_API_DEBUG_MODE.toUpperCase()=="TRUE") console.log(obj)
 
-                    var ics=getICS(obj)
+                    let ics=getICS(obj)
 
-                    res.status(200).json({ success: true, data: {message: ics} })
+                    return res.status(200).json({ success: true, data: {message: ics} })
 
 
                 }catch(e)
                 {
                     console.log(e)
-                    res.status(200).json({ success: false, data: {message: e.message} })
+                    return  res.status(200).json({ success: false, data: {message: e.message} })
 
                 }
 
             } else{
-                res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+                return  res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
             }
 
         }
         else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }else {
-        res.status(403).json({ success: false ,data: {message: 'INVALID_METHOD'}})
+        return res.status(403).json({ success: false ,data: {message: 'INVALID_METHOD'}})
     }
 }
