@@ -69,8 +69,7 @@ export default function SetupPage() {
 
                 checkifCurrentUserInDexie().then((goOn) =>{
                     if(goOn){
-
-                        setupEverything()
+                       setupEverything()
                     }else{
                         if(window!=undefined){
                             setIsLoading(false)
@@ -79,7 +78,10 @@ export default function SetupPage() {
                         }
                     }
     
+                }).catch(e=>{
+                    console.error("checkifCurrentUserInDexie",e)
                 })
+                
             }
         
         return ()=>{
