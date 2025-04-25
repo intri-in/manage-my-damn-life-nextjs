@@ -240,7 +240,7 @@ function filterbyPriority(priorityFilter, priority)
 export function getParsedEvent(dataInput)
 {
 
-    var data=null
+    let data=null
     try{
         data= ical.parseICS(dataInput)
 

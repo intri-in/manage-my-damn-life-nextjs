@@ -46,24 +46,39 @@ export async function getEventFromDexieByID(calendar_events_id: number): Promise
 
 }
 export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
+    
     if (isValidResultArray(eventArray)) {
 
         for (const i in eventArray) {
-            const parsed = returnGetParsedVTODO(eventArray[i]["data"])
+            let parsed :{} | null | undefined= null
+            const type = returnEventType(eventArray[i]["data"])
+
+            if(eventArray[i]["type"].toUpperCase()=="VEVENT")
+            {
+                parsed = getParsedEvent(eventArray[i]["data"])
+            }else{
+
+                parsed = returnGetParsedVTODO(eventArray[i]["data"])
+            }
+            // console.log("parsed", parsed)
             if(!parsed){
                 continue
             }
-            const labelArray = parsed!.category
+            if("category" in parsed)
+            {
+
+                const labelArray = parsed!.category
+                if (type == "VTODO") {
+                    if(basicTaskFilterForDexie(parsed)){
+    
+                        await saveLabelToDexie(labelArray)
+                    }
+    
+                }
+    
+            }
 
             // console.log("parsed",parsed.summary, parsed, calendars_id)
-            const type = returnEventType(eventArray[i]["data"])
-            if (type == "VTODO") {
-                if(basicTaskFilterForDexie(parsed)){
-
-                    await saveLabelToDexie(labelArray)
-                }
-
-            }
             await saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"],parsed)
 
         }

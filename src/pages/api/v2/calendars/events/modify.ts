@@ -14,28 +14,28 @@ export default async function handler(req, res) {
             if(req.body.url!=null && req.body.url.trim()!="" && req.body.etag!=null && req.body.etag.trim()!="" && req.body.data!=null && req.body.data.trim()!="" && req.body.updated!=null && req.body.updated.toString().trim()!="" && req.body.type.trim()!="" && req.body.caldav_accounts_id)
             {
 
-                // var userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
+                // let userHash= await getUserHashSSIDfromAuthorisation(req.headers.authorization)
 
-                // var userid = await getUseridFromUserhash(userHash[0])
+                // let userid = await getUseridFromUserhash(userHash[0])
                 const userid = await getUserIDFromLogin(req, res)
                 if(userid==null){
                     return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
                 }
 
-                var caldav_accounts_id= validator.escape(req.body.caldav_accounts_id.toString())
+                let caldav_accounts_id= validator.escape(req.body.caldav_accounts_id.toString())
 
               
                 //Event exists in database. Update.
                 
                 // const responseFromDB_Update = await updateObjectinDB(req.body.url,req.body.etag, req.body.data, req.body.updated, req.body.type, req.body.calendar_id, req.body.deleted)
-                var objectToUpdate={
+                let objectToUpdate={
                 url: req.body.url,
                 data: req.body.data,
                 etag: req.body.etag
                 }
 
-                var response = await updateEventinCalDAVAccount(caldav_accounts_id, objectToUpdate)
+                let response = await updateEventinCalDAVAccount(caldav_accounts_id, objectToUpdate)
                 // console.log(response)
                 // console.log("response for Edit", response)
                     if(response.result.status>=200 && response.result.status<300 && ( response.result.error==null || response.result.error==""))
@@ -57,11 +57,11 @@ export default async function handler(req, res) {
                             }
 
                         }
-                        res.status(200).json({ success: true, data: {message: "UPDATE_OK", details: newEvent, refresh:{url: req.body.url,calendar_id: req.body.calendar_id, caldav_accounts_id: caldav_accounts_id} }})
+                        return res.status(200).json({ success: true, data: {message: "UPDATE_OK", details: newEvent, refresh:{url: req.body.url,calendar_id: req.body.calendar_id, caldav_accounts_id: caldav_accounts_id} }})
 
                     }else
                     {
-                        res.status(500).json({ success: false, data: {message: response.result.statusText, details: response.statusText} })
+                        return  res.status(500).json({ success: false, data: {message: response.result.statusText, details: response.statusText} })
 
                     }
 
@@ -75,17 +75,17 @@ export default async function handler(req, res) {
 
             }else
             {
-                res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+                return  res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
 
             }
         }
         else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }
     else {
-        res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
+        return  res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
     }
 }

@@ -114,6 +114,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
         setSearch(e.target.value)
         taskSearchChangedHook(e.target.value)
     }
+    const placeholderText = i18next.t("SEARCH")
     return(
     <Accordion >
         <Accordion.Item eventKey="0">
@@ -144,7 +145,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
             <InputGroup className="mb-3">
                 <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
                        
-                    <Form.Control size="sm" value={search} onChange={searchTasks} placeholder={i18next.t("SEARCH")} />
+                    <Form.Control size="sm" value={search} onChange={searchTasks} placeholder={placeholderText} />
             </InputGroup>
 
             </Container>
