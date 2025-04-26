@@ -86,7 +86,6 @@ export async function getCaldavAccountfromDexie(caldavFromDB){
 
 }
 export async function getAllCalDavAccountsFromDexie(userid){
-  try{
 
     if(!userid){
       return []
@@ -96,17 +95,13 @@ export async function getAllCalDavAccountsFromDexie(userid){
     .equals(userid)
     .toArray()
     .catch(e =>{
-      console.error("getUserIDFromHash_Dexie", e)
+      console.error("getAllCalDavAccountsFromDexie", e)
   })
-;
 
   // Return result
   return caldav;
-  }
-  catch(e){
-    console.warn("getAllCalDavAccountsFromDexie",e)
-  }
-
+  
+ 
 }
 export async function findCalDAVAccountinDexie(url, username, userid){
     // console.log("url, username", url, username)
@@ -115,7 +110,11 @@ export async function findCalDAVAccountinDexie(url, username, userid){
     .where('url')
     .equals(addTrailingSlashtoURL(url))
     .and(item => item.username ==username)
-    .toArray();
+    .toArray()
+    .catch(e =>
+      {
+        console.error("findCalDAVAccountinDexie", e)
+      });
 
     if(caldav && Array.isArray(caldav)){
       // Check if the userid exists
