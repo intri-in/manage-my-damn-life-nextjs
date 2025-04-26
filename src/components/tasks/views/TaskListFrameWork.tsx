@@ -48,13 +48,20 @@ export const TaskListFrameWork = () => {
             nothingToShow()
             return
         }
+        console.time("dexie_fetchEventsForCalendarsFromDexie")
+
         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(currentCalDavObjectAtom.calendars_id, "VTODO")
         // console.log(eventsFromDexie)
+        console.timeEnd("dexie_fetchEventsForCalendarsFromDexie")
+
         getCaldavAndCalendarNameForView(currentCalDavObjectAtom.caldav_accounts_id, currentCalDavObjectAtom.calendars_id).then(name => {
             setPageTitleAtom(name)
         })
-     
+        console.time("dexie_returnTaskListFilteredandSorted")
+
         const sortedTodoList =  await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
+        console.timeEnd("dexie_returnTaskListFilteredandSorted")
+
         if (sortedTodoList != null && Array.isArray(sortedTodoList) && sortedTodoList.length > 0) {
             let finalToPush: TaskSection[] = []
             finalToPush.push({
@@ -70,8 +77,13 @@ export const TaskListFrameWork = () => {
     }
 
     const fetchAllEvents = async () => {
+        
         console.time("dexie_COMBINED_TASK_TIMER")
+        console.time("dexie_COMBINED_TASK_GET_CALSUMM")
+    
         const allSummary = await getCalDAVSummaryFromDexie()
+        console.timeEnd("dexie_COMBINED_TASK_GET_CALSUMM")
+
         let finalToPush: TaskSection[] = []
         if (isValidResultArray(allSummary)) {
             for (const i in allSummary) {
@@ -79,8 +91,11 @@ export const TaskListFrameWork = () => {
                     for (const j in allSummary[i]["calendars"]) {
                         let cal = allSummary[i]["calendars"][j]
                         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(cal["calendars_id"], "VTODO")
-                     
+                        console.time("dexie_returnTaskListFilteredandSorted")
+
                         const sortedTodoList = await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
+                        console.timeEnd("dexie_returnTaskListFilteredandSorted")
+
                         // console.log("eventsFromDexie", eventsFromDexie,"filteredTodos",filteredTodos, "todoList_heirarchy", todoList_heirarchy, "sortedTodoList", sortedTodoList)
                         if (sortedTodoList.length > 0) {
 

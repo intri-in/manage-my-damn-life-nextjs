@@ -1,2 +1,1 @@
-- Upgraded dexie packages.
-- Fixed weird bug being caused in mobile browsers when upgrading to v0.6.0. Added an upgrade function to dexie version 5 to make sure userid is set to null.
+- Added timers to debug performance issues. Dexie's performance is all over the place, especially the first read is very slow on Mobile devices.
