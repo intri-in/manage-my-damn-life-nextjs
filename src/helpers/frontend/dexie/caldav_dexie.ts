@@ -7,9 +7,14 @@ import { getUserIDFromHash_Dexie } from "./users_dexie";
 export async function getCalDAVSummaryFromDexie(){
   const userData = getUserDataFromCookies()
   const userHash = userData["userhash"]
+  console.time("dexie_getUserIDFromHash_Dexie")
   const userid = await getUserIDFromHash_Dexie(userHash)    
-
+  console.timeEnd("dexie_getUserIDFromHash_Dexie")
+  
+  console.time("dexie_getAllCalDavAccountsFromDexie")
   const caldavAccounts = await getAllCalDavAccountsFromDexie(userid)
+  console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
+
   let toReturn :any = []
   if(Array.isArray(caldavAccounts)){
     for(const i in caldavAccounts){
