@@ -1,5 +1,5 @@
 import { TaskArrayItem, TaskSection, filterTaskListArray, filterTaskListArrayFromSearchTerm, removeDoneTasksFromTaskListArray } from "@/helpers/frontend/TaskUI/taskUIHelpers";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LocalTaskFilters, labelSelector } from "./LocalTaskFilters";
 import { Loading } from "@/components/common/Loading";
 import { RenderTaskList } from "./RenderTaskList";
@@ -9,12 +9,12 @@ import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/Task
 export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: TaskSection[]}) =>{
     const [showDone, setShowDone] = useState(false)
     const [labelList, setLabelList] = useState<labelSelector[]>([])
-    const [isLoading, setLoading] = useState(true)
+    // const [isLoading, setLoading] = useState(true)
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
     const [sortOption, setSortOption] = useState(DEFAULT_SORT_OPTION)
     const [search, setSearch] = useState("")
 
-    const refilterAndSortTaskList = async (showDoneLocal, labelListLocal, taskListLocal: TaskArrayItem[], sortByOption:string, searchTerm) =>{
+    const refilterAndSortTaskList = useCallback(async (showDoneLocal, labelListLocal, taskListLocal: TaskArrayItem[], sortByOption:string, searchTerm) =>{
         
         let taskListAfterSearch : TaskArrayItem[] = []
         //First we search the tasks. 
@@ -54,14 +54,14 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         return newSortedRow
 
 
-    }
-    async function generateFinalOutput(showDoneLocal,labelListLocal, taskListSectionsLocal: TaskSection[], sortByLocal:string, searchTerm: string ){
+    },[sortOption,])
+    const generateFinalOutput = useCallback(async (showDoneLocal,labelListLocal, taskListSectionsLocal: TaskSection[], sortByLocal:string, searchTerm: string )  =>{
         let finalOutput: JSX.Element[] = []
         // setLoading(true)
         if(taskListSectionsLocal.length==0)
         {
             setFinalOutput([<p key={"nothing_to_show"}>{i18next.t("NOTHING_TO_SHOW")}</p>])
-            setLoading(false)
+            // setLoading(false)
             return
         }
         for(const k in taskListSectionsLocal){
@@ -83,20 +83,20 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
             )
         }
         setFinalOutput(finalOutput)
-    }
+    },[])
 
     useEffect(()=>{
         let isMounted = true
         if(isMounted){
             //We render sections separately.
             generateFinalOutput(showDone, labelList, taskListSections, sortOption,search)
-            setLoading(false)
+            // setLoading(false)
         }
 
         return ()=>{
             isMounted = false
         }
-    },[taskListSections])
+    },[generateFinalOutput, showDone, labelList, taskListSections, search, sortOption])
     
     const showDoneChangedHook =async (selected: boolean) =>{
         setShowDone(selected)
@@ -131,12 +131,12 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         }
         generateFinalOutput(showDone, labelSelectorFromComp, taskListSections, sortOption, search)
     }
-    
     return(
         <>
             <LocalTaskFilters taskSearchChangedHook={taskSearchChanged} sortSelectChangeHook={sortSelectChangeHook} taskListSections={taskListSections} labelSelectedChangedHook={labelSelectedChangedHook} showDoneChangedHook={showDoneChangedHook} />
             <br />
-            {isLoading ? <Loading centered={true} /> : finalOutput}
+            {/* {isLoading ? <Loading centered={true} /> : finalOutput} */}
+            {finalOutput}
         </>
     )
 }

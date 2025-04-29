@@ -9,7 +9,7 @@ const eslintConfig = [
   ...compat.config({
     extends: ['next'],
     rules: {
-      'react/react-hooks/exhaustive-deps': 'off',
+      'react/react-hooks/exhaustive-deps': 'on',
     },
   }),
 ]

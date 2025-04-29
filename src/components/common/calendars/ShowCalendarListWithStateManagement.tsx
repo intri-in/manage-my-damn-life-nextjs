@@ -7,6 +7,8 @@ import { AiOutlinePlusCircle } from "react-icons/ai"
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
 import AddNewCalendar from "./AddNewCalendar"
 import { toast } from "react-toastify"
+import Link from "next/link"
+import { FaExternalLinkAlt } from "react-icons/fa"
 
 const i18 = getI18nObject()
 export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Function}) =>{
@@ -59,7 +61,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
         let finalOutput : JSX.Element[]= []
         for(let j=0; j<caldavSummary.length; j++)
         {
-            var accountInfo=(
+            let accountInfo=(
                 <Row>
                     <Col className="defaultTex">
                         {caldavSummary[j].name}
@@ -68,17 +70,24 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
                     <Col style={{textAlign: "right"}}><AiOutlinePlusCircle onClick={(e)=> showAddCalendarScreen(caldavSummary[j])} /></Col>
                 </Row>
             )
-            var calendars: JSX.Element[]=[]
+            let calendars: JSX.Element[]=[]
             if(!caldavSummary[j].calendars){
                 continue
             }
             for (const i in caldavSummary[j].calendars)
             {
-                var href="/tasks/list?caldav_accounts_id="+caldavSummary[j].caldav_accounts_id+"&&calendars_id="+caldavSummary[j].calendars[i].calendars_id
-                var key=caldavSummary[j].caldav_accounts_id+"-"+caldavSummary[j].calendars[i].calendars_id
+                let href="/tasks/list?caldav_accounts_id="+caldavSummary[j].caldav_accounts_id+"&&calendars_id="+caldavSummary[j].calendars[i].calendars_id
+                let key=caldavSummary[j].caldav_accounts_id+"-"+caldavSummary[j].calendars[i].calendars_id
                 // console.log(key)
                 //<a style={{textDecoration: 'none'}} href={href}>
-                var cal=(<ListGroup.Item key={key} className="textDefault" onClick={()=> calendarNameClicked(caldavSummary[j].caldav_accounts_id, caldavSummary[j].calendars[i].calendars_id)} style={{ borderColor:caldavSummary[j].calendars[i].calendarColor, borderLeftWidth: 10, marginBottom:10 }}>{caldavSummary[j].calendars[i].displayName}</ListGroup.Item>)
+                let cal=(<ListGroup.Item key={key} className="textDefault" onClick={()=> calendarNameClicked(caldavSummary[j].caldav_accounts_id, caldavSummary[j].calendars[i].calendars_id)} style={{ borderColor:caldavSummary[j].calendars[i].calendarColor, borderLeftWidth: 10, marginBottom:10 }}>
+                    <Row>
+                        <Col xs={10}>
+                            {caldavSummary[j].calendars[i].displayName}
+                        </Col>
+                        <Col xs={2}> <Link target="_blank" href={`?type=CAL&&caldav_accounts_id=${caldavSummary[j].caldav_accounts_id}&&calendars_id=${caldavSummary[j].calendars[i].calendars_id}`}><FaExternalLinkAlt className="textDefault" /> </Link>
+</Col>
+                        </Row></ListGroup.Item>)
                 calendars.push(cal)                    
 
             }

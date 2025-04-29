@@ -9,7 +9,8 @@ import { GanttViewWithState } from "@/components/tasks/views/GanttView/GanttView
 import { TaskListFrameWork } from "@/components/tasks/views/TaskListFrameWork"
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from "@/config/style"
 import { getI18nObject } from "@/helpers/frontend/general"
-import { useAtomValue } from "jotai"
+import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
+import { useAtomValue, useSetAtom } from "jotai"
 import Head from "next/head"
 import { useEffect, useState } from "react"
 import { Col, Offcanvas, Row } from "react-bootstrap"
@@ -25,8 +26,13 @@ export const TaskViewListWithStateManagement =  () =>{
    * Jotai
    */
   const currentPageTitle = useAtomValue(currentPageTitleAtom)
-  const currentPageFilter = useAtomValue(filterAtom)
-  const currentCalDavObjectAtom= useAtomValue(calDavObjectAtom)
+       /**
+     * Jotai
+     */
+       const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
+       const setFilterAtom = useSetAtom(filterAtom)
+       const setCalDavAtom = useSetAtom(calDavObjectAtom)
+       const setUpdateView= useSetAtom(updateViewAtom)
   
   
   /**
@@ -56,6 +62,19 @@ export const TaskViewListWithStateManagement =  () =>{
           setShowListColumn(true)
   
         }
+
+        // const queryString = window.location.search;
+        // const params = new URLSearchParams(queryString);
+        // let pageName = params.get('name')
+        // console.log("pageName",pageName )
+        // if(pageName){
+
+        //   setFilterAtom(PAGE_VIEW_JSON[pageName])
+        //   setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
+        //   setCurrentPageTitle(i18next.t(pageName).toString())
+        //   setUpdateView(Date.now())
+        // }
+  
       }
   
     }
@@ -64,6 +83,8 @@ export const TaskViewListWithStateManagement =  () =>{
     }
 
   }, [])
+
+
   const postClick =  () =>{
     //Close the generic list offcanvas.
     setShowLeftColumnOffcanvas(false)
