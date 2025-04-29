@@ -19,7 +19,7 @@ Bug Fixes:
 - Calendarview: Fixed recurring events displaying the default duration of 1 hour. Now renders the correct duration. Fixes #165.
 - Fixed Event edit problem with Radicale. UID being missing from Events was causing 409 CONFLICT response. Should completely fix #179.
 - Fixed Copy/Move to Calendar Modal not showing on 'calendar/view/' page. Added missing "GlobalViewManager" component.
-- Added some eslint rules to supress warnings.
+- Added unique link parsing for specific task/filter/label list to make it easier for users to bookmark links. Completes #192.
 
 v0.5.2
 - npm audit fix run. Multiple dependencies updated. IMP: NextJS version updated to v15.1.6.

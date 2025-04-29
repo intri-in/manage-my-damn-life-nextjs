@@ -2,7 +2,7 @@ import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from "@/hel
 import { filterEvents } from "@/helpers/frontend/events"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { useAtomValue, useSetAtom } from "jotai"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
 import { TaskArrayItem, TaskSection, arrangeTodoListbyHierarchyV2, getCaldavAndCalendarNameForView, returnTaskListFilteredandSorted } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { Loading } from "@/components/common/Loading"
@@ -12,6 +12,7 @@ import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie
 import { isValidResultArray } from "@/helpers/general"
 import { TaskViewSectionsManager } from "./TaskViewMain/TaskViewSectionsManager"
 import { GanttViewWithState } from "./GanttView/GanttViewWithState"
+import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
 
 const i18next = getI18nObject()
 
@@ -26,28 +27,19 @@ export const TaskListFrameWork = () => {
     const currentView = useAtomValue(currentViewAtom)
 
     const setPageTitleAtom = useSetAtom(currentPageTitleAtom)
+
     /**
      * Local State
      */
     const [taskListSection, setTaskListSection] = useState<TaskSection[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const nothingToShow = () => {
-        setIsLoading(false)
-        setTaskListSection([])
-    }
-    const renderTaskListUI = (todoList: TaskSection[]) => {
-
-        setTaskListSection(todoList)
-        setIsLoading(false)
-
-    }
-
-    const fetchEventsForCalendar = async () => {
+    const fetchEventsForCalendar = useCallback(async () => {
         if (!currentCalDavObjectAtom.calendars_id) {
-            nothingToShow()
+            setTaskListSection([])
             return
         }
+        console.log("fetchEventsForCalendar: I WAS CALLED")
         console.time("dexie_fetchEventsForCalendarsFromDexie")
 
         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(currentCalDavObjectAtom.calendars_id, "VTODO")
@@ -68,16 +60,18 @@ export const TaskListFrameWork = () => {
                 name: null,
                 tasks: sortedTodoList
             })
-            renderTaskListUI(finalToPush)
-
+            setTaskListSection(finalToPush)
+    
         } else {
-            nothingToShow()
+            setTaskListSection([])
         }
 
-    }
+        setIsLoading(false)
+    },[currentCalDavObjectAtom.caldav_accounts_id, currentCalDavObjectAtom.calendars_id, currentPageFilter, setPageTitleAtom])
 
-    const fetchAllEvents = async () => {
+    const fetchAllEvents = useCallback(async () => {
         
+        console.log("fetchAllEvents: I WAS CALLED")
         console.time("dexie_COMBINED_TASK_TIMER")
         console.time("dexie_COMBINED_TASK_GET_CALSUMM")
     
@@ -112,16 +106,18 @@ export const TaskListFrameWork = () => {
             }
         }
         // console.log(finalToPush, "finalToPush")
-        renderTaskListUI(finalToPush)
+        setTaskListSection(finalToPush)
         // console.log(currentPageFilter, filteredTodos, eventsFromDexie)
-
         // console.log("todoList_heirarchy", todoList_heirarchy)
         console.timeEnd("dexie_COMBINED_TASK_TIMER")
+        setIsLoading(false)
 
-    }
+    },[currentPageFilter])
+
     useEffect(() => {
         let isMounted = true
         if (isMounted) {
+            
             if (("caldav_accounts_id" in currentCalDavObjectAtom) && ("calendars_id" in currentCalDavObjectAtom) && currentCalDavObjectAtom.calendars_id && currentCalDavObjectAtom.caldav_accounts_id) {
                 //Fetch events for the calendar.
                 fetchEventsForCalendar()
@@ -129,13 +125,37 @@ export const TaskListFrameWork = () => {
                 //Fetch all events and apply filters.
                 fetchAllEvents()
             }
+
+            console.log("jotai",currentPageFilter, updateView, currentCalDavObjectAtom)
         }
         return () => {
             isMounted = false
         }
-    }, [currentPageFilter, updateView, currentCalDavObjectAtom])
+    }, [fetchAllEvents, fetchEventsForCalendar, currentPageFilter, updateView, currentCalDavObjectAtom])
 
+    // useEffect(()=>{
+    //     let isMounted = true
+    //     if (isMounted) {
 
+    //         if(window!=undefined && !urlParsed){
+    //             const queryString = window.location.search;
+    //             const params = new URLSearchParams(queryString);
+    //             const pageName = params.get('name')
+    //             console.log("pageName",urlParsed, pageName ,PAGE_VIEW_JSON[pageName!])
+    //             if(pageName){
+        
+    //                 setFilterAtom(PAGE_VIEW_JSON[pageName])
+    //                 setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
+    //                 setPageTitleAtom(i18next.t(pageName).toString())
+    //                 setURLPased(true)
+    //             }
+        
+    //         }
+    //     }
+    //     return () => {
+    //         isMounted = false
+    //     }
+    // },[])
 
 
 
@@ -144,6 +164,7 @@ export const TaskListFrameWork = () => {
     return (
         <>
             {isLoading ? <Loading centered={true} /> : view_Final}
+            {/* {view_Final} */}
             <br />
             <br />
         </>
