@@ -1,5 +1,6 @@
 const dotenv = require('dotenv')
-dotenv.config({ path: `.env.local`, override: true });
+dotenv.config({ override: true });
+const dialect = process.env.DB_DIALECT ?? "mysql"
 module.exports = {
   local: {
     username: process.env.DB_USER,
@@ -7,7 +8,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: "mysql"
+    dialect: dialect
   },
   test: {
     username: "root",

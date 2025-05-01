@@ -1,5 +1,6 @@
 import { logVar, varNotEmpty } from "../general"
-import { getSequelizeObj, getSimpleConnectionVar } from "./db"
+import { shouldLogforAPI } from "../logs"
+import { getSequelizeObj, getSimpleConnectionVar, sequelizeCanConnecttoDB } from "./db"
 import { getConnectionVar } from "./db"
 import * as _ from "lodash"
 /**
@@ -9,14 +10,16 @@ export const FINAL_TABLES=[ "SequelizeMeta", "accounts","caldav_accounts", "cale
 
 
 export async function testDBConnection(){
-    var con = getConnectionVar()
-    return new Promise( (resolve, reject) => {
-       
-     con.ping( err=>{
-        return resolve(err)
 
-     })
-    })
+    return sequelizeCanConnecttoDB()
+    // var con = getConnectionVar()
+    // return new Promise( (resolve, reject) => {
+       
+    //  con.ping( err=>{
+    //     return resolve(err)
+
+    //  })
+    // })
 }
 
 export async function checkifDBExists()
@@ -77,24 +80,25 @@ export async function testDBConnectionSimple()
 export async function isInstalled(log)
 {
     var allTables = await getListofTablesWithSequelize()
-    if(log){
-        //console.log("Tables from DB:", allTables)
+    if(shouldLogforAPI()){
+        console.log("Tables from DB:", allTables)
     }
     if(varNotEmpty(allTables) && allTables.length>=FINAL_TABLES.length)
     {
         let listOfTablesFromDb=[]
         for(const row in allTables){
-            //console.log(allTables[row])
-            if(allTables[row]){
-                for(const tableName in allTables[row]){
+            console.log(allTables[row])
+             listOfTablesFromDb.push(allTables[row])
+            // if(allTables[row]){
+                // for(const tableName in allTables[row]){
                 
-                    listOfTablesFromDb.push(allTables[row][tableName])
-                }
+                //     listOfTablesFromDb.push(allTables[row][tableName])
+                // }
 
-            }
+            // }
         }
 
-        console.log("listOfTablesFromDb", listOfTablesFromDb)
+        if(shouldLogforAPI()) console.log("listOfTablesFromDb", listOfTablesFromDb)
 
         //return _.isEmpty(_.xor(listOfTablesFromDb, FINAL_TABLES))
         //return true
@@ -150,8 +154,9 @@ export async function getListofTables()
 export async function getListofTablesWithSequelize(){
     const sequelize = getSequelizeObj()
     return new Promise( (resolve, reject) => {
-        sequelize.getQueryInterface().showAllSchemas().then((tableObj) => {
-            console.log(tableObj);
+        console.log(sequelize.getQueryInterface().showAllSchemas())
+        sequelize.getQueryInterface().showAllTables().then((tableObj) => {
+            // if(shouldLogforAPI()) console.log(tableObj);
             resolve(tableObj)
         })
         .catch((err) => {

@@ -1,7 +1,5 @@
-- Added timers to debug performance issues. Dexie's performance is all over the place, especially the first read is very slow on Mobile devices.
-
-- Added unique link parsing for specific task/filter/label list to make it easier for users to bookmark links. Completes #192.
-
-- Added useCallBacks to TaskList render logic.
-
-- Removed eslint warning suppress.
+Major Commit - To Complete #162
+ - Nearly whole backend changed to work with Sequelize.
+ - Can now support mysql, postgresql at least.
+ - Added new env variables to support Sequelize: DB_DIALECT
+ - Added additional env variables: NEXT_API_DEBUG_MODE

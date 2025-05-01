@@ -7,6 +7,7 @@ import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
 import { processCalendarFromCaldav } from "@/helpers/api/v2/caldavHelper"
+import { shouldLogforAPI } from "@/helpers/logs"
 const LOGTAG = "api/calendars/refresh"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
                         defaultAccountType: 'caldav',
                     }).catch((reason) =>
                     {
-                        logVar(reason, "api/v2/calendars/refresh")
+                        if(shouldLogforAPI()) console.log(reason, "api/calendars/refresh")
                         // Invalid calDAV account. Client is null.
                     })
                     //logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
@@ -49,10 +50,10 @@ export default async function handler(req, res) {
                     if(client!=null && typeof(client)== 'object')
                     {
                         const calendars = await client.fetchCalendars()
-                        //logVar(calendars, "calendars: "+LOGTAG)
+                        // logVar(calendars, "calendars: "+LOGTAG)
                         
                         
-                        var tempCalList:any = []
+                        let tempCalList:any = []
                         if(isValidResultArray(calendars))
                         {
                             for (const j in calendars)
@@ -60,8 +61,19 @@ export default async function handler(req, res) {
                                 //console.log(calendars[j])
                                 const processedCal = processCalendarFromCaldav(calendars[j])
                                 tempCalList.push(processedCal)
+                                const calExists=await caldavAccount.calendarExists(calendars[j])
+                                // console.log("calExists", processedCal, calExists)
+                                if(calExists && Array.isArray(calExists) && calExists.length>0)
+                                {
+                                    await Calendars.updateCalendarinDB(calendars[j], calExists)
+                                }
+                                else
+                                {
+                                    await caldavAccount.insertCalendar(processedCal)
+                                }
                             }
-                        }
+    
+                            }
                         finalResponse.push({username: caldav_accounts[i].username, url: caldav_accounts[i].url, name:caldav_accounts[i].name, status: "ok", caldav_accounts_id:caldav_accounts[i]["caldav_accounts_id"], calendars: tempCalList})
                         
                         
@@ -72,20 +84,20 @@ export default async function handler(req, res) {
                     
   
                 }
-                res.status(200).json({ version:2, success: true, data: { message: "REFRESH_OK", details: finalResponse }})
+                return res.status(200).json({ version:2, success: true, data: { message: "REFRESH_OK", details: finalResponse }})
 
                
 
             }
             else
             {
-                res.status(200).json({ success: false, data: { message: "NO_CALDAV_ACCOUNTS" }})
+                return res.status(200).json({ success: false, data: { message: "NO_CALDAV_ACCOUNTS" }})
 
             }
 
         }else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }

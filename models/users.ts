@@ -10,7 +10,7 @@ export interface usersAttributes {
   level?: string;
   userhash?: string;
   mobile?: string;
-  id?: number;
+  id?: number | string;
   expires?:Date;
   session_token?:string;
   name?:string;
@@ -33,7 +33,7 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
   level?: string;
   userhash?: string;
   mobile?: string;
-  id?: number;
+  id?: number | string;
   expires?:Date;
   session_token?:string;
   name?:string;

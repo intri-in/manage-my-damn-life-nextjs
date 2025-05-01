@@ -5,6 +5,7 @@ import { getICS } from "@/helpers/api/ical"
 import { FINAL_TABLES, checkifDBExists, createMMDL_DB, getInstallDateFromDB, getListofTables, installTables, isInstalled, testDBConnection } from "@/helpers/api/install"
 import { middleWareForAuthorisation } from "@/helpers/api/user"
 import { logVar, varNotEmpty } from "@/helpers/general"
+import { shouldLogforAPI } from "@/helpers/logs"
 import moment from "moment"
 import runManualMigrations from "runSequelizeMigrations"
 const LOGTAG = "api/install/go"
@@ -16,49 +17,46 @@ export default async function handler(req, res) {
         //     //Test reponse.
         //     return res.status(200).json({ success: true ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
         // }
-        var err =  await testDBConnection()
-        if(varNotEmpty(err))
+        const ok =  await testDBConnection()
+        if(!ok) return res.status(503).json({ success: false ,data: {message: err}})
+
+        
+
+        return await moveOn(req, res)
+        const dbExits= await checkifDBExists()
+        if(varNotEmpty(dbExits) && dbExits == true)
         {
-            res.status(503).json({ success: false ,data: {message: err}})
+            //Db Exists, probably. And the user has access to it.
+            
+            //We continue.
+
+
 
         }else{
 
-            var dbExits= await checkifDBExists()
-            if(varNotEmpty(dbExits) && dbExits == true)
-            {
-                //Db Exists, probably. And the user has access to it.
-                
-                //We continue.
+            return res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
+            //Check if this is a docker install (so we assume user has root privileges on database).
 
+            // if(varNotEmpty(process.env.DOCKER_INSTALL) && process.env.DOCKER_INSTALL=="true")
+            // {
+            //     // This is a docker install.
+            //     // We now need to try to install the db.
+            //     var statusofDBCreation = await createMMDL_DB()
+            //     logVar(statusofDBCreation, LOGTAG+" statusofDBCreation")
+            //     if(statusofDBCreation==true)
+            //     {
+            //     }else{
+            //         
 
-                await moveOn(req, res)
+            //     }
+            // }else{
+            //     res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
 
-            }else{
-
-                return res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
-                //Check if this is a docker install (so we assume user has root privileges on database).
-
-                // if(varNotEmpty(process.env.DOCKER_INSTALL) && process.env.DOCKER_INSTALL=="true")
-                // {
-                //     // This is a docker install.
-                //     // We now need to try to install the db.
-                //     var statusofDBCreation = await createMMDL_DB()
-                //     logVar(statusofDBCreation, LOGTAG+" statusofDBCreation")
-                //     if(statusofDBCreation==true)
-                //     {
-                //     }else{
-                //         
-
-                //     }
-                // }else{
-                //     res.status(401).json({ success: false ,data: {message: "NO_ACCESS_TO_DB"}})
-
-                // }
-
-            }
-            
+            // }
 
         }
+            
+
     
         
     }
@@ -68,9 +66,10 @@ async function moveOn(req, res)
 {
     //We have successful connection to a database. Now we check the install info from database.
 
-    var installed = await isInstalled(true)
+    const installed = await isInstalled(true)
+    if(shouldLogforAPI()) console.log('/api/install/go moveOn -> Installed :', installed)
     if(installed==true){
-        res.status(409).json({ success: false ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
+        return res.status(409).json({ success: false ,data: {message: "ERROR_MMDL_ALREADY_INSTALLED"}})
 
     }else{
         // All required tables weren't found in the database.
@@ -81,16 +80,16 @@ async function moveOn(req, res)
             const result = await runManualMigrations()
             console.log("result", result)
             if(result==true){
-                res.status(200).json({ success: true ,data: {message:"INSTALL_OK", details: result}})
+                return res.status(200).json({ success: true ,data: {message:"INSTALL_OK", details: result}})
             }else{
-                res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(result)}})
+                return res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(result)}})
     
             }
     
         }
         catch (e){
             console.log(e)
-            res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(e)}})
+            return res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(e)}})
 
         }
 

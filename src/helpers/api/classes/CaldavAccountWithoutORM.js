@@ -2,7 +2,7 @@ import { getConnectionVar } from "../db"
 import validator from 'validator';
 import { getRandomColourCode, isValidResultArray } from "@/helpers/general";
 
-export class CaldavAccount{
+export class CaldavAccountWithoutORM{
     
     constructor(caldavObject)
     {

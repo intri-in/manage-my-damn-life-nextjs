@@ -70,7 +70,7 @@ export default async function handler(req, res) {
                                 calendars: processCalDAVResponse(calendars)
                             }   
                             
-                            res.status(200).json({ version: 2, success: true, data: output})
+                            return res.status(200).json({ version: 2, success: true, data: output})
 
 
                         }else{
