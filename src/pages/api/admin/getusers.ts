@@ -27,7 +27,7 @@ export default async function getusers_handler(req, res) {
                 var finalOutput: Object[] = []
                 if(varNotEmpty(allUsers) && Array.isArray(allUsers))
                 {
-                    console.log(allUsers)
+                    // console.log(allUsers)
                     for (const i in allUsers)
                     {
                         

@@ -228,7 +228,7 @@ export async function startLoginRequest(username, password)
 export async function generateSSID(userhash) 
 {
     const allActiveSSID= await getAllSSIDFromDB(userhash)
-    console.log(allActiveSSID.length, " ", process.env.MAX_CONCURRENT_LOGINS_ALLOWED)
+    // console.log(allActiveSSID.length, " ", process.env.MAX_CONCURRENT_LOGINS_ALLOWED)
     if(allActiveSSID!=null&&allActiveSSID.length>MAX_CONCURRENT_LOGINS_ALLOWED)
     {
 

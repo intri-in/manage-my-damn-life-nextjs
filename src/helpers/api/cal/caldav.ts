@@ -14,6 +14,18 @@ import { calendar_events } from 'models/calendar_events';
 
 const caldav_accountsModel = caldav_accounts.initModel(getSequelizeObj())
 const calendar_eventsModel = calendar_events.initModel(getSequelizeObj())
+
+export interface eventAddResultType_Error{
+    status: number, 
+    error:string, 
+    statusText:string
+}
+
+export interface eventAddResultType_Success{
+    result: any | eventAddResultType_Error, 
+    client: any
+}
+
 /**
  * 
  * @param {*} caldav_account_id  
@@ -247,7 +259,7 @@ export function checkifObjectisVTODO(data)
     
 }
 
-export async function createEventinCalDAVAccount(url, caldav_accounts_id, calendar, event)
+export async function createEventinCalDAVAccount(url, caldav_accounts_id, calendar, event): Promise< eventAddResultType_Success>
 {
 
     var caldav_account= await getCaldavAccountDetailsfromId(caldav_accounts_id)
@@ -293,7 +305,7 @@ export async function createEventinCalDAVAccount(url, caldav_accounts_id, calend
     })
 
 }
-export async function updateEventinCalDAVAccount(caldav_accounts_id,  event)
+export async function updateEventinCalDAVAccount(caldav_accounts_id,  event):Promise< eventAddResultType_Success>
 {
     var caldav_account= await getCaldavAccountDetailsfromId(caldav_accounts_id)
 
@@ -340,7 +352,7 @@ export async function updateEventinCalDAVAccount(caldav_accounts_id,  event)
         else
         {
             console.log('updateEventinCalDAVAccount: no caldav account.')
-            return resolve(null)
+            return resolve({result: {status: 500, error:"updateEventinCalDAVAccount: no caldav account", statusText:"Server error. Check Logs."}, client:null, })
         }
     
     })

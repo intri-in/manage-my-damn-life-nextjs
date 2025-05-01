@@ -9,6 +9,7 @@ import { getUserIDForCurrentUser_Dexie, getUserIDFromHash_Dexie } from "./users_
 export async function syncCalDAVSummary(calDavSummaryFromServer){
     const userid = await getUserIDForCurrentUser_Dexie()
     const calDavFromDexie = await getCalDAVSummaryFromDexie()
+    console.log("calDavFromDexie", calDavFromDexie, userid)
     for (const i in calDavSummaryFromServer){
         const indexInDexie = compareCalDAVSummary_andGetIndex(calDavSummaryFromServer[i], calDavFromDexie)
         // console.log("index", indexInDexie)

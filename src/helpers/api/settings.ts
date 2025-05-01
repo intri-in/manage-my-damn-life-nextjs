@@ -18,7 +18,7 @@ export async function getRegistrationStatus()
     if(resultfromDB && Array.isArray(resultfromDB) && resultfromDB.length>0 &&  resultfromDB[0].name!=null && resultfromDB[0].name!=undefined && resultfromDB[0].global!=null && resultfromDB[0].name!="" && resultfromDB[0].global!="false"   && resultfromDB[0].global!="0" ){
         return resultfromDB[0]["value"]
     }
-    return 0
+    return 1
 
     // var con = getConnectionVar()
 
@@ -46,21 +46,17 @@ export async function userRegistrationAllowed()
 {
 
     let fromDB = await getRegistrationStatus()
-    if(fromDB!=null && fromDB!="1" && fromDB!="true" )
-    {
-        // Not disabled in database
-        fromDB=0
-    }else if(fromDB!=null)
-    {
-    
-        fromDB = 0
-    }else{
-        fromDB=0
+    let disabledFromDB = false
+    if(fromDB){
+        if(fromDB.toString()=="0" || fromDB.toString().toLowerCase()=="false"){
+            disabledFromDB=true
+        }
     }
-    let fromEnv = process.env.NEXT_PUBLIC_DISABLE_USER_REGISTRATION
+    
+    let fromEnv = process.env.NEXT_PUBLIC_DISABLE_USER_REGISTRATION ? process.env.NEXT_PUBLIC_DISABLE_USER_REGISTRATION : "false"
 
 
-    if(fromDB == 0 && fromEnv == "false")
+    if(!disabledFromDB && fromEnv == "false")
     {
         //Registration not disabled anywhere.
         return true

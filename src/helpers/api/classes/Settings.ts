@@ -3,6 +3,8 @@ import { getConnectionVar, getSequelizeObj } from "../db";
 import { settings } from "models/settings";
 
 const SettingsModel = settings.initModel(getSequelizeObj())
+
+
 export default class Settings{
 
    
@@ -186,7 +188,7 @@ export default class Settings{
     static async modifyForUser(userid, name, value, isGlobal)
     {
         let settingFromDB : string | undefined | null=null
-        if(isGlobal=="1")
+        if(isGlobal)
         {
             settingFromDB= await this.getGlobal(name)
 
@@ -194,21 +196,22 @@ export default class Settings{
             settingFromDB= await this.getForUser(userid, name)
 
         }
+        // console.log("settingFromDB", name, settingFromDB)
         if(settingFromDB)
         {
             // Setting exists in DB. Modify.
 
-            let query={
+            let query =(!isGlobal) ? {
                 where:{
                     name:name,
                     userid:userid.toString()
                 }
-            }
-           
-            if(isGlobal=="1")
-            {
-                query.where["global"]="1"
-            }
+            } : {
+                    where:{
+                        name:name,
+                    }
+                }
+            
             await SettingsModel.update({value: value},
                 query)
             return true

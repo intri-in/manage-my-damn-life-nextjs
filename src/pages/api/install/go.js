@@ -80,6 +80,7 @@ async function moveOn(req, res)
             const result = await runManualMigrations()
             console.log("result", result)
             if(result==true){
+                
                 return res.status(200).json({ success: true ,data: {message:"INSTALL_OK", details: result}})
             }else{
                 return res.status(500).json({ success:false ,data: {message:"ERROR_GENERIC", details:JSON.stringify(result)}})

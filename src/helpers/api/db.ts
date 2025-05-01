@@ -38,9 +38,9 @@ export function getSimpleConnectionVar()
 }
 
 
-export function getSequelizeObj(){
+export function getSequelizeObj(): typeof Sequelize{
 
-  const dialect= process.env.DB_DIALECT.toLowerCase() ??  "mysql"
+  const dialect= process.env.DB_DIALECT ? process.env.DB_DIALECT.toLowerCase() :  "mysql"
   const db_host_settings={
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -48,7 +48,8 @@ export function getSequelizeObj(){
     query:{
 
       raw: true,
-    }
+    },
+    logging: false
 
   }
   // console.log("getSequelizeObj() dialect ->>>", dialect)

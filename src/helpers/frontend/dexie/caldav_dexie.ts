@@ -7,6 +7,7 @@ import { getUserIDFromHash_Dexie } from "./users_dexie";
 export async function getCalDAVSummaryFromDexie(){
   const userData = getUserDataFromCookies()
   const userHash = userData["userhash"]
+  // console.log("userData", userData)
   console.time("dexie_getUserIDFromHash_Dexie")
   const userid = await getUserIDFromHash_Dexie(userHash)    
   console.timeEnd("dexie_getUserIDFromHash_Dexie")
