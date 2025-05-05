@@ -6,6 +6,7 @@ import moment from "moment"
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
+        // console.log("await middleWareForAuthorisation(req,res)", await middleWareForAuthorisation(req,res))
         if(await middleWareForAuthorisation(req,res))
         {
             

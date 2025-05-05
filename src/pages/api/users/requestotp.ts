@@ -8,48 +8,48 @@ export default async function handler(req, res) {
         if(req.query.username!=null&&req.query.username!=undefined && req.query.username!="")
         {
             //Check if user has a valid email.
-            var userData = await User.getDatafromUsername(req.query.username)
+            const userData = await User.getDatafromUsername(req.query.username)
             if(userData!=null && Array.isArray(userData) && userData.length>0)
             {
                 if(userData[0].email!="" && userData[0].email!=null && userData[0].email!=undefined && validator.isEmail(userData[0].email))
                 {
                     // User has a valid email. Generate and send OTP to the email.
-                    var response = await generateOTP_passwordReset(userData[0].users_id)
+                    const response = await generateOTP_passwordReset(userData[0].users_id)
 
                     if(response!=null && response.otp!=null)
                     {
-                        var finalReponse = await sendResetPasswordMessage(userData[0].email, response.otp)
-                        if(finalReponse!=null && finalReponse!=false && finalReponse.messageId!=null)
+                        const finalReponse = await sendResetPasswordMessage(userData[0].email, response.otp)
+                        if(finalReponse && finalReponse!=false && ("messageId" in finalReponse) && finalReponse.messageId)
                         {
-                            res.status(200).json({ success: true ,data: {message: {userhash: userData[0].userhash, reqid: response.reqid}}})
+                            return res.status(200).json({ success: true ,data: {message: {userhash: userData[0].userhash, reqid: response.reqid}}})
 
                         }else{
-                            res.status(500).json({ success: false ,data: {message: "ERROR_EMAIL_SENDING_FAILED"}})
+                            return res.status(500).json({ success: false ,data: {message: "ERROR_EMAIL_SENDING_FAILED"}})
 
                         }
 
                     }else{
-                        res.status(500).json({ success: false ,data: {message: "ERROR_GENERIC"}})
+                        return res.status(500).json({ success: false ,data: {message: "ERROR_GENERIC"}})
 
                     }
 
 
                 }else{
-                    res.status(200).json({ success: false ,data: {message: "ERROR_NO_EMAIL_SET"}})
+                    return res.status(200).json({ success: false ,data: {message: "ERROR_NO_EMAIL_SET"}})
 
                 }
             }else{
-                res.status(403).json({ success: false ,data: {message: "ERROR_INVALID_USERNAME"}})
+                return res.status(403).json({ success: false ,data: {message: "ERROR_INVALID_USERNAME"}})
 
             }
         }
         else
         {
-            res.status(422).json({ success: false, data: {message: "INVALID_INPUT"}})
+            return res.status(422).json({ success: false, data: {message: "INVALID_INPUT"}})
         }
     } else
     {
-        res.status(422).json({ success: false ,data: {message: "INVALID_METHOD"}})
+        return res.status(422).json({ success: false ,data: {message: "INVALID_METHOD"}})
 
     }
 }

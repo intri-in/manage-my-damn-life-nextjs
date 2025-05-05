@@ -1,4 +1,4 @@
-import { checkifObjectisVTODO, getCaldavClient } from "@/helpers/api/cal/caldav";
+import { checkifObjectisVTODO, getCaldavClient, saveCalendarEventsintoDB } from "@/helpers/api/cal/caldav";
 import { User } from "@/helpers/api/classes/User";
 import { getUserIDFromLogin, middleWareForAuthorisation } from "@/helpers/api/user";
 import { isValidResultArray } from "@/helpers/general";
@@ -19,10 +19,11 @@ export default async function handler(req, res) {
             }
 
             var userObj = new User(userid)
-            if(await userObj.hasAccesstoCaldavAccountID(req.query.caldav_accounts_id))
+            const calendars_id = await userObj.getCalendarID_FromURLandCaldavAccountID(req.query.caldav_accounts_id, req.query.url)
+            if(calendars_id)
             {
                 var client = await getCaldavClient(req.query.caldav_accounts_id).catch(e =>{
-                    console.error(e)
+                    console.error("api/v2/calendars/events/fetch",e)
 
                 })
                 if(client){
@@ -43,6 +44,9 @@ export default async function handler(req, res) {
                             const type = checkifObjectisVTODO(calendarObjects[i].data)
                             calendarObjects[i]["type"]=type
                         }
+
+                        //save events to server database
+                        saveCalendarEventsintoDB(calendarObjects, req.query.caldav_accounts_id, calendars_id)
                     }
                     // console.log("calendarObjects", calendarObjects)
                     return res.status(200).json({ version:2, success: true, data: { message: calendarObjects} })

@@ -6,6 +6,7 @@ import { isValidResultArray, logVar } from "@/helpers/general"
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
+import { shouldLogforAPI } from "@/helpers/logs"
 const LOGTAG = "api/calendars/refresh"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
                         defaultAccountType: 'caldav',
                     }).catch((reason) =>
                     {
-                        logVar(reason, "api/calendars/refresh")
+                        if(shouldLogforAPI()) console.log(reason, "api/calendars/refresh")
                         // Invalid calDAV account. Client is null.
                     })
                     //logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
@@ -56,7 +57,7 @@ export default async function handler(req, res) {
                             for (const j in calendars)
                             {
                                 //console.log(calendars[j])
-                                var calExists=await caldavAccount.calendarExists(calendars[j])
+                                const calExists=await caldavAccount.calendarExists(calendars[j])
 
                                 if(calExists==true)
                                 {

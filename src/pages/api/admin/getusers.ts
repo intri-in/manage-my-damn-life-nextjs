@@ -24,16 +24,18 @@ export default async function getusers_handler(req, res) {
             {
                 var allUsers= await User.getAll()
 
-                var finalOutput = []
+                var finalOutput: Object[] = []
                 if(varNotEmpty(allUsers) && Array.isArray(allUsers))
                 {
+                    // console.log(allUsers)
                     for (const i in allUsers)
                     {
-                        var toPush = {}
+                        
+                        let toPush = {}
 
                         for (const key in allUsers[i])
                         {
-                            if(key!="created" && key!="level" && key!="users_id")
+                            if(key!="created" && key!="level" && key!="users_id" && allUsers[i][key])
                             {
                                 toPush[key]=allUsers[i][key].toString().replace(/(.)./g, "$1*");
 

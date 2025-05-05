@@ -7,7 +7,7 @@ import { Calendars } from "./Calendars";
 import Settings from "@/helpers/api/classes/Settings"
 import bcrypt from 'bcryptjs';
 
-export class User{
+export class UserWithoutORM{
 
     constructor(userid)
     {

@@ -103,7 +103,8 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     let dueDateText = ""
     let dueDate = ISODatetoHuman(parsedTask.due!)
     dueDate = moment(parsedTask.due).format(dateFormat)
-    let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
+    // let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
+    let timeDifferenceinWords = timeDifferencefromNowinWords_Generic(parsedTask.due)
     if (isRepeating) {
         if (("recurrences" in parsedTask) && parsedTask.recurrences) {
             let recurrenceObj = new RecurrenceHelper(parsedTask)

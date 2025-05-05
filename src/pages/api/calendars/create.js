@@ -70,21 +70,21 @@ export default async function handler(req, res) {
                                   displayname: req.body.calendarName,
                                 },
                               });
-                              console.log("result2", result2)
+                            if (process.env.NEXT_API_DEBUG_MODE && process.env.NEXT_API_DEBUG_MODE.toLowerCase()=="true") console.log("result2", result2)
                           }
                           //Try a second time to create. without calendars.
 
                           if(failed_firstTry){
-                            res.status(200).json({ success: true, data: { message: result2} })
+                            return res.status(200).json({ success: true, data: { message: result2} })
 
                           }else{
-                            res.status(200).json({ success: true, data: { message: result} })
+                            return res.status(200).json({ success: true, data: { message: result} })
 
                           }
 
                     }else
                     {
-                        res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
+                        return res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
 
                     }
                             
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     
                 }else
                 {
-                    res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
+                    return  res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
 
                 }
                 
@@ -104,17 +104,17 @@ export default async function handler(req, res) {
             }
             else
             {
-                res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+                return  res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
 
             }
         }
         else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return  res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }
     else {
-    res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
+        return  res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
     }
 }

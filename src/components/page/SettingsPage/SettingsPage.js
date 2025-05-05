@@ -86,15 +86,14 @@ class SettingsPage extends Component {
 
                     if(varNotEmpty(body.data.message.admin))
                     {
+                        // console.log("body.data.message.admin", body.data.message.admin)
                         for(const i in body.data.message.admin)
                         {
                             if(body.data.message.admin[i]["name"]=="GLOBAL_DISABLE_USER_REGISTRATION")
                             {
-                                var allowReg = 1
-                                if(varNotEmpty(body.data.message.admin[i]["value"]) && (body.data.message.admin[i]["value"]==1 ||  body.data.message.admin[i]["value"]=="1" || body.data.message.admin[i]["value"]==true || body.data.message.admin[i]["value"]=="true"   ))
-                                {
-                                    allowReg=0
-                                }
+                                const value = body.data.message.admin[i]["value"]
+                                let allowReg = (value && value=="0") ? 0 : 1
+                               
                                 this.setState({allowReg: allowReg})
                             }
                         }
@@ -255,18 +254,19 @@ class SettingsPage extends Component {
     }
     allowRegChanged(e)
     {
+        console.log(" e.target.value",  e.target.value)
         this.setState({allowReg: e.target.value})
         this.postAllowRegChanges(e.target.value)
 
     }
     async postAllowRegChanges(allowReg)
     {
-        if(allowReg==1)
-        {
-            allowReg=0
-        }else{
-            allowReg=1
-        }
+        // if(allowReg==1)
+        // {
+        //     allowReg=0
+        // }else{
+        //     allowReg=1
+        // }
         const authorisationData = await getAuthenticationHeadersforUser()
 
         

@@ -263,6 +263,19 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setRrule(rruleToObject(parsedData["rrule"]))
                 const isRecurring = parsedData["rrule"] ? true : false
                 if (parsedData["rrule"]) {
+                    /**
+                     * This is a recurring task. Some clients like Tasks.org Android App let users create recurring tasks without any start date. In this case we set the tasks's recurrence to start from the "dtstamp" to make it compatible.
+                     * 
+                     */
+                    if(!parsedData["start"]){
+
+                        if("dtstamp" in parsedData){
+                            parsedData["start"]=parsedData["dtstamp"]
+
+                        }else{
+                            parsedData["start"]=moment(Date.now()).toString()
+                        }
+                    }
                     const parsedRecurrenceObj = new RecurrenceHelper(parsedData)
                     // console.log(parsedRecurrenceObj)
                     setRecurrenceObj(parsedRecurrenceObj)
