@@ -192,6 +192,16 @@ export function fixNullDate(dateToCheck, newDate){
 
 export function timeDifferencefromNowinWords_Generic(date)
 {
+    if(!date){
+        return ""
+    }
+    let durationDifference = moment.duration(moment(date).diff(Date.now()))
+    // console.log("timeDifferencefromNowinWords_Generic", date, durationDifference)
+    if(moment.isDuration(durationDifference)){
+
+        return `(${durationDifference.humanize(true).toString()})`
+    }
+    
     var timeDifference=Math.floor((moment(date).unix() - Math.floor(Date.now() / 1000))/86400)
     var timeDifferenceStatement=""
     if(isNaN(timeDifference))

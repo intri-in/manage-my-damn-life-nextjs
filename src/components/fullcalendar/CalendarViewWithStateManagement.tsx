@@ -226,7 +226,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                             eventObject.rrule = {
                                 freq: rrule["FREQ"].toLowerCase(),
                                 interval: parseInt(rrule["INTERVAL"]),
-                                dtstart: data.start.toISOString(),
+                                dtstart: data.start? data.start.toISOString(): "",
                                 until: until,
                             }
                             eventObject.editable=false
@@ -289,7 +289,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                                     rrule: {
                                         freq: rrule["FREQ"].toLowerCase(),
                                         interval: parseInt(rrule["INTERVAL"]),
-                                        dtstart: data.start.toISOString(),
+                                        dtstart: data["start"] ? data["start"].toISOString() : "",
                                         until: rrule["UNTIL"]
                                     },
                                 }

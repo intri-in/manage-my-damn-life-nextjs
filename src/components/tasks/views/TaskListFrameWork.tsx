@@ -39,7 +39,7 @@ export const TaskListFrameWork = () => {
             setTaskListSection([])
             return
         }
-        console.log("fetchEventsForCalendar: I WAS CALLED")
+        // console.log("fetchEventsForCalendar: I WAS CALLED")
         console.time("dexie_fetchEventsForCalendarsFromDexie")
 
         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(currentCalDavObjectAtom.calendars_id, "VTODO")
@@ -126,7 +126,7 @@ export const TaskListFrameWork = () => {
                 fetchAllEvents()
             }
 
-            console.log("jotai",currentPageFilter, updateView, currentCalDavObjectAtom)
+            // console.log("jotai",currentPageFilter, updateView, currentCalDavObjectAtom)
         }
         return () => {
             isMounted = false
