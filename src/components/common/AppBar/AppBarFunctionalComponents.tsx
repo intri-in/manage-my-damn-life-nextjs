@@ -61,9 +61,9 @@ const AppBarFunctionalComponent = ({ session}) => {
   const checkInstallation = async () => {
     try {
       const isInstalled = await installCheck_Cookie(router);
-      if(isInstalled){
-        setInstalled(isInstalled);
-      }
+      console.log("isInstalled" ,isInstalled)
+      setInstalled(isInstalled);
+      
     } catch (error) {
       console.error("Error checking installation:", error);
     }

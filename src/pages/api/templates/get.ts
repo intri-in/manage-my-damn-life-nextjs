@@ -12,8 +12,14 @@ export default async function handler(req, res) {
 
             }
 
-            var allTemplates= await getTemplatesFromDB(userid)
-            return  res.status(200).json({ success: true, data: { message: allTemplates} })
+            try{
+                const allTemplates= await getTemplatesFromDB(userid)
+                return  res.status(200).json({ success: true, data: { message: allTemplates} })
+
+            }catch(e){
+                return res.status(401).json({ success: false, data: { message: e.message} })
+
+            }
     
            
 

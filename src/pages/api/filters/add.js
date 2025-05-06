@@ -16,22 +16,22 @@ export default async function handler(req, res) {
                 }
                 var jsonToInsert =  JSON.stringify(req.body.filtervalue) 
                 var dbInsertResponse = insertNewFiltertoDB(req.body.name, jsonToInsert, userid)
-                res.status(200).json({ success: true, data: { message: "FILTER_INSERT_OK"} })
+                return res.status(200).json({ success: true, data: { message: "FILTER_INSERT_OK"} })
     
             }
             else
             {
-                res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+                return res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
             }
 
         }
         else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }
     else {
-        res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
+        return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
     }
 }

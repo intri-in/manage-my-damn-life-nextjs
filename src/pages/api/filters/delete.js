@@ -17,30 +17,29 @@ export default async function handler(req, res) {
 
                 var filterObject= new Filters(req.query.filterid)
                 
-                if(Filters.userHasAccess(userid))
+                if(Filters.userHasAccess(userid,req.query.filterid))
                 {
-                    var response = await filterObject.delete()
+                   await filterObject.delete(userid)
 
-                    if(response==null)
-                    {
-                        res.status(200).json({ success: true, data: { message: "DELETE_OK"} })
+                    
+                    return res.status(200).json({ success: true, data: { message: "DELETE_OK"} })
 
-                    }
-                    else
-                    {
-                        console.log(response)
-                        res.status(200).json({ success: false, data: { message:"DELETE_ERROR",details: response} })
+                    // }
+                    // else
+                    // {
+                    //     console.log(response)
+                    //     res.status(200).json({ success: false, data: { message:"DELETE_ERROR",details: response} })
 
-                    }
+                    // }
 
                 }else
                 {
-                    res.status(401).json({ success: false, data: { message: 'NO_ACCESS_TO_FILTER'} })
+                    return res.status(401).json({ success: false, data: { message: 'NO_ACCESS_TO_FILTER'} })
 
                 }
     
             }else{
-                res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+                return res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
 
             }
             
@@ -50,11 +49,11 @@ export default async function handler(req, res) {
         }
         else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }
     else {
-        res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
+        return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
     }
 }

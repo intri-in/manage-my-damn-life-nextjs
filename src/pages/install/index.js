@@ -1,7 +1,7 @@
 import { Loading } from "@/components/common/Loading";
 import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
-import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
+import { getUserDataFromCookies } from "@/helpers/frontend/user";
 import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import Head from "next/head";
@@ -12,6 +12,7 @@ import { Component } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 
 class StartInstall extends Component{
+    
     constructor(props)
     {
         super(props)
@@ -29,8 +30,20 @@ class StartInstall extends Component{
     async continueClicked()
     {
         if(await nextAuthEnabled()==false){
-            this.props.router.push("/accounts/register")
-        }else{
+            if(typeof(window)!=="undefined"){
+
+                const userDataFromCookies = getUserDataFromCookies()
+                if(userDataFromCookies && userDataFromCookies.ssid && userDataFromCookies.userhash){
+    
+                    this.props.router.push("/")
+            }
+            }else{
+
+                this.props.router.push("/accounts/register")
+            }
+            
+        }else
+        {
             this.props.router.push("/")
         }
         
