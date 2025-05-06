@@ -35,6 +35,7 @@ import { eventEditorInputAtom, showEventEditorAtom } from "stateStore/EventEdito
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore";
+import { AddFromTemplateModal } from "../common/AddTask/AddFromTemplateModal";
 
 const i18next = getI18nObject()
 interface EventObject {
@@ -463,16 +464,17 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     return (
 
         <>
-            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", }} >
-                <Col>
+            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center"}} >
+                <Col md={8} >
                     <Form.Select value={viewValue} onChange={viewChanged}>
                         {options}
                     </Form.Select>
                 </Col>
-                <Col style={{}}>
+                <Col md={2} >
 
                     <Form.Check
                         type="switch"
+                        inline
                         id="show_tasks_switch"
                         checked={showTasksChecked}
                         onChange={showTasksChanged}
@@ -480,10 +482,14 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     />
 
                 </Col>
-                <Col style={{ textAlign: "center", }}>
+                <Col md={2} >
                     {calendarsSelect}
                 </Col>
             </Row>
+            <div>
+                <AddFromTemplateModal />
+
+            </div>
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin]}
                 ref={calendarRef}

@@ -1,3 +1,2 @@
-- Fixed #171
-    - Problem stemmed from Task.org letting user create task without start date.
-- Fixed due date difference parsing into words.
+New Feature: Template Manager
+ - Users can now create Templates to quickly add Tasks and Events.
