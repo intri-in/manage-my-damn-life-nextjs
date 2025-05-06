@@ -1,3 +1,3 @@
-- Fixed #171
-    - Problem stemmed from Task.org letting user create task without start date.
-- Fixed due date difference parsing into words.
+Bug Fixed:
+    Install check was not triggering on user front end.
+    - Filter delete was not working.

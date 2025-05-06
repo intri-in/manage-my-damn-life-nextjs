@@ -61,9 +61,9 @@ const AppBarFunctionalComponent = ({ session}) => {
   const checkInstallation = async () => {
     try {
       const isInstalled = await installCheck_Cookie(router);
-      if(isInstalled){
-        setInstalled(isInstalled);
-      }
+      console.log("isInstalled" ,isInstalled)
+      setInstalled(isInstalled);
+      
     } catch (error) {
       console.error("Error checking installation:", error);
     }
@@ -163,6 +163,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                   <Dropdown.Item onClick={labelManageClicked}>{i18next.t("LABEL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={manageFilterClicked}>{i18next.t("MANAGE_FILTERS")}</Dropdown.Item>
                   <Dropdown.Item onClick={manageCaldavClicked}>{i18next.t("MANAGE") + " " + i18next.t("CALDAV_ACCOUNTS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{i18next.t("TEMPLATE_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={settingsClicked}>{i18next.t("SETTINGS")}</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
