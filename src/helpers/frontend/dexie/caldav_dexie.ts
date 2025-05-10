@@ -7,9 +7,15 @@ import { getUserIDFromHash_Dexie } from "./users_dexie";
 export async function getCalDAVSummaryFromDexie(){
   const userData = getUserDataFromCookies()
   const userHash = userData["userhash"]
+  // console.log("userData", userData)
+  console.time("dexie_getUserIDFromHash_Dexie")
   const userid = await getUserIDFromHash_Dexie(userHash)    
-
+  console.timeEnd("dexie_getUserIDFromHash_Dexie")
+  
+  console.time("dexie_getAllCalDavAccountsFromDexie")
   const caldavAccounts = await getAllCalDavAccountsFromDexie(userid)
+  console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
+
   let toReturn :any = []
   if(Array.isArray(caldavAccounts)){
     for(const i in caldavAccounts){
@@ -86,7 +92,6 @@ export async function getCaldavAccountfromDexie(caldavFromDB){
 
 }
 export async function getAllCalDavAccountsFromDexie(userid){
-  try{
 
     if(!userid){
       return []
@@ -96,17 +101,13 @@ export async function getAllCalDavAccountsFromDexie(userid){
     .equals(userid)
     .toArray()
     .catch(e =>{
-      console.error("getUserIDFromHash_Dexie", e)
+      console.error("getAllCalDavAccountsFromDexie", e)
   })
-;
 
   // Return result
   return caldav;
-  }
-  catch(e){
-    console.warn("getAllCalDavAccountsFromDexie",e)
-  }
-
+  
+ 
 }
 export async function findCalDAVAccountinDexie(url, username, userid){
     // console.log("url, username", url, username)
@@ -115,7 +116,11 @@ export async function findCalDAVAccountinDexie(url, username, userid){
     .where('url')
     .equals(addTrailingSlashtoURL(url))
     .and(item => item.username ==username)
-    .toArray();
+    .toArray()
+    .catch(e =>
+      {
+        console.error("findCalDAVAccountinDexie", e)
+      });
 
     if(caldav && Array.isArray(caldav)){
       // Check if the userid exists
@@ -133,7 +138,6 @@ export async function findCalDAVAccountinDexie(url, username, userid){
 
 export async function saveCaldavAccountToDexie(caldavFromDB, username, userid){
     const caldavFromDexie = await findCalDAVAccountinDexie(caldavFromDB["url"], caldavFromDB["username"],userid)
-
     if(caldavFromDexie && caldavFromDexie.length==0){
       await insertNewCaldavAccountIntoDexie(caldavFromDB, username,userid)
       return true
@@ -141,18 +145,18 @@ export async function saveCaldavAccountToDexie(caldavFromDB, username, userid){
 }
 
 export async function insertNewCaldavAccountIntoDexie(caldavFromDB, username,userid){
-    try{
-        if(!userid) return 
-        const id = await db.caldav_accounts.add({
-            name: caldavFromDB["name"],
-            username: username,
-            url:  caldavFromDB["url"],
-            caldav_accounts_id:  caldavFromDB["caldav_accounts_id"],
-            userid:parseInt(userid),
-        })
-    }catch(e){
-        console.error("insertNewCaldavAccountIntoDexie", e)
-    }
+
+  if(!userid) return 
+    const id = await db.caldav_accounts.add({
+        name: caldavFromDB["name"],
+        username: username,
+        url:  caldavFromDB["url"],
+        caldav_accounts_id:  caldavFromDB["caldav_accounts_id"],
+        userid:parseInt(userid),
+    }).catch(e =>{
+      console.error("insertNewCaldavAccountIntoDexie", e)
+    })
+
 
 
   }

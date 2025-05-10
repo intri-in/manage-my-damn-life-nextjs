@@ -1,13 +1,13 @@
 import { getI18nObject } from "@/helpers/frontend/general";
 import { useEffect, useState } from "react";
-import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
+import { Accordion, Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { EventEditorInputType } from "stateStore/EventEditorStore";
 import { Loading } from "../common/Loading";
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore";
 import { useAtomValue, useSetAtom } from "jotai";
 import Recurrence from "@/components/common/Recurrence";
 import { getEtagFromEventID_Dexie, getEventFromDexieByID, getEventURLFromDexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
-import { addAdditionalFieldsFromOldEventV2, getParsedEvent, postNewEvent, preEmptiveUpdateEvent, rruleToObject, updateEvent} from "@/helpers/frontend/events";
+import { addAdditionalFieldsFromOldEventV2, geParsedtVAlarmsFromServer, getParsedEvent, postNewEvent, preEmptiveUpdateEvent, rruleToObject, updateEvent} from "@/helpers/frontend/events";
 import { Datepicker } from "@/components/common/Datepicker/Datepicker"
 import { RruleObject } from "types/recurrence";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
@@ -54,6 +54,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [fromDate, setFromDate]= useState("")
     const [fromDateValid, setFromDateValid] = useState(true)
     const [fromTimeFormat, setFromTimeFormat]= useState("HH:mm")
+    const [sequence, setSequence] = useState(-1)
     const [toDate, setToDate] = useState("")
     const [toDateValid, setToDateValid] = useState(true)
     const [status, setStatus]= useState("")
@@ -62,8 +63,9 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [location, setLocation]= useState("")
     const [isNewEvent, setIsNewEvent]= useState(false)
     const [lastModified, setLastModified]= useState("")
-    const [isNewTask, setIsNewTask] = useState(false)
     const [rawICS, setRawICS] = useState('')
+    const [uid, setUID] = useState('')
+    const [isTemplate, setIsTemplate] = useState(false)
 
     useEffect(()=>{
         let isMounted =true
@@ -78,6 +80,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         if (input) {
             if (!input.id) {
                 // New Task.
+                // setIsNewEvent(true)
                 if(input.start){
                     setFromDate(input.start)
                 }
@@ -85,7 +88,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                     setToDate(input.end)
                 }
 
-                if(input.calendar_id){
+                if("calendar_id" in input && input.calendar_id){
                     setCalendarID(input.calendar_id.toString())
                 }else{
                     //Get Default calendar and set.
@@ -94,6 +97,15 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                         setCalendarID(default_calendar_id)
                     }
 
+                }
+
+                if("description" in input && input.description){
+                    setDescription(input.description)
+                }
+                if("alarms" in input && input.alarms){
+                    console.log("alarms", input.alarms)
+
+                    setAlarms(input.alarms)
                 }
             }
 
@@ -106,6 +118,9 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const processInput = async() =>{
         if (!input.id) {
             setIsNewEvent(true)
+            if(("isTemplate" in input) && input.isTemplate){
+                setIsTemplate(true)
+            }
             checkInputForNewTask()
             return
         }
@@ -117,6 +132,14 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             const parsedData = getParsedEvent(unParsedData)
             // console.log(parsedData)
             setSummary(parsedData["summary"])
+            if(parsedData["uid"]){
+                setUID(parsedData["uid"])
+            }
+            if(parsedData["sequence"]){
+                setSequence(parseInt(parsedData["sequence"]))
+
+                console.log("setSequence", parsedData["sequence"])
+            }
             setFromDate(moment(parsedData["start"]).toISOString())
             setToDate(moment(parsedData["end"]).toISOString())
             if(moment(parsedData["end"]).unix()-moment(parsedData["start"]).unix()>=86400){
@@ -133,55 +156,63 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             if(parsedData["rrule"]){
                 setRrule(rruleToObject(parsedData.rrule))
             }
-            getVAlarms(unParsedData)
+            const alarms = await geParsedtVAlarmsFromServer(unParsedData)
+            if(alarms && Array.isArray(alarms) && alarms.length>0){
+                    setAlarms(alarms)
+
+            }
         }
 
         checkInputForNewTask()
         
     }
 
-    const getVAlarms = async (data) => {
-        const url_api = getAPIURL() + "misc/parseics"
+    // const getVAlarms = async (data) => {
+    //     const url_api = getAPIURL() + "misc/parseics"
 
-        const authorisationData = await getAuthenticationHeadersforUser()
-        const requestOptions =
-        {
-            method: 'POST',
-            body: JSON.stringify({ "ics": data}),
-            mode: 'cors' as RequestMode,
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
-            fetch(url_api, requestOptions)
-                .then(response => response.json())
-                .then((body) => {
-                    //console.log(body)
-                    var message = getMessageFromAPIResponse(body)
-                    if(varNotEmpty(message) && varNotEmpty(message["VCALENDAR"]) && Array.isArray(message["VCALENDAR"]) && message["VCALENDAR"].length>0 && varNotEmpty(message["VCALENDAR"][0].VEVENT) && varNotEmpty(message["VCALENDAR"][0].VEVENT[0].VALARM) && Array.isArray(message["VCALENDAR"][0].VEVENT[0].VALARM) && message["VCALENDAR"][0].VEVENT[0].VALARM.length>0 )
-                    {
-                        //Has Alarms
-                        // console.log("alarms", message)
-                        let alarms: AlarmType[]=[]
-                        for (const i in message["VCALENDAR"][0].VEVENT[0].VALARM)
-                        {
-                            let parsedAlarm = parseVALARMTIME(message["VCALENDAR"][0].VEVENT[0].VALARM[i])
-                            alarms.push(parsedAlarm)
-                        }
-                        setAlarms(alarms)
-                    }
+    //     const authorisationData = await getAuthenticationHeadersforUser()
+    //     const requestOptions =
+    //     {
+    //         method: 'POST',
+    //         body: JSON.stringify({ "ics": data}),
+    //         mode: 'cors' as RequestMode,
+    //         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    //     }
+    //         fetch(url_api, requestOptions)
+    //             .then(response => response.json())
+    //             .then((body) => {
+    //                 //console.log(body)
+    //                 var message = getMessageFromAPIResponse(body)
+    //                 if(varNotEmpty(message) && varNotEmpty(message["VCALENDAR"]) && Array.isArray(message["VCALENDAR"]) && message["VCALENDAR"].length>0 && varNotEmpty(message["VCALENDAR"][0].VEVENT) && varNotEmpty(message["VCALENDAR"][0].VEVENT[0].VALARM) && Array.isArray(message["VCALENDAR"][0].VEVENT[0].VALARM) && message["VCALENDAR"][0].VEVENT[0].VALARM.length>0 )
+    //                 {
+    //                     //Has Alarms
+    //                     // console.log("alarms", message)
+    //                     let alarms: AlarmType[]=[]
+    //                     for (const i in message["VCALENDAR"][0].VEVENT[0].VALARM)
+    //                     {
+    //                         let parsedAlarm = parseVALARMTIME(message["VCALENDAR"][0].VEVENT[0].VALARM[i])
+    //                         alarms.push(parsedAlarm)
+    //                     }
+    //                     setAlarms(alarms)
+    //                 }
 
-                }).catch (e=> {
-                    console.warn("",e)
-                }) 
+    //             }).catch (e=> {
+    //                 console.warn("",e)
+    //             }) 
 
-    }
+    // }
 
     const isValidEvent = () => {
-
+        if(isTemplate){
+            return true
+        }
+        
         if (!summary) {
             toast.error(i18next.t("CANT_CREATE_EMPTY_TASK"))
             return false
         }
 
+       
         if (!fromDate ||  !toDate) {
             toast.error(i18next.t("EVENT_NEEDS_BOTH_FROM_AND_TO"))
             return false
@@ -227,17 +258,26 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             finalToDate = moment(toDate).add(1, "day").startOf("day").toISOString()
         }
 
-        let eventData = {summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
+        let eventData = {uid: uid, summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
         
         if(isValidEvent()){
             // console.log("calendar_id", finalFromDate, finalToDate)
             eventData = addAdditionalFieldsFromOldEventV2(eventData, parsedData)
             const obj = getObjectForAPICallV2(eventData)
             const ics = await makeGenerateICSRequest({ obj })
+            // console.log("ics Event Editor", ics)
             if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if(ics){
                 setIsSubmitting(true)
-                if(isNewEvent){
+                if (isTemplate) {
+                    if("templateReturn" in input && input.templateReturn && typeof(input.templateReturn) == "function"){
+                        input.templateReturn({calendar_id:calendar_id,data:ics})
+                    }
+                    
+                    closeEditor()
+                    return
+                }
+                    if(isNewEvent){
                     saveNewEvent(ics)
                 }else{
                     if(input.id){
@@ -343,8 +383,18 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const deleteEvent = () =>{
         showDeleteDailog()
     }
+
+    const templateEditing = isTemplate ? <Alert variant="warning">{i18next.t("EDITING_A_TEMPLATE")}</Alert> : <></>
+    let deleteButton = <></>
+    if (!isNewEvent) {
+
+        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteEvent} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{i18next.t("DELETE_EVENT")}</div>
+
+    }
+
     return(
         <>
+        {templateEditing}
         <div style={{textAlign:"right"}}>
         {isSubmitting ? (<div style={{ textAlign: "center" }}> <Loading centered={true} /></div>) : (<div><Button size="sm" onClick={saveButtonClicked} >{i18next.t("SAVE")}</Button> </div>)}
         </div>
@@ -389,7 +439,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <h3>{i18next.t("LOCATION")}</h3>
         <Form.Control onChange={(e)=>setLocation(e.target.value)} value={location} />
         <br />
-        {isSubmitting ? <Loading centered={true} /> : <div onClick={deleteEvent} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{i18next.t("DELETE_EVENT")}</div>}
+        {deleteButton}
         <br />
         <br />
         <p style={{ textAlign: "center" }}><b>{i18next.t('LAST_MODIFIED') + ": "}</b>{lastModified}</p>

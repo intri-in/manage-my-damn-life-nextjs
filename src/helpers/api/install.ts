@@ -1,5 +1,7 @@
+import { SequelizeStorage, Umzug } from "umzug"
 import { logVar, varNotEmpty } from "../general"
-import { getSequelizeObj, getSimpleConnectionVar } from "./db"
+import { shouldLogforAPI } from "../logs"
+import { getSequelizeObj, getSimpleConnectionVar, sequelizeCanConnecttoDB } from "./db"
 import { getConnectionVar } from "./db"
 import * as _ from "lodash"
 /**
@@ -9,14 +11,16 @@ export const FINAL_TABLES=[ "SequelizeMeta", "accounts","caldav_accounts", "cale
 
 
 export async function testDBConnection(){
-    var con = getConnectionVar()
-    return new Promise( (resolve, reject) => {
-       
-     con.ping( err=>{
-        return resolve(err)
 
-     })
-    })
+    return sequelizeCanConnecttoDB()
+    // var con = getConnectionVar()
+    // return new Promise( (resolve, reject) => {
+       
+    //  con.ping( err=>{
+    //     return resolve(err)
+
+    //  })
+    // })
 }
 
 export async function checkifDBExists()
@@ -74,34 +78,57 @@ export async function testDBConnectionSimple()
     })
 
 }
-export async function isInstalled(log)
-{
-    var allTables = await getListofTablesWithSequelize()
-    if(log){
-        //console.log("Tables from DB:", allTables)
-    }
-    if(varNotEmpty(allTables) && allTables.length>=FINAL_TABLES.length)
+
+export async function isInstalled_CheckWithSequelize(){
+
+    const sequelize = getSequelizeObj()
+    const umzug = new Umzug({
+        migrations: {glob: 'migrations/*.js'},
+        context: sequelize.getQueryInterface(),
+        logger: console,
+        storage: new SequelizeStorage({
+            sequelize: getSequelizeObj()
+        }),
+
+      })
+    const migrations = await umzug.pending()
+    if(migrations && Array.isArray(migrations) && migrations.length>0)
     {
-        let listOfTablesFromDb=[]
-        for(const row in allTables){
-            //console.log(allTables[row])
-            if(allTables[row]){
-                for(const tableName in allTables[row]){
-                
-                    listOfTablesFromDb.push(allTables[row][tableName])
-                }
-
-            }
-        }
-
-        console.log("listOfTablesFromDb", listOfTablesFromDb)
-
-        //return _.isEmpty(_.xor(listOfTablesFromDb, FINAL_TABLES))
-        //return true
-        return tableArrayMatch(listOfTablesFromDb, log)
-    }else{
+        // We have pending migrations.
         return false
     }
+    return true
+}
+export async function isInstalled(log)
+{
+    return isInstalled_CheckWithSequelize()
+    // var allTables = await getListofTablesWithSequelize()
+    // if(shouldLogforAPI()){
+    //     console.log("Tables from DB:", allTables)
+    // }
+    // if(varNotEmpty(allTables) && allTables.length>=FINAL_TABLES.length)
+    // {
+    //     let listOfTablesFromDb=[]
+    //     for(const row in allTables){
+    //         console.log(allTables[row])
+    //          listOfTablesFromDb.push(allTables[row])
+    //         // if(allTables[row]){
+    //             // for(const tableName in allTables[row]){
+                
+    //             //     listOfTablesFromDb.push(allTables[row][tableName])
+    //             // }
+
+    //         // }
+    //     }
+
+    //     if(shouldLogforAPI()) console.log("listOfTablesFromDb", listOfTablesFromDb)
+
+    //     //return _.isEmpty(_.xor(listOfTablesFromDb, FINAL_TABLES))
+    //     //return true
+    //     return tableArrayMatch(listOfTablesFromDb, log)
+    // }else{
+    //     return false
+    // }
 }
 
 export function tableArrayMatch(tablesFromDB, log){
@@ -150,8 +177,9 @@ export async function getListofTables()
 export async function getListofTablesWithSequelize(){
     const sequelize = getSequelizeObj()
     return new Promise( (resolve, reject) => {
-        sequelize.getQueryInterface().showAllSchemas().then((tableObj) => {
-            console.log(tableObj);
+        console.log(sequelize.getQueryInterface().showAllSchemas())
+        sequelize.getQueryInterface().showAllTables().then((tableObj) => {
+            // if(shouldLogforAPI()) console.log(tableObj);
             resolve(tableObj)
         })
         .catch((err) => {

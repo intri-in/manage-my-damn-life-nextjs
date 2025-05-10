@@ -26,10 +26,10 @@ export async function makeGenerateICSRequest(eventObj)
             .then((body) =>{
                 if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true )
                 {
-                    var message = getMessageFromAPIResponse(body)
+                    let message = getMessageFromAPIResponse(body)
                     return resolve(message)
                 }else{
-                    var message = getMessageFromAPIResponse(body)
+                    let message = getMessageFromAPIResponse(body)
                     if(varNotEmpty(message) && message!="")
                     {
                         toast.error(message)
@@ -58,7 +58,7 @@ export async function makeGenerateICSRequest(eventObj)
  */
 export  function getObjectForAPICall(eventData)
 {
-    var obj={}
+    let obj={}
     obj['start'] =  eventData.start
     obj['end'] =  eventData.end
     
@@ -95,7 +95,7 @@ export  function getObjectForAPICall(eventData)
     }
     if(varNotEmpty(eventData["rrule"]) && eventData["rrule"]!="")
     {
-        var rrule= rruleToObject(eventData["rrule"])
+        let rrule= rruleToObject(eventData["rrule"])
         obj['repeating']= {
             freq: rrule["FREQ"],
             interval: rrule["INTERVAL"],
@@ -135,7 +135,7 @@ export  function getObjectForAPICall(eventData)
 
     }
 
-    var unsupportedProperties={}
+    let unsupportedProperties={}
     //Now we add the remining non supported properties.
     for (const key in eventData)
     {
@@ -143,7 +143,7 @@ export  function getObjectForAPICall(eventData)
         if(key!="start" &&  key!="transp" && key!="summary" && key!="alarms" && key!="end" && key!="uid" && key!="sequence" && key!="rrule" && key!="created" && key!="description" && key!="status" && key!="url" && key!="location" && varNotEmpty(eventData[key]) && eventData[key]!="" && key!="type" && key!="dtstamp" && isNumber(key)==false)
         {
 
-            var data=eventData[key]
+            let data=eventData[key]
             if(typeof(eventData[key])!='string')
             {
                 if(Array.isArray(eventData[key]))
@@ -176,7 +176,7 @@ export  function getObjectForAPICall(eventData)
 
 export  function getObjectForAPICallV2(eventData)
 {
-    var obj={}
+    let obj={}
     obj['start'] =  eventData.start
     obj['end'] =  eventData.end
     
@@ -209,11 +209,11 @@ export  function getObjectForAPICallV2(eventData)
     if(varNotEmpty(eventData.sequence))
     {
          
-        //obj['sequence']=eventData["sequence"].to+1
+        obj['sequence']=eventData["sequence"].to+1
     }
     if(varNotEmpty(eventData["rrule"]) && eventData["rrule"]!="" && eventData["rrule"]["FREQ"] && eventData["rrule"]["INTERVAL"])
     {
-        // var rrule= rruleToObject(eventData["rrule"])
+        // let rrule= rruleToObject(eventData["rrule"])
         obj['repeating']= {
             freq: eventData["rrule"]["FREQ"],
             interval: eventData["rrule"]["INTERVAL"],
@@ -253,7 +253,7 @@ export  function getObjectForAPICallV2(eventData)
 
     }
 
-    var unsupportedProperties={}
+    let unsupportedProperties={}
     //Now we add the remining non supported properties.
     for (const key in eventData)
     {
@@ -261,7 +261,7 @@ export  function getObjectForAPICallV2(eventData)
         if(key!="start" &&  key!="transp" && key!="summary" && key!="alarms" && key!="end" && key!="uid" && key!="sequence" && key!="rrule" && key!="created" && key!="description" && key!="status" && key!="url" && key!="location" && varNotEmpty(eventData[key]) && eventData[key]!="" && key!="type" && key!="dtstamp" && isNumber(key)==false)
         {
 
-            var data=eventData[key]
+            let data=eventData[key]
             if(typeof(eventData[key])!='string')
             {
                 if(Array.isArray(eventData[key]))

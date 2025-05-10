@@ -1,29 +1,36 @@
 import { isValidResultArray } from "@/helpers/general";
-import { getConnectionVar } from "../db";
+import { getConnectionVar, getSequelizeObj } from "../db";
+import { calendar_events } from "models/calendar_events";
 
 
+const calendar_eventsModel = calendar_events.initModel(getSequelizeObj())
 export async function getCalendarObjectsFromCalendar(calendar_id)
 {
-    var con = getConnectionVar()
-    return new Promise( (resolve, reject) => {
-        con.query("SELECT * FROM calendar_events WHERE calendar_id=?", [calendar_id], function (err, result, fields) {
-            con.end()
-            if (err) {
-                console.log(err);
-                return resolve(null)
-            }
-            return resolve(Object.values(JSON.parse(JSON.stringify(result))));
-
-        })
+    return calendar_eventsModel.findAll({
+        where:{
+            calendar_id: calendar_id
+        }
     })
+    // var con = getConnectionVar()
+    // return new Promise( (resolve, reject) => {
+    //     con.query("SELECT * FROM calendar_events WHERE calendar_id=?", [calendar_id], function (err, result, fields) {
+    //         con.end()
+    //         if (err) {
+    //             console.log(err);
+    //             return resolve(null)
+    //         }
+    //         return resolve(Object.values(JSON.parse(JSON.stringify(result))));
+
+    //     })
+    // })
 
 }
 export async function syncEventsWithCaldlav(calDavCalendarObjects, calendar_id)
 {
     // Will only delete events not present on CalDAV server.
-    var con = getConnectionVar()
 
-    var alLObjectsFromDB=  await getCalendarObjectsFromCalendar(calendar_id)
+
+    const alLObjectsFromDB=  await getCalendarObjectsFromCalendar(calendar_id)
 
     if(alLObjectsFromDB!=null && Array.isArray(alLObjectsFromDB) && alLObjectsFromDB.length>0)
     {
@@ -32,13 +39,20 @@ export async function syncEventsWithCaldlav(calDavCalendarObjects, calendar_id)
             if(checkifEventExistsinCalDAVArray(alLObjectsFromDB[i], calDavCalendarObjects)==false)
             {
                 //Set event to "deleted" in DB. This will enable user to later manually review items that need to be recovered.
-
-                con.query('UPDATE calendar_events SET ? WHERE calendar_events_id = ?',[{deleted :"1" }, alLObjectsFromDB[i].calendar_events_id], function (error, results, fields) {
-                    if (error) {
-                        console.log(error)
-                    }
+                calendar_eventsModel.update(
+                    { deleted: '1' },
+                    {
+                      where: {
+                        calendar_events_id: alLObjectsFromDB[i].calendar_events_id,
+                      },
+                    },
+                  );
+                // con.query('UPDATE calendar_events SET ? WHERE calendar_events_id = ?',[{deleted :"1" }, alLObjectsFromDB[i].calendar_events_id], function (error, results, fields) {
+                //     if (error) {
+                //         console.log(error)
+                //     }
         
-                })
+                // })
 
 
 
@@ -48,7 +62,36 @@ export async function syncEventsWithCaldlav(calDavCalendarObjects, calendar_id)
         }
     } 
     
-    con.end()
+    // con.end()
+
+    // var con = getConnectionVar()
+
+    // var alLObjectsFromDB=  await getCalendarObjectsFromCalendar(calendar_id)
+
+    // if(alLObjectsFromDB!=null && Array.isArray(alLObjectsFromDB) && alLObjectsFromDB.length>0)
+    // {
+    //     for(let i=0; i<alLObjectsFromDB.length; i++)
+    //     {
+    //         if(checkifEventExistsinCalDAVArray(alLObjectsFromDB[i], calDavCalendarObjects)==false)
+    //         {
+    //             //Set event to "deleted" in DB. This will enable user to later manually review items that need to be recovered.
+
+    //             con.query('UPDATE calendar_events SET ? WHERE calendar_events_id = ?',[{deleted :"1" }, alLObjectsFromDB[i].calendar_events_id], function (error, results, fields) {
+    //                 if (error) {
+    //                     console.log(error)
+    //                 }
+        
+    //             })
+
+
+
+                
+
+    //         }
+    //     }
+    // } 
+    
+    // con.end()
 
 }
 

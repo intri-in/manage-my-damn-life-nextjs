@@ -126,6 +126,7 @@ export async function fetchLatestEventsV2(refreshCalList)
                     const cal = arrayFromDexie[i]["calendars"][j]
                     console.log("Syncing Calendar: "+cal["displayName"])
                     const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
+                    // console.log("events", events)
                     //Now we save these events in dexie.
                     await saveAPIEventReponseToDexie(cal["calendars_id"],events)
 
@@ -270,6 +271,7 @@ export async function refreshCalendarListV2()
             .then((body) =>{
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
                     const calDAVSummaryFromServer = body.data.details
+                    // console.log("calDAVSummaryFromServer", calDAVSummaryFromServer)
                     return resolve(syncCalDAVSummary(calDAVSummaryFromServer))
 
                 }else{

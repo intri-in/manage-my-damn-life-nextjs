@@ -49,6 +49,7 @@ export interface Labels {
   labels_id?: number;
   name?: string;
   colour?: string;
+  userid?:number
 } 
 
 export interface Settings{
@@ -102,6 +103,13 @@ export class MySubClassedDexie extends Dexie {
     this.version(5).stores({
       users:'++id,hash',
       caldav_accounts: '++id,caldav_accounts_id, username, url, name, authMethod,userid',
+    }).upgrade(trans =>{
+      return trans.table("caldav_accounts").toCollection().modify (caldav_account => {
+        caldav_account.userid=""
+      })
+    })
+    this.version(6).stores({
+      labels:"++labels_id, name, colour,userid",
     })
 
 

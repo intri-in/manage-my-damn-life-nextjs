@@ -122,7 +122,7 @@ async function getTopLevelUID_V3(todoList: Calendar_Events[])
 
         for(let i=0; i<todoList.length; i++)
         {
-            let todo: {} | undefined  = undefined
+            let todo: {} | null | undefined  = undefined
             if(todoList[i].parsedData){
                 
                 todo = todoList[i].parsedData
@@ -356,7 +356,7 @@ function getTopLevelUID_V2(todoList: Calendar_Events[])
 
         for(let i=0; i<todoList.length; i++)
         {
-            let todo: {} | undefined  = undefined
+            let todo: {} | null | undefined  = undefined
             if(todoList[i].parsedData){
                 
                 todo = todoList[i].parsedData

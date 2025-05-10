@@ -270,11 +270,11 @@ function isValidParsedVTODO(parsedDataEntry){
 export function returnGetParsedVTODO(vtodo)
 {
     if(!vtodo){
-        return {}
+        return null
     }
     try{
         const  parsedData = ical.parseICS(vtodo);
-        //console.log("parsedData", parsedData)
+        // console.log("parsedData", parsedData)
         for (let k in parsedData) {
             if(!isValidParsedVTODO(parsedData[k]))
             {

@@ -24,6 +24,7 @@ import { TaskEditorInputType, showTaskEditorAtom, taskEditorInputAtom } from "st
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { currentDateFormatAtom } from "stateStore/SettingsStore";
 import { calDavObjectAtom } from "stateStore/ViewStore";
+import { AddFromTemplateModal } from "./AddFromTemplateModal";
 
 export function AddTaskFunctional(props) {
     const i18next = getI18nObject();
@@ -41,10 +42,6 @@ export function AddTaskFunctional(props) {
     const [newTaskSummary, setNewTaskSummary] = useState("");
     const [data, setData] = useState<TaskEditorInputType>({ id:null });
     const [quickAddResults, setQuickAddResults] = useState<JSX.Element[]>([]);
-    const [todoList, setTodoList] = useState(null);
-
-    useEffect(() => {
-    }, []);
 
 
 
@@ -116,9 +113,7 @@ export function AddTaskFunctional(props) {
         setQuickAddResults([<div key="quick_add" style={{ margin: 5 }}>{output}</div>]);
     };
 
-
-    var borderColor = '2px solid ' + SECONDARY_COLOUR;
-
+    const borderColor = '2px solid ' + SECONDARY_COLOUR;
     return (
         <>
             <div style={{ textAlign: "center", borderBottom: borderColor }}>
@@ -130,6 +125,7 @@ export function AddTaskFunctional(props) {
                     <div ><Button size="sm" onClick={addTask}>{i18next.t("ADD")}</Button></div>
                 </Stack>
                 {quickAddResults}
+                <AddFromTemplateModal />
             </div>
 
            

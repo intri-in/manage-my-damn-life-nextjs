@@ -15,7 +15,21 @@ export class RecurrenceHelper extends RRuleHelper{
             var rObj = RRuleHelper.rruleToObject(todo.rrule)
             //console.log("rObj", rObj)
             var firstInstance =  _.cloneDeep(todo)
-            firstInstance.due = new Date(Date.parse(todo.start))
+            /**
+             * Some clients (Like Tasks.org App) allow creating repeating tasks without a start date, and the task repeats from . In that case, what we do is, first see if DTSTAMP is present use it, else the current time as the start date. 
+             */
+            if(todo.start){
+
+                firstInstance.due = new Date(Date.parse(todo.start))
+            }else{
+                if("dtstamp" in todo){
+
+                    firstInstance.due = new Date(todo.dtstamp)
+                }else{
+
+                    firstInstance.due = new Date(Date.now())
+                }
+            }
 
             var key = (moment.unix(moment(firstInstance.due).unix())).format("YYYY-MM-DD")
             if(this.recurrenceHasKey(key))
@@ -122,6 +136,7 @@ export class RecurrenceHelper extends RRuleHelper{
      */
     getNextUpKey() {
 
+        let found = false
         for (const i in this.newObj) {
             //console.log(this.state.repeatInfo.newObj[i])
 

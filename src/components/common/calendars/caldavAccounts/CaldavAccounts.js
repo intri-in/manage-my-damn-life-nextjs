@@ -22,6 +22,7 @@ import { deleteCalDAVAccountFromDexie, getAllCalDavAccountsFromDexie } from "@/h
 import { getAllCalendarsFromCalDavAccountIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { CaldavAccountTable } from "./CaldavAccountTable";
 import { clearDexieDB } from "@/helpers/frontend/dexie/dexie_helper";
+import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie";
 
 export default class CaldavAccounts extends Component {
     constructor(props) {
@@ -68,6 +69,7 @@ export default class CaldavAccounts extends Component {
         this.setState({ showLoading: true })
         toast.info(this.i18next.t("REFRESHING_CALENDAR_LIST"))
         await clearDexieDB()
+        await checkifCurrentUserInDexie()
         await fetchLatestEventsV2()
         
         this.setState({ showLoading: false , updated: Date.now()})

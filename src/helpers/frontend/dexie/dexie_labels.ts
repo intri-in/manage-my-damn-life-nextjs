@@ -4,11 +4,19 @@ import { getRandomColourCode } from "../general";
 import { fetchAllEventsFromDexie } from "./events_dexie";
 import { returnGetParsedVTODO } from "../calendar";
 import { basicTaskFilterForDexie } from "./dexie_helper";
+import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
 
 export async function getAllLabelsFromDexie() {
+
+    const userId = await getUserIDForCurrentUser_Dexie()
+    if(!userId){
+        return []
+    }
     try {
         const labels = await db.labels
-            .toArray();
+        .where("userid")
+        .equals(userId)
+        .toArray();
 
         return labels
 
@@ -36,13 +44,14 @@ export async function getLabelIDFromName_Dexie(labelName) {
     }
 
 }
-export async function checkifLabelExistsinDexie(labelName) {
+export async function checkifLabelExistsinDexie(labelName,userid) {
     try {
         const labels = await db.labels
-            .where('name')
-            .equals(labelName)
+            .where('userid')
+            .equals(userid)
+            .and(label => label.name?.toLowerCase() == labelName.toLowerCase())
             .toArray();
-        if (isValidResultArray(labels)) {
+        if (isValidResultArray(labels)) {getLabelIDFromName_Dexie
             return true
         }
 
@@ -68,11 +77,16 @@ export async function saveLabelToDexie(label) {
 }
 
 export async function writeLabeltoDexie(labelString) {
-    if (await checkifLabelExistsinDexie(labelString) == false) {
+    const userid = await getUserIDForCurrentUser_Dexie()
+    if(!userid){
+        return
+    }
+    if (await checkifLabelExistsinDexie(labelString,userid) == false) {
         //Add Label
         try {
             const id = await db.labels.add({
                 name: labelString,
+                userid: userid,
                 colour: getRandomColourCode(),
             })
         } catch (e) {
@@ -143,7 +157,7 @@ export async function updateLabelCacheInDexie() {
         for(const l in labelsFromDexie){
             if(!tempLabelList.includes(labelsFromDexie[l]["name"])){
                 // Label will be deleted.
-                console.log("To Delete ", labelsFromDexie[l]["name"])
+                // console.log("To Delete ", labelsFromDexie[l]["name"])
                 await deleteLabelbyIDFromDexie(labelsFromDexie[l]["labels_id"])
             }
         }

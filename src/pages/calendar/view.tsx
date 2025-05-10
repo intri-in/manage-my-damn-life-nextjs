@@ -1,5 +1,6 @@
 'use client'
 import AppBarGeneric from "@/components/common/AppBar";
+import { GlobalViewManager } from "@/components/common/GlobalViewManager/GlobalViewManager";
 import { EventEditorViewManager } from "@/components/events/EventEditorViewManager";
 import { CalendarViewWithStateManagement } from "@/components/fullcalendar/CalendarViewWithStateManagement";
 import CalendarView from "@/components/page/CalendarViewPage/CalendarView";
@@ -49,7 +50,7 @@ export default function CalendarViewPage(){
         <div className='container-fluid'>
         <CalendarViewWithStateManagement calendarAR={1} />
         <EventEditorViewManager />
-
+        <GlobalViewManager />         
         </div>
         </>)
 }

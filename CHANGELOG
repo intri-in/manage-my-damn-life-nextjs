@@ -8,7 +8,25 @@ v0.6.0
  - Manages mutiple user locally
  - Removed the default feature of Nuking Dexie on logout. Now the user can set it in Settings.
  - Made login setup a bit more smoother -- if the user has saved data, the setup page doesn't wait for sync.
- 
+ - Changed Labels table in dexie; labels have a "userid" column. Made relevant fixes to UI.
+Bug Fixes:
+ - Fixed Calendar view changing to default value after adding/editing event.
+- Upgraded all FullCalendar Dependencies
+- Upgraded react-bootstrap package
+- Upgraded dexie packages.
+- Upgraded tsdav to 2.1.2
+- Fixed bug: Events were being parsed through VTODO parser, making it difficult for MMDL to recognise events from other clients. Partially fixes #165 and #179
+- Calendarview: Fixed recurring events displaying the default duration of 1 hour. Now renders the correct duration. Fixes #165.
+- Fixed Event edit problem with Radicale. UID being missing from Events was causing 409 CONFLICT response. Should completely fix #179.
+- Fixed Copy/Move to Calendar Modal not showing on 'calendar/view/' page. Added missing "GlobalViewManager" component.
+- Added unique link parsing for specific task/filter/label list to make it easier for users to bookmark links. Completes #192.
+- Added complete support for Sequelize. 
+- Changed how MMDL checks if the DB is installed. Uses Umzug under the hood.
+- Upgraded sequelize and sequelize-cli
+- Fixed "Force Sync Option" on 'accounts/caldav' purging and not recreating dexie db.
+- Fixed admin user unable to change "Allow registration" value. Disabling the setting now works.
+New Feature: Template Manager
+ - Users can now create Templates to quickly add Tasks and Events.
 
 v0.5.2
 - npm audit fix run. Multiple dependencies updated. IMP: NextJS version updated to v15.1.6.

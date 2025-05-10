@@ -17,7 +17,8 @@ import { ssid_table as _ssid_table } from "./ssid_table";
 import type { ssid_tableAttributes, ssid_tableCreationAttributes } from "./ssid_table";
 import { users as _users } from "./users";
 import type { usersAttributes, usersCreationAttributes } from "./users";
-
+import {templates as _templates} from './templates'
+import type { templatesAttributes, templatesCreationAttributes } from "./templates";
 export {
   _caldav_accounts as caldav_accounts,
   _calendar_events as calendar_events,
@@ -28,6 +29,7 @@ export {
   _settings as settings,
   _ssid_table as ssid_table,
   _users as users,
+  _templates as templates
 };
 
 export type {
@@ -49,6 +51,8 @@ export type {
   ssid_tableCreationAttributes,
   usersAttributes,
   usersCreationAttributes,
+  templatesAttributes,
+  templatesCreationAttributes
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -61,7 +65,7 @@ export function initModels(sequelize: Sequelize) {
   const settings = _settings.initModel(sequelize);
   const ssid_table = _ssid_table.initModel(sequelize);
   const users = _users.initModel(sequelize);
-
+  const templates = _templates.initModel(sequelize)
 
   return {
     caldav_accounts: caldav_accounts,
@@ -73,5 +77,6 @@ export function initModels(sequelize: Sequelize) {
     settings: settings,
     ssid_table: ssid_table,
     users: users,
+    templates:templates
   };
 }

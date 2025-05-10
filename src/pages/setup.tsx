@@ -1,12 +1,14 @@
 import { Loading } from "@/components/common/Loading"
 import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
+import { db } from "@/helpers/frontend/dexie/dexieDB"
 import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie"
 import { getI18nObject } from "@/helpers/frontend/general"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
 import { fetchLatestEventsV2,  fetchLatestEvents_withoutCalendarRefresh,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
 import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
+
 import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
@@ -36,6 +38,10 @@ export default function SetupPage() {
             setCurrentWork("Fetching events and data...")
         
             // await fetchLatestEventsV2()
+            //Open dexie db to make sure that any required transactions are committed automatically.
+            db.open().catch (function (err) {
+                toast.error('Failed to open db: ' + (err.stack || err));
+            });
             //First we check if the user already has data in dexie
             const arrayFromDexie = await getCalDAVSummaryFromDexie()
             const fetch = (arrayFromDexie && Array.isArray(arrayFromDexie) && arrayFromDexie.length>0) ? false: true
@@ -69,8 +75,7 @@ export default function SetupPage() {
 
                 checkifCurrentUserInDexie().then((goOn) =>{
                     if(goOn){
-
-                        setupEverything()
+                       setupEverything()
                     }else{
                         if(window!=undefined){
                             setIsLoading(false)
@@ -79,7 +84,11 @@ export default function SetupPage() {
                         }
                     }
     
+                }).catch(e=>{
+                    console.error("checkifCurrentUserInDexie",e)
+                    setCurrentWork(e)
                 })
+                
             }
         
         return ()=>{
