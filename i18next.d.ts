@@ -6,9 +6,7 @@ import ns2 from "locales/en/ns2.json";
 
 declare module "i18next" {
   // Extend CustomTypeOptions
-  declare module 'i18next' {
   interface CustomTypeOptions {
     returnNull: false
-  }
 }
 }
