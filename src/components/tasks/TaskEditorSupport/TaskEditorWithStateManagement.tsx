@@ -732,7 +732,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 </Col>
             </Row>
             <h4>{i18next.t("TASK")+" "+i18next.t("SUMMARY")}</h4>
-            <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder={i18next.t("ENTER_A_SUMMARY")} /></div>
+            <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder={i18next.t("ENTER_A_SUMMARY") ?? ""} /></div>
             {repeatInfoMessage}
             <h4>{i18next.t("CALENDAR")}</h4>
             <div style={{ marginBottom: 10 }}>
@@ -792,7 +792,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <div>{completion}%</div>
             <Form.Range onChange={completionChanged} value={completion} />
             <h4>{i18next.t("NOTES")}</h4>
-            <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={i18next.t("ENTER_NOTES")} />
+            <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={i18next.t("ENTER_NOTES") ?? ""} />
             <br />
             <Recurrence onRruleSet={onRruleSet} rrule={rrule} />
             <br />

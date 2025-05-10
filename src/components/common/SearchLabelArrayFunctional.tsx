@@ -104,7 +104,7 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
             {labelOutput}
         </div>
         <Row>
-        <Col sm={9}><Form.Control onChange={searchLabels} value={labelSearchTerm} maxLength={20} placeholder={i18next.t("ENTER_LABEL")} /></Col> 
+        <Col sm={9}><Form.Control onChange={searchLabels} value={labelSearchTerm} maxLength={20} placeholder={i18next.t("ENTER_LABEL") ?? ""} /></Col> 
         <Col sm={3}>
         <Button  onClick={()=>addNewLabelToCategory(labelSearchTerm)} variant="primary" size="sm">{i18next.t("ADD")}</Button>
         </Col>
