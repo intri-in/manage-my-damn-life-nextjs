@@ -152,7 +152,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_ALL_TASKS)}  xs={10} >
-                            <MdToday className="textDefault"/> <span className="textDefault">  All tasks
+                            <MdToday className="textDefault"/> <span className="textDefault">  { i18next.t("ALL_TASKS")}
 </span>
                         </Col>
                         <Col xs={2}>
