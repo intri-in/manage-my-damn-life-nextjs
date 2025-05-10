@@ -6,12 +6,14 @@ import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+
 export function getI18nObject()
 {
     i18next
         .use(LanguageDetector)
         .init({
             fallbackLng: 'en',
+            returnNull: false,
             debug: false,
             resources: 
                 translations,
