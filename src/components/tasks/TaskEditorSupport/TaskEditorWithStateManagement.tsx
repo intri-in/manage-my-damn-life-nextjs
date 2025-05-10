@@ -709,7 +709,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     let deleteButton = <></>
     if (!isNewTask) {
 
-        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>Delete Task</div>
+        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{i18next.t("DELETE_TASK")}</div>
     }
     return (
         <div key={"TaskEditor_" + input.id}>
