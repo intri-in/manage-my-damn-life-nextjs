@@ -136,7 +136,7 @@ export default class rrule extends Component{
             <div key={"KEY_RECURRENCEFORM_TASKEDITOR"} >
                 <Row >
                     <Col>
-                        {this.i18next.t("EVERY")}
+                        {this.i18next.t("EVERY-RECURRENCE")}
                     </Col>
                     <Col>
                         <Form.Control value={this.state.recurrence.INTERVAL} onChange={this.recurrence_IntervalChanged} min={1} size="sm" type="number" style={{ width: 100 }}  ></Form.Control>

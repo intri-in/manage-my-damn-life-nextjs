@@ -695,7 +695,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
 
 
-    const saveButton = !isSubmitting ? <Button size="sm" onClick={saveTask} >Save</Button> : <Loading centered={true} />
+    const saveButton = !isSubmitting ? <Button size="sm" onClick={saveTask} >{i18next.t("SAVE")}</Button> : <Loading centered={true} />
 
     let repeatInfoMessage: JSX.Element = <></>
     let dueDateFixed = ""
@@ -732,7 +732,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 </Col>
             </Row>
             <h4>{i18next.t("TASK")+" "+i18next.t("SUMMARY")}</h4>
-            <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder="Enter a summary" /></div>
+            <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder={i18next.t("ENTER_A_SUMMARY")} /></div>
             {repeatInfoMessage}
             <h4>{i18next.t("CALENDAR")}</h4>
             <div style={{ marginBottom: 10 }}>
