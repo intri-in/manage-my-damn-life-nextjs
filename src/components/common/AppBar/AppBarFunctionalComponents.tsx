@@ -1,6 +1,6 @@
 import { PRIMARY_COLOUR } from "@/config/style";
 import { useRouter } from "next/router";
-import { Button, Container, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { useEffect, useState } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -19,6 +19,8 @@ import { logoutUser_withRedirect } from "@/helpers/frontend/user";
 import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { useSetAtom } from "jotai";
+import { AVAILABLE_LANGUAGES } from "@/config/constants";
+import { getCurrentLanguage, getDefaultLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
 
 const AppBarFunctionalComponent = ({ session}) => {
   /**
@@ -33,6 +35,9 @@ const AppBarFunctionalComponent = ({ session}) => {
   const [username, setUsername] = useState("");
   const [installed, setInstalled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [lang, setLang] = useState(getCurrentLanguage())
+
+
   const router = useRouter();
   const i18next = getI18nObject();
 
@@ -126,6 +131,10 @@ const AppBarFunctionalComponent = ({ session}) => {
   const notInstalledBannerClicked = () =>{
     router.push("/install")
   }
+  const langChanged = (e) =>{
+    setCurrentLanguage(e.target.value)
+    setLang(e.target.value)
+  }
 
   let notInstalledBanner: JSX.Element | null = null;
   if (!installed) {
@@ -135,6 +144,10 @@ const AppBarFunctionalComponent = ({ session}) => {
   }
 
   const navVariant = darkModeEnabled ? "light": "dark"
+  let langOption:JSX.Element[] = []
+  for(const i in AVAILABLE_LANGUAGES){
+    langOption.push(      <option value={AVAILABLE_LANGUAGES[i]}>{AVAILABLE_LANGUAGES[i]}</option>)
+  }
   return (
     <>
       {notInstalledBanner}
@@ -183,6 +196,11 @@ const AppBarFunctionalComponent = ({ session}) => {
                   </div>
                 </OverlayTrigger>
               </NavItem>
+              <Nav.Item style={{}}>
+              <Form.Select onChange={langChanged} value={lang} aria-label="Default select example">
+                {langOption}
+              </Form.Select>              
+                </Nav.Item>
               <Nav.Item style={{}}>
                 <OverlayTrigger key="DARK_MODE_KEY" placement='bottom'
                   overlay={
