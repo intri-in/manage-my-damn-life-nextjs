@@ -23,13 +23,21 @@ import { getAllCalendarsFromCalDavAccountIDFromDexie } from "@/helpers/frontend/
 import { CaldavAccountTable } from "./CaldavAccountTable";
 import { clearDexieDB } from "@/helpers/frontend/dexie/dexie_helper";
 import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie";
+import { useTranslation } from "next-i18next";
+import { dummyTranslationFunction } from "@/helpers/frontend/translations";
 
-export default class CaldavAccounts extends Component {
+export default function CaldavAccount(){
+
+    const {t} = useTranslation()
+    return <CaldavAccountsClass t={t} />
+}
+
+class CaldavAccountsClass extends Component {
+
     constructor(props) {
         super(props)
-        var i18n = getI18nObject()
-        this.i18next = i18n
-        this.state = { addedAccounts: this.i18next.t("NOTHING_TO_SHOW"), i18n: i18n, addAccountScreenisVisible: false, showLoading: false, showAddCalendarModal: false, addCalendarModalBody: null, showDeleteAccountModal: false, calendartoDelete: null, deleteAccountModal: null, updated: 0 }
+
+        this.state = { addedAccounts: this.props.t("NOTHING_TO_SHOW"), i18n: dummyTranslationFunction, addAccountScreenisVisible: false, showLoading: false, showAddCalendarModal: false, addCalendarModalBody: null, showDeleteAccountModal: false, calendartoDelete: null, deleteAccountModal: null, updated: 0 }
 
         this.getCaldavAccountsfromDB = this.getCaldavAccountsfromDB.bind(this)
         this.showAddAccountModal = this.showAddAccountModal.bind(this)
@@ -54,12 +62,18 @@ export default class CaldavAccounts extends Component {
             const params = new URLSearchParams(queryString);
             var message = params.get('message')
             if (message != null && message != undefined) {
-                toast.info(this.i18next.t(message))
+                toast.info(this.props.t(message))
             }
 
         }
     }
+    componentDidUpdate(prevProps, prevState) {
+        if(prevProps.t!=this.props.t){
+            this.setState({i18n: this.props.t})
+        }
+    }
 
+    
     async refreshCalendarListPage(){
         await refreshCalendarListV2()
         this.setState({updated: Date.now()})
@@ -67,7 +81,7 @@ export default class CaldavAccounts extends Component {
     }
     async syncButtonClicked() {
         this.setState({ showLoading: true })
-        toast.info(this.i18next.t("REFRESHING_CALENDAR_LIST"))
+        toast.info(this.props.t("REFRESHING_CALENDAR_LIST"))
         await clearDexieDB()
         await checkifCurrentUserInDexie()
         await fetchLatestEventsV2()
@@ -89,10 +103,10 @@ export default class CaldavAccounts extends Component {
     addCalendarResponse(response) {
         if (response != null && response.success != null && response.success == true && response.data.message[0].status >= 200 && response.data.message[0].status < 300) {
             // Successful creation.
-            toast.success(this.i18next.t("CALENDAR_ADDED_SUCCESSFULLY."))
+            toast.success(this.props.t("CALENDAR_ADDED_SUCCESSFULLY."))
         }
         else {
-            toast.error(this.i18next.t("ERROR_ADDING_CALENDER."))
+            toast.error(this.props.t("ERROR_ADDING_CALENDER."))
             console.warn(response)
         }
         this.refreshCalendarListPage()
@@ -138,7 +152,7 @@ export default class CaldavAccounts extends Component {
                                 <p>{
                                     caldavAccounts[i].url
                                 }</p>
-                                <h2>{this.i18next.t("CALENDARS")} <AiOutlinePlusCircle onClick={() => this.calendarAddButtonClicked(caldavAccounts[i])} /></h2>
+                                <h2>{this.props.t("CALENDARS")} <AiOutlinePlusCircle onClick={() => this.calendarAddButtonClicked(caldavAccounts[i])} /></h2>
                                 <Row>{calendars}
                                 </Row>
 
@@ -151,12 +165,12 @@ export default class CaldavAccounts extends Component {
 
                     context.setState({ addedAccounts: output, })
                 } else {
-                    context.setState({ addedAccounts: context.i18next.t("NOTHING_TO_SHOW") })
+                    context.setState({ addedAccounts: context.state.i18next("NOTHING_TO_SHOW") })
 
                 }
 
             } else {
-                context.setState({ addedAccounts: context.i18next.t("NOTHING_TO_SHOW") })
+                context.setState({ addedAccounts: context.state.i18next.t("NOTHING_TO_SHOW") })
             }
 
         })
@@ -213,7 +227,7 @@ export default class CaldavAccounts extends Component {
         //                         <p>{
         //                         caldav_accounts.data.message[j].account.url
         //                     }</p>
-        //                         <h2>{this.i18next.t("CALENDARS")} <AiOutlinePlusCircle onClick={()=>this.calendarAddButtonClicked(caldav_accounts.data.message[j])} /></h2>
+        //                         <h2>{this.props.t("CALENDARS")} <AiOutlinePlusCircle onClick={()=>this.calendarAddButtonClicked(caldav_accounts.data.message[j])} /></h2>
         //                         <Row>{calendars}
         //                         </Row>generateRandom
 
@@ -227,10 +241,10 @@ export default class CaldavAccounts extends Component {
         //         {
         //             //Get 
 
-        //             this.setState({addedAccounts: this.state.i18n.t("NO_CALDAV_ACCOUNTS_TO_SHOW")})
+        //             this.setState({addedAccounts: this.state.i18n("NO_CALDAV_ACCOUNTS_TO_SHOW")})
         //         }
         //     }else{
-        //         this.setState({addedAccounts: this.state.i18n.t(caldav_accounts.data.message)})
+        //         this.setState({addedAccounts: this.state.i18n(caldav_accounts.data.message)})
         //     }
 
         // })
@@ -245,7 +259,7 @@ export default class CaldavAccounts extends Component {
 
     onAccountAddSuccess() {
 
-        toast.success(this.i18next.t("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY"))
+        toast.success(this.props.t("CALDAV_ACCOUNT_ADDED_SUCCESSFULLY"))
         this.setState({ addAccountScreenisVisible: false, updated: Date.now() })
         this.refreshCalendarListPage()
         fetchLatestEventsV2()
@@ -280,16 +294,16 @@ export default class CaldavAccounts extends Component {
                         //Delete CalDavFromDexie
                         deleteCalDAVAccountFromDexie(caldav_account_id)
                         this.deleteCaldavModalHidden()
-                        toast.success(this.i18next.t(message))
+                        toast.success(this.props.t(message))
 
                         this.refreshCalendarListPage()
                     } else {
 
-                        toast.error(this.i18next.t(message))
+                        toast.error(this.props.t(message))
 
                     }
                 } else {
-                    toast.error(this.i18next.t("ERROR_GENERIC"))
+                    toast.error(this.props.t("ERROR_GENERIC"))
                 }
 
 
@@ -306,7 +320,7 @@ export default class CaldavAccounts extends Component {
 
     //     var body= this.state.calendartoDelete==null ? null :(
     //         <>
-    //         <p>{this.i18next.t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
+    //         <p>{this.props.t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
     //         <h3>{this.state.calendartoDelete.name}</h3>
     //         </>
     //     )
@@ -318,10 +332,10 @@ export default class CaldavAccounts extends Component {
     //                 <Modal.Body>{body}</Modal.Body>
     //                 <Modal.Footer>
     //                 <Button variant="secondary" onClick={this.deleteCaldavModalHidden}>
-    //                 {this.i18next.t("BACK")}
+    //                 {this.props.t("BACK")}
     //                 </Button>
     //                 <Button variant="danger" onClick={()=>this.makeDeleteRequest(this.state.calendartoDelete.caldav_accounts_id)}>
-    //                     {this.i18next.t("DELETE")}
+    //                     {this.props.t("DELETE")}
     //                 </Button>
     //                 </Modal.Footer>
     //             </Modal>
@@ -338,7 +352,7 @@ export default class CaldavAccounts extends Component {
         else {
             var syncButton = this.state.showLoading ? (<div ><Loading centered={true} /></div>) : (
                 <>
-                    <span onClick={this.syncButtonClicked}>{this.i18next.t("FORCE_SYNC")}</span>
+                    <span onClick={this.syncButtonClicked}>{this.props.t("FORCE_SYNC")}</span>
                     &nbsp;
                     <IoSyncCircleOutline size={24} onClick={this.syncButtonClicked} />
                 </>)
@@ -347,18 +361,18 @@ export default class CaldavAccounts extends Component {
                 <>
                     <Row>
                         <Col>
-                            <h1>{this.i18next.t("CALDAV_ACCOUNTS")}</h1>
+                            <h1>{this.props.t("CALDAV_ACCOUNTS")}</h1>
                         </Col>
                     </Row>
                     <br />
                     <Row>
                         <Col style={{ textAlign: 'right', margin: 20 }}>
-                            <Button onClick={this.showAddAccountModal} >{this.state.i18n.t("ADD")}</Button>
+                            <Button onClick={this.showAddAccountModal} >{this.state.i18n("ADD")}</Button>
                         </Col>
                     </Row>
                     <Row>
                         <Col>
-                            <h2>{this.i18next.t("YOUR_ACCOUNTS")}</h2>
+                            <h2>{this.props.t("YOUR_ACCOUNTS")}</h2>
                         </Col>
                     </Row>
                     <div style={{ textAlign: 'right', color: PRIMARY_COLOUR, margin: 20 }}>{syncButton}</div>

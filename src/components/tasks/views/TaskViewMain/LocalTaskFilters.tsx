@@ -1,5 +1,4 @@
 import Accordion from 'react-bootstrap/Accordion';
-import { getI18nObject } from "@/helpers/frontend/general";
 import { Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { TaskArrayItem, TaskSection } from '@/helpers/frontend/TaskUI/taskUIHelpers';
@@ -9,8 +8,8 @@ import { getEventFromDexieByID } from '@/helpers/frontend/dexie/events_dexie';
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from '@/config/constants';
 import { FaSearch } from "react-icons/fa";
 import { SortBySelect } from './SortByButton';
+import { useTranslation } from 'next-i18next';
 
-const i18next = getI18nObject()
 
 export interface labelSelector{
     name: string,
@@ -21,7 +20,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
     const [showDone, setShowDone] = useState(false)
     const [filterList, setFilterList] = useState<labelSelector[]>([])
     const [search, setSearch] = useState("")
-
+    const {t} = useTranslation()
     const generateFilterList = async () =>{
         
         if(taskListSections && Array.isArray(taskListSections)){
@@ -114,21 +113,21 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
         setSearch(e.target.value)
         taskSearchChangedHook(e.target.value)
     }
-    const placeholderText = i18next.t("SEARCH")
+    const placeholderText = t("SEARCH")
     return(
     <Accordion >
         <Accordion.Item eventKey="0">
-            <Accordion.Header>{i18next.t("FILTERS")}</Accordion.Header>
+            <Accordion.Header>{t("FILTERS")}</Accordion.Header>
             <Accordion.Body>
             <Container fluid>
             <Row className=' d-flex  align-items-center' style={{marginBottom: 5}}>
-                <Col><FilterListSelector onChange={selectedLabelsChanged} filterList={filterList} /></Col>
+                <Col><FilterListSelector t={t} onChange={selectedLabelsChanged} filterList={filterList} /></Col>
                 <Col className='d-flex justify-content-center' style={{alignItems:"center"}}>
                 <Form.Check 
                 type="switch"
                 checked={showDone}
                 onChange={showDoneChanged}
-                label={i18next.t("SHOW_DONE_TASKS")}
+                label={t("SHOW_DONE_TASKS")}
             /> 
                 </Col>
                 <Col className='d-flex justify-content-end'>
@@ -155,7 +154,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
 )
 }
 
-const FilterListSelector = ({filterList, onChange}:{filterList: labelSelector[], onChange: Function}) => {
+const FilterListSelector = ({filterList, onChange, t}:{filterList: labelSelector[], onChange: Function, t:any}) => {
 
     const [labelOutput, setLabelOutput] = useState<JSX.Element[]>([])
     useEffect(()=>{
@@ -189,7 +188,7 @@ const FilterListSelector = ({filterList, onChange}:{filterList: labelSelector[],
 
     return(
         <>
-            <p><b>{i18next.t("FILTER_BY_LABEL")}:</b></p>
+            <p><b>{t("FILTER_BY_LABEL")}:</b></p>
             {labelOutput}
         </>
     )

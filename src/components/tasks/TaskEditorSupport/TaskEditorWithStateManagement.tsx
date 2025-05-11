@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { Accordion, Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
 import "react-datetime/css/react-datetime.css";
-import { getI18nObject } from "@/helpers/frontend/general"
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
 import Recurrence from "@/components/common/Recurrence";
 import { getStandardDateFormat } from "@/helpers/frontend/settings"
@@ -34,8 +33,8 @@ import { CalendarPicker } from "@/components/common/Calendarpicker"
 import { PRIMARY_COLOUR } from "@/config/style"
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore"
 import next from "next/types"
+import { useTranslation } from "next-i18next"
 
-const i18next = getI18nObject()
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
     /**
@@ -50,6 +49,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     /**
      * Local State
      */
+    const {t} = useTranslation()
     const [isSubmitting, setSubmitting] = useState(false)
     const [unParsedData, setUnparsedDataFromDexie] = useState("")
     const [taskDone, setTaskDone] = useState(false)
@@ -399,7 +399,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         }
 
         if (!summary) {
-            toast.error(i18next.t("CANT_CREATE_EMPTY_TASK"))
+            toast.error(t("CANT_CREATE_EMPTY_TASK"))
             return
         }
         let dueDateToSave = ""
@@ -435,7 +435,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     const etag = await getEtagFromEventID_Dexie(input.id)
                     if (!etag) {
                         console.error("Etag is null!")
-                        toast.error(i18next.t("ERROR_GENERIC"))
+                        toast.error(t("ERROR_GENERIC"))
 
                     }
                     const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
@@ -449,7 +449,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     }
     const postNewTodo = async (calendar_id, data, etag) => {
         const message = summary ? summary + ": " : ""
-        toast.info(message + i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(message + t("ACTION_SENT_TO_CALDAV"))
         let fileName = getRandomString(64) + ".ics"
         const calendarFromDexie = await getCalendarbyIDFromDexie(calendar_id)
         if (calendarFromDexie && calendarFromDexie.length > 0) {
@@ -470,12 +470,12 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 })
                 closeEditor()
             } else {
-                toast.error(i18next.t("ERROR_GENERIC"))
+                toast.error(t("ERROR_GENERIC"))
                 console.error("postNewTodo: url is empty.")
             }
 
         } else {
-            toast.error(i18next.t("ERROR_GENERIC"))
+            toast.error(t("ERROR_GENERIC"))
             console.error("postNewTodo: event from dexie was empty.")
 
         }
@@ -486,7 +486,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     }
     const updateTodoLocal = async (calendar_id, url, etag, data) => {
         const message = summary ? summary + ": " : ""
-        toast.info(message + i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(message + t("ACTION_SENT_TO_CALDAV"))
         const oldEvent = await preEmptiveUpdateEvent(calendar_id, url, etag, data, "VTODO")
         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
 
@@ -506,33 +506,33 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         var startDateUnix = moment(taskStart).unix()
 
         if (!dueDateValid) {
-            toast.error(i18next.t("ERROR_DUE_DATE_INVALID"))
+            toast.error(t("ERROR_DUE_DATE_INVALID"))
             return false
         }
         // console.log("taskStartValid", taskStartValid)
         // console.log("dueDateValid", dueDateValid)
         if (!taskStartValid) {
-            toast.error(i18next.t("ERROR_START_DATE_INVALID"))
+            toast.error(t("ERROR_START_DATE_INVALID"))
             return false
         }
         //console.log(dueDateUnix, startDateUnix)
         if (startDateUnix > dueDateUnix) {
             if (taskStart.toString().trim() != "" && varNotEmpty(taskStart) && dueDate.toString().trim() != "" && varNotEmpty(dueDate)) {
-                toast.error(i18next.t("ERROR_ENDDATE_SMALLER_THAN_START"))
+                toast.error(t("ERROR_ENDDATE_SMALLER_THAN_START"))
 
                 return false
             }
 
         }
         if (!calendar_id || await isValidCalendarsID(calendar_id) == false) {
-            toast.error(i18next.t("ERROR_PICK_A_CALENDAR"))
+            toast.error(t("ERROR_PICK_A_CALENDAR"))
             return false
         }
 
 
         if (varNotEmpty(rrule) && RRuleHelper.isValidObject(rrule)) {
             if (varNotEmpty(taskStart) == false || (varNotEmpty(taskStart) && taskStart.toString().trim() == "")) {
-                toast.error(i18next.t("ERROR_START_DATE_REQUIRED_FOR_RECCURENCE"))
+                toast.error(t("ERROR_START_DATE_REQUIRED_FOR_RECCURENCE"))
                 return false
 
             }
@@ -635,7 +635,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         var validStatuses = VTodoGenerator.getValidStatusValues()
         var finalOutput: JSX.Element[] = []
         for (const i in validStatuses) {
-            finalOutput.push(<option key={validStatuses[i]} value={validStatuses[i]}>{i18next.t(validStatuses[i])}</option>)
+            finalOutput.push(<option key={validStatuses[i]} value={validStatuses[i]}>{t(validStatuses[i])}</option>)
         }
 
         return (<Form.Select key="status_ddl" value={status} onChange={statusValueChanged} >
@@ -695,21 +695,21 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
 
 
-    const saveButton = !isSubmitting ? <Button size="sm" onClick={saveTask} >{i18next.t("SAVE")}</Button> : <Loading centered={true} />
+    const saveButton = !isSubmitting ? <Button size="sm" onClick={saveTask} >{t("SAVE")}</Button> : <Loading centered={true} />
 
     let repeatInfoMessage: JSX.Element = <></>
     let dueDateFixed = ""
     if (isRepeatingTask) {
         dueDateFixed = moment(recurrenceObj.getNextDueDate()).format(dateFullFormat)
-        repeatInfoMessage = (<Alert variant="warning">{i18next.t("REPEAT_TASK_MESSAGE") + moment(recurrenceObj.getNextDueDate()).format(dateFormat)}</Alert>)
+        repeatInfoMessage = (<Alert variant="warning">{t("REPEAT_TASK_MESSAGE") + moment(recurrenceObj.getNextDueDate()).format(dateFormat)}</Alert>)
     }
 
-    const templateEditing = isTemplate ? <Alert variant="warning">{i18next.t("EDITING_A_TEMPLATE")}</Alert> : <></>
+    const templateEditing = isTemplate ? <Alert variant="warning">{t("EDITING_A_TEMPLATE")}</Alert> : <></>
 
     let deleteButton = <></>
     if (!isNewTask) {
 
-        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{i18next.t("DELETE_TASK")}</div>
+        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteTask} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{t("DELETE_TASK")}</div>
     }
     return (
         <div key={"TaskEditor_" + input.id}>
@@ -722,7 +722,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     <div style={{ height: "50px", display: "flex", justifyContent: "flex-start", alignContent: "flex-start" }}>
 
                         <Form.Check
-                            label={i18next.t("TASK_DONE")+"?"}
+                            label={t("TASK_DONE")+"?"}
                             className="align-middle"
                             style={{}}
                             checked={taskDone}
@@ -731,56 +731,56 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     </div>
                 </Col>
             </Row>
-            <h4>{i18next.t("TASK")+" "+i18next.t("SUMMARY")}</h4>
-            <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder={i18next.t("ENTER_A_SUMMARY") ?? ""} /></div>
+            <h4>{t("TASK")+" "+t("SUMMARY")}</h4>
+            <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder={t("ENTER_A_SUMMARY") ?? ""} /></div>
             {repeatInfoMessage}
-            <h4>{i18next.t("CALENDAR")}</h4>
+            <h4>{t("CALENDAR")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <CalendarPicker onSelectedHook={calendarSelected} key={uid} calendar_id={calendar_id} disabled={calendarDDLDisabled} />
             </div>
-            {showMoveEventOption ? <p onClick={copyMoveClicked} style={{ textAlign: "end", color: PRIMARY_COLOUR, fontSize: 14, }}>{i18next.t("COPY_MOVE")}</p> : null}
+            {showMoveEventOption ? <p onClick={copyMoveClicked} style={{ textAlign: "end", color: PRIMARY_COLOUR, fontSize: 14, }}>{t("COPY_MOVE")}</p> : null}
 
-            <h4>{i18next.t("PARENT")+" "+i18next.t("TASK")}</h4>
+            <h4>{t("PARENT")+" "+t("TASK")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <ParentTaskView parentID={parentID} uid={uid} calendar_id={calendar_id} removeParentClicked={removeParentClicked} onParentSelect={onParentSelect} />
             </div>
-            <h4>{i18next.t("START_DATE")}</h4>
+            <h4>{t("START_DATE")}</h4>
             {/* <div style={{ marginBottom: 10 }}><Datetime value={moment(taskStart)} closeOnSelect={true} onChange={startDateChange} dateFormat={dateFormat} timeFormat="HH:mm" /></div> */}
             <div style={{ marginBottom: 10 }}>
                 <Datepicker value={taskStart} onChangeHook={startDateChange} />
             </div>
 
 
-            <h4>{i18next.t("DUE_DATE")}</h4>
+            <h4>{t("DUE_DATE")}</h4>
             <Row style={{ marginBottom: 10 }}>
                 {isRepeatingTask ? <p>{dueDateFixed}</p> : (<>
                     <Datepicker value={dueDate} onChangeHook={dueDateChanged} />
                 </>)}
             </Row>
-            <h4>{i18next.t("LABELS")}</h4>
+            <h4>{t("LABELS")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <SearchLabelArrayFunctional category={category} onLabelAdded={onLabelAdded} onLabelRemoved={removeLabel} />
             </div>
-            <h4>{i18next.t("STATUS")}</h4>
+            <h4>{t("STATUS")}</h4>
             <div style={{ marginBottom: 10 }}>
                 {getStatusDropdown()}
             </div>
-            <h4>{i18next.t("PRIORITY")}</h4>
+            <h4>{t("PRIORITY")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <Form.Select onChange={priorityChanged} value={priority} >
                     <option value="0"></option>
-                    <optgroup key="High" label={i18next.t("HIGH")!}>
+                    <optgroup key="High" label={t("HIGH")!}>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
                     </optgroup>
-                    <optgroup key="Medium" label={i18next.t("MEDIUM")!}>
+                    <optgroup key="Medium" label={t("MEDIUM")!}>
                         <option value="5">5</option>
                         <option value="6">6</option>
                         <option value="7">7</option>
                     </optgroup>
-                    <optgroup key="Low" label={i18next.t("LOW")!}>
+                    <optgroup key="Low" label={t("LOW")!}>
                         <option value="8">8</option>
                         <option value="9">9</option>
                         <option value="10">10</option>
@@ -788,18 +788,18 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
                 </Form.Select>
             </div>
-            <h4>{i18next.t("COMPLETION")}</h4>
+            <h4>{t("COMPLETION")}</h4>
             <div>{completion}%</div>
             <Form.Range onChange={completionChanged} value={completion} />
-            <h4>{i18next.t("NOTES")}</h4>
-            <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={i18next.t("ENTER_NOTES") ?? ""} />
+            <h4>{t("NOTES")}</h4>
+            <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={t("ENTER_NOTES") ?? ""} />
             <br />
             <Recurrence onRruleSet={onRruleSet} rrule={rrule} />
             <br />
             {deleteButton}
             <br />
             <br />
-            <p style={{ textAlign: "center" }}><b>{i18next.t('LAST_MODIFIED') + ": "}</b>{moment(lastmodified).format(getStandardDateFormat())}</p>
+            <p style={{ textAlign: "center" }}><b>{t('LAST_MODIFIED') + ": "}</b>{moment(lastmodified).format(getStandardDateFormat())}</p>
             <br />
             <br />
             <Accordion >

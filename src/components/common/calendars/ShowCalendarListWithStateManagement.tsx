@@ -1,5 +1,4 @@
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { Col, ListGroup, Row } from "react-bootstrap"
@@ -10,7 +9,6 @@ import { toast } from "react-toastify"
 import Link from "next/link"
 import { FaExternalLinkAlt } from "react-icons/fa"
 
-const i18 = getI18nObject()
 export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Function}) =>{
     /**
      * Jotai

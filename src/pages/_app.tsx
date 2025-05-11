@@ -7,18 +7,18 @@ import '../styles/global.css'
 import { SessionProvider } from "next-auth/react"
 import { useEffect, useState } from 'react';
 import { initAutoSync, shouldSync } from '@/helpers/frontend/sync';
-import { SSRProvider } from 'react-bootstrap';
-function load()
-{
-  NProgress.start();
-}
+import { UserConfig } from 'next-i18next';
+import { appWithTranslation } from 'next-i18next';
 
-function stop()
-{
-  NProgress.done();
-}
- 
-export default function App({ Component, pageProps: {session, ...pageProps }}) {
+import * as nextI18NextConfig from '@/../next-i18next.config'
+
+const emptyInitialI18NextConfig: UserConfig = {
+  i18n: {
+    defaultLocale: nextI18NextConfig.i18n.defaultLocale,
+    locales: nextI18NextConfig.i18n.locales,
+  },
+};
+function App({ Component, pageProps: {session, ...pageProps }}) {
   const [counter, setCounter] = useState(0)
   useEffect(()=>{
     if(shouldSync()){
@@ -43,3 +43,5 @@ export default function App({ Component, pageProps: {session, ...pageProps }}) {
         </SessionProvider>
     )
 }
+
+export default appWithTranslation(App,emptyInitialI18NextConfig)

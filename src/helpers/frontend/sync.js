@@ -10,9 +10,7 @@ import { saveAPIEventReponseToDexie } from "./dexie/events_dexie"
 import { Preference_CalendarsToShow } from "./classes/UserPreferences/Preference_CalendarsToShow"
 import { getSyncTimeout } from "./settings"
 import { IS_SYNCING, LASTSYNC, getValueFromLocalStorage } from "./localstorage"
-import { getI18nObject } from "./general"
 
-const i18next = getI18nObject()
 export function isSyncing(){
     const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
 

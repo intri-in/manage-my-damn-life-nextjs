@@ -10,6 +10,7 @@ export const MYDAY_LABEL=SYSTEM_DEFAULT_LABEL_PREFIX+"-myday"
  * Available languages
  */
 
+export const DEFAULT_LANGUAGE="en"
 export const AVAILABLE_LANGUAGES = [
     "en",
     "de"

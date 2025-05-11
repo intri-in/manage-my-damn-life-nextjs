@@ -8,14 +8,16 @@ import { useEffect } from "react";
 import Head from 'next/head'
 import Container from 'react-bootstrap/Container';
 import AppBarGeneric  from "@/components/common/AppBar"
-import { getI18nObject } from "@/helpers/frontend/general";
 import TemplateManager from "@/components/templates/TemplateManager";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { AVAILABLE_LANGUAGES } from "@/config/constants";
 
-const i18next = getI18nObject()
 
 export default function ManageTemplates(){
     const { data: session, status } = useSession()
     const router = useRouter()
+    const {t} = useTranslation()
     useCustomTheme()
 
     useEffect(() =>{
@@ -41,7 +43,7 @@ export default function ManageTemplates(){
     return(
         <>
         <Head>
-          <title>{i18next.t("APP_NAME_TITLE")+" - "+i18next.t("LABEL_MANAGER")}</title>
+          <title>{t("APP_NAME_TITLE")+" - "+t("LABEL_MANAGER")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -54,4 +56,13 @@ export default function ManageTemplates(){
         </Container>
     </>
     )
+}
+
+export async function getStaticProps({ locale}) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES )),
+      // Will be passed to the page component as props
+    },
+  }
 }

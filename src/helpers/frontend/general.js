@@ -1,5 +1,4 @@
 
-import i18next from 'i18next';
 import * as moment from 'moment';
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
@@ -7,11 +6,11 @@ import { toast } from 'react-toastify';
 import { getI18Object_Multilanguages } from './translations';
 
 
-export function getI18nObject()
-{
-    return getI18Object_Multilanguages()
+// export function getI18nObject()
+// {
+//     return getI18Object_Multilanguages()
 
-}
+// }
 
 export function ISODatetoHuman(date)
 {
@@ -128,8 +127,9 @@ export function dueDatetoUnixStamp(dueDate)
 
 }
 
-export function timeDifferencefromNowinWords(date)
+export function timeDifferencefromNowinWords(date, i18next)
 {
+    return timeDifferencefromNowinWords_Generic(date)
     var timeDifference=Math.floor((dueDatetoUnixStamp(date) - Math.floor(Date.now() / 1000))/86400)
     var timeDifferenceStatement=""
     if(isNaN(timeDifference))

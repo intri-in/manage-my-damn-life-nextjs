@@ -4,14 +4,13 @@ import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
 import { useEffect, useState } from "react"
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions"
 import * as _ from 'lodash'
-import { getI18nObject } from "@/helpers/frontend/general"
 import { isValidFilter } from "@/helpers/frontend/filters"
 import { Form } from "react-bootstrap"
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
 import { useSetAtom } from "jotai"
 import { TaskFilter } from "types/tasks/filters"
+import { useTranslation } from "next-i18next"
 const defaultMenuOptions = PAGE_VIEW_JSON
-const i18next = getI18nObject()
 interface FilterValueType extends TaskFilter{
     caldav_accounts_id?:string|number,
     calendars_id?:string|number
@@ -27,11 +26,11 @@ export const HomeTasksDDL = () => {
     const [menuOptionsSelect, setMenu] = useState<JSX.Element>(<></>)
     const [menuOptions, setMenuOptions] = useState<any | null>(defaultMenuOptions)
     const [selectedValue, setSelectedValue] = useState("MY_DAY")
-
+    const { t } = useTranslation()
     useEffect(() => {
         let isMounted = true
         const refreshMenuOptions = async () => {
-            const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions)
+            const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions,t)
             if (_.isEqual(menuOptions, newMenuOptions) == false) {
                 setMenuOptions(newMenuOptions)
 
@@ -69,7 +68,7 @@ export const HomeTasksDDL = () => {
                                     // setCalendarsId(null) 
                                     console.log(filterValue)
                                     setFilterAtom(filterValue)
-                                    setCurrentPageTitle(valueArray[0] + " >> " + i18next.t(valueArray[1]))
+                                    setCurrentPageTitle(valueArray[0] + " >> " + t(valueArray[1]))
                                     setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
 
                                 } else {
@@ -99,10 +98,10 @@ export const HomeTasksDDL = () => {
                 } else {
                     filterValue = menuOptions[value]
                     setFilterAtom(filterValue)
-                    setCurrentPageTitle(i18next.t(value).toString())
+                    setCurrentPageTitle(t(value).toString())
                     setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
 
-                    // setTitle(i18next.t(value))
+                    // setTitle(t(value))
                     // setFilter(filterValue)
                     // setCaldavAccountsId(null)
                     // setCalendarsId(null)
@@ -136,14 +135,14 @@ export const HomeTasksDDL = () => {
                         {
                             for(const internalKey in menuOptions[key][children])
                             {
-                                tempChildren.push(<option key={"menu_view_"+key+"_"+children+"_"+internalKey} id={"menu_view_"+key+"_"+children+"_"+internalKey} value={[key, internalKey]}>{i18next.t(internalKey)}</option>)
+                                tempChildren.push(<option key={"menu_view_"+key+"_"+children+"_"+internalKey} id={"menu_view_"+key+"_"+children+"_"+internalKey} value={[key, internalKey]}>{t(internalKey)}</option>)
         
                             }
                         }
         
                         allMenuOptions.push(<optgroup key={"OPTGROUP_"+key} label={key}>{tempChildren}</optgroup>)
                     }else{
-                        allMenuOptions.push(<option key={"menu_view_"+key} id={"menu_view_"+key} value={key}>{i18next.t(key)}</option>)
+                        allMenuOptions.push(<option key={"menu_view_"+key} id={"menu_view_"+key} value={key}>{t(key)}</option>)
             
                     }
                 }

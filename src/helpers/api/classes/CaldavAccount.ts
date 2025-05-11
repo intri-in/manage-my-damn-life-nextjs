@@ -119,7 +119,7 @@ export class CaldavAccount{
     async getAllCalendars()
     {
 
-        const resultfromDB = await CaldavAccount.caldav_accountsModel.findAll({
+        const resultfromDB = await calendarsModel.findAll({
             where:{
                 caldav_accounts_id: this.caldav_accounts_id,
             }, 

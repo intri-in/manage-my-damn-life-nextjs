@@ -2,7 +2,6 @@ import FilterList from "@/components/filters/FilterList"
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants"
 import { PRIMARY_COLOUR } from "@/config/style"
 import { getAllLabelsFromDexie, updateLabelCacheInDexie } from "@/helpers/frontend/dexie/dexie_labels"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { isDarkModeEnabled } from "@/helpers/frontend/theme"
 import { PAGE_VIEW_JSON, PAGE_VIEW_NAME_ALL_TASKS, PAGE_VIEW_NAME_DUE_NEXT_SEVEN, PAGE_VIEW_NAME_DUE_TODAY, PAGE_VIEW_NAME_HIGH_PRIORITY, PAGE_VIEW_NAME_MY_DAY } from "@/helpers/viewHelpers/pages"
 import Link from "next/link"
@@ -20,7 +19,7 @@ import { FilterListWithStateManagement } from "@/components/filters/FilterListWi
 import { BsCalendar3 } from "react-icons/bs"
 import ShowCalendarList from "../calendars/ShowCalendarList"
 import { ShowCalendarListWithStateManagement } from "../calendars/ShowCalendarListWithStateManagement"
-const i18next = getI18nObject()
+import { useTranslation } from "next-i18next"
 export const GenericListsWithStateManagement = ({postClick}: {postClick: Function}) =>{
     /**
      * Jotai
@@ -34,12 +33,12 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
     const [totalHeight, setTotalHeight] = useState(0)
     const [allFilters, setAllFilters] = useState<JSX.Element[]>([])
 
-
+    const{t} = useTranslation()
     const updateDimensions = () => {
         setTotalHeight(window.innerHeight-100);
     };
     const pageViewClicked = (pageName) =>{
-        setCurrentPageTitle(i18next.t(pageName).toString())
+        setCurrentPageTitle(t(pageName).toString())
         setFilterAtom(PAGE_VIEW_JSON[pageName])
         setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
         postClick()
@@ -48,7 +47,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
     const labelClicked = useCallback((e) =>{
         const labelName = e.target.textContent
         const currentFilter = {label: [labelName]}
-        const title = `${i18next.t("LABEL")}: ${labelName}`
+        const title = `${t("LABEL")}: ${labelName}`
         setCurrentPageTitle(title)
         setFilterAtom({logic: "or", filter: currentFilter})
         setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
@@ -71,7 +70,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
             }
 
             if(temp_Labelcomponent.length==0){
-                setAllFilters([<>{i18next.t("NO_LABELS_TO_SHOW")}</>])
+                setAllFilters([<>{t("NO_LABELS_TO_SHOW")}</>])
             }else{
 
                 setAllFilters(temp_Labelcomponent)
@@ -101,7 +100,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
 
     
     const updateLabelCache = () =>{
-        toast.info(i18next.t("UPDATING_LABEL_CACHE"))
+        toast.info(t("UPDATING_LABEL_CACHE"))
         updateLabelCacheInDexie().then(()=>{
             generateLabelListfromDexie()
         })
@@ -117,7 +116,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 <div   style={{ margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}} className="row">
                     <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_MY_DAY)}  xs={10}>
                         <FiSunrise className="textDefault"  />                         
-                        <span className="textDefault">&nbsp;{i18next.t("MY_DAY")}</span>
+                        <span className="textDefault">&nbsp;{t("MY_DAY")}</span>
                     </Col>
                     <Col xs={2}>
                     <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_MY_DAY}`}><FaExternalLinkAlt className="textDefault" /> </Link>
@@ -125,7 +124,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div   style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                     <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_DUE_TODAY)}  xs={10}>
-                        <MdToday className="textDefault" /> <span className="textDefault" >{i18next.t("DUE_TODAY")}</span>
+                        <MdToday className="textDefault" /> <span className="textDefault" >{t("DUE_TODAY")}</span>
                     </Col>
                     <Col xs={2}>
                     <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_DUE_TODAY}`}><FaExternalLinkAlt className="textDefault" /> </Link>
@@ -134,7 +133,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                 <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_DUE_NEXT_SEVEN)} xs={10}>
-                    <MdToday className="textDefault"/> <span className="textDefault">{i18next.t("DUE_NEXT_SEVEN_DAYS")}</span>
+                    <MdToday className="textDefault"/> <span className="textDefault">{t("DUE_NEXT_SEVEN_DAYS")}</span>
                 </Col>
                 <Col xs={2}>
                     <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_DUE_NEXT_SEVEN}`}><FaExternalLinkAlt className="textDefault" /> </Link>
@@ -143,7 +142,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                     <Col xs={10} onClick={() =>pageViewClicked(PAGE_VIEW_NAME_HIGH_PRIORITY)}>
-                        <AiFillStar className="textDefault"/> <span className="textDefault"> {i18next.t("HIGH_PRIORITY")}
+                        <AiFillStar className="textDefault"/> <span className="textDefault"> {t("HIGH_PRIORITY")}
 </span>
                     </Col>
                     <Col xs={2}>
@@ -152,7 +151,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_ALL_TASKS)}  xs={10} >
-                            <MdToday className="textDefault"/> <span className="textDefault">  { i18next.t("ALL_TASKS")}
+                            <MdToday className="textDefault"/> <span className="textDefault">  { t("ALL_TASKS")}
 </span>
                         </Col>
                         <Col xs={2}>
@@ -163,14 +162,14 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 <br />
                 
                 <div style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
-                    <Col><h3><AiOutlineFilter />{i18next.t("FILTERS")}</h3></Col>
+                    <Col><h3><AiOutlineFilter />{t("FILTERS")}</h3></Col>
                     <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={settingButtonColor} /></Link></Col>
                 </div>
                 <Row style={{borderBottom: `1px solid ${borderBottomColor}`, margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
                     <Col><FilterListWithStateManagement postClick={postClick}  /></Col>
                 </Row>
                 <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
-                    <Col><h3>{i18next.t("BY_LABELS")}</h3></Col>
+                    <Col><h3>{t("BY_LABELS")}</h3></Col>
                     <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={updateLabelCache} color={settingButtonColor} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={settingButtonColor}/></Link></h3></Col>
                 </Row>
                 <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
@@ -180,7 +179,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div style={{marginTop: 40, marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
                         <Col>
-                        <h3><BsCalendar3 />&nbsp;{i18next.t("CALENDARS")}</h3>
+                        <h3><BsCalendar3 />&nbsp;{t("CALENDARS")}</h3>
                         </Col>
                         <Col style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting color={settingButtonColor} /></Link> </Col>
 

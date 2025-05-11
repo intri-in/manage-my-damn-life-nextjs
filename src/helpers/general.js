@@ -138,6 +138,31 @@ export function varIsANumber(value){
     return false
 }
 
+
+export function appendLangParamtoURL(url, lng, langArray)
+{
+    const urlNew= new URL(url)
+    const paramlng = urlNew.searchParams.get("lng")
+    if(paramlng){
+        if(langArray.includes(paramlng)){
+            return urlNew
+        }else{
+            urlNew.searchParams.delete("lng")
+            urlNew.searchParams.append("lng", lng)
+        }
+    }else{
+        if(urlNew.searchParams.has("lng")){
+            urlNew.searchParams.delete("lng")
+            urlNew.searchParams.append("lng", lng)
+            return urlNew
+        }
+        urlNew.searchParams.append("lng", lng)
+    }
+
+    return urlNew
+
+}
+
 export function logError(error, additionalDetails)
 {
     if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)

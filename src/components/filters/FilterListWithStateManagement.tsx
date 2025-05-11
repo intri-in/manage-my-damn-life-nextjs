@@ -1,5 +1,4 @@
 import { getFiltersFromServer } from '@/helpers/frontend/filters'
-import { getI18nObject } from '@/helpers/frontend/general'
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response'
 import { isDarkModeEnabled } from '@/helpers/frontend/theme'
 import { useSetAtom } from 'jotai'
@@ -7,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
+import { useTranslation } from 'next-i18next'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { FcEmptyFilter } from 'react-icons/fc'
 import { toast } from 'react-toastify'
@@ -25,8 +25,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
      */
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
-
-    const i18next =  getI18nObject()
+    const {t} = useTranslation()
 
     const generateList = async() =>{
 
@@ -59,7 +58,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
         }else{
             if(filtersFromServer==null)
             {
-                toast.error(i18next.t("ERROR_GENERIC"))
+                toast.error(t("ERROR_GENERIC"))
             }else{
                 const message= getMessageFromAPIResponse(filtersFromServer)
                 console.error("generateList", message, filtersFromServer)
@@ -69,7 +68,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
                     if(message!="PLEASE_LOGIN")
             
                     {
-                    //     toast.error(this.i18next.t(message))
+                    //     toast.error(this.t(message))
 
                     }
 
@@ -87,13 +86,13 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
 
 
                     // }else{
-                    //     toast.error(this.i18next.t(message))
+                    //     toast.error(this.t(message))
 
                     // }
                 }
                 else
                 {
-                    toast.error(i18next.t("ERROR_GENERIC"))
+                    toast.error(t("ERROR_GENERIC"))
 
                 }
 
@@ -105,7 +104,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
 
             setFinalOutput(finalOutput)
         }else{
-            setFinalOutput([<div key="no_filters_toShow">{i18next.t("NO_FILTERS_TO_SHOW")}</div>])
+            setFinalOutput([<div key="no_filters_toShow">{t("NO_FILTERS_TO_SHOW")}</div>])
         }
     }
     

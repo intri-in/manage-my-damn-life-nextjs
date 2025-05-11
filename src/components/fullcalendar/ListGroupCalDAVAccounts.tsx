@@ -1,4 +1,3 @@
-import { getI18nObject } from '@/helpers/frontend/general';
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -10,6 +9,7 @@ import { Preference_CalendarsToShow } from '@/helpers/frontend/classes/UserPrefe
 import { BsCalendarCheck } from 'react-icons/bs';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useTranslation } from 'next-i18next';
 interface customProps{
     caldav_accounts:  {name: string, caldav_accounts_id: number, calendars: any }[];
     onChange?: () => void;
@@ -17,10 +17,9 @@ interface customProps{
 }
 export function ListGroupCalDAVAccounts(props: customProps ){
     const [modalShow, setModalShow] = useState(false);
-    const i18next = getI18nObject()
     const [prefObject, setPrefObject] =useState([])
     const [finalOutput, setFinalOutput] = useState<JSX.Element []>([])
-
+    const {t} = useTranslation()
     useEffect(()=>{
       let isMounted =true
       if(isMounted){
@@ -97,7 +96,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
       >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {i18next.t("SELECT_CALENDARS_TO_SHOW")}
+          {t("SELECT_CALENDARS_TO_SHOW")}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -110,7 +109,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
       <OverlayTrigger key="SELECT_CALENDARS_KEY" placement='top'
         overlay={
             <Tooltip id='tooltip_SELECT_CALENDARS'> 
-                        {i18next.t("SELECT_CALENDARS_TO_SHOW")}
+                        {t("SELECT_CALENDARS_TO_SHOW")}
 
             </Tooltip>
           }>

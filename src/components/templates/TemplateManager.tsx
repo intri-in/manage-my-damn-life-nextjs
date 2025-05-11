@@ -1,4 +1,3 @@
-import { getI18nObject } from "@/helpers/frontend/general"
 import { useEffect, useState } from "react"
 import { Button, Col, Row } from "react-bootstrap"
 import { GlobalViewManager } from "../common/GlobalViewManager/GlobalViewManager"
@@ -10,13 +9,13 @@ import { AiOutlineDelete } from "react-icons/ai"
 import { getAPIURL } from "@/helpers/general"
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user"
 import { toast } from "react-toastify"
+import { useTranslation } from "next-i18next"
 
 export default function TemplateManager(){
 
-const i18next = getI18nObject()
-
+const {t} = useTranslation()
 const [showAddForm, setShowAddForm] = useState(false)
-const [finalOutput, setFinalOutput] = useState([<p>{i18next.t("NOTHING_TO_SHOW")}</p>])
+const [finalOutput, setFinalOutput] = useState([<p>{t("NOTHING_TO_SHOW")}</p>])
 const [isFetching, setIsFetching] = useState(false)
 useEffect(()=>{
     let isMounted =true
@@ -45,7 +44,7 @@ const deleteFromServer = async (id) =>{
             const response =  fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
-                toast.success(i18next.t("DELETE_OK"))
+                toast.success(t("DELETE_OK"))
                 getAllTemplatesFromServer()
                 }
             ).catch(e =>{
@@ -71,7 +70,7 @@ const getAllTemplatesFromServer = async() =>{
                 <Row>
                 <Col lg={10}>
                 <h3>{response[i]["name"]}</h3>
-                <p>{i18next.t("TYPE")}:{response[i]["type"]}</p>
+                <p>{t("TYPE")}:{response[i]["type"]}</p>
                 <pre>
                     <code>
                     {JSON.stringify(JSON.parse(response[i]["data"]), null, 4)}
@@ -94,7 +93,7 @@ const getAllTemplatesFromServer = async() =>{
 
             setFinalOutput(finalOutput)
         }   else{
-            setFinalOutput([<p>{i18next.t("NOTHING_TO_SHOW")}</p>])
+            setFinalOutput([<p>{t("NOTHING_TO_SHOW")}</p>])
         }     
     }
     setIsFetching(false)
@@ -114,8 +113,8 @@ const closeAddForm =() =>{
 return(
     <>
     <div style={{padding:40}} className='container-fluid'>
-    <h1>{i18next.t("TEMPLATE_MANAGER")}</h1>
-    {!showAddForm? <div style={{textAlign: "right"}}><Button size="sm" onClick={addButtonClicked} >{i18next.t("ADD")}</Button></div> : <AddTemplateForm closeAddForm={closeAddForm} />}
+    <h1>{t("TEMPLATE_MANAGER")}</h1>
+    {!showAddForm? <div style={{textAlign: "right"}}><Button size="sm" onClick={addButtonClicked} >{t("ADD")}</Button></div> : <AddTemplateForm closeAddForm={closeAddForm} />}
     <div style={{padding:40}}>
         {isFetching ? <Loading centered ={true} /> : finalOutput}
     </div>

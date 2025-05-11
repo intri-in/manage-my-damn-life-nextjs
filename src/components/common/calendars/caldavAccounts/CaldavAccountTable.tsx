@@ -1,6 +1,5 @@
 import { getAllCalDavAccountsFromDexie, getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
 import { getAllCalendarsFromCalDavAccountIDFromDexie, updateCalendarColourbyID_Dexie } from "@/helpers/frontend/dexie/calendars_dexie";
-import { getI18nObject } from "@/helpers/frontend/general";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { getAPIURL } from "@/helpers/general";
 import { useEffect, useState } from "react";
@@ -9,6 +8,7 @@ import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import { toast } from "react-toastify";
 import ColourPicker from "../../ColourPIcker";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
+import { useTranslation } from "next-i18next";
 
 interface functionalProps {
 
@@ -48,12 +48,11 @@ export enum Resourcetype {
 }
 
 export const CaldavAccountTable = (props: functionalProps) => {
-    const i18next = getI18nObject()
     const [caldavAccounts, setCalDAVAccounts] = useState<CaldavAccount[]>([])
     const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
     const [calendartoDelete, setCalendartoDelete] = useState<CaldavAccount | null>(null)
     const [updated, setUpdatedVal] = useState(Date.now())
-
+    const {t} = useTranslation()
     var output: JSX.Element []= [];
     useEffect(() => {
         getCalDAVSummaryFromDexie().then(response => {
@@ -70,13 +69,13 @@ export const CaldavAccountTable = (props: functionalProps) => {
         {
             return 
         }
-        console.log("calendartoDelete", calendartoDelete)
+        // console.log("calendartoDelete", calendartoDelete)
         if(!("name" in calendartoDelete)){
             return
         }
         var body = (
             <>
-                <p>{i18next.t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
+                <p>{t("DELETE_CALDAV_ACCOUNT_CONFIRMATION")}</p>
                 <h3>{calendartoDelete.name}</h3>
             </>
         )
@@ -88,10 +87,10 @@ export const CaldavAccountTable = (props: functionalProps) => {
                     <Modal.Body>{body}</Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowDeleteAccountModal(false)}>
-                            {i18next.t("BACK")}
+                            {t("BACK")}
                         </Button>
                         <Button variant="danger" onClick={() => makeDeleteRequest(calendartoDelete.caldav_accounts_id)}>
-                            {i18next.t("DELETE")}
+                            {t("DELETE")}
                         </Button>
                     </Modal.Footer>
                 </Modal>
@@ -112,7 +111,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
         if (newColour && keyName) {
             //Make update Calendar Colour Request.
             updateCalendarColourbyID_Dexie(keyName, newColour).then(resultofUpdate => {
-                toast.success(i18next.t("UPDATE_OK"))
+                toast.success(t("UPDATE_OK"))
                 setUpdatedVal(Date.now())
             })
         }
@@ -154,7 +153,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
                         <p>{
                             caldavAccounts[i].url
                         }</p>
-                        <h2>{i18next.t("CALENDARS")} <AiOutlinePlusCircle onClick={() => props.calendarAddButtonClicked(caldavAccounts[i])} /></h2>
+                        <h2>{t("CALENDARS")} <AiOutlinePlusCircle onClick={() => props.calendarAddButtonClicked(caldavAccounts[i])} /></h2>
                         <Row>{temp_cal}
                         </Row>
 
@@ -170,7 +169,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
 
 
     if (output.length == 0) {
-        return i18next.t("NOTHING_TO_SHOW")
+        return t("NOTHING_TO_SHOW")
     }
     return (
         <>

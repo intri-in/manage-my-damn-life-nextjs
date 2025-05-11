@@ -1,10 +1,9 @@
-import { getI18nObject } from "@/helpers/frontend/general"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useState } from "react"
 import { Button, ButtonGroup } from "react-bootstrap"
+import { useTranslation } from "next-i18next"
 import { currentViewAtom } from "stateStore/ViewStore"
 
-const i18next = getI18nObject()
 export const ViewSelector = () => {
 
     /**
@@ -16,7 +15,7 @@ export const ViewSelector = () => {
    * Local State
    */
 
-
+  const {t} = useTranslation()
   var buttonVariantTask="secondary"
   var buttonVariantGantt="outline-secondary"
 
@@ -32,8 +31,8 @@ export const ViewSelector = () => {
   return(    
     <div style={{textAlign: "center", marginTop: 20}}>
      <ButtonGroup>
-         <Button onClick={()=>buttonClicked("tasklist")} variant={buttonVariantTask}>{i18next.t("TASK_VIEW")}</Button>
-         <Button variant={buttonVariantGantt} onClick={()=>buttonClicked("ganttview")}>{i18next.t("GANTT_VIEW")}</Button>
+         <Button onClick={()=>buttonClicked("tasklist")} variant={buttonVariantTask}>{t("TASK_VIEW")}</Button>
+         <Button variant={buttonVariantGantt} onClick={()=>buttonClicked("ganttview")}>{t("GANTT_VIEW")}</Button>
      </ButtonGroup>
     </div> )
 
