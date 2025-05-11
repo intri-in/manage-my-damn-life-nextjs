@@ -1,25 +1,15 @@
 
 import i18next from 'i18next';
-import *  as translations from '@/i18n/strings.json'
 import * as moment from 'moment';
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import { toast } from 'react-toastify';
+import { getI18Object_Multilanguages } from './translations';
 
 
 export function getI18nObject()
 {
-    i18next
-        .use(LanguageDetector)
-        .init({
-            fallbackLng: 'en',
-            returnNull: false,
-            debug: false,
-            resources: 
-                translations,
-          });
-
-      return i18next
+    return getI18Object_Multilanguages()
 
 }
 
@@ -235,44 +225,44 @@ export function getRandomColourCode()
     var colour_code="#"+Math.floor(Math.random()*16777215).toString(16)
     return colour_code
 }
-export const findPath = (ob, key) => {
-    const path = [];
-    const keyExists = (obj) => {
-      if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
-        return false;
-      }
-      else if (obj.hasOwnProperty(key)) {
-        return true;
-      }
-      else if (Array.isArray(obj)) {
-        let parentKey = path.length ? path.pop() : "";
+// export const findPath = (ob, key) => {
+//     const path: any[] = [];
+//     const keyExists = (obj) => {
+//       if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
+//         return false;
+//       }
+//       else if (obj.hasOwnProperty(key)) {
+//         return true;
+//       }
+//       else if (Array.isArray(obj)) {
+//         let parentKey = path.length ? path.pop() : "";
   
-        for (let i = 0; i < obj.length; i++) {
-          path.push(`${parentKey}[${i}]`);
-          const result = keyExists(obj[i], key);
-          if (result) {
-            return result;
-          }
-          path.pop();
-        }
-      }
-      else {
-        for (const k in obj) {
-          path.push(k);
-          const result = keyExists(obj[k], key);
-          if (result) {
-            return result;
-          }
-          path.pop();
-        }
-      }
-      return false;
-    };
+//         for (let i = 0; i < obj.length; i++) {
+//           path.push(`${parentKey}[${i}]`);
+//           const result = keyExists(obj[i], key);
+//           if (result) {
+//             return result;
+//           }
+//           path.pop();
+//         }
+//       }
+//       else {
+//         for (const k in obj) {
+//           path.push(k);
+//           const result = keyExists(obj[k], key);
+//           if (result) {
+//             return result;
+//           }
+//           path.pop();
+//         }
+//       }
+//       return false;
+//     };
   
-    keyExists(ob);
+//     keyExists(ob);
   
-    return path.join(".");
-  }
+//     return path.join(".");
+//   }
 
   export function objectArrayHasKey(object, searchKey)
   {

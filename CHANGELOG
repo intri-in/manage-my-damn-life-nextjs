@@ -27,7 +27,9 @@ Bug Fixes:
 - Fixed admin user unable to change "Allow registration" value. Disabling the setting now works.
 New Feature: Template Manager
  - Users can now create Templates to quickly add Tasks and Events.
-
+Translation enhancement
+- Added a select menu for the user to select desired language.
+- Moved translations to a file of their own to make it easier to add future translations.
 v0.5.2
 - npm audit fix run. Multiple dependencies updated. IMP: NextJS version updated to v15.1.6.
 - Default calendar is now presisted through backend.

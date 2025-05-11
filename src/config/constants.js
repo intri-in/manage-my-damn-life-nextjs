@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.6.0-dev-rev2" 
+export const VERSION_NUMBER = "0.6.0-dev-rev3" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -6,6 +6,14 @@ export const VERSION_NUMBER = "0.6.0-dev-rev2"
 export const SYSTEM_DEFAULT_LABEL_PREFIX="mmdl"
 export const MYDAY_LABEL=SYSTEM_DEFAULT_LABEL_PREFIX+"-myday"
 
+/**
+ * Available languages
+ */
+
+export const AVAILABLE_LANGUAGES = [
+    "en",
+    "de"
+]
 /**
  * Allowed date formats
  */
