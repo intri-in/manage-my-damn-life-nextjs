@@ -358,7 +358,7 @@ export default class CaldavAccounts extends Component {
                     </Row>
                     <Row>
                         <Col>
-                            <h2>Your Accounts</h2>
+                            <h2>{this.i18next.t("YOUR_ACCOUNTS")}</h2>
                         </Col>
                     </Row>
                     <div style={{ textAlign: 'right', color: PRIMARY_COLOUR, margin: 20 }}>{syncButton}</div>

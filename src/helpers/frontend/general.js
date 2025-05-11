@@ -4,16 +4,20 @@ import *  as translations from '@/i18n/strings.json'
 import * as moment from 'moment';
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
 
 export function getI18nObject()
 {
-    i18next.init({
-        lng: 'en', // if you're using a language detector, do not define the lng option
-        debug: false,
-        resources: 
-            translations
-        
-      });
+    i18next
+        .use(LanguageDetector)
+        .init({
+            fallbackLng: 'en',
+            returnNull: false,
+            debug: false,
+            resources: 
+                translations,
+          });
 
       return i18next
 
@@ -146,12 +150,12 @@ export function timeDifferencefromNowinWords(date)
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -170,12 +174,12 @@ export function timeDifferencefromNowinWords_FromUnixSeconds(unixTime){
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -212,12 +216,12 @@ export function timeDifferencefromNowinWords_Generic(date)
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -287,10 +291,10 @@ export const findPath = (ob, key) => {
     var message = getMessageFromAPIResponse(body)
     if(varNotEmpty(message) && message!="")
     {
-        toast.error(this.state.i18next.t(message))
+        toast.error(i18next.t(message))
 
     }else{
-        toast.error(this.state.i18next.t("ERROR_GENERIC"))
+        toast.error(i18next.t("ERROR_GENERIC"))
     }
     
   }

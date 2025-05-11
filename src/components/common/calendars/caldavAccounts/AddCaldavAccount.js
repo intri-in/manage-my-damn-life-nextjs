@@ -13,6 +13,7 @@ import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getCaldavAccountfromDexie_AddAccountPage, saveCaldavAccountToDexie } from "@/helpers/frontend/dexie/caldav_dexie";
 import { insertCalendarsIntoDexie } from "@/helpers/frontend/dexie/calendars_dexie";
 
+const i18next = getI18nObject()
 export default class AddCaldavAccount extends Component{
     constructor(props)
     {
@@ -160,24 +161,24 @@ export default class AddCaldavAccount extends Component{
     }
     render(){
 
-        var button =  !this.state.requestPending ? (<div><Button onClick={this.backButtonClicked} variant="secondary" >{this.i18next.t("BACK")}</Button> <Button onClick={this.addAccountButtonClicked} >{this.i18next.t("Add")}</Button> </div> ): (<Spinner animation="grow" variant="success" />)
+        var button =  !this.state.requestPending ? (<div><Button onClick={this.backButtonClicked} variant="secondary" >{this.i18next.t("BACK")}</Button> <Button onClick={this.addAccountButtonClicked} >{this.i18next.t("ADD")}</Button> </div> ): (<Spinner animation="grow" variant="success" />)
         return(
             <>
             <Row>
                     <Col>
-                    <h1>Add CalDAV Account</h1>
+                    <h1>{i18next.t("ADD_CALDAV_ACCOUNT")}</h1>
                     </Col>
             </Row>
             <br />
             <Form.Group className="mb-3">
-                <Form.Label>Account Name</Form.Label>
-                <Form.Control disabled={this.state.requestPending}   onChange={this.accountNameValueChanged}  placeholder="Enter a name for Caldav Account" />
-                <Form.Label style={{marginTop: 30}}>Server URL</Form.Label>
-                <Form.Control disabled={this.state.requestPending} onChange={this.serverURLValueChanged} type="URL" placeholder="Enter CalDAV server URL" />
-                <Form.Label style={{marginTop: 30}}>CalDAV Username</Form.Label>
+                <Form.Label>{i18next.t("ACCOUNT_NAME")}</Form.Label>
+                <Form.Control disabled={this.state.requestPending}   onChange={this.accountNameValueChanged}  placeholder={i18next.t("ENTER_ACCOUNT_NAME")} />
+                <Form.Label style={{marginTop: 30}}>{i18next.t("SERVER_URL")}</Form.Label>
+                <Form.Control disabled={this.state.requestPending} onChange={this.serverURLValueChanged} type="URL" placeholder={i18next.t("ENTER_A_SERVER_NAME")} />
+                <Form.Label style={{marginTop: 30}}>{i18next.t("CALDAV_USERNAME")}</Form.Label>
                 <Form.Control disabled={this.state.requestPending} onChange={this.serverUsernameValueChanged} type="URL" placeholder={this.state.i18next.t("CALDAV_USERNAME_PLACEHOLDER")}/>
 
-                <Form.Label style={{marginTop: 30}}>CalDAV Password</Form.Label>
+                <Form.Label style={{marginTop: 30}}>{i18next.t("CALDAV_PASSWORD")}</Form.Label>
                 <Form.Control disabled={this.state.requestPending} onChange={this.serverPasswordValueChanged} type="password" placeholder={this.state.i18next.t("CALDAV_PASSWORD_PLACEHOLDER")} />
 
                 <div style={{marginTop: 30, textAlign: 'center'}}>{button}</div>

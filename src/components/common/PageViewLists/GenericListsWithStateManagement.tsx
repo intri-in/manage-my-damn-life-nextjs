@@ -152,7 +152,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 </div>
                 <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_ALL_TASKS)}  xs={10} >
-                            <MdToday className="textDefault"/> <span className="textDefault">  All tasks
+                            <MdToday className="textDefault"/> <span className="textDefault">  { i18next.t("ALL_TASKS")}
 </span>
                         </Col>
                         <Col xs={2}>
@@ -170,7 +170,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                     <Col><FilterListWithStateManagement postClick={postClick}  /></Col>
                 </Row>
                 <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
-                    <Col><h3>By Labels</h3></Col>
+                    <Col><h3>{i18next.t("BY_LABELS")}</h3></Col>
                     <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={updateLabelCache} color={settingButtonColor} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={settingButtonColor}/></Link></h3></Col>
                 </Row>
                 <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">

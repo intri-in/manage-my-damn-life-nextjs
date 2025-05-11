@@ -3,6 +3,7 @@ import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import allLocales from '@fullcalendar/core/locales-all'
 import { getAllEvents, getCaldavAccountsfromServer, getParsedTodoList, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
@@ -614,7 +615,6 @@ class DashboardView extends Component {
         }
     }
     render() {
-
         const eventDataDashBoard = this.state.eventDataDashBoard
         var eventEditor = this.state.showEventEditor ? (<EventEditor key={this.state.selectedID} onDismiss={this.eventEditorDismissed} eventData={eventDataDashBoard} />
         ) : (null)
@@ -668,6 +668,8 @@ class DashboardView extends Component {
                 eventDrop={this.eventDrop}
                 eventResize={this.eventResize}
                 firstDay={this.state.firstDay}
+                locales={allLocales}
+                locale={this.i18next.language}
             />
             <br />
             <br />

@@ -163,7 +163,7 @@ export function AddFromTemplateModal() {
                     </Badge>
                     </Col>
                     <Col style={{textAlign:"right"}}>
-                    <Button onClick={()=>useTemplate(response[i]["data"], response[i]["type"])} size='sm'>Use</Button>
+                    <Button onClick={()=>useTemplate(response[i]["data"], response[i]["type"])} size='sm'>{i18next.t("USE")}</Button>
                     </Col>
                     </Row>
                     
@@ -201,7 +201,7 @@ export function AddFromTemplateModal() {
         </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
-              Close
+              {i18next.t("CLOSE")}
             </Button>
           </Modal.Footer>
         </Modal>

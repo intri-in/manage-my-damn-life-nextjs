@@ -56,9 +56,9 @@ export default class AddNewCalendar extends Component{
         )
         return(
             <div style={{}}>
-                <h3>Add New Calendar: {this.props.accountName}</h3>
+                <h3>{this.i18next.t("ADD_NEW_CALENDAR")}: {this.props.accountName}</h3>
                 <h4></h4>
-                <Form.Control onChange={this.calendarNameValueChanged} value={this.state.calendarName} style={{marginBottom: 10}}  placeholder="Enter Calendar Name" />
+                <Form.Control onChange={this.calendarNameValueChanged} value={this.state.calendarName} style={{marginBottom: 10}}  placeholder={this.i18next.t("ENTER_CALENDAR_NAME")} />
                 <div style={{textAlign :"center"}}>{button}</div>
             </div>
         )

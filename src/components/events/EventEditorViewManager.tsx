@@ -11,6 +11,8 @@ import { EventEditorExitModal } from "../tasks/EventEditorExitModal"
 import { onServerResponse_UI } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore"
 import { handleDeleteEventUI } from "@/helpers/frontend/events"
+import { getI18nObject } from '@/helpers/frontend/general';
+const i18next = getI18nObject()
 
 export const EventEditorViewManager =() =>{
 
@@ -96,7 +98,7 @@ export const EventEditorViewManager =() =>{
         <>
         <Offcanvas placement='start' show={show} onHide={eventEditorClosed}>
             <Offcanvas.Header closeButton>
-                <Offcanvas.Title>Edit Event</Offcanvas.Title>
+                <Offcanvas.Title>{i18next.t("EDIT_EVENT")}</Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
             <EventEditorWithStateManagement closeEditor={()=>destroy()} onServerResponse={onServerResponse} showDeleteDailog={()=>setShowConfirmDeleteDialog(true)} onChange={onChange} input={eventEditorInput} />
