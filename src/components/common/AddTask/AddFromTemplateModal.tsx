@@ -15,6 +15,7 @@ import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
 import moment from 'moment';
 import { getCalendarIDFromUrl_Dexie } from '@/helpers/frontend/dexie/calendars_dexie';
 import { geParsedtVAlarmsFromServer, getParsedEvent } from '@/helpers/frontend/events';
+import { useTranslation } from 'next-i18next';
 export function AddFromTemplateModal() {
     const [show, setShow] = useState(false);
     const [finalOutput, setFinalOutput] = useState([<Loading centered={true} />])
@@ -30,7 +31,7 @@ export function AddFromTemplateModal() {
 
     const showEventEditor = useSetAtom(showEventEditorAtom)
     const setEventInputAtom = useSetAtom(eventEditorInputAtom)
-
+    const {t} = useTranslation()
     useEffect(() =>{
         getAllTemplatesFromServer()
     },[])
@@ -159,11 +160,11 @@ export function AddFromTemplateModal() {
                     </Col>
                     <Col>
                     <Badge pill bg="secondary">
-                        {i18next.t(response[i]["type"])}
+                        {t(response[i]["type"])}
                     </Badge>
                     </Col>
                     <Col style={{textAlign:"right"}}>
-                    <Button onClick={()=>useTemplate(response[i]["data"], response[i]["type"])} size='sm'>{i18next.t("USE")}</Button>
+                    <Button onClick={()=>useTemplate(response[i]["data"], response[i]["type"])} size='sm'>{t("USE")}</Button>
                     </Col>
                     </Row>
                     
@@ -178,7 +179,7 @@ export function AddFromTemplateModal() {
     
                 setFinalOutput(finalOutput)
             }   else{
-                setFinalOutput([<p>{i18next.t("NOTHING_TO_SHOW")}</p>])
+                setFinalOutput([<p>{t("NOTHING_TO_SHOW")}</p>])
             }     
         }
     
@@ -189,19 +190,19 @@ export function AddFromTemplateModal() {
     return (
       <>
         <div style={{textAlign: "right"}}>
-        <Button onClick={handleShow} style={{marginBottom:10}} size="sm" variant="outline-primary">{i18next.t("ADD_FROM_TEMPLATE")}</Button>
+        <Button onClick={handleShow} style={{marginBottom:10}} size="sm" variant="outline-primary">{t("ADD_FROM_TEMPLATE")}</Button>
         </div>
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
-            <Modal.Title>{i18next.t("ADD_FROM_TEMPLATE")}</Modal.Title>
+            <Modal.Title>{t("ADD_FROM_TEMPLATE")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>{i18next.t("ADD_FROM_TEMPLATE_DESC")}</p>
+            <p>{t("ADD_FROM_TEMPLATE_DESC")}</p>
             {finalOutput}
         </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
-              {i18next.t("CLOSE")}
+              {t("CLOSE")}
             </Button>
           </Modal.Footer>
         </Modal>

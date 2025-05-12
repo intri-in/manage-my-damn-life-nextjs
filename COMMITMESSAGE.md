@@ -1,6 +1,1 @@
-- Added "next-i18next" as a depedency. Using 18next can cause hydration errors.
-- Massive commit to fix translations in multiple pages.
-- Fixed remaining pages and compoenents.
-- Refractored some pages to Functional components.
-- upgraded packages.
-- Ran and implemented recommendations of "npm audit "
+- Minor UI fixes.
