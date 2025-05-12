@@ -2,7 +2,7 @@ import { addTrailingSlashtoURL, isValidResultArray } from "@/helpers/general";
 import { Caldav_Accounts, db } from "./dexieDB";
 import { deleteAllCalendarsFromCaldavAccountID_Dexie, getAllCalendarsFromCalDavAccountIDFromDexie, getCalendarNameByIDFromDexie } from "./calendars_dexie";
 import { getUserDataFromCookies } from "../user";
-import { getUserIDFromHash_Dexie } from "./users_dexie";
+import { getUserIDForCurrentUser_Dexie, getUserIDFromHash_Dexie } from "./users_dexie";
 
 export async function getCalDAVSummaryFromDexie(){
   const userData = getUserDataFromCookies()
@@ -136,7 +136,15 @@ export async function findCalDAVAccountinDexie(url, username, userid){
 }
 
 
-export async function saveCaldavAccountToDexie(caldavFromDB, username, userid){
+export async function saveCaldavAccountToDexie(caldavFromDB, username, useridInput?){
+
+  let userid=useridInput
+  if(!useridInput){
+    userid = await getUserIDForCurrentUser_Dexie()
+
+  }
+
+
     const caldavFromDexie = await findCalDAVAccountinDexie(caldavFromDB["url"], caldavFromDB["username"],userid)
     if(caldavFromDexie && caldavFromDexie.length==0){
       await insertNewCaldavAccountIntoDexie(caldavFromDB, username,userid)

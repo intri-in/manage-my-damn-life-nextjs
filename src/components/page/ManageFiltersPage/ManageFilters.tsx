@@ -5,7 +5,6 @@ import { Toastify } from "@/components/Generic";
 import { getRandomString } from "@/helpers/crypto";
 import { FilterHelper } from "@/helpers/frontend/classes/FilterHelper";
 import { filtertoWords, getFiltersFromServer } from "@/helpers/frontend/filters";
-import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { dateTimeReviver } from "@/helpers/general";
@@ -15,21 +14,21 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import { useTranslation } from "next-i18next";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ManageFilters = () => {
-  const i18next = getI18nObject();
   const router = useRouter();
   const [addFilterForm, setAddFilterForm] = useState(<></>);
   const [filterList, setFilterList] = useState([<Loading />]);
-
+  const {t} = useTranslation()
   useEffect(() => {
     setAddFilterForm(
       <div style={{ textAlign: "right" }}>
         <Button onClick={handleAddFilterButtonClick}>
-          {i18next.t("ADD_NEW_FILTER")}
+          {t("ADD_NEW_FILTER")}
         </Button>
       </div>
     );
@@ -89,23 +88,24 @@ const ManageFilters = () => {
       const message = getMessageFromAPIResponse(filtersFromServer);
       console.error("generateFilterList", message, filtersFromServer);
       if (message) {
-        toast.error(i18next.t(message));
+        toast.error(t(message));
       } else {
-        toast.error(i18next.t("ERROR_GENERIC"));
+        toast.error(t("ERROR_GENERIC"));
       }
     }
     setFilterList(
-      finalOutput.length > 0 ? finalOutput : [<p>{i18next.t("NO_FILTERS_TO_SHOW")}</p>]
+      finalOutput.length > 0 ? finalOutput : [<p>{t("NO_FILTERS_TO_SHOW")}</p>]
     );
   };
 
   const handleAddFilterButtonClick = () => {
-    setAddFilterForm(<AddFilter onAdd={handleAddNewFilter} />);
+    setAddFilterForm(<AddFilter i18next={t} onAdd={handleAddNewFilter} />);
   };
 
   const handleEditFilterButtonClick = (filter) => {
     setAddFilterForm(
       <AddFilter
+      i18next={t}
         filterName={filter.name}
         filter={JSON.parse(filter.filtervalue, dateTimeReviver)}
         filterid={filter.custom_filters_id}
@@ -116,14 +116,14 @@ const ManageFilters = () => {
   };
 
   const handleAddNewFilter = (response) => {
-    generateFilterList();
     if (response) {
-      toast.success(i18next.t("FILTER_INSERT_OK"));
+      toast.success(t("FILTER_INSERT_OK"));
     }
+    generateFilterList()
     setAddFilterForm(
       <div style={{ textAlign: "right" }}>
         <Button onClick={handleAddFilterButtonClick}>
-          {i18next.t("ADD_NEW_FILTER")}
+          {t("ADD_NEW_FILTER")}
         </Button>
       </div>
     );
@@ -133,7 +133,7 @@ const ManageFilters = () => {
     const deleteResponse = await FilterHelper.deleteFromServer(filterid);
     if (deleteResponse && deleteResponse.success) {
       toast.success(
-        deleteResponse.data.message || i18next.t("DELETE_OK")
+         t("DELETE_OK")
       );
       generateFilterList();
     } else {
@@ -145,19 +145,19 @@ const ManageFilters = () => {
     <>
       <Head>
         <title>
-          {i18next.t("APP_NAME_TITLE") +
+          {t("APP_NAME_TITLE") +
             " - " +
-            i18next.t("MANAGE_FILTERS")}
+            t("MANAGE_FILTERS")}
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <AppBarGeneric />
       <div style={{ marginTop: 30, padding: 40 }} className="container-fluid">
-        <h1>{i18next.t("MANAGE_FILTERS")}</h1>
-        <p>{i18next.t("MANAGE_FILTERS_DESC")}</p>
+        <h1>{t("MANAGE_FILTERS")}</h1>
+        <p>{t("MANAGE_FILTERS_DESC")}</p>
         <br />
-        <h2>{i18next.t("YOUR_FILTERS")}</h2>
+        <h2>{t("YOUR_FILTERS")}</h2>
         {addFilterForm}
         <div style={{ padding: 20, marginBottom: 20 }}>{filterList}</div>
       </div>

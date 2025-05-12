@@ -6,6 +6,7 @@ import { addTrailingSlashtoURL, getRandomColourCode, isValidResultArray, replace
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
+import { shouldLogforAPI } from "@/helpers/logs"
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
                             defaultAccountType: 'caldav',
                         })
                         var url=addTrailingSlashtoURL(caldavFromDB.url)+"calendars/"+caldavFromDB.username+"/"+replaceSpacewithHyphen(req.body.calendarName.trim())
-                        var calendarColor= getRandomColourCode()
+                        const calendarColor= getRandomColourCode()
                         const result = await client.makeCalendar({
                             url: url,
                             props: {
@@ -59,9 +60,10 @@ export default async function handler(req, res) {
                               calendarColor: calendarColor
                             },
                           });
-                          var failed_firstTry=false
+                          if(shouldLogforAPI()) console.log("api/calendars/create result", result)
+                          let failed_firstTry=(result && "ok" in  result )
                           var result2=null
-                          if(result && Array.isArray(result) && result.length>0&&result[0].status==403){
+                          if(result  && "ok" in  result && result["ok"].toString!="true"){
                               failed_firstTry=true
                               var url=addTrailingSlashtoURL(caldavFromDB.url)+caldavFromDB.username+"/"+replaceSpacewithHyphen(req.body.calendarName.trim())
                               result2 = await client.makeCalendar({

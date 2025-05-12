@@ -12,7 +12,7 @@ export default class rrule extends Component{
     constructor(props)
     {
         super(props)
-        this.i18next = getI18nObject()
+        this.i18next = props.i18next
         let rrule =RRuleHelper.getEmptyObject()
         if(RRuleHelper.isValidObject(props.rrule))
         {
@@ -80,7 +80,7 @@ export default class rrule extends Component{
 
         if(varNotEmpty(this.state.recurrence["FREQ"])==false || varNotEmpty(this.state.recurrence["FREQ"]) && this.state.recurrence["FREQ"].trim()=="")
         {
-            toast.error(this.i18next.t("RRULE_EMPTY_FREQ"))
+            toast.error(this.i18next("RRULE_EMPTY_FREQ"))
         }else{
             if(varNotEmpty(this.state.recurrence["UNTIL"])&&this.state.recurrence["UNTIL"].toString().trim()!="" && varNotEmpty(this.state.fromDate) &&this.state.fromDate.toString().trim()!="")
             {
@@ -91,7 +91,7 @@ export default class rrule extends Component{
                     this.goSetRRule()
 
                 }else{
-                    toast.error(this.i18next.t("ERROR_RRULE_UNTIL_BEFORE_START"))
+                    toast.error(this.i18next("ERROR_RRULE_UNTIL_BEFORE_START"))
                 }
 
             }else{
@@ -118,7 +118,7 @@ export default class rrule extends Component{
     
     render(){
         var checkForWords = JSON.parse(JSON.stringify(this.state.rrule))
-        var toWords = RRuleHelper.stringObjectToWords(checkForWords)
+        var toWords = RRuleHelper.stringObjectToWords(checkForWords, this.i18next)
         var toReturn = []
         if (toWords != "" && varNotEmpty(toWords)) {
             toReturn.push(<Row key={"KEY_TOWORDS_RECURRENCE"} style={{ marginBottom: 20 }} >
@@ -136,7 +136,7 @@ export default class rrule extends Component{
             <div key={"KEY_RECURRENCEFORM_TASKEDITOR"} >
                 <Row >
                     <Col>
-                        {this.i18next.t("EVERY-RECURRENCE")}
+                        {this.i18next("EVERY-RECURRENCE")}
                     </Col>
                     <Col>
                         <Form.Control value={this.state.recurrence.INTERVAL} onChange={this.recurrence_IntervalChanged} min={1} size="sm" type="number" style={{ width: 100 }}  ></Form.Control>
@@ -144,14 +144,14 @@ export default class rrule extends Component{
                     <Col>
                         <Form.Select value={this.state.recurrence.FREQ} onChange={this.recurrence_FreqChanged} size="sm">
                             <option></option>
-                            <option value="DAYS">{this.i18next.t("DAYS")}</option>
-                            <option value="WEEKS">{this.i18next.t("WEEKS")}</option>
-                            <option value="MONTHS">{this.i18next.t("MONTHS")}</option>
+                            <option value="DAYS">{this.i18next("DAYS")}</option>
+                            <option value="WEEKS">{this.i18next("WEEKS")}</option>
+                            <option value="MONTHS">{this.i18next("MONTHS")}</option>
                         </Form.Select>
 
                     </Col>
                 </Row>
-                <div>{this.i18next.t("UNTIL") + ":"}</div>
+                <div>{this.i18next("UNTIL") + ":"}</div>
                 <br />
                 <Datetime value={this.state.recurrence.UNTIL} onChange={this.recurrence_UntilChanged} dateFormat="DD/MM/YYYY" timeFormat={null} />
 
@@ -159,7 +159,7 @@ export default class rrule extends Component{
                     <Col>
                     </Col>
                     <Col>
-                        <Button onClick={this.addRecurrenceClicked}>{this.i18next.t("SAVE")}</Button>
+                        <Button onClick={this.addRecurrenceClicked}>{this.i18next("SAVE")}</Button>
                     </Col>
                 </Row>
 
@@ -173,7 +173,7 @@ export default class rrule extends Component{
 
 
         return(<div style={{ border: "1px solid gray", padding: 10 }}>
-        <h3>{this.i18next.t("RECURRENCE")}</h3>
+        <h3>{this.i18next("RECURRENCE")}</h3>
         {toReturn}
         </div>)
     }

@@ -1,6 +1,6 @@
-import { getI18nObject } from "@/helpers/frontend/general"
 import { varNotEmpty } from "@/helpers/general"
 import moment from "moment"
+import { useTranslation } from "next-i18next"
 import { useEffect, useState } from "react"
 import { Button, Col, Form, Row } from "react-bootstrap"
 import { AiOutlineDelete } from "react-icons/ai"
@@ -11,12 +11,11 @@ export interface AlarmType{
     RELATED: string,
     VALUE: number | string
 }
-const i18next = getI18nObject()
 export const AlarmForm = ({alarmsArray, onChange}: {alarmsArray:AlarmType[], onChange: Function}) =>{
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element>(<></>)
     const [alarmValue, setAlarmValue] = useState("")
-   
+    const {t} = useTranslation()
     
     useEffect(()=>{
         let isMounted =true
@@ -55,7 +54,7 @@ export const AlarmForm = ({alarmsArray, onChange}: {alarmsArray:AlarmType[], onC
             onChange(newAlarms)
             setAlarmValue('')
         }else{
-            toast.error(i18next.t("ALARM_ALREADY_SET"))
+            toast.error(t("ALARM_ALREADY_SET"))
         }
 
     }
@@ -89,7 +88,7 @@ export const AlarmForm = ({alarmsArray, onChange}: {alarmsArray:AlarmType[], onC
                 }
                 toReturn.push(
                 <Row style={{padding:10,}}>
-                    <Col className="col-9" style={{  display: 'flex', alignItems: "center", }}><BsAlarm /> &nbsp; {minuteValue} {i18next.t("ALARM_DESCRIPTION_BEFORE_START")}
+                    <Col className="col-9" style={{  display: 'flex', alignItems: "center", }}><BsAlarm /> &nbsp; {minuteValue} {t("ALARM_DESCRIPTION_BEFORE_START")}
                     </Col>
                     <Col style={{  display: 'flex', alignItems: "center", justifyContent:"right" }} className="col-3" > <AiOutlineDelete style={{color: "red"}} onClick={()=>removeAlarm(alarmsArray[i])}  /> </Col></Row>)
                
@@ -108,13 +107,13 @@ export const AlarmForm = ({alarmsArray, onChange}: {alarmsArray:AlarmType[], onC
             />
             </Col>
             <Col className="col-8">
-            {i18next.t("ALARM_DESCRIPTION_BEFORE_START")}
+            {t("ALARM_DESCRIPTION_BEFORE_START")}
             </Col>
          
         </Row>)
         toReturn.push(
         <div style={{padding : 10, textAlign: "center"}}>
-            <Button size="sm" onClick={newAlarmAdded}>{i18next.t("ADD")}</Button>
+            <Button size="sm" onClick={newAlarmAdded}>{t("ADD")}</Button>
         </div>)
 
         return (<div style={{ border: "1px solid gray", padding: 10 }}>{toReturn}</div>)

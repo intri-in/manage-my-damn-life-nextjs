@@ -1,6 +1,7 @@
 import { addTrailingSlashtoURL, isValidResultArray } from "@/helpers/general";
 import { db } from "./dexieDB";
 import { getRandomColourCode } from "../general";
+import { deleteEventsFromCalendar_Dexie } from "./events_dexie";
 
 export async function getCalendarbyIDFromDexie(calendars_id){
     try{
@@ -71,6 +72,8 @@ export async function deleteAllCalendarsFromCaldavAccountID_Dexie(caldav_account
     const allCalendars = await getAllCalendarsFromCalDavAccountIDFromDexie(caldav_accounts_id)
     if(isValidResultArray(allCalendars)){
         for (const i in allCalendars){
+            //First we delete all events in this calendar.
+            deleteEventsFromCalendar_Dexie(allCalendars[i]!.calendars_id!)
             db.calendars.delete(allCalendars[i]!.calendars_id!)
         }
     }

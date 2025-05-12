@@ -8,17 +8,16 @@ import TaskViewOptions from "@/components/common/TaskViewOptions"
 import { GanttViewWithState } from "@/components/tasks/views/GanttView/GanttViewWithState"
 import { TaskListFrameWork } from "@/components/tasks/views/TaskListFrameWork"
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from "@/config/style"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
 import { useAtomValue, useSetAtom } from "jotai"
 import Head from "next/head"
 import { useEffect, useState } from "react"
 import { Col, Offcanvas, Row } from "react-bootstrap"
+import { useTranslation } from "next-i18next"
 import { AiOutlineMenuUnfold } from "react-icons/ai"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
 
 
-const i18next = getI18nObject()
 
 export const TaskViewListWithStateManagement =  () =>{
 
@@ -40,6 +39,7 @@ export const TaskViewListWithStateManagement =  () =>{
    */
   const [ showListColumn, setShowListColumn] = useState(true)
   const [showLeftColumnOffcanvas, setShowLeftColumnOffcanvas] = useState(false)
+  const {t} = useTranslation()
   const updateDimensions = () => {
     if (window.innerWidth < 768) {
       setShowListColumn(false)
@@ -71,7 +71,7 @@ export const TaskViewListWithStateManagement =  () =>{
 
         //   setFilterAtom(PAGE_VIEW_JSON[pageName])
         //   setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
-        //   setCurrentPageTitle(i18next.t(pageName).toString())
+        //   setCurrentPageTitle(t(pageName).toString())
         //   setUpdateView(Date.now())
         // }
   
@@ -111,7 +111,7 @@ export const TaskViewListWithStateManagement =  () =>{
     return(
         <>
         <Head>
-          <title>{i18next.t("APP_NAME_TITLE")+" - "+i18next.t("TASK_VIEW")}</title>
+          <title>{t("APP_NAME_TITLE")+" - "+t("TASK_VIEW")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>

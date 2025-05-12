@@ -2,11 +2,10 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { MoveEventModal } from "./MoveEventModal"
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore"
 import { toast } from "react-toastify"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response"
 import { updateViewAtom } from "stateStore/ViewStore"
+import { useTranslation } from "next-i18next"
 
-const i18next = getI18nObject()
 export const MoveEventModalViewManager = () =>{
 
     /**
@@ -17,7 +16,7 @@ export const MoveEventModalViewManager = () =>{
     const setShow = useSetAtom(showMoveEventModal)
     const setMoveEventInput = useSetAtom(moveEventModalInput)
     const setUpdateViewTime = useSetAtom(updateViewAtom)
-
+    const {t} = useTranslation()
     const handleClose =() =>{
         setShow(false)
         setMoveEventInput({id: null})
@@ -29,10 +28,10 @@ export const MoveEventModalViewManager = () =>{
         if (body != null) {
             if (body.success == true) {
 
-                toast.success(finalToast+i18next.t("Done")+"!")
+                toast.success(finalToast+t("DONE")+"!")
                 // if(typeof(message)==="string"){
 
-                //     toast.success(finalToast+i18next.t(message))
+                //     toast.success(finalToast+tt(message))
                 // }else{
                 // }
                 setUpdateViewTime(Date.now())
@@ -43,7 +42,7 @@ export const MoveEventModalViewManager = () =>{
 
                     toast.error(message)
                 }else{
-                    toast.error(finalToast+i18next.t("ERROR_GENERIC"))
+                    toast.error(finalToast+t("ERROR_GENERIC"))
                 }
                 
             }

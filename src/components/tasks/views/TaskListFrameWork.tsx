@@ -1,6 +1,5 @@
 import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from "@/helpers/frontend/dexie/events_dexie"
 import { filterEvents } from "@/helpers/frontend/events"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useState } from "react"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
@@ -14,7 +13,6 @@ import { TaskViewSectionsManager } from "./TaskViewMain/TaskViewSectionsManager"
 import { GanttViewWithState } from "./GanttView/GanttViewWithState"
 import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
 
-const i18next = getI18nObject()
 
 export const TaskListFrameWork = () => {
     /**
@@ -71,7 +69,7 @@ export const TaskListFrameWork = () => {
 
     const fetchAllEvents = useCallback(async () => {
         
-        console.log("fetchAllEvents: I WAS CALLED")
+        // console.log("fetchAllEvents: I WAS CALLED")
         console.time("dexie_COMBINED_TASK_TIMER")
         console.time("dexie_COMBINED_TASK_GET_CALSUMM")
     
@@ -85,6 +83,7 @@ export const TaskListFrameWork = () => {
                     for (const j in allSummary[i]["calendars"]) {
                         let cal = allSummary[i]["calendars"][j]
                         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(cal["calendars_id"], "VTODO")
+                        console.log("eventsFromDexie", eventsFromDexie, allSummary[i]["calendars"][j])
                         console.time("dexie_returnTaskListFilteredandSorted")
 
                         const sortedTodoList = await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
@@ -146,7 +145,7 @@ export const TaskListFrameWork = () => {
         
     //                 setFilterAtom(PAGE_VIEW_JSON[pageName])
     //                 setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
-    //                 setPageTitleAtom(i18next.t(pageName).toString())
+    //                 setPageTitleAtom(t(pageName).toString())
     //                 setURLPased(true)
     //             }
         

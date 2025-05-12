@@ -157,10 +157,9 @@ export class RRuleHelper{
     }
 
 
-    static stringObjectToWords(rrule)
+    static stringObjectToWords(rrule, i18next)
     {
         var words = ""
-        var i18next = getI18nObject()
         if(varNotEmpty(rrule))
         {
             if(rrule["FREQ"]!="")
@@ -169,42 +168,42 @@ export class RRuleHelper{
                 {
                     if(rrule["FREQ"]=="DAILY")
                     {
-                        words+=i18next.t("EVERY")+" "+i18next.t("DAY").toLowerCase()
+                        words+=i18next("EVERY")+" "+i18next("DAY").toLowerCase()
                     }
     
                     if(rrule["FREQ"]=="WEEKLY")
                     {
-                        words+=i18next.t("EVERY")+" "+i18next.t("WEEK").toLowerCase()
+                        words+=i18next("EVERY")+" "+i18next("WEEK").toLowerCase()
     
                     }
     
                     if(rrule["FREQ"]=="MONTHLY")
                     {
-                        words+=i18next.t("EVERY")+" "+i18next.t("MONTH").toLowerCase()
+                        words+=i18next("EVERY")+" "+i18next("MONTH").toLowerCase()
     
                     }
     
                 }else{
                     if(rrule["FREQ"]=="DAILY")
                     {
-                        words+=i18next.t("EVERY")+" "+rrule["INTERVAL"]+" "+i18next.t("DAYS").toLowerCase()
+                        words+=i18next("EVERY")+" "+rrule["INTERVAL"]+" "+i18next("DAYS").toLowerCase()
                     }
     
                     if(rrule["FREQ"]=="WEEKLY")
                     {
-                        words+=i18next.t("EVERY")+" "+rrule["INTERVAL"]+" "+i18next.t("WEEKS").toLowerCase()
+                        words+=i18next("EVERY")+" "+rrule["INTERVAL"]+" "+i18next("WEEKS").toLowerCase()
     
                     }
     
                     if(rrule["FREQ"]=="MONTHLY")
                     {
-                        words+=i18next.t("EVERY")+" "+rrule["INTERVAL"]+" "+i18next.t("MONTHS").toLowerCase()
+                        words+=i18next("EVERY")+" "+rrule["INTERVAL"]+" "+i18next("MONTHS").toLowerCase()
     
                     }
                 }
                 if(rrule["UNTIL"]!="")
                 {
-                    words+=" "+i18next.t("UNTIL").toLowerCase()+" "+ new Date(moment(rrule["UNTIL"]))
+                    words+=" "+i18next("UNTIL").toLowerCase()+" "+ new Date(moment(rrule["UNTIL"]))
                 }
             }
     

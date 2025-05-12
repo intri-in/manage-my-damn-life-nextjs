@@ -1,4 +1,3 @@
-import { getI18nObject } from "@/helpers/frontend/general";
 import { useEffect, useState } from "react";
 import { Accordion, Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { EventEditorInputType } from "stateStore/EventEditorStore";
@@ -26,8 +25,8 @@ import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { PRIMARY_COLOUR } from "@/config/style";
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore";
+import { useTranslation } from "next-i18next";
 
-const i18next = getI18nObject()
 
 export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: EventEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) =>{
 
@@ -43,6 +42,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     /**
      * Local State
      */
+    const {t} = useTranslation()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [parsedData, setParsedData] = useState<any>(null)
     const [alarms, setAlarms] = useState<AlarmType[]>([])
@@ -208,25 +208,25 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         }
         
         if (!summary) {
-            toast.error(i18next.t("CANT_CREATE_EMPTY_TASK"))
+            toast.error(t("CANT_CREATE_EMPTY_TASK"))
             return false
         }
 
        
         if (!fromDate ||  !toDate) {
-            toast.error(i18next.t("EVENT_NEEDS_BOTH_FROM_AND_TO"))
+            toast.error(t("EVENT_NEEDS_BOTH_FROM_AND_TO"))
             return false
         }
 
        
         if(!toDateValid){
-            toast.error(i18next.t("ERROR_DUE_DATE_INVALID"))
+            toast.error(t("ERROR_DUE_DATE_INVALID"))
             return false
         }
         // console.log("taskStartValid", taskStartValid)
         // console.log("dueDateValid", dueDateValid)
         if(!fromDateValid){
-            toast.error(i18next.t("ERROR_START_DATE_INVALID"))
+            toast.error(t("ERROR_START_DATE_INVALID"))
             return false
         }
 
@@ -234,13 +234,13 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         var startUnix = moment(fromDate).unix()
 
         if (endUnix < startUnix) {
-            toast.error(i18next.t("ERROR_ENDDATE_SMALLER_THAN_START"))
+            toast.error(t("ERROR_ENDDATE_SMALLER_THAN_START"))
             return false
         }
 
 
         if (!calendar_id) {
-            toast.error(i18next.t("ERROR_PICK_A_CALENDAR"))
+            toast.error(t("ERROR_PICK_A_CALENDAR"))
             return false
         }
 
@@ -285,7 +285,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                         const etag = await getEtagFromEventID_Dexie(input.id)
                         if (!etag) {
                             console.error("Etag is null!")
-                            toast.error(i18next.t("ERROR_GENERIC"))
+                            toast.error(t("ERROR_GENERIC"))
     
                         }
                         const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
@@ -301,7 +301,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     }
     const saveNewEvent = async (ics) => {
         const message = summary ? summary + ": " : ""
-        toast.info(message + i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(message + t("ACTION_SENT_TO_CALDAV"))
 
         let fileName = getRandomString(64) + ".ics"
         const calendarFromDexie = await getCalendarbyIDFromDexie(parseInt(calendar_id))
@@ -329,7 +329,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
 
     const updateTodoLocal = async (calendar_id, url, etag, data) => {
         const message = summary ? summary + ": " : ""
-        toast.info(message + i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(message + t("ACTION_SENT_TO_CALDAV"))
         const oldEvent = await preEmptiveUpdateEvent(calendar_id, url, etag, data, "VEVENT")
         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
 
@@ -384,11 +384,11 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         showDeleteDailog()
     }
 
-    const templateEditing = isTemplate ? <Alert variant="warning">{i18next.t("EDITING_A_TEMPLATE")}</Alert> : <></>
+    const templateEditing = isTemplate ? <Alert variant="warning">{t("EDITING_A_TEMPLATE")}</Alert> : <></>
     let deleteButton = <></>
     if (!isNewEvent) {
 
-        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteEvent} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{i18next.t("DELETE_EVENT")}</div>
+        deleteButton = isSubmitting ? <Loading centered={true} /> : <div onClick={deleteEvent} style={{ color: 'red', marginTop: 20, textAlign: "center" }}>{t("DELETE_EVENT")}</div>
 
     }
 
@@ -396,53 +396,53 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <>
         {templateEditing}
         <div style={{textAlign:"right"}}>
-        {isSubmitting ? (<div style={{ textAlign: "center" }}> <Loading centered={true} /></div>) : (<div><Button size="sm" onClick={saveButtonClicked} >{i18next.t("SAVE")}</Button> </div>)}
+        {isSubmitting ? (<div style={{ textAlign: "center" }}> <Loading centered={true} /></div>) : (<div><Button size="sm" onClick={saveButtonClicked} >{t("SAVE")}</Button> </div>)}
         </div>
-        <h3>{i18next.t("EVENT_SUMMARY")}</h3>
+        <h3>{t("EVENT_SUMMARY")}</h3>
                 <Form.Control onChange={(e)=>setSummary(e.target.value)} value={summary} />
         <br />
-        <h3>{i18next.t("CALENDAR")}</h3>
+        <h3>{t("CALENDAR")}</h3>
             <CalendarPicker disabled={calendarDisabled} onSelectedHook={calendarSelected} calendar_id={calendar_id} />
-            {showMoveEventOption ? <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, }}>{i18next.t("COPY_MOVE")}</p> : null }
+            {showMoveEventOption ? <p onClick={copyMoveClicked} style={{textAlign:"end", color:PRIMARY_COLOUR, fontSize: 14, }}>{t("COPY_MOVE")}</p> : null }
             <br />
             <Form.Check
                 type="switch"
-                label={i18next.t("ALL_DAY_EVENT")}
+                label={t("ALL_DAY_EVENT")}
                 checked={allDay}
                 onChange={allDaySwitched}
             />
         <br />
-        <h3>{i18next.t("FROM")}</h3>
+        <h3>{t("FROM")}</h3>
             <Datepicker showDateOnly={allDay} isRequired={true} value={fromDate} onChangeHook={fromDateChanged} />
         <br />
-        <h3>{i18next.t("TO")}</h3>
+        <h3>{t("TO")}</h3>
             <Datepicker showDateOnly={allDay} isRequired={true} value={toDate} onChangeHook={endDateChanged}  />
         <br />
 
-        <h3>{i18next.t("STATUS")}</h3>
+        <h3>{t("STATUS")}</h3>
         <Form.Select onChange={statusSelected} value={status}>
             <option value=""></option>
-            <option value="TENTATIVE">{i18next.t("TENTATIVE")}</option>
-            <option value="CONFIRMED">{i18next.t("CONFIRMED")}</option>
-            <option value="CANCELLED">{i18next.t("CANCELLED")}</option>
+            <option value="TENTATIVE">{t("TENTATIVE")}</option>
+            <option value="CONFIRMED">{t("CONFIRMED")}</option>
+            <option value="CANCELLED">{t("CANCELLED")}</option>
 
         </Form.Select>
         <br />
-        <h3>{i18next.t("DESCRIPTION")}</h3>
+        <h3>{t("DESCRIPTION")}</h3>
             <Form.Control value={description} onChange={(e)=>setDescription(e.target.value)} as="textarea" rows={3} />
         <br />
-        <Recurrence onRruleSet={onRruleSet} rrule={rrule} />
+        <Recurrence i18next={t} onRruleSet={onRruleSet} rrule={rrule} />
         <br />
-        <h3>{i18next.t("ALARMS")}</h3>
+        <h3>{t("ALARMS")}</h3>
             <AlarmForm onChange={alarmsChanged} alarmsArray={alarms} />
         <br />
-        <h3>{i18next.t("LOCATION")}</h3>
+        <h3>{t("LOCATION")}</h3>
         <Form.Control onChange={(e)=>setLocation(e.target.value)} value={location} />
         <br />
         {deleteButton}
         <br />
         <br />
-        <p style={{ textAlign: "center" }}><b>{i18next.t('LAST_MODIFIED') + ": "}</b>{lastModified}</p>
+        <p style={{ textAlign: "center" }}><b>{t('LAST_MODIFIED') + ": "}</b>{lastModified}</p>
         <br />
         <br />
         <Accordion>

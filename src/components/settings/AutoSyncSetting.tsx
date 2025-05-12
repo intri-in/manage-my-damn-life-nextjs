@@ -1,15 +1,15 @@
 import { SYNC_DEFAULT_TIMEOUT } from "@/config/constants";
 import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper";
-import { getI18nObject } from "@/helpers/frontend/general";
 import { USER_SETTING_SYNCTIMEOUT, getSyncTimeout } from "@/helpers/frontend/settings";
 import { varIsANumber } from "@/helpers/general";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
+import { useTranslation } from "next-i18next";
 import { toast } from "react-toastify";
 
-const i18next = getI18nObject()
 export function AutoSyncSetting(){
     const [value, setValue] = useState(SYNC_DEFAULT_TIMEOUT/1000/60)
+    const {t} = useTranslation()
     useEffect(()=>{
         SettingsHelper.getFromServer(USER_SETTING_SYNCTIMEOUT).then((response)=>{
             // console.log("response", response)
@@ -34,10 +34,10 @@ export function AutoSyncSetting(){
                 data: any
             })=>{
                 if(response && response.status  && response.status==200){
-                    toast.success(i18next.t("UPDATE_OK"))
+                    toast.success(t("UPDATE_OK"))
                 }else{
                     console.error(response)
-                    toast.error(i18next.t("ERROR_GENERIC"))
+                    toast.error(t("ERROR_GENERIC"))
                 }
             })
         }
@@ -46,7 +46,7 @@ export function AutoSyncSetting(){
     return(
         <Row style={{display: "flex", flexWrap:"wrap", alignItems: "center"}}>
         <Col  xs={3}>
-            {i18next.t("AUTO_SYNC_TIME_SETTING")}
+            {t("AUTO_SYNC_TIME_SETTING")}
         </Col>
         <Col  xs={6}>
         <Form.Control onChange={formValChanges} value={value} />

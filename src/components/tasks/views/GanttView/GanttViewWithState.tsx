@@ -1,5 +1,4 @@
 import { TaskArrayItem, TaskSection } from "@/helpers/frontend/TaskUI/taskUIHelpers"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { Gantt, ViewMode, Task } from "gantt-task-react"
 import "gantt-task-react/dist/index.css";
 import { DummyTaskListComponent } from "../../gantt_Dummy/DummyTaskListComponent"
@@ -20,8 +19,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore";
 import { Button, Col, Row } from "react-bootstrap";
 import HelpGanttView from "../../GanttView/HelpGanttView";
+import { useTranslation } from "next-i18next";
 
-const i18next = getI18nObject()
 
 
 export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSection[]}) =>{
@@ -43,7 +42,7 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
     const [showTasksWithoutDue, setShowTasksWithoutDue] = useState(false)
     const [showChildren, setShowChildren] = useState(true)
     const [view, setView] = useState(ViewMode.Week)
-
+    const {t} = useTranslation()
     const generateGanttList = async(taskList: TaskArrayItem[]) =>{
 
         let toReturn: Task[] = []
@@ -225,13 +224,13 @@ export const GanttViewWithState = ({taskListSections}:{taskListSections: TaskSec
             return <Gantt viewMode={view}  TaskListTable={DummyTaskListComponent} onDoubleClick={taskClicked}  viewDate={viewDate}  todayColor="#FFF8DC" onDateChange={onDateChange} TaskListHeader={DummyTaskHeaderComponent} tasks={ganttTasks} />
         }
 
-        return i18next.t("NOTHING_TO_SHOW")
+        return t("NOTHING_TO_SHOW")
     }
     return(
         <>
         <Row style={{flex:1, alignContent:"space-between"}}>
             <Col style={{textAlign: "center"}}>
-                <Button variant="outline-info" onClick={jumpToToday} size="sm">{i18next.t("TODAY")}</Button>
+                <Button variant="outline-info" onClick={jumpToToday} size="sm">{t("TODAY")}</Button>
             </Col>
             <Col>
                 <HelpGanttView />

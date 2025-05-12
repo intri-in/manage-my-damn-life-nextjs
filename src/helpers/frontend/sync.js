@@ -10,9 +10,7 @@ import { saveAPIEventReponseToDexie } from "./dexie/events_dexie"
 import { Preference_CalendarsToShow } from "./classes/UserPreferences/Preference_CalendarsToShow"
 import { getSyncTimeout } from "./settings"
 import { IS_SYNCING, LASTSYNC, getValueFromLocalStorage } from "./localstorage"
-import { getI18nObject } from "./general"
 
-const i18next = getI18nObject()
 export function isSyncing(){
     const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
 
@@ -55,7 +53,7 @@ export async function initAutoSync(){
     }
     if(continueSync){
         
-        console.log(new Date(Date.now()), i18next.t("AUTO_SYNC_START"))
+        console.log(new Date(Date.now()), "AUTO_SYNC_START")
         localStorage.setItem(IS_SYNCING, true)
         fetchLatestEventsV2()
     }

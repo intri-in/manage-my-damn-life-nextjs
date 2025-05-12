@@ -1,4 +1,3 @@
-import { getI18nObject } from "@/helpers/frontend/general";
 import React, { FC, ReactElement, useEffect, useState } from 'react';
 import TaskList from "../../tasks/TaskList";
 import { getTodaysDateUnixTimeStamp, varNotEmpty } from "@/helpers/general";
@@ -8,6 +7,7 @@ import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions";
 import { isValidFilter } from "@/helpers/frontend/filters";
 import * as _ from 'lodash'
 import { getValueFromLocalStorage, storeValuetoLocalStorage } from "@/helpers/frontend/localstorage";
+import { useTranslation } from "next-i18next";
 
 export const STORAGE_KEY_MENU_OPTION_SELECTED= "STORAGE_KEY_MENU_OPTION_SELECTED"
 
@@ -29,7 +29,6 @@ export interface filterInterface {
 const defaultFilter = 
 {logic: "or", filter: {due:[0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL]}}
 
-const i18next= getI18nObject()
 
 const defaultMenuOptions = {
     "MY_DAY":{logic: "or", filter: {due:[0, getTodaysDateUnixTimeStamp()], label: [MYDAY_LABEL]}},
@@ -42,14 +41,14 @@ const defaultMenuOptions = {
 function HomeTasks(props:homeTasksPropsInterface) {
     const [taskView, setTaskView ] = useState(props.view)
     const [updated, setUpdated]  =  useState(props.updated)
-    const [title, setTitle] = useState(i18next.t("MY_DAY"))
+    const [title, setTitle] = useState("MY_DAY")
     const [caldav_accounts_id, setCaldavAccountsId] = useState(props.caldav_accounts_id)
     const [calendars_id, setCalendarsId] = useState(props.calendars_id)
     const [filter, setFilter] = useState<filterInterface | undefined | null>(defaultFilter)
     const [menuOptions, setMenuOptions]=useState<any | null>(defaultMenuOptions)
     const [selectedValue, setSelectedValue] = useState("MY_DAY")
     const [menuOptionsSelect,setMenu] = useState<JSX.Element | null>(null)
-
+    const { t } = useTranslation()
     const fetchEvents =  () =>{
         var updated = Math.floor(Date.now() / 1000).toString()
         setUpdated(updated)
@@ -58,7 +57,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
     useEffect( () => {
         let isMounted = true
         const refreshMenuOptions = async () =>{
-            const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions)
+            const newMenuOptions = await refreshMenuOptionsFromServer(menuOptions,t)
             //console.log(menuOptions, newMenuOptions)
             if(_.isEqual(menuOptions, newMenuOptions) ==false){
                 setMenuOptions(newMenuOptions)
@@ -95,7 +94,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
                 var valueArray = value.split(',')
                 if(Array.isArray(valueArray) && valueArray.length>1)
                 {
-                    var newTitle=valueArray[0]+" > "+i18next.t(valueArray[1])
+                    var newTitle=valueArray[0]+" > "+t(valueArray[1])
                     setTitle(newTitle)
     
                     if(varNotEmpty(menuOptions[valueArray[0]]) && Array.isArray(menuOptions[valueArray[0]]) && menuOptions[valueArray[0]].length>0)
@@ -131,7 +130,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
                     
                 }else{
                     filterValue= menuOptions[value]
-                    setTitle(i18next.t(value))
+                    setTitle(t(value))
                     setFilter(filterValue)
                     setCaldavAccountsId(null)
                     setCalendarsId(null)
@@ -173,14 +172,14 @@ function HomeTasks(props:homeTasksPropsInterface) {
                         {
                             for(const internalKey in menuOptions[key][children])
                             {
-                                tempChildren.push(<option id={"menu_view_"+key+"_"+children+"_"+internalKey} value={[key, internalKey]}>{i18next.t(internalKey)}</option>)
+                                tempChildren.push(<option id={"menu_view_"+key+"_"+children+"_"+internalKey} value={[key, internalKey]}>{t(internalKey)}</option>)
         
                             }
                         }
         
                         allMenuOptions.push(<optgroup key={"OPTGROUP_"+key} label={key}>{tempChildren}</optgroup>)
                     }else{
-                        allMenuOptions.push(<option id={"menu_view_"+key} value={key}>{i18next.t(key)}</option>)
+                        allMenuOptions.push(<option id={"menu_view_"+key} value={key}>{t(key)}</option>)
             
                     }
                 }

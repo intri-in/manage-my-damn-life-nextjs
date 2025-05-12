@@ -14,7 +14,6 @@ import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import rrulePlugin from '@fullcalendar/rrule'
-import { getI18nObject } from "@/helpers/frontend/general";
 import EventEditor from "../events/EventEditor";
 import moment from "moment";
 import { getRandomString } from "@/helpers/crypto";
@@ -37,8 +36,8 @@ import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore";
 import { AddFromTemplateModal } from "../common/AddTask/AddFromTemplateModal";
+import { useTranslation } from "next-i18next";
 
-const i18next = getI18nObject()
 interface EventObject {
     id: string,
     title: string,
@@ -79,7 +78,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
     const [updateLocal, setUpdateLocal] = useState(Date.now())
-
+    const {t, i18n} = useTranslation("common")
     useEffect(() =>{
 
         if (calendarRef && calendarRef.current) {
@@ -268,7 +267,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         let eventObject: {} | EventObject = {}
                         if (majorTaskFilter(data) && data) {
-                            const title = "[" + i18next.t("TASK") + "] " + data.summary
+                            const title = "[" + t("TASK") + "] " + data.summary
 
                             let rrule = rruleToObject(data.rrule)
 
@@ -381,28 +380,28 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         if (varNotEmpty(ics)) {
             const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
             if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
-                toast.success(messageHeader + i18next.t("UPDATE_OK"))
+                toast.success(messageHeader + t("UPDATE_OK"))
 
 
             } else {
                 let message = getMessageFromAPIResponse(response)
                 if (message != "" && varNotEmpty(message)) {
-                    toast.error(messageHeader + i18next.t(message.toString()))
+                    toast.error(messageHeader + t(message.toString()))
                     console.log(response)
                 } else {
-                    toast.error(messageHeader + (i18next.t("ERROR_GENERIC")))
+                    toast.error(messageHeader + (t("ERROR_GENERIC")))
 
                 }
             }
 
         } else {
-            toast.error(messageHeader + i18next.t("ERROR_GENERIC"))
+            toast.error(messageHeader + t("ERROR_GENERIC"))
             console.log("makeQuickRequesttoCaldav: ics is null")
         }
         setUpdatedCalendarView(Date.now())
     }
     const eventDrop = async (e) => {
-        toast.info(i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(t("ACTION_SENT_TO_CALDAV"))
         // console.log("eventDrop", e)
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
@@ -422,7 +421,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             eventData.end = newEnd
             makeQuickRequesttoCaldav(eventData, eventInfoFromDexie, eventData["summary"])
         } else {
-            toast.error(i18next.t("ERROR_GENERIC"))
+            toast.error(t("ERROR_GENERIC"))
             console.error("eventDrop: eventInfoFromDexie is empty")
             setUpdatedCalendarView(Date.now())
         }
@@ -430,7 +429,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     }
     const eventResize = async (e) => {
-        toast.info(i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(t("ACTION_SENT_TO_CALDAV"))
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
@@ -455,7 +454,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     let options: JSX.Element[] = []
     for (const i in FULLCALENDAR_VIEWLIST) {
-        options.push(<option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{i18next.t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
+        options.push(<option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
     }
 
     let calendarsSelect: JSX.Element | null = null
@@ -479,7 +478,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         id="show_tasks_switch"
                         checked={showTasksChecked}
                         onChange={showTasksChanged}
-                        label={i18next.t("SHOW_TASKS")}
+                        label={t("SHOW_TASKS")}
                     />
 
                 </Col>
@@ -507,7 +506,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 eventResize={eventResize}
                 firstDay={firstDay}
                 locales={allLocales}
-                locale={i18next.language}
+            locale={i18n.language}
             />
         </>
     )

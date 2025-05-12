@@ -3,24 +3,24 @@ import { Button, Col, Row } from "react-bootstrap";
 import Form from 'react-bootstrap/Form';
 import validator from 'validator';
 import 'react-toastify/dist/ReactToastify.css';
-import { Toastify } from "@/components/Generic";
 import {toast } from 'react-toastify';
-import { getI18nObject } from "@/helpers/frontend/general";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import Spinner from 'react-bootstrap/Spinner';
 import { addTrailingSlashtoURL, getAPIURL, logVar } from "@/helpers/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getCaldavAccountfromDexie_AddAccountPage, saveCaldavAccountToDexie } from "@/helpers/frontend/dexie/caldav_dexie";
 import { insertCalendarsIntoDexie } from "@/helpers/frontend/dexie/calendars_dexie";
+import { dummyTranslationFunction } from "@/helpers/frontend/translations";
 
-const i18next = getI18nObject()
-export default class AddCaldavAccount extends Component{
+/**
+ * @deprecated
+ */
+export default class AddCaldavAccountClass extends Component{
     constructor(props)
     {
         super(props)
-        var i18next = getI18nObject()
-        this.i18next=i18next
-        this.state= {serverURL: '', accountName: '', username: '', password: '',  i18next: i18next, requestPending: false, currentCaldavFromDexie: null, error: null}
+        
+        this.state= {serverURL: '', accountName: '', username: '', password: '',  i18next: dummyTranslationFunction, requestPending: false, currentCaldavFromDexie: null, error: null}
         this.serverURLValueChanged = this.serverURLValueChanged.bind(this)
         this.accountNameValueChanged = this.accountNameValueChanged.bind(this)
         this.serverUsernameValueChanged = this.serverUsernameValueChanged.bind(this)
@@ -96,12 +96,12 @@ export default class AddCaldavAccount extends Component{
                             this.props.onAccountAddSuccess()
     
                         }else{
-                            toast.error(this.state.i18next.t(body.data.message))
+                            toast.error(this.state.i18next(body.data.message))
                         }
                     }
                     else
                     {
-                        toast.error(this.state.i18next.t("ERROR_GENERIC"))
+                        toast.error(this.state.i18next("ERROR_GENERIC"))
     
                     }
                     
@@ -126,7 +126,7 @@ export default class AddCaldavAccount extends Component{
                 if(this.state.serverURL.startsWith("https://localhost") || this.state.serverURL.startsWith("http://localhost")){
                 }
                 else{
-                    toast.error(this.state.i18next.t("ENTER_A_SERVER_NAME"))
+                    toast.error(this.state.i18next("ENTER_A_SERVER_NAME"))
                     return false
 
                 }
@@ -139,20 +139,20 @@ export default class AddCaldavAccount extends Component{
 
         if(this.state.accountName==null || this.state.accountName!=null && this.state.accountName.trim()=="")
         {
-            toast.error(this.state.i18next.t("ENTER_ACCOUNT_NAME"))
+            toast.error(this.state.i18next("ENTER_ACCOUNT_NAME"))
 
             return false
         }
 
         if(this.state.password==null || this.state.password!=null && this.state.password.trim()=="")
         {
-            toast.error(this.state.i18next.t("ENTER_CALDAV_PASSWORD"))
+            toast.error(this.state.i18next("ENTER_CALDAV_PASSWORD"))
 
             return false
         }
         if(this.state.username==null || this.state.username!=null && this.state.username.trim()=="")
         {
-            toast.error(this.state.i18next.t("ENTER_CALDAV_USERNAME"))
+            toast.error(this.state.i18next("ENTER_CALDAV_USERNAME"))
 
             return false
         }
@@ -161,25 +161,25 @@ export default class AddCaldavAccount extends Component{
     }
     render(){
 
-        var button =  !this.state.requestPending ? (<div><Button onClick={this.backButtonClicked} variant="secondary" >{this.i18next.t("BACK")}</Button> <Button onClick={this.addAccountButtonClicked} >{this.i18next.t("ADD")}</Button> </div> ): (<Spinner animation="grow" variant="success" />)
+        var button =  !this.state.requestPending ? (<div><Button onClick={this.backButtonClicked} variant="secondary" >{this.state.i18next("BACK")}</Button> <Button onClick={this.addAccountButtonClicked} >{this.state.i18next("ADD")}</Button> </div> ): (<Spinner animation="grow" variant="success" />)
         return(
             <>
             <Row>
                     <Col>
-                    <h1>{i18next.t("ADD_CALDAV_ACCOUNT")}</h1>
+                    <h1>{i18next("ADD_CALDAV_ACCOUNT")}</h1>
                     </Col>
             </Row>
             <br />
             <Form.Group className="mb-3">
-                <Form.Label>{i18next.t("ACCOUNT_NAME")}</Form.Label>
-                <Form.Control disabled={this.state.requestPending}   onChange={this.accountNameValueChanged}  placeholder={i18next.t("ENTER_ACCOUNT_NAME")} />
-                <Form.Label style={{marginTop: 30}}>{i18next.t("SERVER_URL")}</Form.Label>
-                <Form.Control disabled={this.state.requestPending} onChange={this.serverURLValueChanged} type="URL" placeholder={i18next.t("ENTER_A_SERVER_NAME")} />
-                <Form.Label style={{marginTop: 30}}>{i18next.t("CALDAV_USERNAME")}</Form.Label>
-                <Form.Control disabled={this.state.requestPending} onChange={this.serverUsernameValueChanged} type="URL" placeholder={this.state.i18next.t("CALDAV_USERNAME_PLACEHOLDER")}/>
+                <Form.Label>{i18next("ACCOUNT_NAME")}</Form.Label>
+                <Form.Control disabled={this.state.requestPending}   onChange={this.accountNameValueChanged}  placeholder={i18next("ENTER_ACCOUNT_NAME")} />
+                <Form.Label style={{marginTop: 30}}>{i18next("SERVER_URL")}</Form.Label>
+                <Form.Control disabled={this.state.requestPending} onChange={this.serverURLValueChanged} type="URL" placeholder={i18next("ENTER_A_SERVER_NAME")} />
+                <Form.Label style={{marginTop: 30}}>{i18next("CALDAV_USERNAME")}</Form.Label>
+                <Form.Control disabled={this.state.requestPending} onChange={this.serverUsernameValueChanged} type="URL" placeholder={this.state.i18next("CALDAV_USERNAME_PLACEHOLDER")}/>
 
-                <Form.Label style={{marginTop: 30}}>{i18next.t("CALDAV_PASSWORD")}</Form.Label>
-                <Form.Control disabled={this.state.requestPending} onChange={this.serverPasswordValueChanged} type="password" placeholder={this.state.i18next.t("CALDAV_PASSWORD_PLACEHOLDER")} />
+                <Form.Label style={{marginTop: 30}}>{i18next("CALDAV_PASSWORD")}</Form.Label>
+                <Form.Control disabled={this.state.requestPending} onChange={this.serverPasswordValueChanged} type="password" placeholder={this.state.i18next("CALDAV_PASSWORD_PLACEHOLDER")} />
 
                 <div style={{marginTop: 30, textAlign: 'center'}}>{button}</div>
 

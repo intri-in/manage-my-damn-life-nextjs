@@ -1,26 +1,19 @@
-import { getI18nObject } from "@/helpers/frontend/general";
-import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { withRouter } from "next/router";
 import { Component } from "react";
 import { Badge, Button, Col, Row } from "react-bootstrap";
 import { Loading } from "./common/Loading";
-import { makeUpdateLabelRequest } from "@/helpers/frontend/labels";
 import { SketchPicker } from 'react-color'
 import { BACKGROUND_GRAY } from "@/config/style";
-import reactCSS from 'reactcss'
 import { toast } from "react-toastify";
-import { Toastify, nothingToShow } from "./Generic";
-import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
-import { saveLabelArrayToCookie } from "@/helpers/frontend/settings";
-import { getAPIURL, isValidResultArray } from "@/helpers/general";
+import {  isValidResultArray } from "@/helpers/general";
 import { getAllLabelsFromDexie, updateLabelCacheInDexie, updateLabelColourinDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
-class LabelManager extends Component{
+class LabelManagerClass extends Component{
     constructor(props)
     {
         super(props)
         this.state={labelTable: <Loading />, displayColorPicker: {}, color:{}, labels: {}, currentTarget: ""}
-        this.i18next = getI18nObject()
+        this.i18next = props.i18next
         this.handleClick = this.handleClick.bind(this)
         this.getLabelTable = this.getLabelTable.bind(this)
         this.handleChangeofColor = this.handleChangeofColor.bind(this)
@@ -36,7 +29,7 @@ class LabelManager extends Component{
     
     async updateLabels()
     {
-        toast.info(this.i18next.t("UPDATING_LABEL_CACHE"))
+        toast.info(this.i18next("UPDATING_LABEL_CACHE"))
         this.setState({labels: {}, displayColorPicker: {}, color:{}})
         updateLabelCacheInDexie().then((response) =>{
             this.getLabelsFromDexie()
@@ -70,7 +63,7 @@ class LabelManager extends Component{
         //Now we only modify label locally.
         updateLabelColourinDexie(labelName, color).then((result)=>{
             this.getLabelsFromDexie()
-            toast.success(this.i18next.t("UPDATE_OK"))
+            toast.success(this.i18next("UPDATE_OK"))
 
         })
         // const url_api=getAPIURL()+"labels/modifycolor"
@@ -91,19 +84,19 @@ class LabelManager extends Component{
 
         //     if(body!=null && body.success!=null && body.success==true)
         //     {
-        //         toast.success(this.i18next.t(message))
+        //         toast.success(this.i18next(message))
         //     }else{
         //         if (message!=null)
         //         {
-        //             toast.error(this.i18next.t(message))
+        //             toast.error(this.i18next(message))
         //         }else{
-        //             toast.error(this.i18next.t("ERROR_GENERIC"))
+        //             toast.error(this.i18next("ERROR_GENERIC"))
 
         //         }
         //     }            
         // }).catch(e=>
         //     {
-        //         toast.error(this.i18next.t("ERROR_GENERIC"))
+        //         toast.error(this.i18next("ERROR_GENERIC"))
         //         console.error("makeModifyLabelRequest", e)
         //     }
         // )
@@ -189,13 +182,13 @@ class LabelManager extends Component{
         //             {
         //                 if(message!=="PLEASE_LOGIN")
         //                 {
-        //                     toast.error(this.i18next.t(message))
+        //                     toast.error(this.i18next(message))
 
         //                 }
         //             }
         //             else
         //             {
-        //                 toast.error(this.i18next.t("ERROR_GENERIC"))
+        //                 toast.error(this.i18next("ERROR_GENERIC"))
 
         //             }
 
@@ -203,7 +196,7 @@ class LabelManager extends Component{
 
         //     }
         //     else{
-        //         toast.error(this.i18next.t("ERROR_GENERIC"))
+        //         toast.error(this.i18next("ERROR_GENERIC"))
 
         //     }
           
@@ -264,9 +257,9 @@ class LabelManager extends Component{
     render(){
         return(
             <>
-            <h1>{this.i18next.t("LABEL_MANAGER")}</h1>
+            <h1>{this.i18next("LABEL_MANAGER")}</h1>
             <br />
-            <div style={{textAlign: "right"}}><Button size="sm" onClick={this.updateLabels}>{this.i18next.t("UPDATE_LABEL_CACHE")}</Button></div>
+            <div style={{textAlign: "right"}}><Button size="sm" onClick={this.updateLabels}>{this.i18next("UPDATE_LABEL_CACHE")}</Button></div>
             <br />
             {this.getLabelTable()}
             {/*<Toastify /> */}

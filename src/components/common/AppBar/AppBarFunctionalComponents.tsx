@@ -4,7 +4,6 @@ import { Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Too
 import React, { useEffect, useState } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
-import { getI18nObject } from "@/helpers/frontend/general";
 import { AiOutlineSetting, AiOutlineUser } from "react-icons/ai";
 import { IoSyncCircleOutline } from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
@@ -20,8 +19,12 @@ import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { useSetAtom } from "jotai";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
-import { getCurrentLanguage, getDefaultLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
-
+import { appendLanguageToURL, getCurrentLanguage, getDefaultLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
+import { GetStaticProps } from "next";
+import { Props } from "next/script";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation } from "next-i18next";
+// import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session}) => {
   /**
    * Jotai
@@ -36,17 +39,15 @@ const AppBarFunctionalComponent = ({ session}) => {
   const [installed, setInstalled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [lang, setLang] = useState(getCurrentLanguage())
-
+  const {t, i18n} = useTranslation()
 
   const router = useRouter();
-  const i18next = getI18nObject();
 
   useEffect(() => {
     setUsernameFromSession();
     checkInstallation();
     setDarkModeEnabled(isDarkModeEnabled());
   }, []);
-
 
   const setUsernameFromSession = async () => {
     try {
@@ -134,12 +135,17 @@ const AppBarFunctionalComponent = ({ session}) => {
   const langChanged = (e) =>{
     setCurrentLanguage(e.target.value)
     setLang(e.target.value)
+    if(typeof(window)!="undefined"){
+      window.location.reload()
+    }
+
+    // i18n.changeLanguage(e.target.value)
   }
 
   let notInstalledBanner: JSX.Element | null = null;
   if (!installed) {
     notInstalledBanner = (
-      <div onClick={notInstalledBannerClicked} style={{ background: "darkred", textAlign: "center", color: "white" }}>{i18next.t("MMDL_NOT_INSTALLED")}</div>
+      <div onClick={notInstalledBannerClicked} style={{ background: "darkred", textAlign: "center", color: "white" }}>{t("MMDL_NOT_INSTALLED")}</div>
     );
   }
 
@@ -164,20 +170,20 @@ const AppBarFunctionalComponent = ({ session}) => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
           <Nav style={{ display: "flex", margin: 5, justifyContent: "space-evenly", alignItems: "center"  }} >
-            <Link style={{ color: "white", textDecoration: "none" }} href="/">{i18next.t("HOME")}</Link> &nbsp; &nbsp;
-            <Link style={{ color: "white", textDecoration: "none" }} href="/tasks/list">{i18next.t("TASK_VIEW")}</Link>&nbsp; &nbsp;
-            <Link style={{ color: "white", textDecoration: "none" }} href="/calendar/view">{i18next.t("CALENDAR_VIEW")}</Link>
+            <Link style={{ color: "white", textDecoration: "none" }} href="/">{t("HOME")}</Link> &nbsp; &nbsp;
+            <Link style={{ color: "white", textDecoration: "none" }} href="/tasks/list">{t("TASK_VIEW")}</Link>&nbsp; &nbsp;
+            <Link style={{ color: "white", textDecoration: "none" }} href="/calendar/view">{t("CALENDAR_VIEW")}</Link>
             <Nav.Item>
               <Dropdown style={{ color: "white" }} as={NavItem}>
                 <Dropdown.Toggle style={{ color: "white" }} as={NavLink}>
                   <AiOutlineSetting size={24} />
                 </Dropdown.Toggle>
                 <Dropdown.Menu id="DDL_MENU_SETTINGS">
-                  <Dropdown.Item onClick={labelManageClicked}>{i18next.t("LABEL_MANAGER")}</Dropdown.Item>
-                  <Dropdown.Item onClick={manageFilterClicked}>{i18next.t("MANAGE_FILTERS")}</Dropdown.Item>
-                  <Dropdown.Item onClick={manageCaldavClicked}>{i18next.t("MANAGE") + " " + i18next.t("CALDAV_ACCOUNTS")}</Dropdown.Item>
-                  <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{i18next.t("TEMPLATE_MANAGER")}</Dropdown.Item>
-                  <Dropdown.Item onClick={settingsClicked}>{i18next.t("SETTINGS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={labelManageClicked}>{t("LABEL_MANAGER")}</Dropdown.Item>
+                  <Dropdown.Item onClick={manageFilterClicked}>{t("MANAGE_FILTERS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={manageCaldavClicked}>{t("MANAGE") + " " + t("CALDAV_ACCOUNTS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{t("TEMPLATE_MANAGER")}</Dropdown.Item>
+                  <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav.Item>
@@ -187,7 +193,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                 <OverlayTrigger key="KEY_USERNAME" placement='bottom'
                   overlay={
                     <Tooltip id='tooltip_USERNAME'>
-                      {i18next.t("USERNAME")}
+                      {t("USERNAME")}
                     </Tooltip>
                   }>
                   <div>
@@ -205,7 +211,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                 <OverlayTrigger key="DARK_MODE_KEY" placement='bottom'
                   overlay={
                     <Tooltip id='tooltip_DARK_MODE_KEY'>
-                      {i18next.t("THEME_MODE")}
+                      {t("THEME_MODE")}
                     </Tooltip>
                   }>
                   <div style={{ color: "white", padding: 5 }}>{darkModeButton} </div>
@@ -215,7 +221,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                 <OverlayTrigger key="SYNC_KEY" placement='bottom'
                   overlay={
                     <Tooltip id='tooltip_SYNC'>
-                      {i18next.t("SYNC")}
+                      {t("SYNC")}
                     </Tooltip>
                   }>
                   <div style={{ color: "white", padding: 5 }}>{syncButton} </div>
@@ -230,5 +236,6 @@ const AppBarFunctionalComponent = ({ session}) => {
     </>
   );
 };
+
 
 export default AppBarFunctionalComponent;

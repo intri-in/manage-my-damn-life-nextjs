@@ -25,6 +25,7 @@ export default async function handler(req, res) {
                     var allCalendars = await caldavAccount.getAllCalendars()
                     for(const i in allCalendars)
                     {
+                        // console.log("allCalendars", allCalendars[i])
                         //Delete all events.
                         await Calendars.deleteAllEvents(allCalendars[i])
                         await Calendars.deleteCalendar(allCalendars[i])

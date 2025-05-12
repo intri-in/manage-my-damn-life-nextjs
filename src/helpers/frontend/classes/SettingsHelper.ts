@@ -3,12 +3,11 @@ import axios from "axios";
 import { getAuthenticationHeadersforUser } from "../user";
 import { getErrorResponse } from "@/helpers/errros";
 import { getMessageFromAPIResponse } from "../response";
-import { displayErrorMessageFromAPIResponse, getI18nObject } from "../general";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { SETTING_NAME_CALENDAR_START_DAY, SETTING_NAME_DATE_FORMAT, SETTING_NAME_DEFAULT_CALENDAR, SETTING_NAME_DEFAULT_VIEW_CALENDAR, SETTING_NAME_NUKE_DEXIE_ON_LOGOUT, SETTING_NAME_TIME_FORMAT, USER_SETTING_SYNCTIMEOUT } from "../settings";
 
-const i18next= getI18nObject()
+// const i18next= getI18nObject()
 
 export default class SettingsHelper
 {
@@ -123,12 +122,12 @@ export default class SettingsHelper
         const response: any = await SettingsHelper.setKeyOnServer(keyName, value)
         if(varNotEmpty(response) && varNotEmpty(response.status) && response.status==200)
         {
-            toast.success(i18next.t("SETTING")+" "+i18next.t("UPDATE_OK").toLowerCase())
+            // toast.success(i18next.t("SETTING")+" "+i18next.t("UPDATE_OK").toLowerCase())
             return true
 
         }else{
-            toast.success(i18next.t("ERROR_GENERIC"))
-            logError(response, "SettingsHelper.setKey")
+            // toast.success(i18next.t("ERROR_GENERIC"))
+            // logError(response, "SettingsHelper.setKey")
             return false
 
         }

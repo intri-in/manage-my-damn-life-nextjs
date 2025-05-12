@@ -3,7 +3,6 @@ import { EventEditorViewManager } from "@/components/events/EventEditorViewManag
 import TaskViewList from "@/components/page/TaskViewPage/TaskViewList";
 import { TaskViewListWithStateManagement } from "@/components/page/TaskViewPage/TaskViewListWithStateManagement";
 import { TaskEditorViewManager } from "@/components/tasks/TaskEditorSupport/TaskEditorViewManager";
-import { getI18nObject } from "@/helpers/frontend/general";
 import { useCustomTheme } from "@/helpers/frontend/theme";
 import { checkLogin_InBuilt } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
@@ -12,9 +11,10 @@ import { useSetAtom } from "jotai";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "next-i18next";
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
-const i18next = getI18nObject()
 
 export default function TaskListPage(){
     const { data: session, status } = useSession()
@@ -28,7 +28,7 @@ export default function TaskListPage(){
      const setCalDavAtom = useSetAtom(calDavObjectAtom)
      const setUpdateView= useSetAtom(updateViewAtom)
      const [urlParsed, setURLPased] = useState(false)
-
+    const {t} = useTranslation()
     useEffect(() =>{
       let isMounted = true
       if(isMounted)
@@ -71,7 +71,7 @@ export default function TaskListPage(){
       
                   setFilterAtom(PAGE_VIEW_JSON[pageName])
                   setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
-                  setCurrentPageTitle(i18next.t(pageName).toString())
+                  setCurrentPageTitle(t(pageName).toString())
               }
 
               if(type){
@@ -100,7 +100,7 @@ export default function TaskListPage(){
                     const label_name = params.get('label_name')
                     if(label_name){
                       const currentFilter = {label: [label_name]}
-                      const title = `${i18next.t("LABEL")}: ${label_name}`
+                      const title = `${t("LABEL")}: ${label_name}`
                       setCurrentPageTitle(title)
                       setFilterAtom({logic: "or", filter: currentFilter})
                       setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
@@ -122,4 +122,13 @@ export default function TaskListPage(){
         <GlobalViewManager />
         </>
     )
+}
+
+export async function getStaticProps({ locale}) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"], null, ["en","de"])),
+      // Will be passed to the page component as props
+    },
+  }
 }

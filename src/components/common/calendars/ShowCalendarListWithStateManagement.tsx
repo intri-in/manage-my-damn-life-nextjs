@@ -1,5 +1,4 @@
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { Col, ListGroup, Row } from "react-bootstrap"
@@ -9,8 +8,8 @@ import AddNewCalendar from "./AddNewCalendar"
 import { toast } from "react-toastify"
 import Link from "next/link"
 import { FaExternalLinkAlt } from "react-icons/fa"
+import { useTranslation } from "next-i18next"
 
-const i18 = getI18nObject()
 export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Function}) =>{
     /**
      * Jotai
@@ -24,7 +23,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[] | JSX.Element>([])
     const [update, setUpdate] = useState(Date.now())
-
+    const {t} = useTranslation()
 
 
     
@@ -41,11 +40,13 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
             if(response!=null && response.success!= null && response.success==true && response.data.message[0].status>=200 && response.data.message[0].status<300)
             {
                 // Successful creation.
-                toast.success("Calendar added successfully.")
+                toast.success(t("CALENDAR_ADDED_SUCCESSFULLY"))
+                getCaldavAccountsfromDexie()
             }
             else
             {
-                toast.error("Calendar couldn't be added. Check the console log.")
+                getCaldavAccountsfromDexie()
+                toast.error(t("ERROR_ADDING_CALENDER"))
                 console.log(response)
             }
             
@@ -54,7 +55,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
     
         const showAddCalendarScreen = (caldav_account)=>{
               
-            setFinalOutput(<AddNewCalendar onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
+            setFinalOutput(<AddNewCalendar i18next={t} onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
         }
 
     

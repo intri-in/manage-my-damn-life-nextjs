@@ -428,6 +428,14 @@ export async function deleteEventByURLFromDexie(url) {
     }
 }
 
+export async function deleteEventsFromCalendar_Dexie(calendars_id){
+    await db.calendar_events
+    .where('calendar_id')
+    .equals(calendars_id.toString())
+    .delete()
+
+}
+
 export async function searchEventInDexie(calendars_id, type, searchTerm) {
     const allEvents = await fetchEventsForCalendarsFromDexie(calendars_id, type)
     const result: any = []
@@ -453,6 +461,7 @@ export async function deleteAllEventsFromDexie() {
     }
 }
 
+// export async function deleteAllEvents
 export async function restoreEventtoDexie(oldEvent: Calendar_Events) {
     await saveEventToDexie(oldEvent["calendar_id"], oldEvent["url"], oldEvent["etag"], oldEvent["data"], oldEvent["type"])
 } 

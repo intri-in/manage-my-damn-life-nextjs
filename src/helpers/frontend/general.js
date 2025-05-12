@@ -1,15 +1,13 @@
 
-import i18next from 'i18next';
 import * as moment from 'moment';
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
-import { toast } from 'react-toastify';
-import { getI18Object_Multilanguages } from './translations';
+import { getDummyI18nObject } from './translations';
 
 
 export function getI18nObject()
 {
-    return getI18Object_Multilanguages()
+    return getDummyI18nObject()
 
 }
 
@@ -128,8 +126,9 @@ export function dueDatetoUnixStamp(dueDate)
 
 }
 
-export function timeDifferencefromNowinWords(date)
+export function timeDifferencefromNowinWords(date, i18next)
 {
+    return timeDifferencefromNowinWords_Generic(date)
     var timeDifference=Math.floor((dueDatetoUnixStamp(date) - Math.floor(Date.now() / 1000))/86400)
     var timeDifferenceStatement=""
     if(isNaN(timeDifference))
@@ -281,10 +280,10 @@ export function getRandomColourCode()
     var message = getMessageFromAPIResponse(body)
     if(varNotEmpty(message) && message!="")
     {
-        toast.error(i18next.t(message))
+        // toast.error(i18next.t(message))
 
     }else{
-        toast.error(i18next.t("ERROR_GENERIC"))
+        // toast.error(i18next.t("ERROR_GENERIC"))
     }
     
   }

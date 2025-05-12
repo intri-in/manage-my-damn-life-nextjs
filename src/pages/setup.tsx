@@ -3,22 +3,22 @@ import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
 import { db } from "@/helpers/frontend/dexie/dexieDB"
 import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
 import { fetchLatestEventsV2,  fetchLatestEvents_withoutCalendarRefresh,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
 import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
-
 import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
+import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore"
+import { serverSideTranslations } from "next-i18next/serverSideTranslations"
+import { AVAILABLE_LANGUAGES } from "@/config/constants"
 const SESSION_IS_SETTING_UP="SESSION_IS_SETTING_UP"
 
-const i18next = getI18nObject()
 export default function SetupPage() {
     /**
      * Jotai
@@ -29,6 +29,7 @@ export default function SetupPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [currentWork, setCurrentWork] = useState("Fetching events and tasks...")
     const router= useRouter()
+    const {t} = useTranslation()
     const setupEverything = async () => {
 
         let isMounted =true
@@ -117,7 +118,7 @@ export default function SetupPage() {
     return(
         <>
         <Head>
-          <title>{`${i18next.t("APP_NAME_TITLE")} - ${i18next.t("SETUP")}`}</title>
+          <title>{`${t("APP_NAME_TITLE")} - ${t("SETUP")}`}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -129,12 +130,12 @@ export default function SetupPage() {
                 <br />
                 {isLoading ? 
                 (   <>
-                        <h2>{i18next.t("SETTING_UP")}</h2>
+                        <h2>{t("SETTING_UP")}</h2>
                         {currentWork}
                         <Loading />
                     </>
                     ):
-                (<h2>{i18next.t("DONE")}</h2>)}
+                (<h2>{t("DONE")}</h2>)}
                 
             </div>
 
@@ -142,4 +143,12 @@ export default function SetupPage() {
         </div>
         </>
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+        },
+    };
 }

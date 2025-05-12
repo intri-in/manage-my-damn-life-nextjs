@@ -17,7 +17,7 @@ export default class ParentTaskSearch extends Component{
     constructor(props)
     {
         super(props)
-        this.i18next= getI18nObject()
+        this.i18next= props.i18next
         this.state={searchTerm: "", searchOutput: ""}
         this.searchTermChanged = this.searchTermChanged.bind(this)
         this.searchForTasks = this.searchForTasks.bind(this)
@@ -65,7 +65,7 @@ export default class ParentTaskSearch extends Component{
                         this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid"}}>{finalOutput}</ListGroup>)})
 
                     }else{
-                        this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid", padding: 10}}>{this.i18next.t("NOTHING_TO_SHOW")}</ListGroup>)})
+                        this.setState({searchOutput: (<ListGroup style={{border: "1px gray solid", padding: 10}}>{this.i18next("NOTHING_TO_SHOW")}</ListGroup>)})
 
                 }
                 
@@ -88,7 +88,7 @@ export default class ParentTaskSearch extends Component{
                     
                     //     }else{
                         //         var message = getMessageFromAPIResponse(body)
-                        //         toast.error(this.i18next.t(message))
+                        //         toast.error(this.i18next(message))
                         //     }
                         
                         //     }
@@ -108,7 +108,7 @@ export default class ParentTaskSearch extends Component{
         return(
             <div>
             <Row style={{  }}> 
-            <Col ><Form.Control onChange={this.searchTermChanged} value={this.state.searchTerm} maxLength={20} placeholder={this.i18next.t("SEARCH")} /></Col> 
+            <Col ><Form.Control onChange={this.searchTermChanged} value={this.state.searchTerm} maxLength={20} placeholder={this.i18next("SEARCH")} /></Col> 
             </Row>
 
             <Row style={{marginTop:3, }} >
