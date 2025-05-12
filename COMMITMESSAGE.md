@@ -1,1 +1,2 @@
 - Minor UI fixes.
+- Added start filter. Partially resolves: #186

@@ -81,6 +81,7 @@
     "DESC": "DESC",
     "DESCRIPTION": "Description",
     "DONE": "Done!",
+    
     "DUE": "Due",
     "DUE_DATE": "Due Date",
     "DUE_NEXT_SEVEN_DAYS": "Due in Next Seven Days",
@@ -149,6 +150,7 @@
     "GANTT_VIEW_HELP_2": "You can also drag and drop tasks to edit start and due date.",
     "GANTT_VIEW_HELP_3": "Click on 'Today' to jump to today's date.",
     "GENERAL_SETTINGS": "General Settings",
+    "HAVE_STARTED":"Have Started",
     "HELP": "Help",
     "HIGH": "High",
     "HIGH_PRIORITY": "High Priority",
