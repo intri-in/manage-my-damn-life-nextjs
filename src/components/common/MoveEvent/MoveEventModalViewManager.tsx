@@ -28,10 +28,10 @@ export const MoveEventModalViewManager = () =>{
         if (body != null) {
             if (body.success == true) {
 
-                toast.success(finalToast+i18next.t("Done")+"!")
+                toast.success(finalToast+t("DONE")+"!")
                 // if(typeof(message)==="string"){
 
-                //     toast.success(finalToast+i18next.t(message))
+                //     toast.success(finalToast+tt(message))
                 // }else{
                 // }
                 setUpdateViewTime(Date.now())
@@ -42,7 +42,7 @@ export const MoveEventModalViewManager = () =>{
 
                     toast.error(message)
                 }else{
-                    toast.error(finalToast+i18next.t("ERROR_GENERIC"))
+                    toast.error(finalToast+t("ERROR_GENERIC"))
                 }
                 
             }

@@ -104,3 +104,11 @@ export function shouldRedirectWithLang(url, newLang){
     return !langDifferent
 
 }
+
+export function getDummyI18nObject(){
+    
+    return{
+        t: (e) => {return e}
+    }
+    
+}

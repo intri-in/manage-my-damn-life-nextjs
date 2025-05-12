@@ -1,17 +1,16 @@
 import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
 import { deleteAllEventsFromDexie } from "@/helpers/frontend/dexie/events_dexie"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { SETTING_NAME_NUKE_DEXIE_ON_LOGOUT } from "@/helpers/frontend/settings"
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync"
 import { useEffect, useState } from "react"
 import { Button, Col, Form, Row } from "react-bootstrap"
+import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 
 const AdvancedSettings = () =>{
 
-    const i18next = getI18nObject()
     const [nukeDexie, setNukeDexie] = useState(false)
-    
+    const {t} = useTranslation()
     const valueChanged = (e) =>{
         setNukeDexie(e.target.checked)
         const toSave = e.target.checked.toString().toUpperCase()
@@ -21,11 +20,11 @@ const AdvancedSettings = () =>{
             data: any
         })=>{
             if(response && response.status  && response.status==200){
-                toast.success(i18next.t("UPDATE_OK"))
+                toast.success(t("UPDATE_OK"))
                 localStorage.setItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT, toSave)
             }else{
                 console.error(response)
-                toast.error(i18next.t("ERROR_GENERIC"))
+                toast.error(t("ERROR_GENERIC"))
             }
         })
 
@@ -58,10 +57,10 @@ const AdvancedSettings = () =>{
 
     return(
         <>
-            <h2>{i18next.t("ADVANCED_SETTINGS")}</h2>
+            <h2>{t("ADVANCED_SETTINGS")}</h2>
             <Row>
                 <Col>
-                {i18next.t("NUKE_DEXIE_ON_LOGOUT")}<br/>
+                {t("NUKE_DEXIE_ON_LOGOUT")}<br/>
                 </Col>
                 <Col>
                 <Form.Check // prettier-ignore
@@ -72,7 +71,7 @@ const AdvancedSettings = () =>{
             id={`default-nukedexie_checkbox`}
             
           />                
-                          <small>{i18next.t("NUKE_DEXIE_ON_LOGOUT_DESC")}</small>
+                          <small>{t("NUKE_DEXIE_ON_LOGOUT_DESC")}</small>
 </Col>
             </Row>
         </>

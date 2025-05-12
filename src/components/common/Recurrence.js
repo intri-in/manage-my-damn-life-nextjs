@@ -12,7 +12,7 @@ export default class rrule extends Component{
     constructor(props)
     {
         super(props)
-        this.i18next = props.t
+        this.i18next = props.i18next
         let rrule =RRuleHelper.getEmptyObject()
         if(RRuleHelper.isValidObject(props.rrule))
         {
@@ -118,7 +118,7 @@ export default class rrule extends Component{
     
     render(){
         var checkForWords = JSON.parse(JSON.stringify(this.state.rrule))
-        var toWords = RRuleHelper.stringObjectToWords(checkForWords)
+        var toWords = RRuleHelper.stringObjectToWords(checkForWords, this.i18next)
         var toReturn = []
         if (toWords != "" && varNotEmpty(toWords)) {
             toReturn.push(<Row key={"KEY_TOWORDS_RECURRENCE"} style={{ marginBottom: 20 }} >

@@ -11,11 +11,11 @@ import { getCalDAVAccountbyCalDAVId_Dexie } from "../dexie/caldav_dexie"
 import { getCalendarNameByIDFromDexie } from "../dexie/calendars_dexie"
 import { getMessageFromAPIResponse } from "../response"
 import { toast } from "react-toastify"
-import { getI18nObject } from "../general"
 import { useSetAtom } from "jotai"
 import { updateViewAtom } from "stateStore/ViewStore"
 import { TaskFilter } from "types/tasks/filters"
 import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort"
+import { useTranslation } from "react-i18next"
 
 export interface TaskSection{
     name: string | null,
@@ -539,18 +539,17 @@ export async function getCaldavAndCalendarNameForView(caldav_accounts_id, calend
     return name+calendarName
 }
 
-export const onServerResponse_UI = (body, taskName) =>{
+export const onServerResponse_UI = (body, taskName, t) =>{
     var message= getMessageFromAPIResponse(body)
     const finalToast = taskName ? taskName+": ": ""
-    const i18next = getI18nObject()
     if (body != null) {
         if (body.success == true) {
             
             if(typeof(message)==="string"){
 
-                toast.success(finalToast+i18next.t(message))
+                toast.success(finalToast+t(message))
             }else{
-                toast.success(finalToast+i18next.t("Done")+"!")
+                toast.success(finalToast+t("Done")+"!")
             }
         
         }
@@ -559,7 +558,7 @@ export const onServerResponse_UI = (body, taskName) =>{
 
                 toast.error(message)
             }else{
-                toast.error(finalToast+i18next.t("ERROR_GENERIC"))
+                toast.error(finalToast+t("ERROR_GENERIC"))
             }
             
         }

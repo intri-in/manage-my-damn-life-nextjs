@@ -53,7 +53,7 @@ export async function initAutoSync(){
     }
     if(continueSync){
         
-        console.log(new Date(Date.now()), i18next.t("AUTO_SYNC_START"))
+        console.log(new Date(Date.now()), "AUTO_SYNC_START")
         localStorage.setItem(IS_SYNCING, true)
         fetchLatestEventsV2()
     }

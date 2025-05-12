@@ -4,6 +4,7 @@ import { MouseEventHandler, useEffect, useState } from "react"
 import { Col, Row } from "react-bootstrap"
 import { AiOutlineDelete } from "react-icons/ai"
 import ParentTaskSearch from "../ParentTaskSearch"
+import { useTranslation } from "next-i18next"
 
 interface propTypes{
     parentID: string | undefined,
@@ -22,6 +23,7 @@ interface propTypes{
 export default function ParentTaskView(props: propTypes){
 
     const [output, setOutput] = useState(<Loading centered={true} />)
+    const{t} = useTranslation()
     useEffect(()=>{
         async function getParent(){
             if(props.calendar_id && props.parentID){
@@ -42,12 +44,12 @@ export default function ParentTaskView(props: propTypes){
                 }
             }else{
                 setOutput(
-                    <ParentTaskSearch currentID={props.uid}  calendar_id={props.calendar_id} onParentSelect={props.onParentSelect} />
+                    <ParentTaskSearch i18next={t} currentID={props.uid}  calendar_id={props.calendar_id} onParentSelect={props.onParentSelect} />
                 )
             }
 
         }
-        let isMounted= true
+        let  isMounted= true
         if(isMounted){
             getParent()
 

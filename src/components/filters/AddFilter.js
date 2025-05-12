@@ -22,7 +22,7 @@ class AddFilters extends Component {
 
     constructor(props) {
         super(props)
-        this.i18next = getI18nObject()
+        this.i18next = props.i18next
 
         this.state = { output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom: null, dueDateBefore: null, selectedFilters: { logic: "and", filter: { due: ["", ""], label: [], priority: "" } }, filterResultinWords: "", filterbyLabelChecked: false, labelNamesChecklist: <Loading />, filterbyPriority: false, priorityValue: "", filternameInvalid: false, filterName: "", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList: {}, labelList: [] }
         this.filterbyDueChanged = this.filterbyDueChanged.bind(this)
@@ -436,21 +436,21 @@ class AddFilters extends Component {
 
                 } else {
                     if (response.data.message != null) {
-                        toast.error(this.i18next.t(response.data.message))
+                        toast.error(this.i18next(response.data.message))
 
                     }
                     else {
-                        toast.error(this.i18next.t("ERROR"))
+                        toast.error(this.i18next("ERROR"))
 
                     }
                 }
 
             } else {
-                toast.error(this.i18next.t("INVALID_FILTER_DETAILS"))
+                toast.error(this.i18next("INVALID_FILTER_DETAILS"))
             }
         }
         else {
-            toast.error(this.i18next.t("ENTER_VALID_FILTER_NAME"))
+            toast.error(this.i18next("ENTER_VALID_FILTER_NAME"))
             this.setState({ filternameInvalid: true })
         }
 
@@ -515,8 +515,8 @@ class AddFilters extends Component {
 
         var submitButton = this.state.isSubmitting ? (<div style={{ textAlign: "center" }}><Loading /></div>) : (<Row style={{ textAlign: "center" }}>
             <Col>
-                <Button variant="secondary" onClick={() => this.props.onAdd(false)} >{this.i18next.t("BACK")}</Button>
-            </Col><Col><Button onClick={this.submitFilterToServer} >{this.i18next.t("SAVE")}</Button></Col></Row>)
+                <Button variant="secondary" onClick={() => this.props.onAdd(false)} >{this.i18next("BACK")}</Button>
+            </Col><Col><Button onClick={this.submitFilterToServer} >{this.i18next("SAVE")}</Button></Col></Row>)
 
         var filterResultinWords = filtertoWords(this.state.selectedFilters)
         return (
@@ -525,22 +525,22 @@ class AddFilters extends Component {
 
                 <div style={{ border: borderColor, padding: 20 }}>
                     <br />
-                    <p>{this.i18next.t("FILTER_NAME")}</p>
+                    <p>{this.i18next("FILTER_NAME")}</p>
                     <Form onSubmit={this.handleSubmit}>
 
-                        <Form.Control value={this.state.filterName} onChange={this.onChangeFilterName} isInvalid={this.state.filternameInvalid} maxLength={30} required placeholder={this.i18next.t("ENTER_FILTER_NAME")} />
+                        <Form.Control value={this.state.filterName} onChange={this.onChangeFilterName} isInvalid={this.state.filternameInvalid} maxLength={30} required placeholder={this.i18next("ENTER_FILTER_NAME")} />
                         <br />
-                        <p>{this.i18next.t("FILTER_LOGIC")}</p>
+                        <p>{this.i18next("FILTER_LOGIC")}</p>
                         <Form.Select value={this.state.filterLogic} onChange={this.logicOptionSelected} aria-label="Default select example">
-                            <option value="and">{this.i18next.t("AND")}</option>
-                            <option value="or">{this.i18next.t("OR")}</option>
+                            <option value="and">{this.i18next("AND")}</option>
+                            <option value="or">{this.i18next("OR")}</option>
                         </Form.Select>
                         <br />
                         <Form.Check
                             value={this.state.filterbyDueChecked}
                             checked={this.state.filterbyDueChecked}
                             type="switch"
-                            label={this.i18next.t("FILTER_BY_DUE")}
+                            label={this.i18next("FILTER_BY_DUE")}
                             onChange={this.filterbyDueChanged}
                         />
                         <br />
@@ -549,7 +549,7 @@ class AddFilters extends Component {
                             value={this.state.filterbyLabelChecked}
                             checked={this.state.filterbyLabelChecked}
                             type="switch"
-                            label={this.i18next.t("FILTER_BY_LABEL")}
+                            label={this.i18next("FILTER_BY_LABEL")}
                             onChange={this.filterbyLabelCheckboxChanged}
                         />
                         <br />
@@ -559,13 +559,13 @@ class AddFilters extends Component {
                             value={this.state.filterbyPriority}
                             checked={this.state.filterbyPriority}
                             type="switch"
-                            label={this.i18next.t("FILTER_BY_MIN_PRIORITY")}
+                            label={this.i18next("FILTER_BY_MIN_PRIORITY")}
                             onChange={this.filterbyPriorityCheckboxChanged}
                         />
                         <br />
                         {filterbyPriorityForm}
                         <br />
-                        <Alert variant="info"><b>{this.i18next.t("FILTER_RESULT")}</b> {this.i18next.t("FILTER_RESULT_DESC")} <br /> <br /> {filterResultinWords}</Alert>
+                        <Alert variant="info"><b>{this.i18next("FILTER_RESULT")}</b> {this.i18next("FILTER_RESULT_DESC")} <br /> <br /> {filterResultinWords}</Alert>
 
 
                         {submitButton}

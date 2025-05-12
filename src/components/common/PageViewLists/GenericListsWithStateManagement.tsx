@@ -17,7 +17,6 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { calDavObjectAtom, currentPageAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
 import { FilterListWithStateManagement } from "@/components/filters/FilterListWithStateManagement"
 import { BsCalendar3 } from "react-icons/bs"
-import ShowCalendarList from "../calendars/ShowCalendarList"
 import { ShowCalendarListWithStateManagement } from "../calendars/ShowCalendarListWithStateManagement"
 import { useTranslation } from "next-i18next"
 export const GenericListsWithStateManagement = ({postClick}: {postClick: Function}) =>{

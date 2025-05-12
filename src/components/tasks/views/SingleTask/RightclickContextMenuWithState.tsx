@@ -1,10 +1,8 @@
 
 import { MYDAY_LABEL } from '@/config/constants';
-import { getTaskUIDFromEventsID } from '@/helpers/frontend/dexie/dexie_helper';
 import { getEtagFromURL_Dexie, getEventFromDexieByID } from '@/helpers/frontend/dexie/events_dexie';
 import { categoryArrayHasMyDayLabel, removeMyDayLabelFromArray } from '@/helpers/frontend/labels';
 import { isDarkModeEnabled } from '@/helpers/frontend/theme';
-import { varNotEmpty } from '@/helpers/general';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 import { useEffect, useState } from 'react';
@@ -24,6 +22,7 @@ import { MdOutlineContentCopy } from "react-icons/md";
 import moment from 'moment';
 import { moveEventModalInput, showMoveEventModal } from 'stateStore/MoveEventStore';
 import { useTranslation } from 'next-i18next';
+import { toast } from 'react-toastify';
 interface propsType {
   id: number | string,
   parsedTask: ParsedTask,
@@ -42,6 +41,7 @@ export function RightclickContextMenuWithState(props: propsType) {
   const showEventEditor = useSetAtom(showEventEditorAtom)
   const setEventEditorInput = useSetAtom(eventEditorInputAtom)
   const setMoveEventInput = useSetAtom(moveEventModalInput)
+  const {t} = useTranslation()
   /**
    * Local State
    */
@@ -49,7 +49,6 @@ export function RightclickContextMenuWithState(props: propsType) {
   const [calendar_id, setCalendarsID] =  useState(0)
   const [eventURL, setEventURL] = useState("")
   const [options, setOptions] = useState<JSX.Element[]>([])
-  const {t} = useTranslation()
   useEffect(() => {
     let isMounted = true
     if (isMounted) {
@@ -157,7 +156,10 @@ export function RightclickContextMenuWithState(props: propsType) {
         newTodo.rrule = RRuleHelper.rruleToObject(props.parsedTask.rrule)
       }
       const eventEtag = await getEtagFromURL_Dexie(eventURL)
-      updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo, onServerResponse_UI).then(reponse =>{
+      let message = newTodo["summary"] ? newTodo["summary"]+": " : "" 
+      toast.info(message+t("ACTION_SENT_TO_CALDAV"))
+  
+      updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo,toastOnReponse ).then(reponse =>{
         setUpdateViewTime(Date.now())
       })
 
@@ -166,6 +168,9 @@ export function RightclickContextMenuWithState(props: propsType) {
     }
   }
 
+  const toastOnReponse = (body, taskName) =>{
+    onServerResponse_UI(body,taskName, t)
+  }
   const removeFromMyDay = async () => {
 
     if(categoryArrayHasMyDayLabel(props.parsedTask.categories)){
@@ -178,7 +183,7 @@ export function RightclickContextMenuWithState(props: propsType) {
         newTodo.rrule = RRuleHelper.rruleToObject(props.parsedTask.rrule)
       }
       const eventEtag = await getEtagFromURL_Dexie(eventURL)
-      updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo, onServerResponse_UI).then(reponse =>{
+      updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo, toastOnReponse).then(reponse =>{
         setUpdateViewTime(Date.now())
       })
     }

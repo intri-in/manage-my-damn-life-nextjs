@@ -794,7 +794,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <h4>{t("NOTES")}</h4>
             <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={t("ENTER_NOTES") ?? ""} />
             <br />
-            <Recurrence onRruleSet={onRruleSet} rrule={rrule} />
+            <Recurrence i18next={t} onRruleSet={onRruleSet} rrule={rrule} />
             <br />
             {deleteButton}
             <br />

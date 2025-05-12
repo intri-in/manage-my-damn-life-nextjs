@@ -78,7 +78,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
     const [updateLocal, setUpdateLocal] = useState(Date.now())
-    const {t} = useTranslation("common")
+    const {t, i18n} = useTranslation("common")
     useEffect(() =>{
 
         if (calendarRef && calendarRef.current) {
@@ -506,7 +506,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 eventResize={eventResize}
                 firstDay={firstDay}
                 locales={allLocales}
-                // locale={i18next.language}
+            locale={i18n.language}
             />
         </>
     )

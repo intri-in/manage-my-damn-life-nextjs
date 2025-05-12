@@ -431,7 +431,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <h3>{t("DESCRIPTION")}</h3>
             <Form.Control value={description} onChange={(e)=>setDescription(e.target.value)} as="textarea" rows={3} />
         <br />
-        <Recurrence onRruleSet={onRruleSet} rrule={rrule} />
+        <Recurrence i18next={t} onRruleSet={onRruleSet} rrule={rrule} />
         <br />
         <h3>{t("ALARMS")}</h3>
             <AlarmForm onChange={alarmsChanged} alarmsArray={alarms} />

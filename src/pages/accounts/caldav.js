@@ -59,7 +59,6 @@ export default function Caldav() {
 
 
 export async function getStaticProps({ locale}) {
-  console.log("locale", locale)
   return {
     props: {
       ...(await serverSideTranslations(locale, ["common"], null, ["en","de"])),

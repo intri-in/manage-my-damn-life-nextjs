@@ -31,7 +31,7 @@ class SettingsPage extends Component {
 
     constructor(props) {
         super(props)
-        this.i18next = getI18nObject()
+        this.i18next = props.i18next
         this.state = { userInfo: <Loading centered={true} padding={30} /> , calendarOptions:[], calendarsFromServer :[], defaultCalendar:'', allowReg: 1, userManager: null}
         this.getUserInfo = this.getUserInfo.bind(this)
         this.getCalendarName = this.getCalendarName.bind(this)
@@ -109,7 +109,7 @@ class SettingsPage extends Component {
                 }
             }).catch(e =>{
             console.error("getAllUserSettings", e)
-            toast.error(this.i18next.t("ERROR_GETTING_SETTINGS"))
+            toast.error(this.i18next("ERROR_GETTING_SETTINGS"))
 
         })
 
@@ -139,10 +139,10 @@ class SettingsPage extends Component {
                         var isAdminOutput = body.data.message.level=="1" ? (   
                         <Row>
                             <Col xs={3}>
-                                <b>{this.i18next.t("ADMIN")}</b>
+                                <b>{this.i18next("ADMIN")}</b>
                             </Col>
                             <Col xs={9}>
-                                {this.i18next.t("YES")}
+                                {this.i18next("YES")}
                             </Col>
                         </Row>
                         ):null
@@ -153,7 +153,7 @@ class SettingsPage extends Component {
                             <div style={{padding: 20, background: backGround}}>
                                 <Row>
                                     <Col xs={3}>
-                                        <b>{this.i18next.t("USERNAME")}</b>
+                                        <b>{this.i18next("USERNAME")}</b>
                                     </Col>
                                     <Col xs={9}>
                                         {body.data.message.username}
@@ -161,7 +161,7 @@ class SettingsPage extends Component {
                                 </Row>
                                 <Row>
                                     <Col  xs={3}>
-                                        <b>{this.i18next.t("EMAIL")}</b>
+                                        <b>{this.i18next("EMAIL")}</b>
                                     </Col>
                                     <Col xs={9}>
                                         {body.data.message.email}
@@ -169,7 +169,7 @@ class SettingsPage extends Component {
                                 </Row>
                                 <Row>
                                     <Col xs={3}>
-                                        <b>{this.i18next.t("CREATED_ON")}</b>
+                                        <b>{this.i18next("CREATED_ON")}</b>
                                     </Col>
                                     <Col xs={9}>
                                         {moment.unix(body.data.message.created).toString()}
@@ -185,13 +185,13 @@ class SettingsPage extends Component {
                     }
                 }
                 else {
-                    console.error(this.i18next.t("ERROR_GENERIC"), body)
+                    console.error(this.i18next("ERROR_GENERIC"), body)
 
                 }
 
 
             }).catch(e =>{
-                toast.error(this.i18next.t("ERROR_GENERIC"))
+                toast.error(this.i18next("ERROR_GENERIC"))
                 console.error( "getUserInfo" ,e)
             })
 
@@ -236,9 +236,9 @@ class SettingsPage extends Component {
                     if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true)
                     {
                         setDefaultCalendarID(calendar_id)
-                        toast.success(this.i18next.t("UPDATE_OK"))
+                        toast.success(this.i18next("UPDATE_OK"))
                     }else{
-                        toast.success(this.i18next.t("ERROR_GENERIC"))
+                        toast.success(this.i18next("ERROR_GENERIC"))
                         console.log("Setting update response:")
                         console.log(body)
     
@@ -284,9 +284,9 @@ class SettingsPage extends Component {
                 .then((body) => {
                     if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true)
                     {
-                        toast.success(this.i18next.t("UPDATE_OK"))
+                        toast.success(this.i18next("UPDATE_OK"))
                     }else{
-                        toast.success(this.i18next.t("ERROR_GENERIC"))
+                        toast.success(this.i18next("ERROR_GENERIC"))
                         console.error("Setting update response GLOBAL_DISABLE_USER_REGISTRATION:")                
                         console.error(body)
     
@@ -309,26 +309,26 @@ class SettingsPage extends Component {
         var disabledMessage = null
         if(disabled)
         {
-            disabledMessage=(<p style={{color: "red", textAlign: "center"}}>{this.i18next.t('USER_REG_DISABLED_FROM_ENV')}</p>)
+            disabledMessage=(<p style={{color: "red", textAlign: "center"}}>{this.i18next('USER_REG_DISABLED_FROM_ENV')}</p>)
         }
         return(
             <>
-            <h2>{this.i18next.t("ADMIN")+ " "+this.i18next.t("SETTINGS")}</h2>
+            <h2>{this.i18next("ADMIN")+ " "+this.i18next("SETTINGS")}</h2>
             <br />
             <Row style={{display: "flex", alignItems: "center"}}>
                 <Col xs={3}>
-                    {this.i18next.t("ALLOW_REGISTRATION")}
+                    {this.i18next("ALLOW_REGISTRATION")}
                 </Col>
                 <Col xs={9}>
                 <Form.Select onChange={this.allowRegChanged} disabled={disabled} value={this.state.allowReg} size="sm">
-                    <option value={0}>{this.i18next.t("NO")}</option>
-                    <option value={1}>{this.i18next.t("YES")}</option>
+                    <option value={0}>{this.i18next("NO")}</option>
+                    <option value={1}>{this.i18next("YES")}</option>
                 </Form.Select>
                 </Col>
             </Row>
             {disabledMessage}
             <br />
-            <ManageUsers />
+            <ManageUsers i18next={this.props.i18next} />
             </>
         )
 
@@ -365,14 +365,14 @@ class SettingsPage extends Component {
             <>
                 <Container fluid>
                     <div style={{ padding: 20 }}>
-                        <h1>{this.i18next.t("SETTINGS")}</h1>
-                        <div style={{textAlign: "right"}}><Button onClick={this.caldavAccountButtonClicked} variant="outline-info">{this.i18next.t("MANAGE")+" "+this.i18next.t("CALDAV_ACCOUNTS")}</Button>{' '}</div>
+                        <h1>{this.i18next("SETTINGS")}</h1>
+                        <div style={{textAlign: "right"}}><Button onClick={this.caldavAccountButtonClicked} variant="outline-info">{this.i18next("MANAGE")+" "+this.i18next("CALDAV_ACCOUNTS")}</Button>{' '}</div>
                         <br />
-                        <h2>{this.i18next.t("GENERAL_SETTINGS")}</h2>
+                        <h2>{this.i18next("GENERAL_SETTINGS")}</h2>
                         <div>
                         <Row style={{display: "flex", alignItems: "center"}}>
                             <Col  xs={3}>
-                                {this.i18next.t("DEFAULT")+ " "+this.i18next.t("CALENDAR")}
+                                {this.i18next("DEFAULT")+ " "+this.i18next("CALENDAR")}
                             </Col>
                             <Col  xs={9}>
                                 {this.getCalendarOutput()}
@@ -381,7 +381,7 @@ class SettingsPage extends Component {
                         <br />
                         <Row style={{display: "flex", alignItems: "center"}}>
                             <Col  xs={3}>
-                                {this.i18next.t("CALENDAR_VIEW_DEFAULT")}
+                                {this.i18next("CALENDAR_VIEW_DEFAULT")}
                             </Col>
                             <Col  xs={9}>
                                 <DefaultCalendarViewSelect />
@@ -394,7 +394,7 @@ class SettingsPage extends Component {
                         <AutoSyncSetting />
                         <br />
                         <br />
-                        <h2>{this.i18next.t("DATE_TIME_FORMAT")}</h2>
+                        <h2>{this.i18next("DATE_TIME_FORMAT")}</h2>
                         <TimeFormatSetting />
                         <br />
                         <br />
@@ -404,7 +404,7 @@ class SettingsPage extends Component {
                         <MaintenanceTasks />
                         <br />
                         <br />
-                        <h2>{this.i18next.t("ACCOUNT_INFO")}</h2>
+                        <h2>{this.i18next("ACCOUNT_INFO")}</h2>
                         {this.state.userInfo}
                         <br />
                         <br />
@@ -412,7 +412,7 @@ class SettingsPage extends Component {
                         <br />
                         {this.state.userManager}
 
-                        <p><b>{this.i18next.t("VERSION")}: </b>{VERSION_NUMBER}</p>
+                        <p><b>{this.i18next("VERSION")}: </b>{VERSION_NUMBER}</p>
 
                     </div>
 

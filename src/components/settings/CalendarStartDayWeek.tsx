@@ -1,20 +1,20 @@
 import SettingsHelper from '@/helpers/frontend/classes/SettingsHelper';
 import { setCookie } from '@/helpers/frontend/cookies';
-import { getI18nObject } from '@/helpers/frontend/general';
 import { SETTING_NAME_CALENDAR_START_DAY, getDefaultViewForCalendar } from '@/helpers/frontend/settings';
 import { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { FULLCALENDAR_VIEWLIST } from '../fullcalendar/FullCalendarHelper';
 import { DAY_ARRAY } from '@/helpers/general';
 import { Col, Row } from 'react-bootstrap';
+import { useTranslation } from 'next-i18next';
 
 const defaultOptions = FULLCALENDAR_VIEWLIST
 
 
-const i18next = getI18nObject()
 
 function CalendarStartDayWeek(props:null){
     const [valueofDDL, setValueofDDL] = useState("1")
+    const {t} = useTranslation()
     useEffect(()=>{
         const getVal = async () =>{
             let initValue = localStorage.getItem(SETTING_NAME_CALENDAR_START_DAY)
@@ -54,13 +54,13 @@ function CalendarStartDayWeek(props:null){
 
     for(const i in DAY_ARRAY)
     {
-       finalOptions.push(<option key={DAY_ARRAY[i]} value={i}>{i18next.t(DAY_ARRAY[i])}</option>)
+       finalOptions.push(<option key={DAY_ARRAY[i]} value={i}>{t(DAY_ARRAY[i])}</option>)
     }
 
     return(
         <Row style={{display: "flex", alignItems: "center"}}>
         <Col  xs={3}>
-            {i18next.t("START_DAY_CALENDAR_WEEK")}
+            {t("START_DAY_CALENDAR_WEEK")}
         </Col>
         <Col  xs={9}>
             <Form.Select value={valueofDDL} onChange={newStartDaySelected} >

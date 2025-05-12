@@ -1,5 +1,4 @@
 import { BACKGROUND_GRAY } from "@/config/style";
-import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
@@ -17,7 +16,7 @@ export default class ManageUsers extends Component{
     constructor(props)
     {
         super(props)
-        this.i18next= getI18nObject()
+        this.i18next= props.i18next
         this.state={userTable: [], showDeleteModal: false, userIDToDelete:'', isSubmitting : false}
         this.deleteModalHidden = this.deleteModalHidden.bind(this)
         this.deleteButtonClicked = this.deleteButtonClicked.bind(this)
@@ -61,19 +60,19 @@ export default class ManageUsers extends Component{
                     var userTable= []
                     if(Array.isArray(message) && message.length>0)
                     {
-                        userTable.push(<p key="TOTAL_USER_COUNT"><b>{this.i18next.t("TOTAL")+": "+message.length}</b></p>)
+                        userTable.push(<p key="TOTAL_USER_COUNT"><b>{this.i18next("TOTAL")+": "+message.length}</b></p>)
 
                         for(const i in message)
                         {
-                            var isAdmin= message[i].level=="1" ? this.i18next.t("YES"):this.i18next.t("NO")
+                            var isAdmin= message[i].level=="1" ? this.i18next("YES"):this.i18next("NO")
                             var deleteButton = message[i].level=="1" ?  null:  <AiOutlineDelete onClick={()=>this.deleteButtonClicked(message[i].users_id)} />
                             var row=(
                                 <Row key={i+"_USER_LIST_NAME"} style={{ flex:1, alignItems:"center",  marginBottom:20, padding:20, border:"1px solid black", borderRadius: 10}}>
                                     <Col sm={9}>
-                                    <p><b>{this.i18next.t("USERNAME")}</b>: {message[i].username}</p>
-                                    <p><b>{this.i18next.t("EMAIL")}</b>: {message[i].email}</p>
-                                    <p><b>{this.i18next.t("CREATED_ON")}</b>: {moment.unix(message[i].created).toString()}</p>
-                                    <p><b>{this.i18next.t("ADMIN")}</b>: {isAdmin}</p>
+                                    <p><b>{this.i18next("USERNAME")}</b>: {message[i].username}</p>
+                                    <p><b>{this.i18next("EMAIL")}</b>: {message[i].email}</p>
+                                    <p><b>{this.i18next("CREATED_ON")}</b>: {moment.unix(message[i].created).toString()}</p>
+                                    <p><b>{this.i18next("ADMIN")}</b>: {isAdmin}</p>
 
                                     </Col>
                                     <Col sm={3} style={{color: "red"}}>
@@ -87,7 +86,7 @@ export default class ManageUsers extends Component{
                         }
 
                     }else{
-                        userTable = this.i18next.t("NOTHING_TO_SHOW")
+                        userTable = this.i18next("NOTHING_TO_SHOW")
                     }
 
                     this.setState({userTable: userTable})
@@ -128,7 +127,7 @@ export default class ManageUsers extends Component{
             .then((body) =>{
                 if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true)
                 {
-                    toast.success(this.i18next.t("DELETE_OK"))
+                    toast.success(this.i18next("DELETE_OK"))
                     
                     try{
                         this.getUsersFromDB()
@@ -141,7 +140,7 @@ export default class ManageUsers extends Component{
 
                 }else{
                     var message = getMessageFromAPIResponse(body)
-                    toast.success(this.i18next.t(message))
+                    toast.success(this.i18next(message))
                     console.log(body)
 
                 }
@@ -156,23 +155,23 @@ export default class ManageUsers extends Component{
     render(){
 
         var button = this.state.isSubmitting ? (<Loading centered={true} />) :(<>            <Button variant="secondary" onClick={this.deleteModalHidden}>
-        {this.i18next.t("BACK")}
+        {this.i18next("BACK")}
         </Button>
         <Button variant="danger" onClick={this.makeDeleteRequesttoServer}>
-        {this.i18next.t("DELETE")}
+        {this.i18next("DELETE")}
         </Button>
 </>)
         var backGround =  isDarkModeEnabled() ? "black" : BACKGROUND_GRAY
 
         return(
             <div style={{background: backGround, padding: 20}}>
-            <h3>{this.i18next.t("USERS")}</h3>
+            <h3>{this.i18next("USERS")}</h3>
             {this.state.userTable}
             <Modal show={this.state.showDeleteModal} onHide={this.deleteModalHidden}       centered>
             <Modal.Header closeButton>
-            <Modal.Title>{this.i18next.t("DELETE")+"?"}</Modal.Title>
+            <Modal.Title>{this.i18next("DELETE")+"?"}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>{this.i18next.t("DELETE_USER_CONFIRMATION")}</Modal.Body>
+            <Modal.Body>{this.i18next("DELETE_USER_CONFIRMATION")}</Modal.Body>
             <Modal.Footer>
                 {button}
             </Modal.Footer>

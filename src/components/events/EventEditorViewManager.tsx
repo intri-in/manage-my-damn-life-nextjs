@@ -49,7 +49,7 @@ export const EventEditorViewManager =() =>{
     }
 
     const onServerResponse = (body, taskName) =>{
-        onServerResponse_UI(body, taskName)
+        onServerResponse_UI(body, taskName,t)
         setUpdateViewTime(Date.now())
 
     }

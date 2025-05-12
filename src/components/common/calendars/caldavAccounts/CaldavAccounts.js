@@ -96,7 +96,7 @@ class CaldavAccountsClass extends Component {
         console.log(calendarData)
         this.setState({
             showAddCalendarModal: true, addCalendarModalBody: (
-                <AddNewCalendar onClose={this.addCalendarModalHidden} caldav_accounts_id={calendarData.caldav_accounts_id} onResponse={this.addCalendarResponse} accountName={calendarData.name} />
+                <AddNewCalendar i18next={this.state.i18n} onClose={this.addCalendarModalHidden} caldav_accounts_id={calendarData.caldav_accounts_id} onResponse={this.addCalendarResponse} accountName={calendarData.name} />
             )
         })
     }

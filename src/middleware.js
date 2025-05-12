@@ -29,11 +29,11 @@ export function middleware(req) {
   if (!lng) lng = DEFAULT_LANGUAGE
   
   // Redirect if lng in path is not supported
-  console.log("==============")
+  // console.log("==============")
   // console.log("shouldRedirectWithLang", shouldRedirectWithLang(req.nextUrl.toString(),lng),req.nextUrl.toString(),lng)
   const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value
 
-  console.log("req.nextUrl.locale", req.nextUrl.locale, cookieLocale)
+  // console.log("req.nextUrl.locale", req.nextUrl.locale, cookieLocale)
   if (cookieLocale && cookieLocale!=req.nextUrl.locale) {
     return NextResponse.redirect(
       new URL(

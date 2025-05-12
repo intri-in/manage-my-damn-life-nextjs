@@ -1,12 +1,9 @@
 import Head from 'next/head'
 import  AppBarGeneric  from '@/components/common/AppBar'
 import { useEffect, useState, useRef } from 'react'
-import { getI18nObject } from '@/helpers/frontend/general'
-import CombinedView from '@/components/page/CombinedView'
 import { useSession, signIn } from "next-auth/react"
 import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth'
 import { checkLogin_InBuilt, logoutUser_withRedirect } from '@/helpers/frontend/user'
-import { varNotEmpty } from '@/helpers/general'
 import { useRouter } from 'next/router'
 import { getIfInstalled, installCheck } from '@/helpers/install'
 import { useCustomTheme } from '@/helpers/frontend/theme'
