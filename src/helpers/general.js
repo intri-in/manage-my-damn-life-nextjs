@@ -121,7 +121,16 @@ export function varNotEmpty(variable)
         return false
     }
 }
+export function isStringEmpty(val){
+    if(!varNotEmpty(val)){
+        return true
+    }
+    if(val.trim()==""){
+        return true
+    }
 
+    return false
+}
 export function isNumber(value) {
     if (typeof value === "string") {
         return !isNaN(value);
