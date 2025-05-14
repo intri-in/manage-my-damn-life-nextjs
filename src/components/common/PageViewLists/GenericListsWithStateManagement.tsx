@@ -3,7 +3,7 @@ import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants"
 import { PRIMARY_COLOUR } from "@/config/style"
 import { getAllLabelsFromDexie, updateLabelCacheInDexie } from "@/helpers/frontend/dexie/dexie_labels"
 import { isDarkModeEnabled } from "@/helpers/frontend/theme"
-import { PAGE_VIEW_JSON, PAGE_VIEW_NAME_ALL_TASKS, PAGE_VIEW_NAME_DUE_NEXT_SEVEN, PAGE_VIEW_NAME_DUE_TODAY, PAGE_VIEW_NAME_HIGH_PRIORITY, PAGE_VIEW_NAME_MY_DAY } from "@/helpers/viewHelpers/pages"
+import { PAGE_VIEW_JSON, PAGE_VIEW_NAME_ALL_TASKS, PAGE_VIEW_NAME_DUE_NEXT_SEVEN, PAGE_VIEW_NAME_DUE_TODAY, PAGE_VIEW_NAME_HAVE_STARTED, PAGE_VIEW_NAME_HIGH_PRIORITY, PAGE_VIEW_NAME_MY_DAY } from "@/helpers/viewHelpers/pages"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { Badge, Col, Row } from "react-bootstrap"
@@ -149,6 +149,16 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                     </Col>
                 </div>
                 <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
+                        <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_HAVE_STARTED)}  xs={10} >
+                            <MdToday className="textDefault"/> <span className="textDefault">  { t("HAVE_STARTED")}
+</span>
+                        </Col>
+                        <Col xs={2}>
+                            <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_HAVE_STARTED}`}><FaExternalLinkAlt className="textDefault" /> </Link>
+                         </Col>
+                </div>
+
+                <div  style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <Col onClick={() =>pageViewClicked(PAGE_VIEW_NAME_ALL_TASKS)}  xs={10} >
                             <MdToday className="textDefault"/> <span className="textDefault">  { t("ALL_TASKS")}
 </span>
@@ -156,10 +166,9 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                         <Col xs={2}>
                             <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_ALL_TASKS}`}><FaExternalLinkAlt className="textDefault" /> </Link>
                          </Col>
-                    </div>
-
+                </div>
                 <br />
-                
+
                 <div style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
                     <Col><h3><AiOutlineFilter />{t("FILTERS")}</h3></Col>
                     <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={settingButtonColor} /></Link></Col>

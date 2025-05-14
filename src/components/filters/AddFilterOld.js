@@ -24,7 +24,7 @@ class AddFilters extends Component {
         super(props)
         this.i18next = props.i18next
 
-        this.state = { output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom: null, dueDateBefore: null, selectedFilters: { logic: "and", filter: { due: ["", ""], label: [], priority: "" } }, filterResultinWords: "", filterbyLabelChecked: false, labelNamesChecklist: <Loading />, filterbyPriority: false, priorityValue: "", filternameInvalid: false, filterName: "", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList: {}, labelList: [] }
+        this.state = { output: null, filterResult: [], filterbyDueChecked: false, dueDateFrom: null, dueDateBefore: null, selectedFilters: { logic: "and", filter: { due: ["", ""], label: [], priority: "" } }, filterResultinWords: "", filterbyLabelChecked: false, labelNamesChecklist: <Loading />, filterbyPriority: false, priorityValue: "", filternameInvalid: false, filterName: "", isSubmitting: false, filterLogic: "and", filterbyLabelCheckList: {}, labelList: [], filterbyStartChecked:false }
         this.filterbyDueChanged = this.filterbyDueChanged.bind(this)
         this.dueFromDateChanged = this.dueFromDateChanged.bind(this)
         this.dueBeforeDateChanged = this.dueBeforeDateChanged.bind(this)
@@ -269,6 +269,20 @@ class AddFilters extends Component {
 
 
     }
+
+    filterbyStartCheckedChanged(e){
+        this.setState(function (previousState, currentProps) {
+            let newFilters = previousState.selectedFilters
+
+            if (e.target.checked == false) {
+                newFilters.filter["start"] = ""
+
+            }
+            return ({ filterbyPriority: e.target.checked, filterResultinWords: this.getFilterResult(), selectedFilters: newFilters })
+
+        })
+
+    }
     priorityMinimumSelected(e) {
         var context = this
         this.setState({ priorityValue: e.target.value })
@@ -485,6 +499,8 @@ class AddFilters extends Component {
                 </>
             )
         }
+
+
         var filterbyPriorityForm = null
         if (this.state.filterbyPriority != false && this.state.filterbyPriority != "") {
             filterbyPriorityForm = (
@@ -564,6 +580,14 @@ class AddFilters extends Component {
                         />
                         <br />
                         {filterbyPriorityForm}
+                        <br />
+                        <Form.Check
+                            value={this.state.filterbyStartChecked}
+                            checked={this.state.filterbyStartChecked}
+                            type="switch"
+                            label={this.i18next("FILTER_BY_START")}
+                            onChange={this.filterbyStartCheckedChanged}
+                        />
                         <br />
                         <Alert variant="info"><b>{this.i18next("FILTER_RESULT")}</b> {this.i18next("FILTER_RESULT_DESC")} <br /> <br /> {filterResultinWords}</Alert>
 

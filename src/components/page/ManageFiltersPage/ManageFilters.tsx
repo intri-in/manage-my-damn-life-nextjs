@@ -1,6 +1,5 @@
 import AppBarGeneric from "@/components/common/AppBar";
 import { Loading } from "@/components/common/Loading"
-import AddFilter from "@/components/filters/AddFilter";
 import { Toastify } from "@/components/Generic";
 import { getRandomString } from "@/helpers/crypto";
 import { FilterHelper } from "@/helpers/frontend/classes/FilterHelper";
@@ -18,20 +17,24 @@ import { useTranslation } from "next-i18next";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { currentDateFormatAtom } from "stateStore/SettingsStore";
+import { useAtomValue } from "jotai";
+import { AddFilter } from "@/components/filters/AddFilter";
 
 const ManageFilters = () => {
   const router = useRouter();
-  const [addFilterForm, setAddFilterForm] = useState(<></>);
+  // const [addFilterForm, setAddFilterForm] = useState(<></>);
   const [filterList, setFilterList] = useState([<Loading />]);
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [filterName, setFilterName] = useState("")
+  const [filtertoEdit, setFiltertoEdit] = useState<any>(null)
+  const [filterCustomFilterId, setFilterCustomID] = useState("")
+  const [mode, setMode] = useState("")
   const {t} = useTranslation()
+  const fullDateFormatFromAtom = useAtomValue(currentDateFormatAtom)
+
   useEffect(() => {
-    setAddFilterForm(
-      <div style={{ textAlign: "right" }}>
-        <Button onClick={handleAddFilterButtonClick}>
-          {t("ADD_NEW_FILTER")}
-        </Button>
-      </div>
-    );
+
     generateFilterList();
   }, []);
 
@@ -65,7 +68,7 @@ const ManageFilters = () => {
                   key={`${i}_${filter.name}`}
                   className="textDefault"
                 >
-                  {filtertoWords(jsonFilter)}
+                  {filtertoWords(jsonFilter, fullDateFormatFromAtom, t)}
                 </p>
               </Col>
               <Col style={{ textAlign: "right" }}>
@@ -99,34 +102,40 @@ const ManageFilters = () => {
   };
 
   const handleAddFilterButtonClick = () => {
-    setAddFilterForm(<AddFilter i18next={t} onAdd={handleAddNewFilter} />);
+    setShowAddForm(true)
+    // setAddFilterForm(<AddFilter         onClose={handleClose}
+    //   onAdd={handleAddNewFilter} />);
   };
-
+  
+  const handleClose = () =>{
+    setShowAddForm(false)
+    // setAddFilterForm(<></>)
+  }
   const handleEditFilterButtonClick = (filter) => {
-    setAddFilterForm(
-      <AddFilter
-      i18next={t}
-        filterName={filter.name}
-        filter={JSON.parse(filter.filtervalue, dateTimeReviver)}
-        filterid={filter.custom_filters_id}
-        mode="edit"
-        onAdd={handleAddNewFilter}
-      />
-    );
-  };
+    // console.log("filter", filter)
+    setFilterName(filter.name)
+    setFiltertoEdit(JSON.parse(filter.filtervalue))
+    setFilterCustomID(filter.custom_filters_id)
+    setMode("edit")
+    setShowAddForm(true)
+    // setAddFilterForm(
+      //   <div style={{padding: 20, marginBottom: 20 }}>
+      //   </div>
+      // );
+    };
 
   const handleAddNewFilter = (response) => {
     if (response) {
       toast.success(t("FILTER_INSERT_OK"));
     }
     generateFilterList()
-    setAddFilterForm(
-      <div style={{ textAlign: "right" }}>
-        <Button onClick={handleAddFilterButtonClick}>
-          {t("ADD_NEW_FILTER")}
-        </Button>
-      </div>
-    );
+    setFilterName("")
+    setFiltertoEdit(null)
+    setFilterCustomID("")
+    setMode("")
+    setShowAddForm(false)
+    generateFilterList(); 
+    // setAddFilterForm(<></>);
   };
 
   const handleDeleteButtonClick = async (filterid) => {
@@ -157,9 +166,28 @@ const ManageFilters = () => {
         <h1>{t("MANAGE_FILTERS")}</h1>
         <p>{t("MANAGE_FILTERS_DESC")}</p>
         <br />
+      {    !showAddForm &&    (<div style={{ textAlign: "right" }}>
+              <Button onClick={handleAddFilterButtonClick}>
+                  {t("ADD_NEW_FILTER")}
+                </Button>
+              </div>)
+        }        
+        { showAddForm && (
+        <div style={{marginTop: 40}}>
+          <AddFilter
+          filterNameInput={filterName}
+          filterInput={filtertoEdit}
+          filterid={filterCustomFilterId}
+          mode={mode}
+          onClose={handleClose}
+          onAdd={handleAddNewFilter}
+          />
+        </div>)}
+
+        <div style={{ padding: 20, marginBottom: 20 }}>
         <h2>{t("YOUR_FILTERS")}</h2>
-        {addFilterForm}
-        <div style={{ padding: 20, marginBottom: 20 }}>{filterList}</div>
+          {filterList}
+        </div>
       </div>
     </>
   );

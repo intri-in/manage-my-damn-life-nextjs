@@ -1,1 +1,2 @@
-- Minor UI fixes.
+- Made changes to add Filter Form to incorporate start option.
+- Resolved: #186

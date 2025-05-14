@@ -83,7 +83,7 @@ export const TaskListFrameWork = () => {
                     for (const j in allSummary[i]["calendars"]) {
                         let cal = allSummary[i]["calendars"][j]
                         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(cal["calendars_id"], "VTODO")
-                        console.log("eventsFromDexie", eventsFromDexie, allSummary[i]["calendars"][j])
+                        // console.log("eventsFromDexie", eventsFromDexie, allSummary[i]["calendars"][j])
                         console.time("dexie_returnTaskListFilteredandSorted")
 
                         const sortedTodoList = await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
