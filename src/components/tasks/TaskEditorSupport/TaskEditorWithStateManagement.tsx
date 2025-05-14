@@ -18,7 +18,8 @@ import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie
 import { fixDueDate, fixDueDateWithFormat, getISO8601Date, isValidDateString, isValidResultArray, varNotEmpty } from "@/helpers/general"
 import * as _ from 'lodash'
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper"
-import VTodoGenerator from 'vtodogenerator'
+// import VTodoGenerator from 'vtodogenerator'
+import VTodoGenerator from '@../../vtodogenerator/dist/index'
 import { toast } from "react-toastify"
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarURLByID_Dexie, getCalendarbyIDFromDexie, isValidCalendarsID } from "@/helpers/frontend/dexie/calendars_dexie"
 import { generateNewTaskObject } from "@/helpers/frontend/tasks"
@@ -34,6 +35,9 @@ import { PRIMARY_COLOUR } from "@/config/style"
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore"
 import next from "next/types"
 import { useTranslation } from "next-i18next"
+import { VAlarmForm } from "@/components/valarm/VAlarmForm"
+import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
+import { vAlarm } from "@/types/valarm"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
@@ -79,6 +83,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [recurrenceObj, setRecurrenceObj] = useState<any>({})
     const [rawICS, setRawICS] = useState('')
     const [isTemplate, setIsTemplate] = useState(false)
+    const [alarms, setVAlarm] = useState<vAlarm[]>([])
     const changeDoneStatus = (isDone: boolean) => {
         if (isDone) {
             const completedDate = getISO8601Date(moment().toISOString())
@@ -326,8 +331,11 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (parsedData["start"]) {
                 setTaskStart(new Date(moment(parsedData["start"]).unix() * 1000).toString())
             }
-            
+            if (parsedData["alarms"] && Array.isArray(parsedData["alarms"]) && parsedData["alarms"].length>0) {
+                setVAlarm(parsedData["alarms"])
+            }
             // console.log(parsedData)
+
             // getLabels(parsedData["category"])
             checkInputForNewTask(isRecurring)
         }
@@ -411,38 +419,45 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         const valid = isTemplate ? await checkifValid() : true
         if (valid) {
             setSubmitting(true)
-            const todoData = { due: dueDate, start: taskStart, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, recurrences: recurrences }
+            const todoData = { due: dueDate, start: taskStart, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, recurrences: recurrences, valarms: alarms }
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
             const todo = new VTodoGenerator(finalTodoData, { strict: false })
-            const finalVTODO = todo.generate()
-            // console.log(todo, finalTodoData, finalVTODO)
-            if (isTemplate) {
-                if("templateReturn" in input && input.templateReturn && typeof(input.templateReturn) == "function"){
-                    input.templateReturn({calendar_id:calendar_id,data:finalVTODO})
-                }
-                closeEditor()
+            // console.log(todo, finalTodoData)
+            try{
 
-                return
-            }
-            if (isNewTask) {
-                const etag = getRandomString(32)
-
-                postNewTodo(calendar_id, finalVTODO, etag)
-            } else {
-                // Make an update request.
-                if (input.id) {
-
-                    const etag = await getEtagFromEventID_Dexie(input.id)
-                    if (!etag) {
-                        console.error("Etag is null!")
-                        toast.error(t("ERROR_GENERIC"))
-
+                const finalVTODO = todo.generate()
+                // console.log(finalVTODO)
+                if (isTemplate) {
+                    if("templateReturn" in input && input.templateReturn && typeof(input.templateReturn) == "function"){
+                        input.templateReturn({calendar_id:calendar_id,data:finalVTODO})
                     }
-                    const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
-
-                    await updateTodoLocal(calendar_id, eventURL, etag, finalVTODO)
+                    closeEditor()
+    
+                    return
                 }
+                if (isNewTask) {
+                    const etag = getRandomString(32)
+    
+                    postNewTodo(calendar_id, finalVTODO, etag)
+                } else {
+                    // Make an update request.
+                    if (input.id) {
+    
+                        const etag = await getEtagFromEventID_Dexie(input.id)
+                        if (!etag) {
+                            console.error("Etag is null!")
+                            toast.error(t("ERROR_GENERIC"))
+    
+                        }
+                        const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
+    
+                        await updateTodoLocal(calendar_id, eventURL, etag, finalVTODO)
+                    }
+                }
+            }catch(e){
+                toast.error(e.message)
             }
+           
 
         }
 
@@ -461,7 +476,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 }
 
                 url += fileName
-                console.log(data)
+                // console.log(data)
 
                 await saveEventToDexie(calendar_id, url, etag, data, "VTODO")
                 const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
@@ -550,7 +565,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         onChange()
     }
     const startDateChange = (value, isValid) => {
-        console.log("new start value", value, isValid)
+        // console.log("new start value", value, isValid)
         setTaskStart(value)
         setTaskStartValid(isValid)
         onChange()
@@ -667,6 +682,12 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         closeEditor()
         showMoveModal(true)
 
+    }
+    const alarmChanged = (alarms) =>{
+        // console.log("alarms" , alarms)
+        
+        setVAlarm(alarms)
+        onChange()
     }
     // const getLabels =  async (categoryArray?) => {
     //     console.log("getLabels", categoryArray, category)
@@ -793,6 +814,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <Form.Range onChange={completionChanged} value={completion} />
             <h4>{t("NOTES")}</h4>
             <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={t("ENTER_NOTES") ?? ""} />
+            <br />
+            <VAlarmForm onChange={alarmChanged} input={alarms} />
             <br />
             <Recurrence i18next={t} onRruleSet={onRruleSet} rrule={rrule} />
             <br />

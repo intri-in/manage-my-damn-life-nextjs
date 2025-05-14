@@ -79,7 +79,7 @@
     "tsdav": "2.1.2",
     "umzug": "3.8.2",
     "validator": "13.9.0",
-    "vtodogenerator": "3.0.1",
+    "vtodogenerator": "4.0.4",
     "zustand": "4.5.2"
   },
   "devDependencies": {
