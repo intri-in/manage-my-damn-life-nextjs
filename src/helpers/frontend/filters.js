@@ -7,6 +7,7 @@ import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 import { getErrorResponse } from "../errros"
 import { getMessageFromAPIResponse } from "./response"
 import { END_OF_THE_UNIVERSE_DATE } from "@/config/constants"
+import { dummyTranslationFunction } from "./translations"
 
 
 export async function saveFiltertoServer(name, filter)
@@ -198,29 +199,35 @@ export async function getFiltersFromServer()
 
 }
 
-export function filtertoWords(filter)
+export function filtertoWords(filter, dateTimeFormat, t)
 {
-    var toReturnArray=[]
-    var toReturnFinal = []
+    if(!dateTimeFormat){
+        dateTimeFormat='DD/MM/YYYY HH:mm'
+    }
+    if(!t){
+        t=dummyTranslationFunction
+    }
+    let toReturnArray=[]
+    let toReturnFinal = []
 
     if(filter.filter.due!=null&& filter.filter.due!=undefined && varNotEmpty(filter.filter.due[0]) && varNotEmpty(filter.filter.due[1]) &&(filter.filter.due[0]!="" || filter.filter.due[1]!="" ))
     {
-        var dueBefore="End of the universe"
-        var dueAfter ="Beginning of the universe"
+        var dueBefore=t("END_OF_UNIVERSE")
+        var dueAfter =t("BEGINNING_OF_UNIVERSE")
         if(filter.filter.due[0]!="" && filter.filter.due[0]!=null)
         {
-        dueAfter= moment(new Date(filter.filter.due[0])).format('DD/MM/YYYY HH:mm');
+            dueAfter= moment(new Date(filter.filter.due[0])).format(dateTimeFormat);
         }
     
         if(filter.filter.due[1]!="" && filter.filter.due[1]!=null )
         {
-            dueBefore=moment(new Date(filter.filter.due[1])).format('DD/MM/YYYY HH:mm');
+            dueBefore=moment(new Date(filter.filter.due[1])).format(dateTimeFormat);
         }
 
 
         toReturnArray.push(
             <>
-            &#123; DUE AFTER <small>{dueAfter.toString()}</small> AND DUE BEFORE <small>{dueBefore.toString()}</small> &#125;
+            &#123; {t("DUE_AFTER").toUpperCase()} <small>{dueAfter.toString()}</small> {`${t("AND")} ${t("DUE_BEFORE").toUpperCase()}`} <small>{dueBefore.toString()}</small> &#125;
             </>)
    
 
@@ -245,20 +252,51 @@ export function filtertoWords(filter)
         }
         
         toReturnArray.push(<>
-        &#123; TASK HAS ANY OF THESE LABELS &#91; {labelString} &#93;  &#125;
+        &#123; {t("TASK_HAS_ANY_OF_LABELS").toUpperCase()} &#91; {labelString} &#93;  &#125;
         </>)
         
     }
 
-    if(filter.filter.priority!="" && filter.filter.priority!=""&&filter.filter.priority!=undefined)
+    if(("priority" in filter.filter) && filter.filter.priority &&!isNaN(filter.filter.priority))
     {
         toReturnArray.push(<>
-        &#123; TASK HAS A MINIMUM PRIORITY OF {filter.filter.priority}  &#125;
+        &#123; {t("TASK_HAS_A_MINIMUM_PRIORITY_OF").toUpperCase()} {filter.filter.priority}  &#125;
 
         </>)
     }
     
+    if(("start" in filter.filter) && filter.filter.start)
+    {
+        let after= ""
+        let before=""
+        let output =""
+        if("after" in filter.filter.start && filter.filter.start.after){
+            after = moment(filter.filter.start.after).format(dateTimeFormat)
+        }
+        if("before" in filter.filter.start && filter.filter.start.before){
+            before= moment(filter.filter.start.before).format(dateTimeFormat)
+        }
+        if((varNotEmpty(after) || varNotEmpty(before))){
+            output= `${t("TASK_STARTS").toUpperCase()} `
+            // console.log("output", output)
+        }
+        if(after){
+            output=`${output}${t("AFTER").toUpperCase()} ${after}`
+        }
+        if(before){
+            const andString = after ? ` ${t("AND")} `:"" 
+            output=output+andString+`${t("BEFORE").toUpperCase()} ${before}`
+        }
+        if(output){
 
+            toReturnArray.push(<>&#123; {output} &#125;
+            </>)        
+        }
+        // toReturnArray.push(<>
+        // &#123; {t("TASK_HAS_A_MINIMUM_PRIORITY_OF").toUpperCase()} {filter.filter.priority}  &#125;
+
+        // </>)
+    }
     for (const i in toReturnArray)
     {
         if(i!=0 )

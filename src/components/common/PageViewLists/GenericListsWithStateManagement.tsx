@@ -154,7 +154,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
 </span>
                         </Col>
                         <Col xs={2}>
-                            <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_ALL_TASKS}`}><FaExternalLinkAlt className="textDefault" /> </Link>
+                            <Link target="_blank" href={`?name=${PAGE_VIEW_NAME_HAVE_STARTED}`}><FaExternalLinkAlt className="textDefault" /> </Link>
                          </Col>
                 </div>
 
