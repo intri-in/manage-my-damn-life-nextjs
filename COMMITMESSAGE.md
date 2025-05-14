@@ -1,2 +1,2 @@
-- Made changes to add Filter Form to incorporate start option.
-- Resolved: #186
+Minor UI Fix
+ - Fixed filtertoWord implmentation.

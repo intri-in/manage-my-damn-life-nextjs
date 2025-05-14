@@ -1,7 +1,7 @@
 import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
-import { getAPIURL, logVar, varNotEmpty } from "../general"
+import { getAPIURL, isStringEmpty, logVar, varNotEmpty } from "../general"
 import { RRuleHelper } from "./classes/RRuleHelper"
 import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 import { getErrorResponse } from "../errros"
@@ -276,10 +276,12 @@ export function filtertoWords(filter, dateTimeFormat, t)
         if("before" in filter.filter.start && filter.filter.start.before){
             before= moment(filter.filter.start.before).format(dateTimeFormat)
         }
-        if((varNotEmpty(after) || varNotEmpty(before))){
+        if((!isStringEmpty(after) || !isStringEmpty(before))){
             output= `${t("TASK_STARTS").toUpperCase()} `
             // console.log("output", output)
         }
+        // console.log("filter.filter.start",after,before, )
+
         if(after){
             output=`${output}${t("AFTER").toUpperCase()} ${after}`
         }
