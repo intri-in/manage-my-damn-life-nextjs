@@ -168,7 +168,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
 
 
     if (output.length == 0) {
-        return t("NOTHING_TO_SHOW")
+        return <>{t("NOTHING_TO_SHOW")}</>
     }
     return (
         <>
