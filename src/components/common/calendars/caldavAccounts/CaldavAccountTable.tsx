@@ -13,7 +13,6 @@ import { useTranslation } from "next-i18next";
 interface functionalProps {
 
     calendarAddButtonClicked: Function;
-    caldavAccountDeleteClicked: Function;
     context: any;
     makeDeleteRequest: Function;
     updated: any
