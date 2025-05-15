@@ -71,10 +71,10 @@ export const TaskListFrameWork = () => {
         
         // console.log("fetchAllEvents: I WAS CALLED")
         console.time("dexie_COMBINED_TASK_TIMER")
-        console.time("dexie_COMBINED_TASK_GET_CALSUMM")
+        // console.time("dexie_COMBINED_TASK_GET_CALSUMM")
     
         const allSummary = await getCalDAVSummaryFromDexie()
-        console.timeEnd("dexie_COMBINED_TASK_GET_CALSUMM")
+        // console.timeEnd("dexie_COMBINED_TASK_GET_CALSUMM")
 
         let finalToPush: TaskSection[] = []
         if (isValidResultArray(allSummary)) {
@@ -84,10 +84,10 @@ export const TaskListFrameWork = () => {
                         let cal = allSummary[i]["calendars"][j]
                         const eventsFromDexie = await fetchEventsForCalendarsFromDexie(cal["calendars_id"], "VTODO")
                         // console.log("eventsFromDexie", eventsFromDexie, allSummary[i]["calendars"][j])
-                        console.time("dexie_returnTaskListFilteredandSorted")
+                        // console.time("dexie_returnTaskListFilteredandSorted")
 
                         const sortedTodoList = await returnTaskListFilteredandSorted(eventsFromDexie, currentPageFilter)
-                        console.timeEnd("dexie_returnTaskListFilteredandSorted")
+                        // console.timeEnd("dexie_returnTaskListFilteredandSorted")
 
                         // console.log("eventsFromDexie", eventsFromDexie,"filteredTodos",filteredTodos, "todoList_heirarchy", todoList_heirarchy, "sortedTodoList", sortedTodoList)
                         if (sortedTodoList.length > 0) {

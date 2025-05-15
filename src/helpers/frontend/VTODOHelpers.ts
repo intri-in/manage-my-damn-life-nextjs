@@ -8,7 +8,7 @@ function parseVAlarmTime(time:string){
         }
         const match = time.match(/-?\d+/);
         let multiplier = (time.startsWith("-")) ? -1 : 1
-        console.log("match", time)
+        // console.log("match", time)
         if(time.endsWith("D")){
             multiplier= 1440*multiplier
         }

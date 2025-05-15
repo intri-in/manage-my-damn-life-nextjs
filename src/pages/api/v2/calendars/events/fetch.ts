@@ -26,6 +26,7 @@ export default async function handler(req, res) {
                     console.error("api/v2/calendars/events/fetch",e)
 
                 })
+                console.log("req.query.ctag", req.query.ctag, req.query.syncToken)
                 if(client){
                     const calendarObjects = await client.fetchCalendarObjects({
                         calendar: {url: req.query.url, ctag: req.query.ctag, syncToken: req.query.syncToken, },

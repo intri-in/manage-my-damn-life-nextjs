@@ -172,6 +172,20 @@ export async function insertOneCalendarIntoDexie(calendar, caldav_accounts_id){
 
     }
 }
+
+export async function updateCalendarSyncTokenAndCtag(calendars_id, syncToken, ctag){
+
+    try{
+
+        const intCalendars_id = parseInt(calendars_id)
+        await db.calendars.update(intCalendars_id, {
+            syncToken: syncToken,
+            ctag:ctag
+        })
+    }catch(e){
+        console.error("updateCalendarColourbyID_Dexie", e)
+    }
+}
 export async function updateCalendarColourbyID_Dexie(calendars_id, newColour){
 
     try{

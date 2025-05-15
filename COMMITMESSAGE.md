@@ -1,3 +1,2 @@
-Ability to parse and add VALARMS in todos
- - Should work with majority of clients.
- 
+Improved sync
+- Sync now checks for changes in ctag and syncToken. Only calendars needed sync are updated.
