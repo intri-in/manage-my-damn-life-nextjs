@@ -6,6 +6,7 @@ import { majorTaskFilter } from "./events";
 import * as _ from 'lodash'
 import { VTODO } from "./classes/VTODO";
 import { getErrorResponse } from "../errros";
+import { getParsedAlarmsFromTodo } from "./VTODOHelpers";
 export async function getCaldavAccountsfromServer()
 {
     const url_api=getAPIURL()+"caldav/calendars" 
@@ -356,14 +357,19 @@ export function returnGetParsedVTODO(vtodo)
                 dtstamp: parsedData[k].dtstamp,
                 description: description,
                 rrule: parsedData[k].rrule,
-                recurrences: recurrences
-    
+                recurrences: recurrences,
+                alarms: []
             }
     
             for (const key in parsedData[k])
             {
                 if(!(key in toReturn))
                 {
+                    //Try to parse any alarms
+                    const alarms = getParsedAlarmsFromTodo(parsedData[k])
+                    if(alarms && Array.isArray(alarms) && alarms.length>0){
+                        toReturn.alarms= alarms
+                    }
                     toReturn[key]=_.cloneDeep(parsedData[k][key])
                 }
             }
