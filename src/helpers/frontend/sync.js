@@ -107,15 +107,15 @@ export async function fetchLatestEvents(refreshCalList)
     }
 }
 
-export async function fetchLatestEventsV2(refreshCalList)
+export async function fetchLatestEventsV2(forceSync)
 {
     if(isSyncing()){
         // toast.warn(i18next.t("ALREADY_SYNCING"))
         console.warn("Sync already in progress.")
     }
     localStorage.setItem(IS_SYNCING, true)
-    const arrayFromDexie = await refreshCalendarListV2()
-    // const arrayFromDexie = await getCalDAVSummaryFromDexie()
+    let arrayFromDexie = await refreshCalendarListV2()
+    if(forceSync) arrayFromDexie = await getCalDAVSummaryFromDexie()
     // console.log("arrayFromDexie_caldavAccounts", arrayFromDexie)
     let counter=0
     if(isValidResultArray(arrayFromDexie)){

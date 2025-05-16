@@ -2,13 +2,12 @@ import Head from 'next/head'
 import Container from 'react-bootstrap/Container';
 import AppBarGeneric  from "@/components/common/AppBar"
 import CaldavAccounts from '@/components/common/calendars/caldavAccounts/CaldavAccounts'
-import { getI18nObject } from '@/helpers/frontend/general';
 import { signIn, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth';
 import { useRouter } from 'next/router';
 import { checkLogin_InBuilt } from '@/helpers/frontend/user';
-import { getThemeMode, isDarkModeEnabled, useCustomTheme, useTheme } from '@/helpers/frontend/theme';
+import { getThemeMode, isDarkModeEnabled, useCustomTheme } from '@/helpers/frontend/theme';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
@@ -51,7 +50,7 @@ export default function Caldav() {
         <AppBarGeneric  />
 
         <Container fluid >
-             <div  style={{marginTop: 20}}><CaldavAccounts t={t}  /></div>
+             <div  style={{marginTop: 20}}><CaldavAccounts   /></div>
         </Container>
     </>
     )

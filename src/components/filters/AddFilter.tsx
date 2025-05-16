@@ -232,9 +232,23 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
       setStartBefore("")
     }
   }
+  const filterbyDueChanged = (e) =>{
+    setFilterbyDueChecked(e.target.checked)
+    if(!e.target.checked){
+      setDueDateBefore("")
+      setDueDateFrom('')
+
+    }
+  }
   const getFilterOutput = () =>{
 
     return filtertoWords(getCurrentSelectedFilter(), fullDateFormatFromAtom,t)
+  }
+  const filterbyLabelChanged = (e) =>{
+    setFilterbyLabelChecked(e.target.checked)
+    if(!e.target.checked){
+      setSelectedLables([])
+    }
   }
   useEffect(() => {
     let isMounted =true
@@ -289,7 +303,7 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
           checked={filterbyDueChecked}
           type="switch"
           label={t("FILTER_BY_DUE")}
-          onChange={(e) => setFilterbyDueChecked(e.target.checked)}
+          onChange={(e) => filterbyDueChanged(e)}
         />
         <br />
         {filterbyDueChecked && (
@@ -312,7 +326,7 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
           checked={filterbyLabelChecked}
           type="switch"
           label={t("FILTER_BY_LABEL")}
-          onChange={(e) => setFilterbyLabelChecked(e.target.checked)}
+          onChange={(e) => filterbyLabelChanged(e)}
         />
         <br />
         {filterbyLabelChecked && (

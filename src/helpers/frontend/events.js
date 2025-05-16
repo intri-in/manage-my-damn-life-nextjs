@@ -536,10 +536,9 @@ export function addAdditionalFieldsFromOldEventV2(newEventData, oldEventData)
 
 }
 
-export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,etag, taskName, onDismissFunction){
+export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,etag, taskName, onDismissFunction,t){
     const message = taskName? taskName+": " : ""
-    const i18next = getI18nObject()
-    toast.info(message+ i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+    toast.info(message+ t("DELETE_ACTION_SENT_TO_CALDAV"))
     const oldEvent = await getEventbyURLFromDexie(url) 
     // Preemptively delete event from Dexie.
     await deleteEventByURLFromDexie(url)

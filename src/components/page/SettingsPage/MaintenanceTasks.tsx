@@ -9,14 +9,8 @@ const MaintenanceTasks = () =>{
 
     const clearEventsFromDexie = () =>{
         toast.info(t("DELETING_AND_REFRESHING_EVENTS"))
-        deleteAllEventsFromDexie().then((response) =>{
-            if(response){
-                fetchLatestEventsV2().then((result)=>{
-                    toast.success(t("DONE"))
-                })
-            }else{
-                toast.warn(t("ERROR_GENERIC"))
-            }
+        fetchLatestEventsV2(true).then((result)=>{
+            toast.success(t("DONE"))
         })
     }
     return(

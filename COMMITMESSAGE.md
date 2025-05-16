@@ -1,1 +1,1 @@
-Minor UI Fixes
+Minor bug fixes and UI Fixes

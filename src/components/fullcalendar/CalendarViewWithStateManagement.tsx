@@ -277,12 +277,13 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                                 let recurrenceObj = new RecurrenceHelper(data)
                                 let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
                                 let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
-                                //console.log("REPEATING", startDate, title, dueDate)
+                                // console.log("REPEATING", startDate, title, dueDate)
 
                                 eventObject = {
                                     id: event.calendar_events_id!.toString(),
                                     title: title,
-                                    allDay: false,
+                                    allDay: true,
+                                    start:startDate,
                                     end: dueDate,
                                     displayEventEnd: false,
                                     editable: false,
@@ -294,6 +295,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                                         until: rrule["UNTIL"]
                                     },
                                 }
+                                // console.log("eventObject", eventObject)
 
                             } else {
                                 if (varNotEmpty(data.due) && data.due != "") {

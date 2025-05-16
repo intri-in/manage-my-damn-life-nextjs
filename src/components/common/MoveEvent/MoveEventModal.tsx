@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { Loading } from '../Loading';
 import { getRandomString } from '@/helpers/crypto';
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from '@/helpers/frontend/dexie/calendars_dexie';
-import { deleteEventFromServer, getParsedEvent, handleDeleteEventUI, postNewEvent } from '@/helpers/frontend/events';
+import { deleteEventFromServer, getParsedEvent, postNewEvent } from '@/helpers/frontend/events';
 import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
 import VTodoGenerator from 'vtodogenerator'
 import { Calendar_Events, Calendars } from '@/helpers/frontend/dexie/dexieDB';

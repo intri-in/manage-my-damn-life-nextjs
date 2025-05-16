@@ -449,6 +449,10 @@ export async function searchEventInDexie(calendars_id, type, searchTerm) {
     return result
 }
 
+/**
+ * @deprecated
+ * @returns 
+ */
 export async function deleteAllEventsFromDexie() {
 
     try {
