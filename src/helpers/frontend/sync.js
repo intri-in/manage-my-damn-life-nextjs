@@ -107,22 +107,25 @@ export async function fetchLatestEvents(refreshCalList)
     }
 }
 
-export async function fetchLatestEventsV2(refreshCalList)
+export async function fetchLatestEventsV2(forceSync)
 {
     if(isSyncing()){
         // toast.warn(i18next.t("ALREADY_SYNCING"))
         console.warn("Sync already in progress.")
     }
     localStorage.setItem(IS_SYNCING, true)
-    await refreshCalendarListV2()
-    const arrayFromDexie = await getCalDAVSummaryFromDexie()
+    let arrayFromDexie = await refreshCalendarListV2()
+    if(forceSync) arrayFromDexie = await getCalDAVSummaryFromDexie()
     // console.log("arrayFromDexie_caldavAccounts", arrayFromDexie)
+    let counter=0
     if(isValidResultArray(arrayFromDexie)){
         for(const i in arrayFromDexie){
             if(isValidResultArray(arrayFromDexie[i]["calendars"])){
                 for(const j in arrayFromDexie[i]["calendars"]){
                     const cal = arrayFromDexie[i]["calendars"][j]
-                    console.log("Syncing Calendar: "+cal["displayName"])
+
+                    console.log("Syncing Calendar: "+cal["displayName"], cal["calendars_id"])
+                    counter++
                     const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
                     // console.log("events", events)
                     //Now we save these events in dexie.
@@ -133,6 +136,10 @@ export async function fetchLatestEventsV2(refreshCalList)
             //saveEventsIntoDexie(caldav_account)
 
         }
+    }
+    
+    if(!counter){
+        console.log("All calendars up-to-date.")
     }
     localStorage.setItem(IS_SYNCING, false)
     localStorage.setItem(LASTSYNC, Date.now())
@@ -247,6 +254,10 @@ export async function refreshEventsinDB(caldav_accounts_id)
     })
     
 }
+/**
+ * 
+ * @returns A list of calendars that need to be synced.
+ */
 export async function refreshCalendarListV2()
 {
     const url_api=getAPIURL()+"v2/calendars/refresh"

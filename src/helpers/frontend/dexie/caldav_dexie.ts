@@ -8,13 +8,13 @@ export async function getCalDAVSummaryFromDexie(){
   const userData = getUserDataFromCookies()
   const userHash = userData["userhash"]
   // console.log("userData", userData)
-  console.time("dexie_getUserIDFromHash_Dexie")
+  // console.time("dexie_getUserIDFromHash_Dexie")
   const userid = await getUserIDFromHash_Dexie(userHash)    
-  console.timeEnd("dexie_getUserIDFromHash_Dexie")
+  // console.timeEnd("dexie_getUserIDFromHash_Dexie")
   
-  console.time("dexie_getAllCalDavAccountsFromDexie")
+  // console.time("dexie_getAllCalDavAccountsFromDexie")
   const caldavAccounts = await getAllCalDavAccountsFromDexie(userid)
-  console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
+  // console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
 
   let toReturn :any = []
   if(Array.isArray(caldavAccounts)){

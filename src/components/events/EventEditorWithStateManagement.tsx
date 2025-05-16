@@ -447,7 +447,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <br />
         <Accordion>
                 <Accordion.Item eventKey="0">
-                    <Accordion.Header>Raw ICS</Accordion.Header>
+                    <Accordion.Header>{t("RAW_ICS")}</Accordion.Header>
                     <Accordion.Body>
                         {rawICS}
                     </Accordion.Body>

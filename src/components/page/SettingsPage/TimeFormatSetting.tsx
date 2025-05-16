@@ -98,13 +98,13 @@ export const TimeFormatSetting = () =>{
            <a target="_blank" href="https://momentjs.com/docs/#/displaying/format/">Formatting Tips</a>
         </p>
         <Row style={{display: "flex", flexWrap:"wrap", alignItems: "center"}}>
-            <Col  xs={6}>
+            <Col  lg={6}>
             <InputGroup style={{display:"flex", justifyContent:"center", alignContent:"center"}} className="mb-3">
                 <InputGroup.Text> {t("DATE_FORMAT")}</InputGroup.Text>
                 <Form.Control onChange={dateFormatInputChanged} value={dateFormat} />
             </InputGroup>
             </Col>
-            <Col  xs={6}>
+            <Col  lg={6}>
             <InputGroup style={{display:"flex", justifyContent:"center", alignContent:"center"}} className="mb-3">
             <InputGroup.Text>{t("TIME_FORMAT")} </InputGroup.Text>
                 <Form.Control onChange={(e)=>setTimeFormat(e.target.value)} value={timeFormat} />

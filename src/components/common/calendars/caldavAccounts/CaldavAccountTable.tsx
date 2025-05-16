@@ -13,7 +13,6 @@ import { useTranslation } from "next-i18next";
 interface functionalProps {
 
     calendarAddButtonClicked: Function;
-    caldavAccountDeleteClicked: Function;
     context: any;
     makeDeleteRequest: Function;
     updated: any
@@ -169,7 +168,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
 
 
     if (output.length == 0) {
-        return t("NOTHING_TO_SHOW")
+        return <>{t("NOTHING_TO_SHOW")}</>
     }
     return (
         <>

@@ -26,7 +26,7 @@ import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie"
 import { useTranslation } from "next-i18next";
 import { dummyTranslationFunction } from "@/helpers/frontend/translations";
 
-export default function CaldavAccount(){
+function CaldavAccount(){
 
     const {t} = useTranslation()
     return <CaldavAccountsClass t={t} />

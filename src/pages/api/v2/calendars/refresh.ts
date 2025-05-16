@@ -8,7 +8,7 @@ import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
 import { processCalendarFromCaldav } from "@/helpers/api/v2/caldavHelper"
 import { shouldLogforAPI } from "@/helpers/logs"
-const LOGTAG = "api/calendars/refresh"
+const LOGTAG = "api/v2/calendars/refresh"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
         if(await middleWareForAuthorisation(req,res))
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                         defaultAccountType: 'caldav',
                     }).catch((reason) =>
                     {
-                        if(shouldLogforAPI()) console.log(reason, "api/calendars/refresh")
+                        console.error(reason, "api/calendars/refresh")
                         // Invalid calDAV account. Client is null.
                     })
                     //logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
                     if(client!=null && typeof(client)== 'object')
                     {
                         const calendars = await client.fetchCalendars()
-                        // logVar(calendars, "calendars: "+LOGTAG)
+                        if(shouldLogforAPI()) console.log(calendars, "calendars: "+LOGTAG)
                         
                         
                         let tempCalList:any = []
