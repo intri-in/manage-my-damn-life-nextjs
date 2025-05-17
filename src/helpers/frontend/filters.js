@@ -1,12 +1,14 @@
 import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
-import { getAPIURL, logVar, varNotEmpty } from "../general"
+import { getAPIURL, getTodaysDayEnd_ISOString, isStringEmpty, logVar, varNotEmpty } from "../general"
 import { RRuleHelper } from "./classes/RRuleHelper"
 import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 import { getErrorResponse } from "../errros"
 import { getMessageFromAPIResponse } from "./response"
 import { END_OF_THE_UNIVERSE_DATE } from "@/config/constants"
+import { dummyTranslationFunction } from "./translations"
+
 
 export async function saveFiltertoServer(name, filter)
 {
@@ -80,11 +82,11 @@ export async function makeFilterEditRequest(filterid, name, finalFilter)
 export function checkifFilterValid(filter)
 {
 
-    var hasValidDueFilter=true
-    var hasValidPriorityFilter = true
-    var hasValidLabelFilter = true
-    var hasValidLogic = true
-
+    let hasValidDueFilter=true
+    let hasValidPriorityFilter = true
+    let hasValidLabelFilter = true
+    let hasValidLogic = true
+    let hasValidStart = false
     if(filter.filter.due!=null && filter.filter.due!=undefined)
     {
         if((filter.filter.due[0]=="" || filter.filter.due[0]==null) &&  (filter.filter.due[1]=="" || filter.filter.due[1]==""))
@@ -125,7 +127,16 @@ export function checkifFilterValid(filter)
         hasValidLogic= false
     }
 
-    if(hasValidDueFilter || hasValidLabelFilter || hasValidLogic || hasValidPriorityFilter)
+    if("start" in filter.filter && filter.filter.start){
+        if("before" in filter && filter.before){
+            hasValidStart= true
+        }
+        if("after" in filter && filter.after){
+            hasValidStart= true
+        }
+    }
+
+    if(hasValidDueFilter || hasValidLabelFilter || hasValidLogic || hasValidPriorityFilter || hasValidStart)
     {
         return true
     }
@@ -188,29 +199,35 @@ export async function getFiltersFromServer()
 
 }
 
-export function filtertoWords(filter)
+export function filtertoWords(filter, dateTimeFormat, t)
 {
-    var toReturnArray=[]
-    var toReturnFinal = []
+    if(!dateTimeFormat){
+        dateTimeFormat='DD/MM/YYYY HH:mm'
+    }
+    if(!t){
+        t=dummyTranslationFunction
+    }
+    let toReturnArray=[]
+    let toReturnFinal = []
 
     if(filter.filter.due!=null&& filter.filter.due!=undefined && varNotEmpty(filter.filter.due[0]) && varNotEmpty(filter.filter.due[1]) &&(filter.filter.due[0]!="" || filter.filter.due[1]!="" ))
     {
-        var dueBefore="End of the universe"
-        var dueAfter ="Beginning of the universe"
+        var dueBefore=t("END_OF_UNIVERSE")
+        var dueAfter =t("BEGINNING_OF_UNIVERSE")
         if(filter.filter.due[0]!="" && filter.filter.due[0]!=null)
         {
-        dueAfter= moment(new Date(filter.filter.due[0])).format('DD/MM/YYYY HH:mm');
+            dueAfter= moment(new Date(filter.filter.due[0])).format(dateTimeFormat);
         }
     
         if(filter.filter.due[1]!="" && filter.filter.due[1]!=null )
         {
-            dueBefore=moment(new Date(filter.filter.due[1])).format('DD/MM/YYYY HH:mm');
+            dueBefore=moment(new Date(filter.filter.due[1])).format(dateTimeFormat);
         }
 
 
         toReturnArray.push(
             <>
-            &#123; DUE AFTER <small>{dueAfter.toString()}</small> AND DUE BEFORE <small>{dueBefore.toString()}</small> &#125;
+            &#123; {t("DUE_AFTER").toUpperCase()} <small>{dueAfter.toString()}</small> {`${t("AND")} ${t("DUE_BEFORE").toUpperCase()}`} <small>{dueBefore.toString()}</small> &#125;
             </>)
    
 
@@ -235,20 +252,53 @@ export function filtertoWords(filter)
         }
         
         toReturnArray.push(<>
-        &#123; TASK HAS ANY OF THESE LABELS &#91; {labelString} &#93;  &#125;
+        &#123; {t("TASK_HAS_ANY_OF_LABELS").toUpperCase()} &#91; {labelString} &#93;  &#125;
         </>)
         
     }
 
-    if(filter.filter.priority!="" && filter.filter.priority!=""&&filter.filter.priority!=undefined)
+    if(("priority" in filter.filter) && filter.filter.priority &&!isNaN(filter.filter.priority))
     {
         toReturnArray.push(<>
-        &#123; TASK HAS A MINIMUM PRIORITY OF {filter.filter.priority}  &#125;
+        &#123; {t("TASK_HAS_A_MINIMUM_PRIORITY_OF").toUpperCase()} {filter.filter.priority}  &#125;
 
         </>)
     }
     
+    if(("start" in filter.filter) && filter.filter.start)
+    {
+        let after= ""
+        let before=""
+        let output =""
+        if("after" in filter.filter.start && filter.filter.start.after){
+            after = moment(filter.filter.start.after).format(dateTimeFormat)
+        }
+        if("before" in filter.filter.start && filter.filter.start.before){
+            before= moment(filter.filter.start.before).format(dateTimeFormat)
+        }
+        if((!isStringEmpty(after) || !isStringEmpty(before))){
+            output= `${t("TASK_STARTS").toUpperCase()} `
+            // console.log("output", output)
+        }
+        // console.log("filter.filter.start",after,before, )
 
+        if(after){
+            output=`${output}${t("AFTER").toUpperCase()} ${after}`
+        }
+        if(before){
+            const andString = after ? ` ${t("AND")} `:"" 
+            output=output+andString+`${t("BEFORE").toUpperCase()} ${before}`
+        }
+        if(output){
+
+            toReturnArray.push(<>&#123; {output} &#125;
+            </>)        
+        }
+        // toReturnArray.push(<>
+        // &#123; {t("TASK_HAS_A_MINIMUM_PRIORITY_OF").toUpperCase()} {filter.filter.priority}  &#125;
+
+        // </>)
+    }
     for (const i in toReturnArray)
     {
         if(i!=0 )
@@ -266,104 +316,175 @@ export function filtertoWords(filter)
 
 export function applyEventFilter(event, filter)
 {
+
+//    console.log("filter",  filter.filter)
     if(!filter || ("filter" in filter) ==false ){
         //Filter is invalid.
         //Let all events through!!
         return true
     }
-    var logic="and"
-    if(filter.logic!=null && filter.logic!=undefined)
+    let logic="or"
+    if("logic" in filter && filter.logic)
     {
         logic=filter.logic.toLowerCase()
     }
 
-    if(logic == "or")
-    {
-        var filterByLabelResult = false
+
+    /**
+     * Only consider logic if there are more than one condition. Override logic to "or"
+     */
+    // console.log(countConditionsinFilter(filter))
+    if(countConditionsinFilter(filter)<=1){
+
+        logic="or"
+    }
+    
+        let filterByLabelResult = false
         if(filter.filter.label!=null)
         {
-            var filterByLabelResult= filterbyLabel(filter.filter.label, event.category)
+            filterByLabelResult= filterbyLabel(filter.filter.label, event.category)
             // console.log("filterByLabelResult", filterByLabeleResult, event.category, filter.filter.label)
         }
-        var filterByDueResult= false
-        if(filter.filter.due!=null)
-        {
-            var dueDate = event.due
-
-            if (varNotEmpty(event.rrule) && event.rrule != "") {
-                //Repeating Object
-                var recurrenceObj = new RecurrenceHelper(event)
-                dueDate= recurrenceObj.getNextDueDate()
-            }
-    
-            filterByDueResult = filterbyDue(filter.filter.due, dueDate)
-           
-           
-        }
-
-        var filterbyPriorityResult =false
-
-        if(filter.filter.priority!=null)
-        {
-            filterbyPriorityResult=filterbyPriority(filter.filter.priority,event.priority)
-            
-           
-        }
-
-        if(filterbyPriorityResult == true || filterByDueResult == true || filterByLabelResult == true)
-        {
-            return true
-        }
-        else
-        {
+        if(!filterbyLabel && logic=="and"){
             return false
         }
 
-    }else{
-
-        var filterByLabelResult = null
-        if(filter.filter.label!=null)
-        {
-            var filterByLabelResult= filterbyLabel(filter.filter.label, event.category)
-            if(filterByLabelResult==false)
-            {
-                return false
-            }
-        }
-        var filterByDueResult= null
+        let filterByDueResult= false
         if(filter.filter.due!=null)
         {
-            var dueDate = event.due
+            let dueDate = event.due
 
-            if (varNotEmpty(event.rrule) && event.rrule != "") {
+            if ("rrule" in event && event.rrule ) {
                 //Repeating Object
                 var recurrenceObj = new RecurrenceHelper(event)
                 dueDate= recurrenceObj.getNextDueDate()
             }
     
-            filterByDueResult = filterbyDue(filter.filter.due, dueDate)
-
-            return filterByDueResult
-           
-        }
-
-        var filterbyPriorityResult =null
-
-        if(filter.filter.priority!=null && filterbyPriority(filter.filter.priority,event.priority)==false)
-        {
-            filterbyPriorityResult=false
             
-            return filterbyPriorityResult
+            filterByDueResult = filterbyDue(filter.filter.due, dueDate)
+            
+            // console.log("filterbyDue 22", filter.filter.due, moment(dueDate).unix(), filterByDueResult)
+        }
+
+        if(!filterByDueResult && logic=="and"){
+            return false
+        }
+
+        let filterbyPriorityResult =false
+        // console.log(("priority" in filter.filter && filter.filter.priority!=null))
+        if("priority" in filter.filter && filter.filter.priority!=null)
+        {
+            filterbyPriorityResult=filterbyPriority(filter.filter.priority,event.priority)
+            console.log(event.priority,filterbyPriorityResult)
+            
            
         }
 
-        return true
+        if(!filterbyPriorityResult && logic=="and"){
+            return false
+        }
 
-    }
+        let filterbyStartResult = false
+        if("start" in filter.filter && filter.filter.start && "start" in event)
+        {
+            let startDate = event.start
+
+            if ("rrule" in event && event.rrule ) {
+               //Recurring event.
+               // We ignore the start date, because it can be way in the past.
+               // We instead use the due date.
+               var recurrenceObj = new RecurrenceHelper(event)
+               startDate= recurrenceObj.getNextDueDate()
+
+            }
+
+            filterbyStartResult = filterbyStart(filter.filter.start, startDate)
+        }
+        if(!filterbyStartResult && logic=="and"){
+            return false
+        }
+        //if Logic is OR, we return true if any of the filters were true.
+        return (filterbyPriorityResult == true || filterByDueResult == true || filterByLabelResult == true || filterbyStartResult == true)
+
+        // if(logic == "or")
+    // {
+    // }
+    // else{
+
+    //     var filterByLabelResult = null
+    //     if(filter.filter.label!=null)
+    //     {
+    //         var filterByLabelResult= filterbyLabel(filter.filter.label, event.category)
+    //         if(filterByLabelResult==false)
+    //         {
+    //             return false
+    //         }
+    //     }
+    //     var filterByDueResult= null
+    //     if(filter.filter.due!=null)
+    //     {
+    //         var dueDate = event.due
+
+    //         if (varNotEmpty(event.rrule) && event.rrule != "") {
+    //             //Repeating Object
+    //             var recurrenceObj = new RecurrenceHelper(event)
+    //             dueDate= recurrenceObj.getNextDueDate()
+    //         }
+    
+    //         filterByDueResult = filterbyDue(filter.filter.due, dueDate)
+
+    //         return filterByDueResult
+           
+    //     }
+
+    //     var filterbyPriorityResult =null
+
+    //     if(filter.filter.priority!=null && filterbyPriority(filter.filter.priority,event.priority)==false)
+    //     {
+    //         filterbyPriorityResult=false
+            
+    //         return filterbyPriorityResult
+           
+    //     }
+
+    //     return true
+
+    // }
     
 
 }
+/**
+ * Counts the number of condition there are in a filter
+ * @param {*} filter 
+ */
+function countConditionsinFilter(filter){
 
+    let counter =0
+    if(!isValidFilter(filter)){
+        return counter
+    }
+
+    const filterData = filter.filter
+
+    if("priority" in filterData && filterData.priority){
+        counter++
+    }
+
+    if("due" in filterData && filterData.due){
+        counter++
+    }
+
+    if("label" in filterData && filterData.label){
+        counter++
+    }
+
+    if("start" in filterData && filterData.start){
+        counter++
+    }
+
+
+    return counter
+}
 function filterbyLabel(filterArray, categoryArray)
 {
     let toReturn = false
@@ -395,16 +516,46 @@ function filterbyLabel(filterArray, categoryArray)
 
     return toReturn
 }
+function filterbyStart(filter_start, startDate ){
+    let toReturn = false
 
+    if(filter_start && startDate)
+    {
+        const startUnix= moment(startDate).unix()
+
+        if(("before" in filter_start) && filter_start.before){
+            if(startUnix<=moment(filter_start.before).unix())
+            {
+                toReturn = true
+            }
+
+        }
+        
+
+        if("after" in filter_start && filter_start.after){
+            if(startUnix>=moment(filter_start.after).unix())
+            {
+                toReturn = true
+            }
+
+            
+        }
+    }
+
+    return toReturn
+}
 function filterbyDue(filterdueArray, dueDate)
 {
-    var toReturn = false
+    let toReturn = false
     if(filterdueArray!=null && filterdueArray.length==2)
     {
         if(dueDate!=null && dueDate!="")
         {
-            var dueUnixStamp= moment(dueDate).unix()
-            if(dueUnixStamp>=filterdueArray[0] && dueUnixStamp <= filterdueArray[1])
+            const dueUnixStamp= moment(dueDate).unix()
+            const dueStart = moment(filterdueArray[0]).unix()
+            const dueEnd = moment(filterdueArray[1]).unix()
+            // console.log(moment(getTodaysDayEnd_ISOString()*1000).toISOString())
+            if(dueUnixStamp>=dueStart && dueUnixStamp <= dueEnd)
             {
                 return true
             }

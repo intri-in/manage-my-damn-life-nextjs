@@ -1,4 +1,3 @@
-import { getI18nObject } from '@/helpers/frontend/general';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
@@ -11,14 +10,14 @@ import { toast } from 'react-toastify';
 import { Loading } from '../Loading';
 import { getRandomString } from '@/helpers/crypto';
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from '@/helpers/frontend/dexie/calendars_dexie';
-import { deleteEventFromServer, getParsedEvent, handleDeleteEventUI, postNewEvent } from '@/helpers/frontend/events';
+import { deleteEventFromServer, getParsedEvent, postNewEvent } from '@/helpers/frontend/events';
 import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
 import VTodoGenerator from 'vtodogenerator'
 import { Calendar_Events, Calendars } from '@/helpers/frontend/dexie/dexieDB';
 import { getObjectForAPICallV2, makeGenerateICSRequest } from '@/helpers/frontend/ics';
+import { useTranslation } from 'next-i18next';
 
 
-const i18next = getI18nObject()
 export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boolean, handleClose: () => void, onServerResponse: Function}) => {
     
     /**
@@ -29,13 +28,13 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
     /**
      * Local State
      */
-
+    const {t} = useTranslation()
     const [currentCalID, setCurrentCalID] = useState<string | number>("")
     const [calendar_id, setCalendarsID] = useState<string | number>("")
     const [copyChecked, setCopyChecked] = useState(false)
     const [moveChecked, setMoveChecked] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
-    const [parsedEvent, setParsedEvent] = useState<{} | undefined>({})
+    const [parsedEvent, setParsedEvent] = useState<{} | null | undefined>({})
     const [summary, setSummary] = useState("")
     const [type, setType] = useState("")
     const [eventFromDexie, setEventFromDexie] = useState<Calendar_Events[]>([])
@@ -92,7 +91,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
             // User wants to move.
             // Check if the target calendar is the same.
             if(calendar_id.toString()==currentCalID){
-                toast.error(i18next.t("CANT_MOVE_TO_SAME_CALENDAR"))
+                toast.error(t("CANT_MOVE_TO_SAME_CALENDAR"))
                 return
             }
             // Move the event.
@@ -115,7 +114,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
     }
     const copyEvent =  async (deleteTask) =>{
         if(!moveInput.id){
-            toast.error(i18next.t("ERROR_GENERIC"))
+            toast.error(t("ERROR_GENERIC"))
             return
         }
         let parsedEventLocal: {} | undefined = {...parsedEvent}
@@ -161,7 +160,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
         }
 
         await saveEventToDexie(calendar_id, url, etag, finalVTODO, type)
-        toast.info(i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(t("ACTION_SENT_TO_CALDAV"))
         const responseBody = await postNewEvent(calendar_id, finalVTODO, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], type, fileName)
         // console.log("responseBody", responseBody)
         if(!deleteTask){
@@ -175,7 +174,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
                 handleDelete(eventFromDexie, caldav_accounts_id)
                 
             }else{
-                toast.error(i18next.t("ERROR_GENERIC"))
+                toast.error(t("ERROR_GENERIC"))
                 console.error("copyEvent responseBody", responseBody)
             }
 
@@ -195,13 +194,13 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
       <>
         <Modal centered show={show} onHide={handleClose}>
           <Modal.Header closeButton>
-            <Modal.Title>{i18next.t("COPY_MOVE")}</Modal.Title>
+            <Modal.Title>{t("COPY_MOVE")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <h1>{`${i18next.t("SUMMARY")}:`}</h1>
+            <h1>{`${t("SUMMARY")}:`}</h1>
             <p className='textDefault'>{summary}</p>
 
-            <h2>{i18next.t("CURRENT_CALENDAR")}</h2>
+            <h2>{t("CURRENT_CALENDAR")}</h2>
             <CalendarPicker disabled={true} key="current_calendar" onSelectedHook={onCalendarSelect} calendar_id={currentCalID} />
             <br />
             <Form.Check // prettier-ignore
@@ -211,7 +210,7 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
             name="group1"
             checked={moveChecked}
             id="move"
-            label={i18next.t("MOVE")}
+            label={t("MOVE")}
             />
             <Form.Check // prettier-ignore
             inline
@@ -220,10 +219,10 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
             checked={copyChecked}
             type="radio"
             onChange={copyCheckedChanged}
-            label={i18next.t("COPY")}
+            label={t("COPY")}
             />
             <br /> <br />
-            <h2>{i18next.t("TARGET_CALENDAR")}</h2>
+            <h2>{t("TARGET_CALENDAR")}</h2>
             <CalendarPicker key="final_calendar" onSelectedHook={onCalendarSelect} calendar_id={calendar_id} />
 
           </Modal.Body>
@@ -238,10 +237,10 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
             (
                 <>
                 <Button variant="secondary" onClick={handleClose}>
-                    {i18next.t("CLOSE")}
+                    {t("CLOSE")}
                 </Button>
                 <Button variant="primary" onClick={handleChangeofCal}>
-                    {i18next.t("COPY_MOVE")}
+                    {t("COPY_MOVE")}
                 </Button>
 
                 </>

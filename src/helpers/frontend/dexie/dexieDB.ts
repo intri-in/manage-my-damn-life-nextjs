@@ -1,5 +1,10 @@
 import Dexie, { Table } from 'dexie';
 
+export interface Users{
+  id?: number,
+  hash?: string
+}
+
 export interface Caldav_Accounts{
   id?: number;
   caldav_accounts_id: number;
@@ -7,6 +12,7 @@ export interface Caldav_Accounts{
   url: number;
   name: string;
   authMethod?: string;
+  userid:number
 }
 
 export interface Calendars{
@@ -34,12 +40,16 @@ export  interface Calendar_Events {
     type?: string;
     calendar_id?: string;
     deleted?: string;
+    uid?:string;
+    parsedData?:any
+  
 }
 
 export interface Labels {
   labels_id?: number;
   name?: string;
   colour?: string;
+  userid?:number
 } 
 
 export interface Settings{
@@ -50,12 +60,22 @@ export interface Settings{
   value?: string;
 
 }
+
+export interface Event_Parents{
+  id?: number;
+  uid?: string;
+  parent_id?:string
+}
+
 export class MySubClassedDexie extends Dexie {
   caldav_accounts!: Table<Caldav_Accounts>; 
   calendars!: Table<Calendars>;
   calendar_events!: Table<Calendar_Events>;
   labels!: Table<Labels>
   settings!:Table<Settings>
+  event_parents!:Table<Event_Parents>
+  users!:Table<Users>
+
   constructor() {
     super('mmdl_dexie_db');
     this.version(1).stores({
@@ -67,7 +87,32 @@ export class MySubClassedDexie extends Dexie {
 
     });
 
-    
+
+    this.version(2).stores({
+      event_parents:'++id,calendar_events_id,parent_id',
+      calendar_events:'++calendar_events_id,url,etag,data, updated, type, calendar_id, deleted,calendar_events_id,uid,parsedData'
+    })
+    this.version(3).stores({
+      event_parents:'++id,calendar_events_id,parent_id',
+    })
+
+    this.version(4).stores({
+      event_parents:'++id,uid,parent_id',
+
+    })
+    this.version(5).stores({
+      users:'++id,hash',
+      caldav_accounts: '++id,caldav_accounts_id, username, url, name, authMethod,userid',
+    }).upgrade(trans =>{
+      return trans.table("caldav_accounts").toCollection().modify (caldav_account => {
+        caldav_account.userid=""
+      })
+    })
+    this.version(6).stores({
+      labels:"++labels_id, name, colour,userid",
+    })
+
+
   }
 }
 

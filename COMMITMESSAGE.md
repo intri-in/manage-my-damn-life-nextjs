@@ -1,1 +1,1 @@
-- Fixed "Calendars to Show" toggle in CalendarView.
+Minor bug fixes and UI Fixes

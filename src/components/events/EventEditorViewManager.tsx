@@ -11,6 +11,7 @@ import { EventEditorExitModal } from "../tasks/EventEditorExitModal"
 import { onServerResponse_UI } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore"
 import { handleDeleteEventUI } from "@/helpers/frontend/events"
+import { useTranslation } from "next-i18next"
 
 export const EventEditorViewManager =() =>{
 
@@ -26,7 +27,7 @@ export const EventEditorViewManager =() =>{
     const [changed, setChanged] = useState(false)
     const [showConfirmDialog, setShowConfimDialog] = useState(false)
     const [showConfirmDeleteDialog, setShowConfirmDeleteDialog] = useState(false)
-
+    const {t} = useTranslation()
     const eventEditorClosed = () =>{
         if(!changed){
             setShow(false)
@@ -48,7 +49,7 @@ export const EventEditorViewManager =() =>{
     }
 
     const onServerResponse = (body, taskName) =>{
-        onServerResponse_UI(body, taskName)
+        onServerResponse_UI(body, taskName,t)
         setUpdateViewTime(Date.now())
 
     }
@@ -76,7 +77,7 @@ export const EventEditorViewManager =() =>{
 
                     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
                     console.log("caldav_accounts_id", caldav_accounts_id)
-                handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse)
+                handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse, t)
                     setShowConfirmDeleteDialog(false)
                     destroy()
 
@@ -96,7 +97,7 @@ export const EventEditorViewManager =() =>{
         <>
         <Offcanvas placement='start' show={show} onHide={eventEditorClosed}>
             <Offcanvas.Header closeButton>
-                <Offcanvas.Title>Edit Event</Offcanvas.Title>
+                <Offcanvas.Title>{t("EDIT_EVENT")}</Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
             <EventEditorWithStateManagement closeEditor={()=>destroy()} onServerResponse={onServerResponse} showDeleteDailog={()=>setShowConfirmDeleteDialog(true)} onChange={onChange} input={eventEditorInput} />

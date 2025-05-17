@@ -7,6 +7,7 @@ import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels"
 import { isValidResultArray } from "@/helpers/general"
 import { useEffect, useState } from "react"
 import { categoryArrayHasLabel, removeLabelFromCategoryArray, searchLabelObject } from "@/helpers/frontend/labels";
+import { useTranslation } from 'next-i18next';
 
 export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemoved}:{category: string[],onLabelAdded: Function, onLabelRemoved: Function}) =>{
 
@@ -14,7 +15,7 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
     const [labelOutput, setLabelOutput] = useState<JSX.Element[]>([])
     const [labelSearchTerm, setLabelSearchTerm] = useState("")
     const [searchOutput, setSearchOutput] = useState<JSX.Element[]>([])
-
+    const {t} = useTranslation()
     const removeLabelFromCategory = (labelToRemove) =>{
         let newArray: string[] = removeLabelFromCategoryArray(category, labelToRemove)
         onLabelRemoved(newArray)
@@ -102,9 +103,9 @@ export const SearchLabelArrayFunctional = ({category, onLabelAdded, onLabelRemov
             {labelOutput}
         </div>
         <Row>
-        <Col sm={9}><Form.Control onChange={searchLabels} value={labelSearchTerm} maxLength={20} placeholder="Enter label" /></Col> 
+        <Col sm={9}><Form.Control onChange={searchLabels} value={labelSearchTerm} maxLength={20} placeholder={t("ENTER_LABEL") ?? ""} /></Col> 
         <Col sm={3}>
-        <Button  onClick={()=>addNewLabelToCategory(labelSearchTerm)} variant="primary" size="sm">Add</Button>
+        <Button  onClick={()=>addNewLabelToCategory(labelSearchTerm)} variant="primary" size="sm">{t("ADD")}</Button>
         </Col>
         </Row>
         <Row style={{marginTop:3 }} >

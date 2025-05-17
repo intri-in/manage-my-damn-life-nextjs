@@ -1,7 +1,7 @@
+
 import { Col, Row, Offcanvas, Accordion } from 'react-bootstrap';
 import {  varNotEmpty } from '@/helpers/general';
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from '@/config/style';
-import { getI18nObject } from '@/helpers/frontend/general';
 import { AiOutlineMenuUnfold } from 'react-icons/ai';
 import { useState, useEffect, useRef } from 'react';
 import { AddTaskFunctional } from '@/components/common/AddTask/AddTaskFunctional';
@@ -10,15 +10,15 @@ import { TaskListFrameWork } from '@/components/tasks/views/TaskListFrameWork';
 import { currentPageTitleAtom } from 'stateStore/ViewStore';
 import { useAtomValue } from 'jotai';
 import { CalendarViewWithStateManagement } from '@/components/fullcalendar/CalendarViewWithStateManagement';
+import { useTranslation } from 'next-i18next';
 
-const i18next = getI18nObject();
 export const CombinedViewFunctional = (props) => {
 
   const currentPageTitle = useAtomValue(currentPageTitleAtom)
 
   const [showListColumn, setShowListColumn] = useState(true);
   const [calendarAR, setCalendarAR] = useState(1.35);
-
+  const { t } = useTranslation("common")
 
 
   const updateDimensions = () => {
@@ -64,7 +64,7 @@ export const CombinedViewFunctional = (props) => {
     <TaskListFrameWork />
   </>
   )
-  const taskOutput = showListColumn ? (<></>) : <GetAccordionTaskList body={allTaskLists} />
+  const taskOutput = showListColumn ? (<></>) : <GetAccordionTaskList t={t} body={allTaskLists} />
   const borderLeft = !showListColumn ? "" : `3px solid ${SECONDARY_COLOUR}`
   return (
     <>
@@ -81,12 +81,12 @@ export const CombinedViewFunctional = (props) => {
   );
 };
 
-const GetAccordionTaskList = ({body}) =>{
+const GetAccordionTaskList = ({body, t}) =>{
   return(
     <div style={{marginTop: 20}}>
         <Accordion >
           <Accordion.Item eventKey="taskList_HomePage">
-            <Accordion.Header>{i18next.t("TASKS")}</Accordion.Header>
+            <Accordion.Header>{t("TASKS")}</Accordion.Header>
             <Accordion.Body>
               {body}
             </Accordion.Body>

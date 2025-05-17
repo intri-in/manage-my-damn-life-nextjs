@@ -10,7 +10,6 @@ import TaskEditor from "../../tasks/TaskEditor";
 import { toast } from "react-toastify";
 import { Toastify } from "../../Generic";
 import { fetchLatestEvents, fetchLatestEventsWithoutCalendarRefresh } from "@/helpers/frontend/sync";
-import { ISODatetoHumanISO, getI18nObject } from "@/helpers/frontend/general";
 import QuickAdd from "@/helpers/frontend/classes/QuickAdd";
 import { logError, logVar, varNotEmpty } from "@/helpers/general";
 import moment, { Moment } from "moment";
@@ -24,9 +23,10 @@ import { TaskEditorInputType, showTaskEditorAtom, taskEditorInputAtom } from "st
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { currentDateFormatAtom } from "stateStore/SettingsStore";
 import { calDavObjectAtom } from "stateStore/ViewStore";
+import { AddFromTemplateModal } from "./AddFromTemplateModal";
+import { useTranslation } from "next-i18next";
 
 export function AddTaskFunctional(props) {
-    const i18next = getI18nObject();
 
     /**
      * Jotai
@@ -41,11 +41,7 @@ export function AddTaskFunctional(props) {
     const [newTaskSummary, setNewTaskSummary] = useState("");
     const [data, setData] = useState<TaskEditorInputType>({ id:null });
     const [quickAddResults, setQuickAddResults] = useState<JSX.Element[]>([]);
-    const [todoList, setTodoList] = useState(null);
-
-    useEffect(() => {
-    }, []);
-
+    const {t} = useTranslation()
 
 
 
@@ -93,14 +89,14 @@ export function AddTaskFunctional(props) {
         }
         setTaskInputAtom(dataToPush)
         setNewTaskSummary("")
-
+        setQuickAddResults([])
         showTaskEditor(true)
 
     }
     const processQuickAddResults = (newTask, dueDate) => {
         const output: JSX.Element[] = [];
         if (varNotEmpty(dueDate) && dueDate !== "" && dueDate.isValid() && varNotEmpty(dueDate._i) && dueDate._i !== "") {
-            output.push(<div key={`due_${dueDate._i.toString()}`}><Badge key="QUICK_ADD_DUE" pill bg="warning" text="dark">{i18next.t("DUE") + ": " + dueDate._i.toString()}</Badge></div>);
+            output.push(<div key={`due_${dueDate._i.toString()}`}><Badge key="QUICK_ADD_DUE" pill bg="warning" text="dark">{t("DUE") + ": " + dueDate._i.toString()}</Badge></div>);
         }
         if (varNotEmpty(newTask.label) && newTask.label.length > 0) {
             let labelNames = "";
@@ -108,28 +104,27 @@ export function AddTaskFunctional(props) {
                 labelNames += newTask.label[k] + " ";
             }
             labelNames = labelNames.trim();
-            output.push(<div><Badge pill bg="warning" text="dark">{i18next.t("LABEL") + ": [" + labelNames + "]"}</Badge></div>);
+            output.push(<div><Badge pill bg="warning" text="dark">{t("LABEL") + ": [" + labelNames + "]"}</Badge></div>);
         }
         if (varNotEmpty(newTask.priority) && newTask.priority !== "") {
-            output.push(<div><Badge key="QUICK_ADD_PRIORITY" pill bg="warning" text="dark">{i18next.t("PRIORITY") + ": " + newTask.priority}</Badge></div>);
+            output.push(<div><Badge key="QUICK_ADD_PRIORITY" pill bg="warning" text="dark">{t("PRIORITY") + ": " + newTask.priority}</Badge></div>);
         }
         setQuickAddResults([<div key="quick_add" style={{ margin: 5 }}>{output}</div>]);
     };
 
-
-    var borderColor = '2px solid ' + SECONDARY_COLOUR;
-
+    const borderColor = '2px solid ' + SECONDARY_COLOUR;
     return (
         <>
             <div style={{ textAlign: "center", borderBottom: borderColor }}>
                 <Stack gap={1} direction="horizontal" style={{ width: "100%", marginTop: 10, marginBottom: 10 }}>
                     <div style={{ width: "100%" }} >
-                        <Form.Control value={newTaskSummary} onChange={taskSummaryChanged} onKeyDown={onKeyDown} type="text" placeholder="Add a task" />
+                        <Form.Control value={newTaskSummary} onChange={taskSummaryChanged} onKeyDown={onKeyDown} type="text" placeholder={t("ADD_A_TASK") ?? ""} />
                     </div>
                     <div className="ms-auto" ><AddInfo /></div>
-                    <div ><Button size="sm" onClick={addTask}>Add</Button></div>
+                    <div ><Button size="sm" onClick={addTask}>{t("ADD")}</Button></div>
                 </Stack>
                 {quickAddResults}
+                <AddFromTemplateModal />
             </div>
 
            

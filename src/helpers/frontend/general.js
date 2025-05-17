@@ -1,21 +1,13 @@
 
-import i18next from 'i18next';
-import *  as translations from '@/i18n/strings.json'
 import * as moment from 'moment';
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
+import { getDummyI18nObject } from './translations';
+
 
 export function getI18nObject()
 {
-    i18next.init({
-        lng: 'en', // if you're using a language detector, do not define the lng option
-        debug: false,
-        resources: 
-            translations
-        
-      });
-
-      return i18next
+    return getDummyI18nObject()
 
 }
 
@@ -130,12 +122,13 @@ export function ISODatetoHumanISO(date)
 
 export function dueDatetoUnixStamp(dueDate)
 {
-    return moment(dueDate, 'D/M/YYYY H:mm').unix();
+    return moment(dueDate).unix();
 
 }
 
-export function timeDifferencefromNowinWords(date)
+export function timeDifferencefromNowinWords(date, i18next)
 {
+    return timeDifferencefromNowinWords_Generic(date)
     var timeDifference=Math.floor((dueDatetoUnixStamp(date) - Math.floor(Date.now() / 1000))/86400)
     var timeDifferenceStatement=""
     if(isNaN(timeDifference))
@@ -146,12 +139,12 @@ export function timeDifferencefromNowinWords(date)
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -170,12 +163,12 @@ export function timeDifferencefromNowinWords_FromUnixSeconds(unixTime){
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -192,6 +185,16 @@ export function fixNullDate(dateToCheck, newDate){
 
 export function timeDifferencefromNowinWords_Generic(date)
 {
+    if(!date){
+        return ""
+    }
+    let durationDifference = moment.duration(moment(date).diff(Date.now()))
+    // console.log("timeDifferencefromNowinWords_Generic", date, durationDifference)
+    if(moment.isDuration(durationDifference)){
+
+        return `(${durationDifference.humanize(true).toString()})`
+    }
+    
     var timeDifference=Math.floor((moment(date).unix() - Math.floor(Date.now() / 1000))/86400)
     var timeDifferenceStatement=""
     if(isNaN(timeDifference))
@@ -202,12 +205,12 @@ export function timeDifferencefromNowinWords_Generic(date)
     {
         if(timeDifference<0)
         {
-            timeDifferenceStatement="("+(timeDifference*-1)+" days ago)"
+            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
         }else if(timeDifference ==0 ){
-            timeDifferenceStatement="(today)"
+            timeDifferenceStatement="("+i18next.t("TODAY")+")"
         }
         else{
-            timeDifferenceStatement="( in "+(timeDifference)+" days)"
+            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
         }
         
     }
@@ -221,44 +224,44 @@ export function getRandomColourCode()
     var colour_code="#"+Math.floor(Math.random()*16777215).toString(16)
     return colour_code
 }
-export const findPath = (ob, key) => {
-    const path = [];
-    const keyExists = (obj) => {
-      if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
-        return false;
-      }
-      else if (obj.hasOwnProperty(key)) {
-        return true;
-      }
-      else if (Array.isArray(obj)) {
-        let parentKey = path.length ? path.pop() : "";
+// export const findPath = (ob, key) => {
+//     const path: any[] = [];
+//     const keyExists = (obj) => {
+//       if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
+//         return false;
+//       }
+//       else if (obj.hasOwnProperty(key)) {
+//         return true;
+//       }
+//       else if (Array.isArray(obj)) {
+//         let parentKey = path.length ? path.pop() : "";
   
-        for (let i = 0; i < obj.length; i++) {
-          path.push(`${parentKey}[${i}]`);
-          const result = keyExists(obj[i], key);
-          if (result) {
-            return result;
-          }
-          path.pop();
-        }
-      }
-      else {
-        for (const k in obj) {
-          path.push(k);
-          const result = keyExists(obj[k], key);
-          if (result) {
-            return result;
-          }
-          path.pop();
-        }
-      }
-      return false;
-    };
+//         for (let i = 0; i < obj.length; i++) {
+//           path.push(`${parentKey}[${i}]`);
+//           const result = keyExists(obj[i], key);
+//           if (result) {
+//             return result;
+//           }
+//           path.pop();
+//         }
+//       }
+//       else {
+//         for (const k in obj) {
+//           path.push(k);
+//           const result = keyExists(obj[k], key);
+//           if (result) {
+//             return result;
+//           }
+//           path.pop();
+//         }
+//       }
+//       return false;
+//     };
   
-    keyExists(ob);
+//     keyExists(ob);
   
-    return path.join(".");
-  }
+//     return path.join(".");
+//   }
 
   export function objectArrayHasKey(object, searchKey)
   {
@@ -277,10 +280,10 @@ export const findPath = (ob, key) => {
     var message = getMessageFromAPIResponse(body)
     if(varNotEmpty(message) && message!="")
     {
-        toast.error(this.state.i18next.t(message))
+        // toast.error(i18next.t(message))
 
     }else{
-        toast.error(this.state.i18next.t("ERROR_GENERIC"))
+        // toast.error(i18next.t("ERROR_GENERIC"))
     }
     
   }

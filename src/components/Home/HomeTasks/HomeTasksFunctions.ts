@@ -4,7 +4,6 @@ import Labels from "@/helpers/frontend/classes/Labels";
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie";
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { getAllFilters, getFiltersFromServer } from "@/helpers/frontend/filters";
-import { getI18nObject } from "@/helpers/frontend/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { varNotEmpty } from "@/helpers/general";
 import * as _ from 'lodash'
@@ -17,10 +16,9 @@ export interface LabelsFromDexieType {
     labels_id: number;
 }
 
-export async function refreshMenuOptionsFromServer(menuOptions: {})
+export async function refreshMenuOptionsFromServer(menuOptions: {}, t)
 {
 
-    const i18next= getI18nObject()
 
     var newMenuOptions = _.cloneDeep(menuOptions)
     const labelsFromServer = await getAllLabelsFromDexie()
@@ -44,7 +42,7 @@ export async function refreshMenuOptionsFromServer(menuOptions: {})
 
     if(labelArray.length>0)
     {
-        newMenuOptions[i18next.t("LABELS")]=labelArray
+        newMenuOptions[t("LABELS")]=labelArray
 
     }
     /**
@@ -65,7 +63,7 @@ export async function refreshMenuOptionsFromServer(menuOptions: {})
 
         if(finalFilterOptions.length>0)
         {
-            newMenuOptions[i18next.t("FILTERS")]=finalFilterOptions
+            newMenuOptions[t("FILTERS")]=finalFilterOptions
 
         }
     }

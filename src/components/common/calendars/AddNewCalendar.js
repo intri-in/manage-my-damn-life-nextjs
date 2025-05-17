@@ -11,7 +11,7 @@ export default class AddNewCalendar extends Component{
     constructor(props)
     {
         super(props)
-        this.i18next = getI18nObject()
+        this.i18next = props.i18next
         this.state={calendarName: "",submitting :false}
 
         this.makeCalendarCreateRequest = this.makeCalendarCreateRequest.bind(this)
@@ -50,15 +50,15 @@ export default class AddNewCalendar extends Component{
     }
     render(){
 
-        var button = this.state.submitting ? <Loading /> : ( <div style={{flex: 1, justifyContent:"space-between"}}> <Button variant="secondary" onClick={this.props.onClose} style={{marginBottom: 10}} >{this.i18next.t("BACK")}</Button> &nbsp;
-         <Button onClick={this.makeCalendarCreateRequest} style={{marginBottom: 10}} >{this.i18next.t("ADD")}</Button>
+        var button = this.state.submitting ? <Loading /> : ( <div style={{flex: 1, justifyContent:"space-between"}}> <Button variant="secondary" onClick={this.props.onClose} style={{marginBottom: 10}} >{this.i18next("BACK")}</Button> &nbsp;
+         <Button onClick={this.makeCalendarCreateRequest} style={{marginBottom: 10}} >{this.i18next("ADD")}</Button>
          </div> 
         )
         return(
             <div style={{}}>
-                <h3>Add New Calendar: {this.props.accountName}</h3>
+                <h3>{this.i18next("ADD_NEW_CALENDAR")}: {this.props.accountName}</h3>
                 <h4></h4>
-                <Form.Control onChange={this.calendarNameValueChanged} value={this.state.calendarName} style={{marginBottom: 10}}  placeholder="Enter Calendar Name" />
+                <Form.Control onChange={this.calendarNameValueChanged} value={this.state.calendarName} style={{marginBottom: 10}}  placeholder={this.i18next("ENTER_CALENDAR_NAME")} />
                 <div style={{textAlign :"center"}}>{button}</div>
             </div>
         )

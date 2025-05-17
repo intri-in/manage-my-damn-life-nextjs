@@ -35,7 +35,7 @@ export default async function handler(req, res) {
                 url += filename
 
                 var response = await createEventinCalDAVAccount(url, req.body.caldav_accounts_id, req.body.calendar_id, req.body.data)
-                if(response.result.status>=200 && response.result.status<300 && ( response.result.error==null || response.result.error=="" ))
+                if(("result" in response) && response.result.status>=200 && response.result.status<300 && ( response.result.error==null || response.result.error=="" ))
                 {
 
                     //Event has been inserted into the database.
@@ -49,13 +49,13 @@ export default async function handler(req, res) {
                         
                         if(isValidResultArray(objects)){
 
-                            res.status(200).json({ success: true, data: {message: response.result, details: objects[0]} })
+                            return res.status(200).json({ success: true, data: {message: response.result, details: objects[0]} })
                         }else{
-                            res.status(200).json({ success: true, data: {message: response.result, details: null, forceSync: true} })
+                            return res.status(200).json({ success: true, data: {message: response.result, details: null, forceSync: true} })
 
                         }
                     }else{
-                        res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
+                        return res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
 
                     }
 

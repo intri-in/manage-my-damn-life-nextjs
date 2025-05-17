@@ -7,20 +7,19 @@ import { TaskEditorExitModal } from "../TaskEditorExitModal"
 import { TaskDeleteConfirmation } from "../TaskDeleteConfirmation"
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response"
 import { toast } from "react-toastify"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { updateViewAtom } from "stateStore/ViewStore"
 import { handleDeleteEventUI } from "@/helpers/frontend/events"
 import { getCaldavAccountIDFromCalendarID } from "@/helpers/api/cal/calendars"
 import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie/calendars_dexie"
 import { getEventFromDexieByID } from "@/helpers/frontend/dexie/events_dexie"
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar"
+import { useTranslation } from "next-i18next"
 
 /**
  * This is the common view manager for Task manager.
  * This will manage whether task editor is being shown or not, and what task is being
  * edited
  */
-const i18next = getI18nObject()
 export const TaskEditorViewManager = () =>{
     /**
      * Jotai
@@ -37,7 +36,7 @@ export const TaskEditorViewManager = () =>{
     const [changed, setChanged] = useState(false)
     const [showConfirmDialog, setShowConfimDialog] = useState(false)
     const [showConfirmDeleteDialog, setShowConfirmDeleteDialog] = useState(false)
-
+    const { t } = useTranslation()
    
     const taskEditorClosed = () =>{
         if(!changed){
@@ -79,7 +78,7 @@ export const TaskEditorViewManager = () =>{
 
                     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
                     // console.log("caldav_accounts_id", caldav_accounts_id)
-                    handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse)
+                    handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse, t)
                     setShowConfirmDeleteDialog(false)
                     destroy()
 
@@ -103,9 +102,9 @@ export const TaskEditorViewManager = () =>{
             if (body.success == true) {
                 if(typeof(message)==="string"){
 
-                    toast.success(finalToast+i18next.t(message))
+                    toast.success(finalToast+t(message))
                 }else{
-                    toast.success(finalToast+i18next.t("Done")+"!")
+                    toast.success(finalToast+t("Done")+"!")
                 }
             }
             else {
@@ -113,7 +112,7 @@ export const TaskEditorViewManager = () =>{
 
                     toast.error(message)
                 }else{
-                    toast.error(finalToast+i18next.t("ERROR_GENERIC"))
+                    toast.error(finalToast+t("ERROR_GENERIC"))
                 }
                 
             }
@@ -124,7 +123,7 @@ export const TaskEditorViewManager = () =>{
     <>
     <Offcanvas placement='end' show={show} onHide={taskEditorClosed}>
         <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Edit Task</Offcanvas.Title>
+            <Offcanvas.Title>{t("EDIT_TASK")}</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
         <TaskEditorWithStateManagement closeEditor={()=>destroy()} onServerResponse={onServerResponse} showDeleteDailog={()=>setShowConfirmDeleteDialog(true)} onChange={onChange} input={taskEditorInput} />

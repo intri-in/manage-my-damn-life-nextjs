@@ -3,6 +3,7 @@ import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import allLocales from '@fullcalendar/core/locales-all'
 import { getAllEvents, getCaldavAccountsfromServer, getParsedTodoList, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
@@ -13,7 +14,6 @@ import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import rrulePlugin from '@fullcalendar/rrule'
-import { getI18nObject } from "@/helpers/frontend/general";
 import EventEditor from "../events/EventEditor";
 import moment from "moment";
 import { getRandomString } from "@/helpers/crypto";
@@ -35,18 +35,22 @@ import { eventEditorInputAtom, showEventEditorAtom } from "stateStore/EventEdito
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie/calendars_dexie";
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore";
+import { AddFromTemplateModal } from "../common/AddTask/AddFromTemplateModal";
+import { useTranslation } from "next-i18next";
 
-const i18next = getI18nObject()
 interface EventObject {
     id: string,
     title: string,
     start?: string,
+    startTime?:string,
     end: string,
+    endTime?:string,
     allDay: boolean,
     editable: boolean,
     draggable: boolean,
     displayEventEnd?: boolean,
     displayEventStart?: boolean,
+    duration?: {seconds?: number}
     rrule?: { freq: string, interval: number, dtstart: string, until: string },
     backgroundColor: string
 }
@@ -74,6 +78,23 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
     const [updateLocal, setUpdateLocal] = useState(Date.now())
+    const {t, i18n} = useTranslation("common")
+    useEffect(() =>{
+
+        if (calendarRef && calendarRef.current) {
+
+            const calendarApi = calendarRef.current.getApi()
+            // calendarApi.eventDragStart = this.eventDrag
+            const view = getDefaultViewForCalendar()
+            if (view) {
+                calendarApi.changeView(view)
+                setViewValue(view)
+
+            }
+        }
+
+
+    },[])
 
     useEffect(() => {
         let isMounted = true
@@ -90,18 +111,6 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     setCaldavAccounts(caldav_accounts)
                 }
             })
-            if (calendarRef && calendarRef.current) {
-
-                const calendarApi = calendarRef.current.getApi()
-                // calendarApi.eventDragStart = this.eventDrag
-                const view = getDefaultViewForCalendar()
-                if (view) {
-                    calendarApi.changeView(view)
-                    setViewValue(view)
-
-                }
-            }
-
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
                 setEventsArrayFromDexie(allEventsFromDexie)
             })
@@ -134,7 +143,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     const eventinArray = (eventObject, newEntry) => {
         if (varNotEmpty(eventObject) && varNotEmpty(newEntry) && varNotEmpty(newEntry.id)) {
-            var found = false
+            let found = false
             for (const i in eventObject) {
 
                 if (varNotEmpty(eventObject[i].id)) {
@@ -193,8 +202,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         let eventObject: EventObject = {
                             id: event.calendar_events_id!.toString(),
                             title: data.summary,
-                            start: data.start,
-                            end: data.end,
+                            start: moment(data.start).toISOString(),
+                            end: moment(data.end).toISOString(),
                             allDay: allDay,
                             editable: true,
                             draggable: true,
@@ -206,15 +215,26 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         //Check if the event has a recurrence rule.
                         if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
 
-                            //var dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
-                            var until = rrule["UNTIL"]
+                            //let dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
+                            let eventDuration = {seconds: 3600}
+                            if(data.end && data.start){
+                                const eventDurationValue = moment(data.end).unix() - moment(data.start).unix()
+                                eventDuration = {seconds: eventDurationValue }
+
+                            }
+
+                            let until = rrule["UNTIL"]
                             eventObject.rrule = {
                                 freq: rrule["FREQ"].toLowerCase(),
                                 interval: parseInt(rrule["INTERVAL"]),
-                                dtstart: data.start.toISOString(),
-                                until: until
+                                dtstart: data.start? data.start.toISOString(): "",
+                                until: until,
                             }
-                            // console.log(eventObject.title, eventObject.rrule)
+                            eventObject.editable=false
+                            eventObject.draggable=false
+                            eventObject.duration=eventDuration
+
+                            // console.log("eventObject", eventObject.title, eventObject)
                             finalEvents.push(eventObject)
 
                         }
@@ -233,7 +253,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         }
 
-                        var eventToPush = {}
+                        let eventToPush = {}
+
                         eventToPush[data.uid] = { data: data, event: allEvents[i].events[j] }
                         // this.allEvents[data.uid] = { data: data, event: allEvents[i].events[j] }
 
@@ -246,22 +267,23 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         let eventObject: {} | EventObject = {}
                         if (majorTaskFilter(data) && data) {
-                            var title = "[" + i18next.t("TASK") + "] " + data.summary
+                            const title = "[" + t("TASK") + "] " + data.summary
 
-                            var rrule = rruleToObject(data.rrule)
+                            let rrule = rruleToObject(data.rrule)
 
                             //Check if the event has a recurrence rule.
                             if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
 
-                                var recurrenceObj = new RecurrenceHelper(data)
-                                var dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
-                                var startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
-                                //console.log("REPEATING", startDate, title, dueDate)
+                                let recurrenceObj = new RecurrenceHelper(data)
+                                let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
+                                let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
+                                // console.log("REPEATING", startDate, title, dueDate)
 
                                 eventObject = {
                                     id: event.calendar_events_id!.toString(),
                                     title: title,
-                                    allDay: false,
+                                    allDay: true,
+                                    start:startDate,
                                     end: dueDate,
                                     displayEventEnd: false,
                                     editable: false,
@@ -269,16 +291,17 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                                     rrule: {
                                         freq: rrule["FREQ"].toLowerCase(),
                                         interval: parseInt(rrule["INTERVAL"]),
-                                        dtstart: data.start.toISOString(),
+                                        dtstart: data["start"] ? data["start"].toISOString() : "",
                                         until: rrule["UNTIL"]
                                     },
                                 }
+                                // console.log("eventObject", eventObject)
 
                             } else {
                                 if (varNotEmpty(data.due) && data.due != "") {
 
-                                    var dueDate = moment(data.due).toISOString()
-                                    var startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
+                                    let dueDate = moment(data.due).toISOString()
+                                    let startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
                                     //console.log(startDate, title, dueDate)
 
                                     eventObject = {
@@ -303,7 +326,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         }
                         // this.setState((prevState, props) => {
-                        //     var newAllEvents = _.cloneDeep(prevState.allEvents)
+                        //     let newAllEvents = _.cloneDeep(prevState.allEvents)
                         //     newAllEvents[data.uid] = { data: data, event: allEvents.data.message[i].events[j] }
                         //     return({allEvents: newAllEvents})
 
@@ -351,36 +374,36 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     }
     const makeQuickRequesttoCaldav = async (eventData, eventInfoFromDexie, summary) => {
         const obj = getObjectForAPICallV2(eventData)
-        var ics = await makeGenerateICSRequest({ obj })
+        let ics = await makeGenerateICSRequest({ obj })
         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventInfoFromDexie[0].calendar_id)
         const messageHeader = summary ? summary + ": " : ""
         // console.log("messageHeader", messageHeader)
-        // console.log(ics)
+        console.log(ics)
         if (varNotEmpty(ics)) {
             const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
             if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
-                toast.success(messageHeader + i18next.t("UPDATE_OK"))
+                toast.success(messageHeader + t("UPDATE_OK"))
 
 
             } else {
                 let message = getMessageFromAPIResponse(response)
                 if (message != "" && varNotEmpty(message)) {
-                    toast.error(messageHeader + i18next.t(message.toString()))
+                    toast.error(messageHeader + t(message.toString()))
                     console.log(response)
                 } else {
-                    toast.error(messageHeader + (i18next.t("ERROR_GENERIC")))
+                    toast.error(messageHeader + (t("ERROR_GENERIC")))
 
                 }
             }
 
         } else {
-            toast.error(messageHeader + i18next.t("ERROR_GENERIC"))
+            toast.error(messageHeader + t("ERROR_GENERIC"))
             console.log("makeQuickRequesttoCaldav: ics is null")
         }
         setUpdatedCalendarView(Date.now())
     }
     const eventDrop = async (e) => {
-        toast.info(i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(t("ACTION_SENT_TO_CALDAV"))
         // console.log("eventDrop", e)
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
@@ -400,7 +423,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             eventData.end = newEnd
             makeQuickRequesttoCaldav(eventData, eventInfoFromDexie, eventData["summary"])
         } else {
-            toast.error(i18next.t("ERROR_GENERIC"))
+            toast.error(t("ERROR_GENERIC"))
             console.error("eventDrop: eventInfoFromDexie is empty")
             setUpdatedCalendarView(Date.now())
         }
@@ -408,7 +431,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     }
     const eventResize = async (e) => {
-        toast.info(i18next.t("ACTION_SENT_TO_CALDAV"))
+        toast.info(t("ACTION_SENT_TO_CALDAV"))
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
@@ -433,7 +456,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     let options: JSX.Element[] = []
     for (const i in FULLCALENDAR_VIEWLIST) {
-        options.push(<option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{i18next.t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
+        options.push(<option key={FULLCALENDAR_VIEWLIST[i].name} value={FULLCALENDAR_VIEWLIST[i].name}>{t(FULLCALENDAR_VIEWLIST[i].saneName)}</option>)
     }
 
     let calendarsSelect: JSX.Element | null = null
@@ -443,27 +466,32 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     return (
 
         <>
-            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", }} >
-                <Col>
+            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center"}} >
+                <Col md={8} >
                     <Form.Select value={viewValue} onChange={viewChanged}>
                         {options}
                     </Form.Select>
                 </Col>
-                <Col style={{}}>
+                <Col md={2} >
 
                     <Form.Check
                         type="switch"
+                        inline
                         id="show_tasks_switch"
                         checked={showTasksChecked}
                         onChange={showTasksChanged}
-                        label={i18next.t("SHOW_TASKS")}
+                        label={t("SHOW_TASKS")}
                     />
 
                 </Col>
-                <Col style={{ textAlign: "center", }}>
+                <Col md={2} >
                     {calendarsSelect}
                 </Col>
             </Row>
+            <div>
+                <AddFromTemplateModal />
+
+            </div>
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin]}
                 ref={calendarRef}
@@ -479,6 +507,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 eventDrop={eventDrop}
                 eventResize={eventResize}
                 firstDay={firstDay}
+                locales={allLocales}
+            locale={i18n.language}
             />
         </>
     )

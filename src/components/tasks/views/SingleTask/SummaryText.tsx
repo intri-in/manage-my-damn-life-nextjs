@@ -20,7 +20,7 @@ export const SummaryText = ({text, color}: {text: string | undefined, color?: st
           overlay={renderTooltip}
         >
          <span>
-         <div style={{color:color, overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px" }} className="textDefault">
+         <div style={{color:color, overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px",zIndex:-999 }} className="textDefault">
           {text}
           </div>
           </span>

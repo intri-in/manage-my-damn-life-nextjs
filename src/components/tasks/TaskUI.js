@@ -575,7 +575,7 @@ export default class TaskUI extends Component {
                     </div>
                     <Offcanvas placement='end' show={this.state.showTaskEditor} onHide={this.taskEditorClosed}>
                         <Offcanvas.Header closeButton>
-                            <Offcanvas.Title>Edit Task</Offcanvas.Title>
+                            <Offcanvas.Title>{this.i18next.t("EDIT_TASK")}</Offcanvas.Title>
                         </Offcanvas.Header>
                         <Offcanvas.Body>
                             <TaskEditor repeatInfo={this.state.repeatInfo} onDismiss={this.onTaskSubmittoServer} onChange={this.taskDataChanged} todoList={this.props.todoList} unparsedData={this.props.unparsedData} data={this.state.data} />

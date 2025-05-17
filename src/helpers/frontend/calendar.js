@@ -6,6 +6,7 @@ import { majorTaskFilter } from "./events";
 import * as _ from 'lodash'
 import { VTODO } from "./classes/VTODO";
 import { getErrorResponse } from "../errros";
+import { getParsedAlarmsFromTodo } from "./VTODOHelpers";
 export async function getCaldavAccountsfromServer()
 {
     const url_api=getAPIURL()+"caldav/calendars" 
@@ -270,11 +271,11 @@ function isValidParsedVTODO(parsedDataEntry){
 export function returnGetParsedVTODO(vtodo)
 {
     if(!vtodo){
-        return {}
+        return null
     }
     try{
         const  parsedData = ical.parseICS(vtodo);
-        //console.log("parsedData", parsedData)
+        // console.log("parsedData", parsedData)
         for (let k in parsedData) {
             if(!isValidParsedVTODO(parsedData[k]))
             {
@@ -356,14 +357,19 @@ export function returnGetParsedVTODO(vtodo)
                 dtstamp: parsedData[k].dtstamp,
                 description: description,
                 rrule: parsedData[k].rrule,
-                recurrences: recurrences
-    
+                recurrences: recurrences,
+                alarms: []
             }
     
             for (const key in parsedData[k])
             {
                 if(!(key in toReturn))
                 {
+                    //Try to parse any alarms
+                    const alarms = getParsedAlarmsFromTodo(parsedData[k])
+                    if(alarms && Array.isArray(alarms) && alarms.length>0){
+                        toReturn.alarms= alarms
+                    }
                     toReturn[key]=_.cloneDeep(parsedData[k][key])
                 }
             }
@@ -591,6 +597,20 @@ export function findIDinFilteredList(relatedto, todoList)
     return found
 }
 
+export function parentInFilteredList(parent, todoList){
+    let found = false
+    for(let i=0; i<todoList.length; i++)
+    {
+        
+        if(todoList[i]["uid"]==parent)
+        {
+            found=true
+        }
+    }
+
+
+    return found 
+}
 function path(c, name, v, currentPath, t){
     var currentPath = currentPath || "root";
     var v = v || ''

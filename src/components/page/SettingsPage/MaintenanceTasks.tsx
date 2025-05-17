@@ -1,31 +1,24 @@
 import { deleteAllEventsFromDexie } from "@/helpers/frontend/dexie/events_dexie"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync"
 import { Button, Col, Row } from "react-bootstrap"
+import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 
 const MaintenanceTasks = () =>{
-
-    const i18next = getI18nObject()
+    const {t} = useTranslation()
 
     const clearEventsFromDexie = () =>{
-        toast.info(i18next.t("DELETING_AND_REFRESHING_EVENTS"))
-        deleteAllEventsFromDexie().then((response) =>{
-            if(response){
-                fetchLatestEventsV2().then((result)=>{
-                    toast.success(i18next.t("DONE"))
-                })
-            }else{
-                toast.warn(i18next.t("ERROR_GENERIC"))
-            }
+        toast.info(t("DELETING_AND_REFRESHING_EVENTS"))
+        fetchLatestEventsV2(true).then((result)=>{
+            toast.success(t("DONE"))
         })
     }
     return(
         <>
-            <h2>{i18next.t("MAINTENANCE_TASKS")}</h2>
+            <h2>{t("MAINTENANCE_TASKS")}</h2>
             <Row>
                 <Col>
-                <Button onClick={clearEventsFromDexie} variant="outline-info">{i18next.t("REFETCH_EVENTS")}</Button>                </Col>
+                <Button onClick={clearEventsFromDexie} variant="outline-info">{t("REFETCH_EVENTS")}</Button>                </Col>
             </Row>
         </>
     )

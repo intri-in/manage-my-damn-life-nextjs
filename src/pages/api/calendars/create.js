@@ -6,6 +6,7 @@ import { addTrailingSlashtoURL, getRandomColourCode, isValidResultArray, replace
 import { AES } from "crypto-js"
 import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
+import { shouldLogforAPI } from "@/helpers/logs"
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
                             defaultAccountType: 'caldav',
                         })
                         var url=addTrailingSlashtoURL(caldavFromDB.url)+"calendars/"+caldavFromDB.username+"/"+replaceSpacewithHyphen(req.body.calendarName.trim())
-                        var calendarColor= getRandomColourCode()
+                        const calendarColor= getRandomColourCode()
                         const result = await client.makeCalendar({
                             url: url,
                             props: {
@@ -59,9 +60,10 @@ export default async function handler(req, res) {
                               calendarColor: calendarColor
                             },
                           });
-                          var failed_firstTry=false
+                          if(shouldLogforAPI()) console.log("api/calendars/create result", result)
+                          let failed_firstTry=(result && "ok" in  result )
                           var result2=null
-                          if(result && Array.isArray(result) && result.length>0&&result[0].status==403){
+                          if(result  && "ok" in  result && result["ok"].toString!="true"){
                               failed_firstTry=true
                               var url=addTrailingSlashtoURL(caldavFromDB.url)+caldavFromDB.username+"/"+replaceSpacewithHyphen(req.body.calendarName.trim())
                               result2 = await client.makeCalendar({
@@ -70,21 +72,21 @@ export default async function handler(req, res) {
                                   displayname: req.body.calendarName,
                                 },
                               });
-                              console.log("result2", result2)
+                            if (process.env.NEXT_API_DEBUG_MODE && process.env.NEXT_API_DEBUG_MODE.toLowerCase()=="true") console.log("result2", result2)
                           }
                           //Try a second time to create. without calendars.
 
                           if(failed_firstTry){
-                            res.status(200).json({ success: true, data: { message: result2} })
+                            return res.status(200).json({ success: true, data: { message: result2} })
 
                           }else{
-                            res.status(200).json({ success: true, data: { message: result} })
+                            return res.status(200).json({ success: true, data: { message: result} })
 
                           }
 
                     }else
                     {
-                        res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
+                        return res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
 
                     }
                             
@@ -96,7 +98,7 @@ export default async function handler(req, res) {
     
                 }else
                 {
-                    res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
+                    return  res.status(401).json({ success: false, data: { message: 'NO_CALDAV_ACCOUNT_ACCESS'} })
 
                 }
                 
@@ -104,17 +106,17 @@ export default async function handler(req, res) {
             }
             else
             {
-                res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+                return  res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
 
             }
         }
         else
         {
-            res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+            return  res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
     }
     else {
-    res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
+        return  res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
     }
 }

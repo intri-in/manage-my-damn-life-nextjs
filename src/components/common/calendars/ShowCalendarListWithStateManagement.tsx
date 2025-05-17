@@ -1,5 +1,4 @@
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { Col, ListGroup, Row } from "react-bootstrap"
@@ -7,8 +6,10 @@ import { AiOutlinePlusCircle } from "react-icons/ai"
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
 import AddNewCalendar from "./AddNewCalendar"
 import { toast } from "react-toastify"
+import Link from "next/link"
+import { FaExternalLinkAlt } from "react-icons/fa"
+import { useTranslation } from "next-i18next"
 
-const i18 = getI18nObject()
 export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Function}) =>{
     /**
      * Jotai
@@ -22,7 +23,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[] | JSX.Element>([])
     const [update, setUpdate] = useState(Date.now())
-
+    const {t} = useTranslation()
 
 
     
@@ -39,11 +40,13 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
             if(response!=null && response.success!= null && response.success==true && response.data.message[0].status>=200 && response.data.message[0].status<300)
             {
                 // Successful creation.
-                toast.success("Calendar added successfully.")
+                toast.success(t("CALENDAR_ADDED_SUCCESSFULLY"))
+                getCaldavAccountsfromDexie()
             }
             else
             {
-                toast.error("Calendar couldn't be added. Check the console log.")
+                getCaldavAccountsfromDexie()
+                toast.error(t("ERROR_ADDING_CALENDER"))
                 console.log(response)
             }
             
@@ -52,14 +55,14 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
     
         const showAddCalendarScreen = (caldav_account)=>{
               
-            setFinalOutput(<AddNewCalendar onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
+            setFinalOutput(<AddNewCalendar i18next={t} onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
         }
 
     
         let finalOutput : JSX.Element[]= []
         for(let j=0; j<caldavSummary.length; j++)
         {
-            var accountInfo=(
+            let accountInfo=(
                 <Row>
                     <Col className="defaultTex">
                         {caldavSummary[j].name}
@@ -68,17 +71,24 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
                     <Col style={{textAlign: "right"}}><AiOutlinePlusCircle onClick={(e)=> showAddCalendarScreen(caldavSummary[j])} /></Col>
                 </Row>
             )
-            var calendars: JSX.Element[]=[]
+            let calendars: JSX.Element[]=[]
             if(!caldavSummary[j].calendars){
                 continue
             }
             for (const i in caldavSummary[j].calendars)
             {
-                var href="/tasks/list?caldav_accounts_id="+caldavSummary[j].caldav_accounts_id+"&&calendars_id="+caldavSummary[j].calendars[i].calendars_id
-                var key=caldavSummary[j].caldav_accounts_id+"-"+caldavSummary[j].calendars[i].calendars_id
+                let href="/tasks/list?caldav_accounts_id="+caldavSummary[j].caldav_accounts_id+"&&calendars_id="+caldavSummary[j].calendars[i].calendars_id
+                let key=caldavSummary[j].caldav_accounts_id+"-"+caldavSummary[j].calendars[i].calendars_id
                 // console.log(key)
                 //<a style={{textDecoration: 'none'}} href={href}>
-                var cal=(<ListGroup.Item key={key} className="textDefault" onClick={()=> calendarNameClicked(caldavSummary[j].caldav_accounts_id, caldavSummary[j].calendars[i].calendars_id)} style={{ borderColor:caldavSummary[j].calendars[i].calendarColor, borderLeftWidth: 10, marginBottom:10 }}>{caldavSummary[j].calendars[i].displayName}</ListGroup.Item>)
+                let cal=(<ListGroup.Item key={key} className="textDefault" onClick={()=> calendarNameClicked(caldavSummary[j].caldav_accounts_id, caldavSummary[j].calendars[i].calendars_id)} style={{ borderColor:caldavSummary[j].calendars[i].calendarColor, borderLeftWidth: 10, marginBottom:10 }}>
+                    <Row>
+                        <Col xs={10}>
+                            {caldavSummary[j].calendars[i].displayName}
+                        </Col>
+                        <Col xs={2}> <Link target="_blank" href={`?type=CAL&&caldav_accounts_id=${caldavSummary[j].caldav_accounts_id}&&calendars_id=${caldavSummary[j].calendars[i].calendars_id}`}><FaExternalLinkAlt className="textDefault" /> </Link>
+</Col>
+                        </Row></ListGroup.Item>)
                 calendars.push(cal)                    
 
             }

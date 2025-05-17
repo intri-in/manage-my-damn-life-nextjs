@@ -125,9 +125,7 @@ export async function handleUI_TodoUpdate(calendar_id, url, etag, data, caldav_a
 
 }
 export async function updateTodo_WithUI(calendar_id, url, etag, dataObj, onDismissFunction){
-    const i18next = getI18nObject()
-    let message = dataObj["summary"] ? dataObj["summary"]+": " : "" 
-    toast.info(message+i18next.t("ACTION_SENT_TO_CALDAV"))
+
     var todo = new VTodoGenerator(dataObj, {strict: false})
     var data = todo.generate()
     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)

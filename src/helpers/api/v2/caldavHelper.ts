@@ -6,7 +6,7 @@ import validator from 'validator';
  */
 export function processCalendarFromCaldav(calendar){
  
-    var calendartoReturn = {
+    let calendartoReturn = {
         displayName:"",
         url:"",
         ctag:"",

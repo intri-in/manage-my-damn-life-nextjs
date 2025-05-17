@@ -1,66 +1,102 @@
 import { Loading } from "@/components/common/Loading"
 import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
-import { getI18nObject } from "@/helpers/frontend/general"
+import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
+import { db } from "@/helpers/frontend/dexie/dexieDB"
+import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
 import { fetchLatestEventsV2,  fetchLatestEvents_withoutCalendarRefresh,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
+import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
 import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
+import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
+import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore"
+import { serverSideTranslations } from "next-i18next/serverSideTranslations"
+import { AVAILABLE_LANGUAGES } from "@/config/constants"
+const SESSION_IS_SETTING_UP="SESSION_IS_SETTING_UP"
 
-
-const i18next = getI18nObject()
 export default function SetupPage() {
     /**
      * Jotai
      */
+
     const setDateFormat = useSetAtom(currentSimpleDateFormatAtom)
     const setTimeFormat = useSetAtom(currentSimpleTimeFormatAtom)
     const [isLoading, setIsLoading] = useState(true)
-    const [hasFetched, setHasFetched] = useState(false)
     const [currentWork, setCurrentWork] = useState("Fetching events and tasks...")
     const router= useRouter()
-    const setupEverything = useCallback(async() =>{
+    const {t} = useTranslation()
+    const setupEverything = async () => {
 
         let isMounted =true
         if(isMounted){
+            setCurrentWork("Fetching settings...")
+            await SettingsHelper.getAllFromServerAndSave()
+            setCurrentWork("Fetching events and data...")
+        
+            // await fetchLatestEventsV2()
+            //Open dexie db to make sure that any required transactions are committed automatically.
+            db.open().catch (function (err) {
+                toast.error('Failed to open db: ' + (err.stack || err));
+            });
+            //First we check if the user already has data in dexie
+            const arrayFromDexie = await getCalDAVSummaryFromDexie()
+            const fetch = (arrayFromDexie && Array.isArray(arrayFromDexie) && arrayFromDexie.length>0) ? false: true
+                //User already has data in dexie. 
+                
+            if(fetch) await fetchLatestEventsV2()
 
-
-                const calResponse = await refreshCalendarListV2()
-                await fetchLatestEvents_withoutCalendarRefresh()
-
-                setCurrentWork("Fetching settings...")
-                await SettingsHelper.getAllFromServerAndSave()
-                const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
-                if(dateFormat){
-                    setDateFormat(dateFormat)
-                }
-                const timeFormat = localStorage.getItem(SETTING_NAME_TIME_FORMAT)
-                if(timeFormat){
-                    setTimeFormat(timeFormat)
-                }
-                redirect()
+            const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
+            if(dateFormat){
+                setDateFormat(dateFormat)
+            }
+            const timeFormat = localStorage.getItem(SETTING_NAME_TIME_FORMAT)
+            if(timeFormat){
+                setTimeFormat(timeFormat)
+            }
+            redirect()
         }
+              
+                
+                
+        
         return ()=>{
             isMounted=false
         }
-    },[])
+    }
     useEffect(()=>{
         let isMounted =true
+      
+        
         if(isMounted){
 
-            if(!hasFetched){
-                setupEverything()
+                checkifCurrentUserInDexie().then((goOn) =>{
+                    if(goOn){
+                       setupEverything()
+                    }else{
+                        if(window!=undefined){
+                            setIsLoading(false)
+                            logoutUser()
+                            router.push('/login')    
+                        }
+                    }
+    
+                }).catch(e=>{
+                    console.error("checkifCurrentUserInDexie",e)
+                    setCurrentWork(e)
+                })
+                
             }
-        }
+        
         return ()=>{
             isMounted=false
         }
 
-    },[setupEverything, hasFetched])
+    },[])
 
 
   
@@ -73,7 +109,7 @@ export default function SetupPage() {
             let redirectTo = params.get('redirect')
             if(redirectTo!=null && redirectTo!=undefined && redirectTo!="")
             {
-                redirectURL+=`?redirect=${redirectTo}`
+                redirectURL=`${redirectTo}`
             }
             router.push(redirectURL)
         }
@@ -82,7 +118,7 @@ export default function SetupPage() {
     return(
         <>
         <Head>
-          <title>{`${i18next.t("APP_NAME_TITLE")} - ${i18next.t("SETUP")}`}</title>
+          <title>{`${t("APP_NAME_TITLE")} - ${t("SETUP")}`}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -94,12 +130,12 @@ export default function SetupPage() {
                 <br />
                 {isLoading ? 
                 (   <>
-                        <h2>{i18next.t("SETTING_UP")}</h2>
+                        <h2>{t("SETTING_UP")}</h2>
                         {currentWork}
                         <Loading />
                     </>
                     ):
-                (<h2>{i18next.t("DONE")}</h2>)}
+                (<h2>{t("DONE")}</h2>)}
                 
             </div>
 
@@ -107,4 +143,12 @@ export default function SetupPage() {
         </div>
         </>
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+        },
+    };
 }

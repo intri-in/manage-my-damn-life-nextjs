@@ -1,14 +1,13 @@
 import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
-import { getI18nObject } from "@/helpers/frontend/general"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
 import { useSetAtom } from "jotai"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import { Button, Col, Form, InputGroup, Row } from "react-bootstrap"
+import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
 
-const i18next = getI18nObject()
 export const TimeFormatSetting = () =>{
 
     /**
@@ -19,6 +18,8 @@ export const TimeFormatSetting = () =>{
 
     const [dateFormat, setDateFormat] = useState('')
     const [timeFormat, setTimeFormat]= useState('')
+
+    const{t} = useTranslation()
     useEffect(()=>{
         let isMounted =true
         if(isMounted){
@@ -60,12 +61,12 @@ export const TimeFormatSetting = () =>{
                 data: any
             })=>{
                 if(response && response.status  && response.status==200){
-                    toast.success(i18next.t("DATE_FORMAT")+": "+i18next.t("UPDATE_OK"))
+                    toast.success(t("DATE_FORMAT")+": "+t("UPDATE_OK"))
                     setDateFormatJotai(dateFormat)
-                    
+                    localStorage.setItem(SETTING_NAME_DATE_FORMAT, dateFormat)
                 }else{
                     console.error(response)
-                    toast.error(i18next.t("DATE_FORMAT")+": "+i18next.t("ERROR_GENERIC"))
+                    toast.error(t("DATE_FORMAT")+": "+t("ERROR_GENERIC"))
                 }
             })
 
@@ -75,12 +76,14 @@ export const TimeFormatSetting = () =>{
                 data: any
             })=>{
                 if(response && response.status  && response.status==200){
-                    toast.success(i18next.t("TIME_FORMAT")+": "+i18next.t("UPDATE_OK"))
+                    toast.success(t("TIME_FORMAT")+": "+t("UPDATE_OK"))
                     setTimeFormatJotai(timeFormat)
+                    localStorage.setItem(SETTING_NAME_TIME_FORMAT, timeFormat)
 
                 }else{
                     console.error(response)
-                    toast.error(i18next.t("TIME_FORMAT")+": "+i18next.t("ERROR_GENERIC"))
+                    toast.error(t("TIME_FORMAT")+": "+t("ERROR_GENERIC"))
+
                 }
             })
 
@@ -89,21 +92,21 @@ export const TimeFormatSetting = () =>{
     return(
         <>
         <p style={{fontSize:15, textAlign: "center"}}>
-            <b>{i18next.t("SAMPLE_CURRENT_TIME")}: </b>{moment().format(dateFormat+" "+timeFormat)}
+            <b>{t("SAMPLE_CURRENT_TIME")}: </b>{moment().format(dateFormat+" "+timeFormat)}
         </p>
         <p>
            <a target="_blank" href="https://momentjs.com/docs/#/displaying/format/">Formatting Tips</a>
         </p>
         <Row style={{display: "flex", flexWrap:"wrap", alignItems: "center"}}>
-            <Col  xs={6}>
+            <Col  lg={6}>
             <InputGroup style={{display:"flex", justifyContent:"center", alignContent:"center"}} className="mb-3">
-                <InputGroup.Text> {i18next.t("DATE_FORMAT")}</InputGroup.Text>
+                <InputGroup.Text> {t("DATE_FORMAT")}</InputGroup.Text>
                 <Form.Control onChange={dateFormatInputChanged} value={dateFormat} />
             </InputGroup>
             </Col>
-            <Col  xs={6}>
+            <Col  lg={6}>
             <InputGroup style={{display:"flex", justifyContent:"center", alignContent:"center"}} className="mb-3">
-            <InputGroup.Text>{i18next.t("TIME_FORMAT")} </InputGroup.Text>
+            <InputGroup.Text>{t("TIME_FORMAT")} </InputGroup.Text>
                 <Form.Control onChange={(e)=>setTimeFormat(e.target.value)} value={timeFormat} />
             </InputGroup>
 

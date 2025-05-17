@@ -103,7 +103,8 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     let dueDateText = ""
     let dueDate = ISODatetoHuman(parsedTask.due!)
     dueDate = moment(parsedTask.due).format(dateFormat)
-    let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
+    // let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
+    let timeDifferenceinWords = timeDifferencefromNowinWords_Generic(parsedTask.due)
     if (isRepeating) {
         if (("recurrences" in parsedTask) && parsedTask.recurrences) {
             let recurrenceObj = new RecurrenceHelper(parsedTask)
@@ -161,6 +162,8 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
 
     priorityStar = (<div onClick={priorityStarClicked} style={{ padding: 0, verticalAlign: 'middle', textAlign: 'center' }} className="col-1">{priorityStar}</div>)
     const isDone = !TaskPending(parsedTask) 
+
+    
     return (
         <div key={id.toString()}>
         <ContextMenuTrigger key={id.toString()+"_"+parsedTask.uid+"_contextMenuTrigger"} id={"RIGHTCLICK_MENU_"+id} >
@@ -170,7 +173,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     <Col xs={1} sm={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
                         <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
                     </Col>
-                    <Col xs={9} sm={6} md={5} lg={3} onClick={taskClicked} >
+                    <Col xs={9} sm={6} md={5} lg={5} onClick={taskClicked} >
                         <Row>
                             <Col >
                                 <SummaryText text={parsedTask["summary"]} />
@@ -180,7 +183,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     <Col onClick={taskClicked} className="d-none d-sm-block" sm={3} md={5} lg={3}>
                            <SummaryText color={dueDateColor} text={dueDateText}/> 
                     </Col>
-                    <Col  onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={3}>
+                    <Col  onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
                         <div style={{  width: "80%"}} className="textDefault">
                             <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
                         </div>

@@ -40,9 +40,26 @@ export function getRandomColourCode()
 
 export function getTodaysDateUnixTimeStamp()
 {
-    var dateNew = new Date()
-    var date = dateNew.getDate()+"/"+(dateNew.getMonth()+1)+"/"+dateNew.getFullYear()+" 23:59"
-    return dueDatetoUnixStamp(date)
+    // var dateNew = new Date()
+    // var date = dateNew.getDate()+"/"+(dateNew.getMonth()+1)+"/"+dateNew.getFullYear()+" 23:59"
+    // return dueDatetoUnixStamp(date)
+
+    return moment().unix()
+
+}
+export function getTodaysDayEnd_ISOString(){
+    const now = moment()
+    return now.endOf('day').toISOString()
+}
+
+export function getTimeNow_ISOString(){
+    const now = moment().toISOString()
+    return now
+}
+
+export function getSevenDaysEnd_ISOString(){
+    const now = moment().add(7, "days")
+    return now.endOf('day').toISOString()
 
 }
 export function isValidDateString(dateString){
@@ -121,7 +138,16 @@ export function varNotEmpty(variable)
         return false
     }
 }
+export function isStringEmpty(val){
+    if(!varNotEmpty(val)){
+        return true
+    }
+    if(val.trim()==""){
+        return true
+    }
 
+    return false
+}
 export function isNumber(value) {
     if (typeof value === "string") {
         return !isNaN(value);
@@ -136,6 +162,31 @@ export function varIsANumber(value){
     }
 
     return false
+}
+
+
+export function appendLangParamtoURL(url, lng, langArray)
+{
+    const urlNew= new URL(url)
+    const paramlng = urlNew.searchParams.get("lng")
+    if(paramlng){
+        if(langArray.includes(paramlng)){
+            return urlNew
+        }else{
+            urlNew.searchParams.delete("lng")
+            urlNew.searchParams.append("lng", lng)
+        }
+    }else{
+        if(urlNew.searchParams.has("lng")){
+            urlNew.searchParams.delete("lng")
+            urlNew.searchParams.append("lng", lng)
+            return urlNew
+        }
+        urlNew.searchParams.append("lng", lng)
+    }
+
+    return urlNew
+
 }
 
 export function logError(error, additionalDetails)

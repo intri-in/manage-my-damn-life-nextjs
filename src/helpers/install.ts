@@ -1,3 +1,4 @@
+'use client'
 import { NextRouter } from "next/router"
 import { getAPIURL, varNotEmpty } from "./general"
 import { toast } from "react-toastify"
@@ -23,6 +24,7 @@ export async function getIfInstalled():Promise<boolean>{
         })
         .then((body) => {
             if(varNotEmpty(body) && varNotEmpty(body.success)){
+                // console.log("body", body)
                 if(body.success==true){
                     //Save install check cookie
                     setInstallOKCookie(Date.now())
@@ -54,7 +56,7 @@ export async function installCheck(router: NextRouter){
 export async function installCheck_Cookie(router){
     let installed =false
     var lastTimeChecked = getInstallCheckCookie()
-    // console.log("lastTimeChecked", lastTimeChecked, (Date.now()-lastTimeChecked>INSTALL_CHECK_THRESHOLD_SECONDS*1000))
+    console.log("lastTimeChecked", lastTimeChecked, (Date.now()-lastTimeChecked>INSTALL_CHECK_THRESHOLD_SECONDS*1000))
     if(!lastTimeChecked){
         installed = await installCheck(router)
         return installed
@@ -64,5 +66,5 @@ export async function installCheck_Cookie(router){
     }else if(lastTimeChecked){
         return true
     }
-
+    return false
 }

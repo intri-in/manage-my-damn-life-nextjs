@@ -10,6 +10,7 @@ import { getMessageFromAPIResponse } from "./response"
 import { deleteEventByURLFromDexie, getEventbyURLFromDexie, restoreEventtoDexie, saveEventToDexie } from "./dexie/events_dexie"
 import { fetchLatestEventsV2 } from "./sync"
 import { toast } from "react-toastify"
+import { parseVALARMTIME } from "./rfc5545"
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= _.cloneDeep(calendarEvents)
@@ -240,7 +241,7 @@ function filterbyPriority(priorityFilter, priority)
 export function getParsedEvent(dataInput)
 {
 
-    var data=null
+    let data=null
     try{
         data= ical.parseICS(dataInput)
 
@@ -535,10 +536,9 @@ export function addAdditionalFieldsFromOldEventV2(newEventData, oldEventData)
 
 }
 
-export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,etag, taskName, onDismissFunction){
+export async function handleDeleteEventUI(caldav_accounts_id,calendar_id,url,etag, taskName, onDismissFunction,t){
     const message = taskName? taskName+": " : ""
-    const i18next = getI18nObject()
-    toast.info(message+ i18next.t("DELETE_ACTION_SENT_TO_CALDAV"))
+    toast.info(message+ t("DELETE_ACTION_SENT_TO_CALDAV"))
     const oldEvent = await getEventbyURLFromDexie(url) 
     // Preemptively delete event from Dexie.
     await deleteEventByURLFromDexie(url)
@@ -724,5 +724,47 @@ export async function deleteEventFromServer( caldav_accounts_id, calendar_id, ur
     })
 
        
+
+}
+export async function geParsedtVAlarmsFromServer(data){
+    const url_api = getAPIURL() + "misc/parseics"
+
+    const authorisationData = await getAuthenticationHeadersforUser()
+    const requestOptions =
+    {
+        method: 'POST',
+        body: JSON.stringify({ "ics": data}),
+        mode: 'cors',
+        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    }
+    return new Promise( (resolve, reject) => {
+        fetch(url_api, requestOptions)
+            .then(response => response.json())
+            .then((body) => {
+                //console.log(body)
+                const message = getMessageFromAPIResponse(body)
+                // console.log("geParsedtVAlarmsFromServer", varNotEmpty(message) , varNotEmpty(message["VCALENDAR"]) , Array.isArray(message["VCALENDAR"]) , message["VCALENDAR"].length>0 , varNotEmpty(message["VCALENDAR"][0].VEVENT) , varNotEmpty(message["VCALENDAR"][0].VEVENT[0].VALARM) , Array.isArray(message["VCALENDAR"][0].VEVENT[0].VALARM) , message["VCALENDAR"][0].VEVENT[0].VALARM.length>0)
+                if(varNotEmpty(message) && varNotEmpty(message["VCALENDAR"]) && Array.isArray(message["VCALENDAR"]) && message["VCALENDAR"].length>0 && varNotEmpty(message["VCALENDAR"][0].VEVENT) && varNotEmpty(message["VCALENDAR"][0].VEVENT[0].VALARM) && Array.isArray(message["VCALENDAR"][0].VEVENT[0].VALARM) && message["VCALENDAR"][0].VEVENT[0].VALARM.length>0 )
+                {
+                    //Has Alarms
+                    let alarms=[]
+                    for (const i in message["VCALENDAR"][0].VEVENT[0].VALARM)
+                    {
+                        let parsedAlarm = parseVALARMTIME(message["VCALENDAR"][0].VEVENT[0].VALARM[i])
+                        // console.log("parsedAlarm", parsedAlarm)
+                        alarms.push(parsedAlarm)
+                    }
+                    return resolve(alarms)
+                }else{
+                    return resolve([])
+
+                }
+
+            }).catch (e=> {
+                console.warn("",e)
+                return resolve([])
+            }) 
+
+    })
 
 }

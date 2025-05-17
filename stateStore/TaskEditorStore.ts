@@ -10,7 +10,14 @@ export interface TaskEditorInputType{
     due?: Date,
     start?:Date,
     summary?:string,
-    calendar_id?:string | number
+    calendar_id?:string | number,
+    isTemplate?: boolean,
+    rrule?:string,
+    completion?:string | number,
+    status?:string,
+    description?:string,
+
+    templateReturn?:Function,
 
 }
 export const showTaskEditorAtom = atom(false)

@@ -2,7 +2,7 @@ import { checkifUserisInDB, startLoginRequest } from '@/helpers/api/user';
 import validator from 'validator';
 //import { checkifUserisInDB, startLoginRequest } from '@/helpers/user';
 export default async function handler(req, res) {
-    //console.log("req.body.username", req.body.username, "req.body.password", req.body.password)
+    // console.log("req.body.username", req, req.body.username, "req.body.password", req.body.password)
     if (req.method === 'POST') {
         if(req.body.username!=null)
         {
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
                 if(checkifUserisInDB(username)==true)
                 {
                     //User is in db. Ask to login with a password.
-                    res.status(422).json({ success: false ,data: {message: "LOGIN_WITH_PASSWORD"}})
+                    return res.status(422).json({ success: false ,data: {message: "LOGIN_WITH_PASSWORD"}})
     
                 }
                 else
@@ -27,12 +27,13 @@ export default async function handler(req, res) {
             {
                 //Try to login.
                 const ssidOutput = await startLoginRequest(req.body.username, req.body.password)
-                if(ssidOutput==false)
+                // console.log("ssidOutput" ,ssidOutput)
+                if(!ssidOutput)
                 {
-                    res.status(401).json({ success: 'false' ,data: {message: "INVALID_PASSWORD"}})
+                    return res.status(401).json({ success: 'false' ,data: {message: "INVALID_PASSWORD"}})
 
                 }else{
-                    res.status(200).json({ success: 'true' ,data: {message: ssidOutput}})
+                    return res.status(200).json({ success: 'true' ,data: {message: ssidOutput}})
 
                 }
 

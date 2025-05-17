@@ -1,6 +1,7 @@
 import { addTrailingSlashtoURL, isValidResultArray } from "@/helpers/general";
 import { db } from "./dexieDB";
 import { getRandomColourCode } from "../general";
+import { deleteEventsFromCalendar_Dexie } from "./events_dexie";
 
 export async function getCalendarbyIDFromDexie(calendars_id){
     try{
@@ -71,6 +72,8 @@ export async function deleteAllCalendarsFromCaldavAccountID_Dexie(caldav_account
     const allCalendars = await getAllCalendarsFromCalDavAccountIDFromDexie(caldav_accounts_id)
     if(isValidResultArray(allCalendars)){
         for (const i in allCalendars){
+            //First we delete all events in this calendar.
+            deleteEventsFromCalendar_Dexie(allCalendars[i]!.calendars_id!)
             db.calendars.delete(allCalendars[i]!.calendars_id!)
         }
     }
@@ -167,6 +170,20 @@ export async function insertOneCalendarIntoDexie(calendar, caldav_accounts_id){
     }catch(e){
         console.error("insertNewCaldavAccountIntoDexie", e)
 
+    }
+}
+
+export async function updateCalendarSyncTokenAndCtag(calendars_id, syncToken, ctag){
+
+    try{
+
+        const intCalendars_id = parseInt(calendars_id)
+        await db.calendars.update(intCalendars_id, {
+            syncToken: syncToken,
+            ctag:ctag
+        })
+    }catch(e){
+        console.error("updateCalendarColourbyID_Dexie", e)
     }
 }
 export async function updateCalendarColourbyID_Dexie(calendars_id, newColour){
