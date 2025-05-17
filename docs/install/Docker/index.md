@@ -59,7 +59,7 @@ Make changes to it, using the [Configuration](../Configuration/WithoutDocker.md)
 
 #### Database Configuration
 
-MMDL uses a MySQL database to store user data. You can either use an existing database, or run a new container of MySQL.
+MMDL uses a database to store user data. You can either use an existing database, or run a new container of MySQL.
 
 If you choose to use your MySQL without docker, just set the values of DB_HOST, DB_USER, DB_PASS, and DB_NAME in the **.env.local** file you just downloaded.
 

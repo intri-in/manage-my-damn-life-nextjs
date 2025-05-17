@@ -39,7 +39,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                     
                     //toolTipData.push(<span key={`labels_${i}_${parsedTask.categories[i]}_${id}`} className="badge rounded-pill textDefault" style={{ fontSize:8, marginLeft: 1, marginRight: 1,  backgroundColor: labelColour, color: "white" }}>{parsedTask.categories[i].charAt(0)}</span>)
 
-                    const smallID = `${id}_small`
+                    const smallID = `${id}_${i}_small`
                     labelArray.push(getLabelPill(smallID, parsedTask.categories[i].charAt(0), smallID, labelColour, 6))
                     toolTipData.push(getLabelPill(`${i}_large`, parsedTask.categories[i], `${id}_large`, labelColour, 10 ))
 

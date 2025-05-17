@@ -1,7 +1,7 @@
 import moment from "moment"
 import { dueDatetoUnixStamp, ISODatetoHuman } from "./general"
 import { getAuthenticationHeadersforUser } from "./user"
-import { getAPIURL, isStringEmpty, logVar, varNotEmpty } from "../general"
+import { getAPIURL, getTodaysDayEnd_ISOString, isStringEmpty, logVar, varNotEmpty } from "../general"
 import { RRuleHelper } from "./classes/RRuleHelper"
 import { RecurrenceHelper } from "./classes/RecurrenceHelper"
 import { getErrorResponse } from "../errros"
@@ -360,10 +360,12 @@ export function applyEventFilter(event, filter)
                 dueDate= recurrenceObj.getNextDueDate()
             }
     
+            
             filterByDueResult = filterbyDue(filter.filter.due, dueDate)
-           
-           
+            
+            // console.log("filterbyDue 22", filter.filter.due, moment(dueDate).unix(), filterByDueResult)
         }
+
         if(!filterByDueResult && logic=="and"){
             return false
         }
@@ -522,7 +524,7 @@ function filterbyStart(filter_start, startDate ){
         const startUnix= moment(startDate).unix()
 
         if(("before" in filter_start) && filter_start.before){
-            if(startUnix<=filter_start.before)
+            if(startUnix<=moment(filter_start.before).unix())
             {
                 toReturn = true
             }
@@ -531,7 +533,7 @@ function filterbyStart(filter_start, startDate ){
         
 
         if("after" in filter_start && filter_start.after){
-            if(startUnix>=filter_start.after)
+            if(startUnix>=moment(filter_start.after).unix())
             {
                 toReturn = true
             }
@@ -552,6 +554,7 @@ function filterbyDue(filterdueArray, dueDate)
             const dueUnixStamp= moment(dueDate).unix()
             const dueStart = moment(filterdueArray[0]).unix()
             const dueEnd = moment(filterdueArray[1]).unix()
+            // console.log(moment(getTodaysDayEnd_ISOString()*1000).toISOString())
             if(dueUnixStamp>=dueStart && dueUnixStamp <= dueEnd)
             {
                 return true

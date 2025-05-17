@@ -23,7 +23,7 @@ Enable or disable debug mode. Doesn't do much as of now.
 
 > Required to Change From Default: **Yes**
 
-Host for your MySQL database.
+Host for your backend database.
 ```
 Example:
 
@@ -35,7 +35,7 @@ DB_HOST=localhost
 
 > Required to Change From Default: **Yes**
 
-Host for your MySQL database.
+Username for your database user.
 ```
 Example:
 
@@ -46,7 +46,7 @@ DB_USER=myuser
 
 > Required to Change From Default: **Yes**
 
-Password for your MySQL user.
+Password for your database user.
 ```
 Example:
 
@@ -57,11 +57,37 @@ DB_PASS=mypassword
 
 > Required to Change From Default: **Yes**
 
-Name of your MySQL database.
+Name of your database.
 ```
 Example:
 
 DB_NAME=dbname
+```
+
+### DB_PORT
+
+> Required to Change From Default: **Yes**
+
+Port of your backend database.
+```
+Example:
+
+DB_PORT=3306
+```
+
+
+### DB_DIALECT
+
+> Required to Change From Default: **Yes**
+
+Type of your backend database.
+
+Depending on your database backend, DB_DIALECT can be one of the following:'mysql' | 'postgres' | 'sqlite'.
+
+```
+Example:
+
+DB_DIALECT=mysql
 ```
 
 ### AES_PASSWORD

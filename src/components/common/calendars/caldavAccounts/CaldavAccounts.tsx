@@ -92,7 +92,7 @@ export default function CaldavAccount({  }) {
       console.warn(response);
     }
     refreshCalendarListPage();
-    fetchLatestEventsV2();
+    fetchLatestEventsV2(true);
     setShowAddCalendarModal(false);
   };
 
