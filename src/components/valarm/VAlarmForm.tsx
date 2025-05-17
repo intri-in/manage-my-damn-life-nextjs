@@ -18,7 +18,7 @@ export const VAlarmForm = ({ input, onChange }: { input: vAlarm[], onChange: Fun
 
     // const [alarmValue, setAlarmValue] = useState("")
     const [alarms, setAlarms] = useState<vAlarmVTODOGEN[]>([])
-    const [description, setDescription] = useState("REMINDER!")
+    const [description, setDescription] = useState("Reminder!")
     const [alarmAction, setAlarmAction] = useState("DISPLAY")
     const [triggerValue, setTriggerValue] = useState(0)
     const [triggerDirection, setTriggerDirection] = useState("BEFORE")

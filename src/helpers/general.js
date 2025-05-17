@@ -40,9 +40,26 @@ export function getRandomColourCode()
 
 export function getTodaysDateUnixTimeStamp()
 {
-    var dateNew = new Date()
-    var date = dateNew.getDate()+"/"+(dateNew.getMonth()+1)+"/"+dateNew.getFullYear()+" 23:59"
-    return dueDatetoUnixStamp(date)
+    // var dateNew = new Date()
+    // var date = dateNew.getDate()+"/"+(dateNew.getMonth()+1)+"/"+dateNew.getFullYear()+" 23:59"
+    // return dueDatetoUnixStamp(date)
+
+    return moment().unix()
+
+}
+export function getTodaysDayEnd_ISOString(){
+    const now = moment()
+    return now.endOf('day').toISOString()
+}
+
+export function getTimeNow_ISOString(){
+    const now = moment().toISOString()
+    return now
+}
+
+export function getSevenDaysEnd_ISOString(){
+    const now = moment().add(7, "days")
+    return now.endOf('day').toISOString()
 
 }
 export function isValidDateString(dateString){

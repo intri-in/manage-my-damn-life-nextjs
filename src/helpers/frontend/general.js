@@ -122,7 +122,7 @@ export function ISODatetoHumanISO(date)
 
 export function dueDatetoUnixStamp(dueDate)
 {
-    return moment(dueDate, 'D/M/YYYY H:mm').unix();
+    return moment(dueDate).unix();
 
 }
 
