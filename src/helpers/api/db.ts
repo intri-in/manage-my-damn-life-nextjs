@@ -58,9 +58,19 @@ export function getSequelizeObj(): typeof Sequelize{
       db_host_settings["dialectModule"]= require('mysql2')
       break;
     case "postgres":
-        // db_host_settings["dialectModule"]= require('pg')
-        break;
-   
+      db_host_settings["dialectModule"]= require('pg')
+      break;
+    case "sqlite":
+      db_host_settings["dialectModule"]= require('sqlite3')
+      db_host_settings["storage"]=process.env.DB_NAME
+
+  }
+  if(dialect=="seqlite"){
+    return new Sequelize(
+      
+      db_host_settings,
+      
+      );
   }
     const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -83,8 +93,8 @@ export async function sequelizeCanConnecttoDB(){
 
     return true
   } catch (error) {
-    if(shouldLogforAPI()) console.log('Connection has been established successfully.');
-    return false
+    if(shouldLogforAPI()) console.log('Db Connection Failed:', error);
+    return error
   }
   
 }

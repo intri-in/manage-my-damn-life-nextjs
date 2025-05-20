@@ -7,7 +7,7 @@ import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import Head from "next/head";
 import Image from "next/image";
-import { Container, Form, Button, Alert } from "react-bootstrap";
+import { Container, Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
@@ -48,6 +48,11 @@ const StartInstall = () => {
               );
             } else if (message === "NOT_INSTALLED") {
               setOutput(getInstallForm());
+            }else{
+              setOutput(
+                <Alert variant="danger">{t("ERROR_GENERIC")}</Alert>
+              );
+    
             }
           }
         } else {
@@ -69,26 +74,39 @@ const StartInstall = () => {
   }, [checkifInstalled]);
 
   const continueClicked = async () => {
-    if ((await nextAuthEnabled()) === false) {
-      if (typeof window !== "undefined") {
-        const userDataFromCookies = getUserDataFromCookies();
-        if (userDataFromCookies && userDataFromCookies.ssid && userDataFromCookies.userhash) {
-          router.push("/");
-        } else {
-          router.push("/accounts/register");
-        }
-      } else {
-        router.push("/accounts/register");
-      }
-    } else {
-      router.push("/");
-    }
-  };
+    // if ((await nextAuthEnabled()) === false) {
+    //   if (typeof window !== "undefined") {
+    //     const userDataFromCookies = getUserDataFromCookies();
+    //     if (userDataFromCookies && userDataFromCookies.ssid && userDataFromCookies.userhash) {
+    //       router.push("/");
+    //     } else {
+    //       router.push("/accounts/register");
+    //     }
+    //   } else {
+    //     router.push("/accounts/register");
+    //   }
+    // } else {
+    //   router.push("/");
+    // }
 
+    router.push("/");
+  };
+ 
+  const createAccountClicked = () =>{
+    router.push("/accounts/register");
+
+  }
   const getInstallFinishedOKForm = () => (
     <>
       <Alert variant="success">{t("INSTALL_SUCESSFUL")}</Alert>
+      <Row style={{textAlign:"center"}}>
+        <Col>
+      <Button onClick={createAccountClicked}>{t("CREATE_ACCOUNT")}</Button>
+        </Col>
+        <Col>
       <Button onClick={continueClicked}>{t("CONTINUE")}</Button>
+        </Col>
+      </Row>
     </>
   );
 
