@@ -4,8 +4,9 @@ import { shouldLogforAPI } from "@/helpers/logs"
 const LOGTAG = "api/install/check"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        var connStatus = await testDBConnection()
-        // if(shouldLogforAPI()) console.log("/api/install/check connStatus", connStatus)
+        try{
+            var connStatus = await testDBConnection()
+        if(shouldLogforAPI()) console.log("/api/install/check connStatus", connStatus)
             if(!connStatus)  return res.status(503).json({ success: false ,data: {message: "ERROR_DB_CON_ERROR", details: connStatus}})
 
 
@@ -22,6 +23,11 @@ export default async function handler(req, res) {
 
                 }
 
+        }catch(e){
+            res.status(500).json({ success: false ,data: {message: e.message}})
+
+        }
+        
            
         
 
