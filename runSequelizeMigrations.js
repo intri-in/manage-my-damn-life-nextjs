@@ -1,4 +1,5 @@
 const {exec} = require('child_process');
+import { shouldLogforAPI } from '@/helpers/logs';
 import { readdir } from 'fs/promises'
 
 
@@ -17,8 +18,9 @@ import { readdir } from 'fs/promises'
 
   return new Promise((resolve, reject) => {
     const dialect = process.env.DB_DIALECT ?? "mysql"
-    const command = `npx sequelize-cli db:migrate --env=local --url '${dialect}://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}'`
-    console.log("full Command ->", command)
+    let command_Others = `npx sequelize-cli db:migrate --env=local --url '${dialect}://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}'`
+    const command = (dialect=="sqlite") ? "npx sequelize-cli db:migrate --env=sqlite":command_Others
+    if(shouldLogforAPI()) console.log("full Command ->", command)
     const migrate = exec(command,
       {env: process.env},
       err => (err ? reject(err): resolve(true))
