@@ -15,6 +15,7 @@ import { GlobalViewManager } from '@/components/common/GlobalViewManager/GlobalV
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getCurrentLanguage } from '@/helpers/frontend/translations'
+import { AVAILABLE_LANGUAGES } from '@/config/constants'
 
 export default function HomePage() {
   const { data: session, status } = useSession()  
@@ -89,7 +90,7 @@ export default function HomePage() {
 export async function getStaticProps({ locale}) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"], null, ["en","de"])),
+      ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
       // Will be passed to the page component as props
     },
   }
