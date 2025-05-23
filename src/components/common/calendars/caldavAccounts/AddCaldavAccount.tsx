@@ -117,13 +117,19 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           setRequestPending(false);
           onAccountAddSuccess();
         }else{
-          console.error(body, "AddCaldavAccount:makeServerRequest");    
+          console.error(body, "AddCaldavAccount:makeServerRequest"); 
+          setRequestPending(false);
+   
         }
       } else {
+        setRequestPending(false);
+
         toast.error(t(body.data.message));
       }
     } catch (e) {
       console.error(e, "AddCaldavAccount:makeServerRequest");
+      setRequestPending(false);
+
       toast.error(e.message);
     }
   };

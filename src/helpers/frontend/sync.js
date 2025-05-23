@@ -280,7 +280,7 @@ export async function refreshCalendarListV2()
             .then((body) =>{
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
                     const calDAVSummaryFromServer = body.data.details
-                    // console.log("calDAVSummaryFromServer", calDAVSummaryFromServer)
+                    console.log("calDAVSummaryFromServer", calDAVSummaryFromServer)
                     return resolve(syncCalDAVSummary(calDAVSummaryFromServer))
 
                 }else{

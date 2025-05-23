@@ -49,16 +49,13 @@ export async function logoutUser()
 export async function logoutUser_withRedirect(router, redirectURL){
     logoutUser()
     if(varNotEmpty(router)){
-        if(await nextAuthEnabled()){
-            router.push('/')
-        }else{
-            let url = '/login'
-            if(varNotEmpty(redirectURL)){
-                url+="/?redirect="+redirectURL
-            }
-            router.push(url)
-           
+        let url = '/login'
+        if(varNotEmpty(redirectURL)){
+            url+="/?redirect="+redirectURL
         }
+        router.push(url)
+        
+        
     }
 
 }

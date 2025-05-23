@@ -23,11 +23,11 @@ export async function nextAuthEnabled(){
         fetch(url_api, requestOptions)
         .then(response => response.json())
         .then((body) =>{
+            // console.log("body", body)
+            // console.log("isNextAuthEnabled", isNextAuthEnabled)
                 if(body && body.success)
                 {
                     const isNextAuthEnabled = getMessageFromAPIResponse(body)
-                    // console.log("body", body)
-                    // console.log("isNextAuthEnabled", isNextAuthEnabled)
                     return resolve(isNextAuthEnabled)
                 }else{
                     return resolve(false)

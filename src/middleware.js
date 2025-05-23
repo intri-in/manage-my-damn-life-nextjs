@@ -19,7 +19,6 @@ export const config = {
     "/",
   ],
 }
-
 export function middleware(req) {
   let lng=""
 
