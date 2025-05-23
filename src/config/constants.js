@@ -13,7 +13,8 @@ export const MYDAY_LABEL=SYSTEM_DEFAULT_LABEL_PREFIX+"-myday"
 export const DEFAULT_LANGUAGE="en"
 export const AVAILABLE_LANGUAGES = [
     "en",
-    "de"
+    "de",
+    "fr"
 ]
 /**
  * Allowed date formats
