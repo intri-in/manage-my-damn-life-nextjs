@@ -27,6 +27,7 @@ import { AutoSyncSetting } from "@/components/settings/AutoSyncSetting";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { TimeFormatSetting } from "./TimeFormatSetting";
 import AdvancedSettings from "./AdvancedSettings";
+import ToastSettings from "./ToastSettings";
 class SettingsPage extends Component {
 
     constructor(props) {
@@ -393,11 +394,14 @@ class SettingsPage extends Component {
                         <br />
                         <AutoSyncSetting />
                         <br />
+                        <ToastSettings />
                         <br />
                         <h2>{this.i18next("DATE_TIME_FORMAT")}</h2>
                         <TimeFormatSetting />
+                        
                         <br />
                         <br />
+
                         <AdvancedSettings />
                         <br />
                         <br />
