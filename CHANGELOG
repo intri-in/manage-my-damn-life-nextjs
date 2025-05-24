@@ -1,4 +1,11 @@
-v0.6.0
+v0.7.0
+Fixed OAuth problem (#162)
+ - It stemmed from "raw" option being true in the Sequelize object.
+ - New migrations added to make MMDL work with the latest version (v4) of NextAuth
+ - Small bug fixes
+Added option for user to select the location of Toast or to completely disable it
+
+ v0.6.0
 - Fixed deleteExtraEventsFromDexie function being called on each array iteration in saveAPIEventReponseToDexie
 - Changes to dexie db structure!
 - Improved rendering:

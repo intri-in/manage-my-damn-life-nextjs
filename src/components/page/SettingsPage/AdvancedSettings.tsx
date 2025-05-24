@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { Button, Col, Form, Row } from "react-bootstrap"
 import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
+import ToastSettings from "./ToastSettings"
 
 const AdvancedSettings = () =>{
 
@@ -57,7 +58,9 @@ const AdvancedSettings = () =>{
 
     return(
         <>
-            <h2>{t("ADVANCED_SETTINGS")}</h2>
+        <hr />
+            <h1>{t("ADVANCED_SETTINGS")}</h1>
+
             <Row>
                 <Col>
                 {t("NUKE_DEXIE_ON_LOGOUT")}<br/>
@@ -74,6 +77,8 @@ const AdvancedSettings = () =>{
                           <small>{t("NUKE_DEXIE_ON_LOGOUT_DESC")}</small>
 </Col>
             </Row>
+            <br />
+
         </>
     )
 }
