@@ -2,14 +2,14 @@ import { addTrailingSlashtoURL, isValidResultArray } from "@/helpers/general";
 import { Caldav_Accounts, db } from "./dexieDB";
 import { deleteAllCalendarsFromCaldavAccountID_Dexie, getAllCalendarsFromCalDavAccountIDFromDexie, getCalendarNameByIDFromDexie } from "./calendars_dexie";
 import { getUserDataFromCookies } from "../user";
-import { getUserIDForCurrentUser_Dexie, getUserIDFromHash_Dexie } from "./users_dexie";
+import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
 
 export async function getCalDAVSummaryFromDexie(){
   const userData = getUserDataFromCookies()
   const userHash = userData["userhash"]
   // console.log("userData", userData)
   // console.time("dexie_getUserIDFromHash_Dexie")
-  const userid = await getUserIDFromHash_Dexie(userHash)    
+  const userid = await getUserIDForCurrentUser_Dexie()    
   // console.timeEnd("dexie_getUserIDFromHash_Dexie")
   
   // console.time("dexie_getAllCalDavAccountsFromDexie")

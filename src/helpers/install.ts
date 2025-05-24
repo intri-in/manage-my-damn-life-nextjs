@@ -56,7 +56,7 @@ export async function installCheck(router: NextRouter){
 export async function installCheck_Cookie(router){
     let installed =false
     var lastTimeChecked = getInstallCheckCookie()
-    console.log("lastTimeChecked", lastTimeChecked, (Date.now()-lastTimeChecked>INSTALL_CHECK_THRESHOLD_SECONDS*1000))
+    // console.log("lastTimeChecked", lastTimeChecked, (Date.now()-lastTimeChecked>INSTALL_CHECK_THRESHOLD_SECONDS*1000))
     if(!lastTimeChecked){
         installed = await installCheck(router)
         return installed

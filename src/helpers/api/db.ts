@@ -38,7 +38,7 @@ export function getSimpleConnectionVar()
 }
 
 
-export function getSequelizeObj(): typeof Sequelize{
+export function getSequelizeObj(raw?): typeof Sequelize{
 
   const dialect= process.env.DB_DIALECT ? process.env.DB_DIALECT.toLowerCase() :  "mysql"
   const db_host_settings={
@@ -47,9 +47,9 @@ export function getSequelizeObj(): typeof Sequelize{
     dialect: dialect,
     query:{
 
-      raw: true,
+      raw: typeof(raw)!="undefined" ? raw: true,
     },
-    logging: false
+    logging: shouldLogforAPI()
 
   }
   // console.log("getSequelizeObj() dialect ->>>", dialect)
@@ -65,7 +65,7 @@ export function getSequelizeObj(): typeof Sequelize{
       db_host_settings["storage"]=process.env.DB_NAME
 
   }
-  if(dialect=="seqlite"){
+  if(dialect=="sqlite"){
     return new Sequelize(
       
       db_host_settings,

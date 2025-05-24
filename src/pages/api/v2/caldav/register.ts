@@ -58,7 +58,7 @@ export default async function handler(req, res) {
                     if(calendars!=null)
                     {
                         const caldav_account = new CaldavAccountClass(userid)
-                        let caldav_accounts_fromDB= await caldav_account.accountExists(username, url)
+                        let caldav_accounts_fromDB= await caldav_account.accountExists(username, url,userid)
                         if(caldav_accounts_fromDB==null){
                             //Save Caldav Account.
                             caldav_accounts_fromDB = await caldav_account.save(accountname, username, password, url, authMethod)

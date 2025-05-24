@@ -14,7 +14,7 @@ import { MdOutlineDarkMode, MdOutlineLightMode } from "react-icons/md";
 import { isDarkModeEnabled, setThemeMode } from "@/helpers/frontend/theme";
 import { installCheck_Cookie } from "@/helpers/install";
 import { fetchLatestEventsV2, isSyncing } from "@/helpers/frontend/sync";
-import { logoutUser_withRedirect } from "@/helpers/frontend/user";
+import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user";
 import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { useSetAtom } from "jotai";
@@ -24,6 +24,8 @@ import { GetStaticProps } from "next";
 import { Props } from "next/script";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from "next-i18next";
+import {  signOut } from "next-auth/react"
+import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session}) => {
   /**
@@ -44,10 +46,28 @@ const AppBarFunctionalComponent = ({ session}) => {
   const router = useRouter();
 
   useEffect(() => {
-    setUsernameFromSession();
-    checkInstallation();
-    setDarkModeEnabled(isDarkModeEnabled());
+    let isMounted =true
+    if(isMounted){
+
+      checkInstallation();
+      setDarkModeEnabled(isDarkModeEnabled());
+    }
+    return ()=>{
+      isMounted=false
+  }
+
   }, []);
+
+  useEffect(()=>{
+    let isMounted =true
+    if(isMounted){
+      setUsernameFromSession();
+    }
+    return ()=>{
+      isMounted=false
+  }
+
+  },[session])
 
   const setUsernameFromSession = async () => {
     try {
@@ -90,8 +110,15 @@ const AppBarFunctionalComponent = ({ session}) => {
     router.push("/tasks/list");
   };
 
-  const logOutClicked = () => {
-    logoutUser_withRedirect(router);
+  const logOutClicked = async () => {
+    if(await nextAuthEnabled()){
+      logoutUser()
+      signOut()
+      router.push('/api/auth/signin')
+    }else{
+      logoutUser_withRedirect(router);
+    }
+    
   };
 
   const settingsClicked = () => {

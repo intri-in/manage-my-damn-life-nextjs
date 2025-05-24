@@ -5,7 +5,7 @@ import { getRegistrationStatus, userRegistrationAllowed } from './settings';
 import { varNotEmpty } from '../general';
 import bcrypt from 'bcryptjs';
 import { getUserIDFromNextAuthSession, nextAuthEnabled } from '../thirdparty/nextAuth';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]'; 
 import { getToken } from 'next-auth/jwt';
 import { getRandomString } from '../crypto';
@@ -410,6 +410,8 @@ export async function middleWareForAuthorisation(req, res)
     }
     if(await nextAuthEnabled()){
         const session = await getServerSession(req, res, authOptions)
+        // const session = await getToken(req)
+        // console.log("session",  session)
         if(session){
             return true
         }else{
