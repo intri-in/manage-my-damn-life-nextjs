@@ -2,6 +2,7 @@ import { getFiltersFromDB } from '@/helpers/api/filter';
 import { middleWareForAuthorisation,  getUserIDFromLogin} from '@/helpers/api/user';
 export default async function handler(req, res) {
     if (req.method === 'GET') {
+        // console.log("req filters/get")
         if(await middleWareForAuthorisation(req, res))
         {
             

@@ -13,7 +13,9 @@ module.exports = (sequelize, DataTypes) => {
     expires:DataTypes.DATE,
     timestamp: DataTypes.DATE,
     session_token: DataTypes.STRING,
-    user_id: DataTypes.UUID
+    sessionToken:DataTypes.STRING,
+    user_id: DataTypes.UUID,
+    userId: { type: DataTypes.UUID },
   }, {
     sequelize,
     modelName: 'session',

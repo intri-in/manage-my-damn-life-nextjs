@@ -1,6 +1,8 @@
 import { isValidResultArray } from "@/helpers/general";
 import { Users, db } from "./dexieDB";
 import { getUserDataFromCookies, logoutUser } from "../user";
+import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
+import { getSessionFromNextAuthAPI, getUserIDFromNextAuthSession_API } from "../nextAuthHelpers";
 
 export async function getUserIDFromHash_Dexie(userhash){
     // console.log("url, username", url, username)
@@ -37,10 +39,19 @@ export async function deDuplicateUser(userIDArray: Users[])
     
 }
 export async function getUserIDForCurrentUser_Dexie(){
-    const userData = getUserDataFromCookies()
-    const userHash = userData["userhash"]
-    const userid = await getUserIDFromHash_Dexie(userHash)    
-    return userid
+    if(!await nextAuthEnabled()){
+
+        const userData = getUserDataFromCookies()
+        const userHash = userData["userhash"]
+        const userid = await getUserIDFromHash_Dexie(userHash)    
+        return userid
+    }else{
+        //NextAuth is being used.
+        const userhash = await getUserIDFromNextAuthSession_API()
+
+        return await getUserIDFromHash_Dexie(userhash)    
+
+    }
 }
 
 export async function addUserToDB_Dexie(userhash){
@@ -55,14 +66,16 @@ export async function addUserToDB_Dexie(userhash){
 
 export async function checkifCurrentUserInDexie(){
 
-    const userData = getUserDataFromCookies()
-    const userhash = userData["userhash"]
+    // const userData = getUserDataFromCookies()
+    // const userhash = userData["userhash"]
 
-    if(!userhash){
-        return false
-    }
-    const userid = await getUserIDFromHash_Dexie(userhash)
+    // if(!userhash){
+    //     return false
+    // }
+    const userid = await getUserIDForCurrentUser_Dexie()
     // console.log("userid and hash", userid, userhash)
+    const userhash = await getUserIDFromNextAuthSession_API()
+
     if(!userid){
         await addUserToDB_Dexie(userhash)
     }

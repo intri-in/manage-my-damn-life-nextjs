@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.6.0" 
+export const VERSION_NUMBER = "0.7.0-dev" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -13,7 +13,8 @@ export const MYDAY_LABEL=SYSTEM_DEFAULT_LABEL_PREFIX+"-myday"
 export const DEFAULT_LANGUAGE="en"
 export const AVAILABLE_LANGUAGES = [
     "en",
-    "de"
+    "de",
+    "fr"
 ]
 /**
  * Allowed date formats

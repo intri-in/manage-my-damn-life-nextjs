@@ -25,6 +25,7 @@ import { PRIMARY_COLOUR } from "@/config/style";
 import { getAPIURL } from "@/helpers/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
+import { useSession } from "next-auth/react";
 
 
 export default function CaldavAccount({  }) {
@@ -41,7 +42,6 @@ export default function CaldavAccount({  }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      refreshCalendarListV2();
       const queryString = window.location.search;
       const params = new URLSearchParams(queryString);
       const message = params.get("message");
@@ -49,7 +49,7 @@ export default function CaldavAccount({  }) {
         toast.info(t(message));
       }
     }
-  }, [t]);
+  }, []);
 
   const refreshCalendarListPage = async () => {
     await refreshCalendarListV2();
@@ -60,8 +60,8 @@ export default function CaldavAccount({  }) {
     setShowLoading(true);
     toast.info(t("REFRESHING_CALENDAR_LIST"));
     // await clearDexieDB();
-    // await checkifCurrentUserInDexie();
-    await refreshCalendarListV2();
+    // await checkifCurrentUserInDexie(session);
+    await refreshCalendarListPage();
     setShowLoading(false);
     setUpdated(Date.now());
   };

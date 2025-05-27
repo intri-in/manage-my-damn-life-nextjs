@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.6.0",
+  "version": "0.7.0-dev",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,6 @@
     "cypress": "cypress open"
   },
   "dependencies": {
-    "@auth/sequelize-adapter": "2.7.4",
     "@babel/core": "7.21.8",
     "@emotion/react": "11.10.6",
     "@emotion/styled": "11.10.6",
@@ -28,6 +27,7 @@
     "@fullcalendar/timegrid": "6.1.17",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
+    "@auth/sequelize-adapter": "2.9.1",
     "accept-language": "3.0.20",
     "axios": "1.9.0",
     "bcryptjs": "2.4.3",
@@ -47,7 +47,7 @@
     "jotai": "2.7.0",
     "js-base64": "3.7.5",
     "js-cookie": "3.0.1",
-    "keycloak-js": "22.0.1",
+    "keycloak-js": "26.2.0",
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "mysql": "2.18.1",

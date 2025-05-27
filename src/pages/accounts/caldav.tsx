@@ -10,6 +10,7 @@ import { checkLogin_InBuilt } from '@/helpers/frontend/user';
 import { getThemeMode, isDarkModeEnabled, useCustomTheme } from '@/helpers/frontend/theme';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { AVAILABLE_LANGUAGES } from '@/config/constants';
 
 export default function Caldav() {
   const { data: session, status } = useSession() 
@@ -40,6 +41,7 @@ export default function Caldav() {
   }
 }, [status, router])
 
+
     return (
     <>
         <Head>
@@ -60,7 +62,7 @@ export default function Caldav() {
 export async function getStaticProps({ locale}) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"], null, ["en","de"])),
+      ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
       // Will be passed to the page component as props
     },
   }

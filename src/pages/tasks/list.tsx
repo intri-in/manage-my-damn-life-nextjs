@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { AVAILABLE_LANGUAGES } from "@/config/constants";
 
 
 export default function TaskListPage(){
@@ -127,7 +128,7 @@ export default function TaskListPage(){
 export async function getStaticProps({ locale}) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"], null, ["en","de"])),
+      ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
       // Will be passed to the page component as props
     },
   }
