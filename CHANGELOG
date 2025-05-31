@@ -1,4 +1,6 @@
 v0.7.0
+- Added new env variable "ADDITIONAL_VALID_CALDAV_URL_LIST" to give users ability to use "invalid" urls as Caldav URLs. Solves #129
+v0.7.0
 Fixed OAuth problem (#162)
  - It stemmed from "raw" option being true in the Sequelize object.
  - New migrations added to make MMDL work with the latest version (v4) of NextAuth

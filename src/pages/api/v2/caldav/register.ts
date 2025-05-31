@@ -9,6 +9,7 @@ import { logError, logVar } from '@/helpers/general';
 import { UsersClass } from '@/helpers/api/v2/classes/UsersClass';
 import { processCalendarFromCaldav } from '@/helpers/api/v2/caldavHelper';
 import { CaldavAccountClass } from '@/helpers/api/v2/classes/CaldavAccountClass';
+import { isCaldavURLinAllowedList } from '@/helpers/validators';
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
     }
-    console.log(req.body.url)
+    // console.log(req.body.url)
     const userid =  await  UsersClass.getUserIDFromLogin(req, res)
     if(userid==null){
         return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
@@ -28,7 +29,7 @@ export default async function handler(req, res) {
     if(req.body.url!=null && req.body.username!=null && req.body.accountname!=null &&req.body.password!=null)
     {
         const authMethod = req.body.authMethod ? req.body.authMethod :"Basic"
-        if ((req.body.url!=null&&validator.isURL(req.body.url)) || req.body.url.startsWith("http://localhost") || req.body.url.startsWith("https://localhost") ){
+        if ((req.body.url!=null&&validator.isURL(req.body.url)) || req.body.url.startsWith("http://localhost") || req.body.url.startsWith("https://localhost") || isCaldavURLinAllowedList(req.body.url) ){
             if(req.body.username!=null&&req.body.password!=null)
             {
 
