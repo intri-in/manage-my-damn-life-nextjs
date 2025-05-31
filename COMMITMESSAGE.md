@@ -1,1 +1,2 @@
-Added option for user to select the location of Toast or to completely disable it
+- Added new env variable "ADDITIONAL_VALID_CALDAV_URL_LIST" to give users ability to use "invalid" urls as Caldav URLs. Solves #129
+- Added change to docs & sample .env file.
