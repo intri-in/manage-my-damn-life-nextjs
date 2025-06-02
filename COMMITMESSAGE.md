@@ -1,1 +1,0 @@
-- Added new workflow to automatically build and push docker image upon merging of pull request. See (#199)
