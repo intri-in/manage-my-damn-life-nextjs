@@ -5,10 +5,8 @@ name: Create and publish a Docker image
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
-  pull_request:
+  push:
     branches: ["development"]
-    types:
-      - closed
 
 jobs:
 
@@ -16,8 +14,6 @@ jobs:
 jobs:
   
   build-and-push-image:
-    if_merged:
-      if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
