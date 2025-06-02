@@ -15,7 +15,6 @@ import { useSetAtom } from "jotai"
 import { updateViewAtom } from "stateStore/ViewStore"
 import { TaskFilter } from "types/tasks/filters"
 import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort"
-import { useTranslation } from "react-i18next"
 
 export interface TaskSection{
     name: string | null,
