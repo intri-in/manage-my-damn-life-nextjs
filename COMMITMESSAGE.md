@@ -1,2 +1,1 @@
-- Added new env variable "ADDITIONAL_VALID_CALDAV_URL_LIST" to give users ability to use "invalid" urls as Caldav URLs. Solves #129
-- Added change to docs & sample .env file.
+- Added new workflow to automatically build and push docker image upon merging of pull request. See (#199)
