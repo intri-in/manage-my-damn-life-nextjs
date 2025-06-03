@@ -26,6 +26,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: intriin/mmdl
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
@@ -34,8 +40,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          image: intriin/mmdl
           push: true
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile
-          tags: dev-$(date +%s)
+          tags:  ${{ steps.meta.outputs.tags }}
