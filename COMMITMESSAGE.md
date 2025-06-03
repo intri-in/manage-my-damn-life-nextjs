@@ -1,0 +1,3 @@
+- Fixed bug #240
+    - Was caused by userhash being null.
+- Fixed workflow to push docker image.
