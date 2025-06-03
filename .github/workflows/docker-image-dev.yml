@@ -34,7 +34,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          image: intriin/mmdl
           push: true
           platforms: linux/amd64
           file: ./Dockerfile
-          tags: mmdl:dev-$(date +%s)
+          tags: dev-$(date +%s)

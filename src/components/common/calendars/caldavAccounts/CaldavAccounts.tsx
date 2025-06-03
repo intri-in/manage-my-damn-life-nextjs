@@ -5,7 +5,6 @@ import AddCaldavAccount from "./AddCaldavAccount";
 import AddNewCalendar from "../AddNewCalendar";
 import { CaldavAccountTable } from "./CaldavAccountTable";
 import { IoSyncCircleOutline } from "react-icons/io5";
-import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useTranslation } from "next-i18next";
 
@@ -15,17 +14,12 @@ import {
 } from "@/helpers/frontend/sync";
 import {
   deleteCalDAVAccountFromDexie,
-  getAllCalDavAccountsFromDexie,
 } from "@/helpers/frontend/dexie/caldav_dexie";
-import { getAllCalendarsFromCalDavAccountIDFromDexie } from "@/helpers/frontend/dexie/calendars_dexie";
-import { clearDexieDB } from "@/helpers/frontend/dexie/dexie_helper";
-import { checkifCurrentUserInDexie, getUserIDForCurrentUser_Dexie } from "@/helpers/frontend/dexie/users_dexie";
 import { Loading } from "../../Loading";
 import { PRIMARY_COLOUR } from "@/config/style";
 import { getAPIURL } from "@/helpers/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { useSession } from "next-auth/react";
 
 
 export default function CaldavAccount({  }) {

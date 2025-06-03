@@ -54,6 +54,19 @@ export async function getUserIDForCurrentUser_Dexie(){
     }
 }
 
+async function getUserHashforCurrentUser(){
+    if(!await nextAuthEnabled()){
+
+        const userData = getUserDataFromCookies()
+        return userData["userhash"]
+        
+    }else{
+        //NextAuth is being used.
+        return await getUserIDFromNextAuthSession_API()
+    }
+
+}
+
 export async function addUserToDB_Dexie(userhash){
     
     const id = await db.users.add({
@@ -73,11 +86,13 @@ export async function checkifCurrentUserInDexie(){
     //     return false
     // }
     const userid = await getUserIDForCurrentUser_Dexie()
-    // console.log("userid and hash", userid, userhash)
-    const userhash = await getUserIDFromNextAuthSession_API()
-
     if(!userid){
+
+        const userhash = await getUserHashforCurrentUser()
+        console.log("userid and hash", userid, userhash)
+    
         await addUserToDB_Dexie(userhash)
+        
     }
 
     return true
