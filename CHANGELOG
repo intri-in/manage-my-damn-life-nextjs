@@ -1,7 +1,8 @@
 v0.7.1
     - Fixed bug #240
         - Was caused by userhash being null.
-    
+    - Added support for ARM64
+    - Other minor bug fixes
 v0.7.0
 - Added new env variable "ADDITIONAL_VALID_CALDAV_URL_LIST" to give users ability to use "invalid" urls as Caldav URLs. Solves #129
 v0.7.0
