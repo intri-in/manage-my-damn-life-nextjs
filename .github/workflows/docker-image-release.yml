@@ -1,4 +1,4 @@
-name: Docker Image CI Build and Push on Release - Development
+name: Docker Image CI Build and Push on Release - Main
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
