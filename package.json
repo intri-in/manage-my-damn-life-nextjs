@@ -1,11 +1,11 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run migrate && next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npm run migrate && next start",
     "lint": "next lint",
     "migrate": "npx sequelize-cli db:migrate --env local",
     "undo-migrate": "npx sequelize-cli db:migrate:undo  --env local",
@@ -73,7 +73,7 @@
     "react-toastify": "9.1.1",
     "rrule": "2.7.2",
     "sequelize": "6.37.7",
-    "sequelize-cli": "6.6.2",
+    "sequelize-cli": "6.6.3",
     "sqlite3": "5.1.7",
     "timezone-validator": "1.0.3",
     "tsdav": "2.1.2",

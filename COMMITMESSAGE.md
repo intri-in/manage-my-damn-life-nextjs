@@ -1,1 +1,3 @@
-Added option for user to select the location of Toast or to completely disable it
+- Fixed bug #240
+    - Was caused by userhash being null.
+- Fixed workflow to push docker image.

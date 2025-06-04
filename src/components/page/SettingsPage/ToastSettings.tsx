@@ -2,7 +2,7 @@ import SettingsHelper from "@/helpers/frontend/classes/SettingsHelper"
 import { SETTING_NAME_TOAST_LOCATION } from "@/helpers/frontend/settings"
 import { useEffect, useState } from "react"
 import { Col, Form, Row } from "react-bootstrap"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 
 const ToastSettings = () =>{

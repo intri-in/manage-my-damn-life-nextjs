@@ -185,6 +185,24 @@ Example:
 SMTP_USESECURE = false 
 ```
 
+### ADDITIONAL_VALID_CALDAV_URL_LIST
+
+> Required to Change From Default: **No**
+
+While adding a CalDAV account, its url is validated at the backend. This variable allows users to register Caldav URLs that are effectively "invalid". For example, this can be used with docker to use internal urls. 
+
+Please note that this variable is parsed as a JSON, so it must be in a valid JSON format. 
+
+```
+Example:
+
+ADDITIONAL_VALID_CALDAV_URL_LIST = ["http://testaddress", "http://testaddress2"]
+
+or 
+
+ADDITIONAL_VALID_CALDAV_URL_LIST = "['http://testaddress', 'http://testaddress2']"
+```
+
 ### NEXT_PUBLIC_DISABLE_USER_REGISTRATION 
 
 > Required to Change From Default: **No**

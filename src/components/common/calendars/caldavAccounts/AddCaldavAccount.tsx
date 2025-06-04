@@ -51,15 +51,15 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
   const formisValid = () => {
     if (!serverURL) return false;
 
-    if (!validator.isURL(addTrailingSlashtoURL(serverURL))) {
-      if (
-        !serverURL.startsWith("https://localhost") &&
-        !serverURL.startsWith("http://localhost")
-      ) {
-        toast.error(t("ENTER_A_SERVER_NAME"));
-        return false;
-      }
-    }
+    // if (!validator.isURL(addTrailingSlashtoURL(serverURL))) {
+    //   if (
+    //     !serverURL.startsWith("https://localhost") &&
+    //     !serverURL.startsWith("http://localhost")
+    //   ) {
+    //     toast.error(t("ENTER_A_SERVER_NAME"));
+    //     return false;
+    //   }
+    // }
 
     if (!accountName?.trim()) {
       toast.error(t("ENTER_ACCOUNT_NAME"));
