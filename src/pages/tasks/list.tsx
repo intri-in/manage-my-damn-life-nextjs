@@ -18,42 +18,39 @@ import { AVAILABLE_LANGUAGES } from "@/config/constants";
 
 
 export default function TaskListPage(){
-    const { data: session, status } = useSession()
-    const router = useRouter()
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
     useCustomTheme()
      /**
      * Jotai
      */
-     const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
-     const setFilterAtom = useSetAtom(filterAtom)
-     const setCalDavAtom = useSetAtom(calDavObjectAtom)
-     const setUpdateView= useSetAtom(updateViewAtom)
-     const [urlParsed, setURLPased] = useState(false)
-    const {t} = useTranslation()
+    const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
+    const setFilterAtom = useSetAtom(filterAtom)
+    const setCalDavAtom = useSetAtom(calDavObjectAtom)
+    const [urlParsed, setURLPased] = useState(false)
+  const {t} = useTranslation()
     useEffect(() =>{
-      let isMounted = true
-      if(isMounted)
-      {
+      
+     
         const checkAuth = async () =>{
-          
-          if(await nextAuthEnabled()){
+          const isnextAuthEnabled = await nextAuthEnabled()
+          if(isnextAuthEnabled){
             if (status=="unauthenticated" ) {
               signIn()
             }
           }else{
             // Check login using inbuilt function.
-    
+            // console.log("HERE")
+
             checkLogin_InBuilt(router, "/tasks/list")
           }
         }
         checkAuth()
   
-      }
-      return ()=>{
-        isMounted = false
-      }
-
-    }, [status,router])
+      
+ 
+    }, [router, status])
     
      
     useEffect(()=>{
@@ -116,13 +113,13 @@ export default function TaskListPage(){
   },[setCalDavAtom, setCurrentPageTitle, setFilterAtom, urlParsed])
 
 
-    const output = urlParsed ? <TaskViewListWithStateManagement />: null
-    return(
-        <>
-        {output}
-        <GlobalViewManager />
-        </>
-    )
+  const output = urlParsed ? <TaskViewListWithStateManagement />: null
+  return(
+      <>
+      {output}
+      <GlobalViewManager />
+      </>
+  )
 }
 
 export async function getStaticProps({ locale}) {

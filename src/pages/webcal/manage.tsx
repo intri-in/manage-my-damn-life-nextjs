@@ -12,6 +12,7 @@ import TemplateManager from "@/components/templates/TemplateManager";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
+import WebcalManager from "@/components/webcal/WebcalManager";
 
 
 export default function ManageTemplates(){
@@ -43,7 +44,7 @@ export default function ManageTemplates(){
     return(
         <>
         <Head>
-          <title>{t("APP_NAME_TITLE")+" - "+t("TEMPLATE_MANAGER")}</title>
+          <title>{t("APP_NAME_TITLE")+" - "+t("WEBCAL_MANAGER")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -51,7 +52,7 @@ export default function ManageTemplates(){
 
         <Container fluid >
              <div style={{marginTop: 20}}>
-              <TemplateManager />
+                <WebcalManager />
              </div>
         </Container>
     </>

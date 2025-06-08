@@ -2,7 +2,7 @@ import AppBarGeneric from "@/components/common/AppBar";
 import SettingsPage from "@/components/page/SettingsPage/SettingsPage";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { useCustomTheme } from "@/helpers/frontend/theme";
-import { checkLogin_InBuilt, logoutUser_withRedirect } from "@/helpers/frontend/user";
+import { checkLogin_InBuilt } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { signIn, useSession } from "next-auth/react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";

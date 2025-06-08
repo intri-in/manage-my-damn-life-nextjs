@@ -26,6 +26,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from "next-i18next";
 import {  signOut } from "next-auth/react"
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
+import { SyncButton } from "./SyncButton";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session}) => {
   /**
@@ -111,16 +112,28 @@ const AppBarFunctionalComponent = ({ session}) => {
   };
 
   const logOutClicked = async () => {
+    commonlogoutFunction(false)
+  };
+  const commonlogoutFunction = async (nukeDexie) =>{
+    logoutUser(nukeDexie)
     if(await nextAuthEnabled()){
-      logoutUser()
       signOut()
       router.push('/api/auth/signin')
     }else{
-      logoutUser_withRedirect(router);
+      let urlRedirect = "/"
+      if(typeof(window)!=="undefined"){
+        urlRedirect = window.location.pathname;
+      }
+      logoutUser_withRedirect(router, urlRedirect);
     }
-    
-  };
 
+  }
+
+  const logoutRightClicked = (e) =>{
+    e.preventDefault()
+    commonlogoutFunction(true)
+
+  }
   const settingsClicked = () => {
     router.push("/accounts/settings");
   };
@@ -251,11 +264,11 @@ const AppBarFunctionalComponent = ({ session}) => {
                       {t("SYNC")}
                     </Tooltip>
                   }>
-                  <div style={{ color: "white", padding: 5 }}>{syncButton} </div>
+                  <div style={{ color: "white", padding: 5 }}><SyncButton isSyncing={spinningButton} /></div>
                 </OverlayTrigger>
               </Nav.Item>
               <Nav.Item style={{ color: "white", padding: 5 }}>
-                <BiLogOut onClick={logOutClicked} size={24} />
+                <BiLogOut onContextMenu={logoutRightClicked} onClick={logOutClicked} size={24} />
               </Nav.Item>
             </Nav>
         </Navbar.Collapse>

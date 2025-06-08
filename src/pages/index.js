@@ -3,7 +3,7 @@ import  AppBarGeneric  from '@/components/common/AppBar'
 import { useEffect, useState, useRef } from 'react'
 import { useSession, signIn } from "next-auth/react"
 import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth'
-import { checkLogin_InBuilt, logoutUser_withRedirect } from '@/helpers/frontend/user'
+import { checkLogin_InBuilt } from '@/helpers/frontend/user'
 import { useRouter } from 'next/router'
 import { getIfInstalled, installCheck } from '@/helpers/install'
 import { useCustomTheme } from '@/helpers/frontend/theme'
@@ -23,6 +23,8 @@ export default function HomePage() {
   const [isSyncing, setIsSyncing] = useState(false)
   const [installChecked, setInstallChecked] = useState(false)
   const { t, i18n } = useTranslation()
+  const router = useRouter()
+
   // useEffect(()=>{
   //   i18n.changeLanguage(getCurrentLanguage())
   // },[])
@@ -47,7 +49,6 @@ export default function HomePage() {
   //   // }
     
   //   // }, [userAuthenticated])
-  const router = useRouter()
   useCustomTheme()
 
    
@@ -64,7 +65,7 @@ export default function HomePage() {
         }
       }
        checkLogin() 
-      }, [status, router])
+      }, [status])
     
 
   

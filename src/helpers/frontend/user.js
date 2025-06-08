@@ -22,9 +22,9 @@ export function setLoginCookie(userhash, ssid) {
     Cookies.set("SSID", ssid, { expires: 30 })
 }
 
-export async function logoutUser()
+export async function logoutUser(nukeDexie)
 {
-    if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE"){
+    if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE" || nukeDexie){
 
         clearDexieDB()
     }
@@ -46,8 +46,7 @@ export async function logoutUser()
 /**
  * Manages user logout with redirect. Calls the Logout function (which signs out the user either with NextAuth.js or with inbuilt mechanism, then redirects appropriately.)
  */
-export async function logoutUser_withRedirect(router, redirectURL){
-    logoutUser()
+export async function logoutUser_withRedirect(router, redirectURL, nukeDexie){
     if(varNotEmpty(router)){
         let url = '/login'
         if(varNotEmpty(redirectURL)){

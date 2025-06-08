@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.7.1",
+  "version": "0.8.0-dev",
   "private": true,
   "scripts": {
     "dev": "npm run migrate && next dev",
