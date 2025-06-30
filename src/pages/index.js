@@ -21,9 +21,9 @@ export default function HomePage() {
   const { data: session, status } = useSession()  
   const [updated, setUpdated]=useState('')
   const [isSyncing, setIsSyncing] = useState(false)
-  const [installChecked, setInstallChecked] = useState(false)
   const { t, i18n } = useTranslation()
   const router = useRouter()
+  const [isloggedIn, setIsloggedIn] = useState(false)
 
   // useEffect(()=>{
   //   i18n.changeLanguage(getCurrentLanguage())
@@ -53,19 +53,34 @@ export default function HomePage() {
 
    
 
-    useEffect(() =>{
-      async function checkLogin(){
+  useEffect(() =>{
+
+    let isMounted =true
+    async function checkAuth(){
+      
         if(await nextAuthEnabled()){
           if (status=="unauthenticated" ) {
             signIn()
-          } 
+          }else{
+              setIsloggedIn(true)
+          }
         }else{
           // Check login using inbuilt function.
-          checkLogin_InBuilt(router)
+          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
         }
       }
-       checkLogin() 
-      }, [status])
+
+      if(isMounted){
+
+        checkAuth()
+      }
+      return () =>{
+        isMounted = false
+    }
+  }, [status, router])
+
+  if(!isloggedIn) return (<></>)   
+
     
 
   

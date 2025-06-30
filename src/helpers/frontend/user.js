@@ -96,12 +96,16 @@ export async function checkLogin_InBuilt(router, redirectURL){
             if(varNotEmpty(body) && varNotEmpty(body.success)){
                 if(body.success!=true){
                     logoutUser_withRedirect(router, redirectURL)
+                    return resolve(false)
+                    
                 }
-
+                return resolve(true)
+                
+                
             }else{
                 logoutUser_withRedirect(router, redirectURL)
+                return resolve(false)
             }
-                return resolve(true)
         }).catch(e=>
             {
                 

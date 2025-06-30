@@ -56,7 +56,6 @@ export default function Caldav() {
         <AppBarGeneric  />
 
         <Container fluid >
-             <div  style={{marginTop: 20}}><CaldavAccounts   /></div>
         </Container>
     </>
     )

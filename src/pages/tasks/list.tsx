@@ -20,6 +20,7 @@ import { AVAILABLE_LANGUAGES } from "@/config/constants";
 export default function TaskListPage(){
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [isloggedIn, setIsloggedIn] = useState(false)
 
     useCustomTheme()
      /**
@@ -29,28 +30,33 @@ export default function TaskListPage(){
     const setFilterAtom = useSetAtom(filterAtom)
     const setCalDavAtom = useSetAtom(calDavObjectAtom)
     const [urlParsed, setURLPased] = useState(false)
-  const {t} = useTranslation()
+    const {t} = useTranslation()
     useEffect(() =>{
-      
-     
-        const checkAuth = async () =>{
-          const isnextAuthEnabled = await nextAuthEnabled()
-          if(isnextAuthEnabled){
+
+      let isMounted =true
+      async function checkAuth(){
+        
+          if(await nextAuthEnabled()){
             if (status=="unauthenticated" ) {
               signIn()
+            }else{
+                setIsloggedIn(true)
             }
           }else{
             // Check login using inbuilt function.
-            // console.log("HERE")
-
-            checkLogin_InBuilt(router, "/tasks/list")
+            setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
           }
         }
-        checkAuth()
-  
-      
- 
-    }, [router, status])
+
+        if(isMounted){
+
+          checkAuth()
+        }
+        return () =>{
+          isMounted = false
+      }
+    }, [status, router])
+
     
      
     useEffect(()=>{
@@ -111,6 +117,7 @@ export default function TaskListPage(){
       
     
   },[setCalDavAtom, setCurrentPageTitle, setFilterAtom, urlParsed])
+  if(!isloggedIn) return (<></>)   
 
 
   const output = urlParsed ? <TaskViewListWithStateManagement />: null

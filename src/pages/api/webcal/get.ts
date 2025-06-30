@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             }
 
             try{
-                console.log(await parseWebCalFromAddress("http://127.0.0.1/ics/expo2rt.ics"))
+                console.log(await parseWebCalFromAddress("http://127.0.0.1/ics/export.ics"))
                 const allwebcals= await getWebCalsFromDB(userid)
                 return  res.status(200).json({ success: true, data: { message: allwebcals} })
 

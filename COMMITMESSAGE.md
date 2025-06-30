@@ -1,6 +1,1 @@
-- Version bumped to v0.8.0-dev
-- Fixed TaskListView repeatedly pinging backend for OAuth Status.
-- Fixed overlay for task labels -- Now displayed at the side
-- Added feature -- right clicking on Sync button now forces a sync.
-- Added feature -- right clicking on Logout button now deletes local cache before logout.
-- A banner is now also displayed on Login page informing user if the backend database tables have not been installed. Should help new users during installation.
+- Fixed flickering if the user was not logged in. Now pages don't render anything if the user is not logged in.

@@ -6,7 +6,8 @@ v0.8.0
 - Bug Fixes:
     - Fixed TaskListView repeatedly pinging backend for OAuth Status.
     - Fixed overlay for task labels -- Now displayed at the side
-
+    - Fixed #256
+    - Fixed content flickering if the user was not logged in. Now pages don't render anything if the user is not logged in.
 v0.7.1
     - Fixed bug #240
         - Was caused by userhash being null.

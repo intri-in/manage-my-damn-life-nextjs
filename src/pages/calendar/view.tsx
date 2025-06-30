@@ -12,31 +12,43 @@ import { signIn, useSession } from "next-auth/react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 
 export default function CalendarViewPage(){
-    const { data: session, status } = useSession()
-    const router = useRouter()
-    const {t} = useTranslation()
-    useCustomTheme()
+  const { data: session, status } = useSession() 
+  const [isloggedIn, setIsloggedIn] = useState(false)
+  const router = useRouter()
+  const {t} = useTranslation()
+  useCustomTheme()
+  useEffect(() =>{
 
-    useEffect(() =>{
-      async function checkAuth(){
-        
+    let isMounted =true
+    async function checkAuth(){
+      
         if(await nextAuthEnabled()){
           if (status=="unauthenticated" ) {
             signIn()
+          }else{
+              setIsloggedIn(true)
           }
         }else{
           // Check login using inbuilt function.
-  
-          checkLogin_InBuilt(router, "/calendar/view")
+          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
         }
       }
-      checkAuth()
-    }, [status,router])
-    
+
+      if(isMounted){
+
+        checkAuth()
+      }
+      return () =>{
+        isMounted = false
+    }
+  }, [status, router])
+
+    if(!isloggedIn) return (<></>)   
+
 
      
   
