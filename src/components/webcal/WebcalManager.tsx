@@ -6,6 +6,10 @@ import AddWebcalForm from "./AddWebcalForm";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { getWebCalsFromServer } from "@/helpers/frontend/webcals";
 import { AiOutlineDelete } from "react-icons/ai";
+import { toast } from "react-toastify";
+import { getAPIURL } from "@/helpers/general";
+import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
+import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 
 export default function WebcalManager(){
 
@@ -27,11 +31,47 @@ export default function WebcalManager(){
         setShowAddForm(true)
     }
     const closeAddForm =() =>{
-        // getAllTemplatesFromServer()
+        getAllWebCalsFromServer()
+
         setShowAddForm(false)
     }
 
+    const deleteWebCal = async (id) =>{
+        const url_api = getAPIURL() + "webcal/delete?id=" + id
 
+        const authorisationData = await getAuthenticationHeadersforUser()
+        const requestOptions ={
+            method: 'DELETE',
+            mode: 'cors',
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        }
+        const response = await fetch(url_api, requestOptions as RequestInit)
+        .then(response => response.json())
+        .then((body) => {
+            // console.log("body", body)
+            if (body != null && body.success != null) {
+                var message = getMessageFromAPIResponse(body)
+
+                if (body.success == true) {
+                    //Delete CalDavFromDexie
+                    toast.success(t(message))
+
+                } else {
+
+                    toast.error(t(message))
+
+                }
+            } else {
+                toast.error(t("ERROR_GENERIC"))
+            }
+
+
+        }).catch(e => {
+            console.log(e)
+        })
+        getAllWebCalsFromServer()
+
+    }
 const getAllWebCalsFromServer = async() =>{
 
     const finalOutput: JSX.Element[] = []
@@ -51,7 +91,7 @@ const getAllWebCalsFromServer = async() =>{
                     <p>{`${t("UPDATE_INTERVAL")}: ${response[i]["updateInterval"]}`}</p>
                 </Col>
                 <Col style={{textAlign:"right"}} lg={2}>
-                <AiOutlineDelete  color="red" />
+                <AiOutlineDelete onClick={() =>deleteWebCal(response[i]["id"])}  color="red" />
                 </Col>
                 </Row>
                 

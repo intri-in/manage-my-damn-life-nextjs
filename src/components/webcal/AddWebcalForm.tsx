@@ -34,15 +34,18 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
             return false
             
         }
-        
-        if (!validator.isURL(addTrailingSlashtoURL(link))) {
+        if(!link){
+            toast.error(t("ERROR_LINK_EMPTY"));
+            return false
+        }
+        console.log("validator.isURL(link)", validator.isURL(link))
+        if (!validator.isURL(link)) {
             
-            if(!link){
-                toast.error(t("ERROR_LINK_EMPTY"));
-                return false
+            const isLocalHostLink = (link.startsWith("http://localhost")|| link.startsWith("https://localhost"))
+            if(!isLocalHostLink){
+
+                toast.warn(t("ERROR_LINK_LOOKS_INVALID"));
             }
-            
-            toast.warn(t("ERROR_LINK_LOOKS_INVALID"));
             
         }
         if(isNaN(updateInterval)){
@@ -85,18 +88,21 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
         
                             }else{
                                 toast.error(t(body.data.message))
+                                setIsSubmitting(false)
+
                             }
                         }
                         else
                         {
                             toast.error(t("ERROR_GENERIC"))
-        
+                            setIsSubmitting(false)
                         }
                         
             
                     }).catch(e =>{
                         console.error(e, "AddWebcalForm onSave:")
                         toast.error(e.message)
+                        setIsSubmitting(false)
                     })
                 
             })
@@ -108,7 +114,7 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
     
     const buttons = (
     <p style={{marginTop: 40, textAlign:"center"}}>
-        <Button onClick={() =>closeAddForm()} style={{marginRight:"20px"}} variant="secondary">{t("BACK")}</Button>
+        <Button onClick={() =>closeAddForm()} style={{marginRight:"20px"}} variant="secondary">{t("CLOSE")}</Button>
         <Button onClick={onSave} variant="primary">{t("ADD")}</Button>
     </p>
 )

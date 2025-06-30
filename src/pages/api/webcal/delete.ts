@@ -1,8 +1,14 @@
 import { getTemplatesFromDB } from '@/helpers/api/template';
 import { middleWareForAuthorisation,  getUserIDFromLogin} from '@/helpers/api/user';
-import { getWebCalsFromDB, parseWebCalFromAddress } from '@/helpers/api/webcal';
+import { deleteWebCalsFromDB, getWebCalsFromDB, parseWebCalFromAddress } from '@/helpers/api/webcal';
 export default async function handler(req, res) {
-    if (req.method === 'GET') {
+
+    if (req.method && req.method.trim() === 'DELETE') {
+
+        if(!req.query.id){
+            return res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
+
+        }
         if(await middleWareForAuthorisation(req, res))
         {
             
@@ -14,8 +20,8 @@ export default async function handler(req, res) {
             }
 
             try{
-                const allwebcals= await getWebCalsFromDB(userid)
-                return  res.status(200).json({ success: true, data: { message: allwebcals} })
+                const allwebcals= await deleteWebCalsFromDB(req.query.id, userid)
+                return  res.status(200).json({ success: true, data: { message: "DELETE_OK"} })
 
             }catch(e){
                 return res.status(422).json({ success: false, data: { message: e.message} })

@@ -150,6 +150,10 @@ const AppBarFunctionalComponent = ({ session}) => {
     router.push("/accounts/caldav");
   };
 
+  const webcalLinkClicked = () => {
+    router.push("/webcal/manage");
+  };
+
   const flipThemeMode = () => {
     const newMode = isDarkModeEnabled() ? "light" : "dark";
     setThemeMode(newMode);
@@ -222,6 +226,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                   <Dropdown.Item onClick={labelManageClicked}>{t("LABEL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={manageFilterClicked}>{t("MANAGE_FILTERS")}</Dropdown.Item>
                   <Dropdown.Item onClick={manageCaldavClicked}>{t("MANAGE") + " " + t("CALDAV_ACCOUNTS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={webcalLinkClicked}>{t("WEBCAL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{t("TEMPLATE_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
                 </Dropdown.Menu>

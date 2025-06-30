@@ -1,1 +1,1 @@
-- Fixed flickering if the user was not logged in. Now pages don't render anything if the user is not logged in.
+- Added ability to add, fetch, and delete webcal links.

@@ -23,6 +23,21 @@ export async function insertWebcalIntoDB(userid, name, link, updateInterval){
 
 }
 
+export async function isURLPresentinDBFortheUser(url, userid){
+    const fromDB =  await webcal_accountsModel.findAll({
+        where: {
+            userid: userid.toString(),
+            link:url.trim()
+        },
+    })
+
+    if(fromDB && Array.isArray(fromDB) && fromDB.length>0){
+        return true
+    }else{
+        return false
+    }
+
+}
 
 export async function parseWebCalFromAddress(link){
 
@@ -47,6 +62,10 @@ export async function parseWebCalFromAddress(link){
                 }
             }
             return resolve(toReturn)
+        }).catch(e =>{
+
+            return resolve([])
+
         })
 
     })
@@ -63,4 +82,16 @@ export async function getWebCalsFromDB(userid){
     })
 
 
+}
+
+export async function deleteWebCalsFromDB(id, userid){
+
+
+    return await webcal_accountsModel.destroy({
+        where:{
+            userid: userid.toString(),
+            id: id
+        }
+
+    })
 }
