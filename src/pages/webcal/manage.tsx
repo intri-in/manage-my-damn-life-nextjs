@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import Head from 'next/head'
 import Container from 'react-bootstrap/Container';
 import AppBarGeneric  from "@/components/common/AppBar"
-import TemplateManager from "@/components/templates/TemplateManager";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";

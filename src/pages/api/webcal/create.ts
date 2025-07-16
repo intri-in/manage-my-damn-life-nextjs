@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         if( await middleWareForAuthorisation(req,res))
         {
-            if(req.body.name&&req.body.link&&req.body.updateInterval)
+            if(req.body.name&&req.body.link&&req.body.updateInterval&&req.body.colour)
             {
                 // var userid=await User.idFromAuthorisation(req.headers.authorization)
                 const userid = await getUserIDFromLogin(req, res)
@@ -21,12 +21,11 @@ export default async function handler(req, res) {
                         return res.status(400).json({ success: false, data: { message: "DUPLICATE_WEBCAL"} })
 
                     }
-                    const result = await parseandAddICSToDB(userid.toString(), req.body.name, req.body.link, req.body.updateInterval)
-                    if(!result){
-                        
-                        return res.status(200).json({ success: true, data: { message: "INSERT_OK"} })
+                    const result = await parseandAddICSToDB(userid.toString(), req.body.name, req.body.link, req.body.updateInterval, req.body.colour)
+                    if(result.status==true){
+                        return res.status(200).json({ success: true, data: { parsedCal: result.parsedCal, id:result.id, message: "INSERT_OK"} })
                     }else{
-                        return res.status(422).json({ success: false, data: { message: result} })
+                        return res.status(422).json({ success: false, data: { message: result.message} })
                     }
                 }catch(e){
                     if(shouldLogforAPI()) console.error(e)

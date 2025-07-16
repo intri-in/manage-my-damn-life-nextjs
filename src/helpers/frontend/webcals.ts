@@ -2,6 +2,7 @@ import { toast } from "react-toastify";
 import { getAPIURL } from "../general";
 import { getAuthenticationHeadersforUser } from "./user";
 import { getErrorResponse } from "../errros";
+import { addWebCalAccounttoDexie, addWebCalEventstoDexie, isWebCalAccountAlreadyinDexie } from "./dexie/webcal_dexie";
 
 export async function getWebCalsFromServer()
 {
@@ -45,3 +46,17 @@ export async function getWebCalsFromServer()
   
 
 }
+export async function setupWebCalDataFromServer(){
+    const webCals = await getWebCalsFromServer()
+    // console.log("webCals", webCals)
+    if(webCals && Array.isArray(webCals) && webCals.length>0){
+        for (const i in webCals){
+            if(await isWebCalAccountAlreadyinDexie(webCals[i]["id"]) == false){
+
+                await addWebCalAccounttoDexie(webCals[i]["id"],webCals[i]["name"],webCals[i]["link"],webCals[i]["updateInterval"],webCals[i]["lastFetched"],webCals[i]["colour"])
+                await addWebCalEventstoDexie(webCals[i]["id"],webCals[i]["data"])
+            }
+        }
+    }
+}
+

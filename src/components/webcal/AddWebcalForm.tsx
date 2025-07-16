@@ -4,8 +4,11 @@ import { Loading } from "../common/Loading";
 import { Button, Card, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import validator from "validator";
-import { addTrailingSlashtoURL, getAPIURL } from "@/helpers/general";
+import { addTrailingSlashtoURL, getAPIURL, getRandomColourCode } from "@/helpers/general";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
+import { addWebCalAccounttoDexie, addWebCalEventstoDexie,  deleteEventsFromWebCal_Dexie } from "@/helpers/frontend/dexie/webcal_dexie";
+import moment from "moment";
+import ColourPicker from "../common/ColourPIcker";
 
 export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
     const {t} = useTranslation()
@@ -14,6 +17,7 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
     const [link, setLink] = useState('')
     const [updateInterval, setUpdateInterval] = useState(24)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [colour, setColour] = useState(getRandomColourCode())
     const nameChanged = (e) =>{
         setName(e.target.value)
     }
@@ -38,7 +42,7 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
             toast.error(t("ERROR_LINK_EMPTY"));
             return false
         }
-        console.log("validator.isURL(link)", validator.isURL(link))
+        // console.log("validator.isURL(link)", validator.isURL(link))
         if (!validator.isURL(link)) {
             
             const isLocalHostLink = (link.startsWith("http://localhost")|| link.startsWith("https://localhost"))
@@ -69,6 +73,7 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
                     name: name,
                     link: link,
                     updateInterval: updateInterval,
+                    colour: colour
                 }),
                 headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
             }
@@ -77,13 +82,17 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
                
                     const response =  fetch(url_api, requestOptions)
                     .then(response => response.json())
-                    .then((body) =>{
+                    .then(async (body) =>{
                         //Save the events to db.
                         if(body!=null)
                         {
                             if(body.success==true)
                             {
                                 toast.success(t("DONE"))
+                                //Add received data into Dexie
+                                const lastFetched =  moment().toISOString()
+                                await addWebCalAccounttoDexie(parseInt(body.data.id), name, link, updateInterval, lastFetched, colour)
+                                await addWebCalEventstoDexie(body.data.id, body.data.parsedCal)
                                 closeAddForm()
         
                             }else{
@@ -127,6 +136,10 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
             <Form.Label>{`${t("NAME")}`}</Form.Label>
             <Form.Control maxLength={50} onChange={nameChanged} value={name}  />
             <br />
+            <ColourPicker onChange={(colour, keyName) =>setColour(colour)} colour={colour} />
+            <br/>
+            <br/>
+
             <Form.Label>{`${t("LINK")}`}</Form.Label>
             <Form.Control maxLength={1000} onChange={linkChanged} value={link}  />
             <br/>

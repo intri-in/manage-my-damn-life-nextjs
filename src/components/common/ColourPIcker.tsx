@@ -3,7 +3,7 @@ import { Button } from "react-bootstrap"
 import { SketchPicker } from 'react-color'
 
 interface propsType{
-    colour:string,
+    colour:string | undefined,
     onChange: Function
     keyName?: string
 }

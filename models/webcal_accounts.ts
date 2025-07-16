@@ -6,14 +6,15 @@ export interface webcal_accountsAttributes {
     name?: string;
     userid?:string;
     link?:string
-    lastFetched?:number
+    lastFetched?:string
     updateInterval?: string
+    colour?:string
 
 }
 
 export type webcal_accountsPk = "id";
 export type webcal_accountsId = webcal_accounts[webcal_accountsPk];
-export type webcal_accountsOptionalAttributes = "id" | "name" | "userid" | "link" | "lastFetched" | "updateInterval";
+export type webcal_accountsOptionalAttributes = "id" | "name" | "userid" | "link" | "lastFetched" | "updateInterval" | "colour";
 export type webcal_accountsCreationAttributes = Optional<webcal_accountsAttributes, webcal_accountsOptionalAttributes>;
 
 
@@ -27,7 +28,8 @@ name?: string;
 userid?:string;
 link?:string
 updateInterval?: string
-lastFetched?:number
+lastFetched?:string
+colour?:string
   static initModel(sequelize: Sequelize.Sequelize): typeof webcal_accounts {
   return  webcal_accounts.init({
     id: {
@@ -49,6 +51,10 @@ lastFetched?:number
       type: DataTypes.STRING(1000),
       allowNull: true
     },
+    colour: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+   },
     lastFetched: {
       type: DataTypes.STRING,
     allowNull: true

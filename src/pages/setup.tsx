@@ -10,13 +10,14 @@ import { useSetAtom } from "jotai"
 import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore"
 import { serverSideTranslations } from "next-i18next/serverSideTranslations"
 import { AVAILABLE_LANGUAGES } from "@/config/constants"
+import { setupWebCalDataFromServer } from "@/helpers/frontend/webcals"
 const SESSION_IS_SETTING_UP="SESSION_IS_SETTING_UP"
 
 export default function SetupPage() {
@@ -30,12 +31,14 @@ export default function SetupPage() {
     const [currentWork, setCurrentWork] = useState("Fetching events and tasks...")
     const router= useRouter()
     const {t} = useTranslation()
+    const effectRan = useRef(false);
+
     const setupEverything = async () => {
 
-        let isMounted =true
-        if(isMounted){
+        if (!effectRan.current) {
             setCurrentWork("Fetching settings...")
             await SettingsHelper.getAllFromServerAndSave()
+            // await setupWebCalDataFromServer()
             setCurrentWork("Fetching events and data...")
         
             // await fetchLatestEventsV2()
@@ -64,9 +67,7 @@ export default function SetupPage() {
                 
                 
         
-        return ()=>{
-            isMounted=false
-        }
+        return () => {effectRan.current = true;}
     }
     useEffect(()=>{
         let isMounted =true

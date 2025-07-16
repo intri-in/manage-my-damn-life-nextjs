@@ -4,15 +4,13 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         return queryInterface.sequelize.transaction(t => {
             return Promise.all([
-            queryInterface.createTable('webcal_accounts', {
+            queryInterface.createTable('webcal_events', {
                 id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement:true },
-                userid: { type: Sequelize.STRING},
-                name: { type: Sequelize.STRING(100)},
-                link: { type: Sequelize.STRING(1000),},
-                colour:{ type: Sequelize.STRING(100)},
-                updateInterval: { type: Sequelize.STRING(100),},
-                lastFetched: {type: Sequelize.DATE,
-                    defaultValue:Sequelize.fn('now')}
+                webcal_accounts_id: { type: Sequelize.STRING},
+                data: {
+                type: Sequelize.STRING(5000),
+                allowNull: true
+                },
             }, {transaction: t}),
             ]);
           });
@@ -21,7 +19,7 @@ module.exports = {
     async down(queryInterface, Sequelize) {
         return queryInterface.sequelize.transaction(t => {
             return Promise.all([
-              queryInterface.dropTable('webcal_accounts',{transaction:t}),
+              queryInterface.dropTable('webcal_events',{transaction:t}),
 
               
             ])

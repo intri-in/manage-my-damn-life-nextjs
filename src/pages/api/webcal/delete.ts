@@ -1,6 +1,6 @@
 import { getTemplatesFromDB } from '@/helpers/api/template';
 import { middleWareForAuthorisation,  getUserIDFromLogin} from '@/helpers/api/user';
-import { deleteWebCalsFromDB, getWebCalsFromDB, parseWebCalFromAddress } from '@/helpers/api/webcal';
+import { deleteWebCalFromDB, getWebCalsFromDB, parseWebCalFromAddress } from '@/helpers/api/webcal';
 export default async function handler(req, res) {
 
     if (req.method && req.method.trim() === 'DELETE') {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             }
 
             try{
-                const allwebcals= await deleteWebCalsFromDB(req.query.id, userid)
+                const allwebcals= await deleteWebCalFromDB(req.query.id, userid)
                 return  res.status(200).json({ success: true, data: { message: "DELETE_OK"} })
 
             }catch(e){
