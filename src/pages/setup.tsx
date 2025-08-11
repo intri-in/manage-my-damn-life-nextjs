@@ -35,7 +35,6 @@ export default function SetupPage() {
 
     const setupEverything = async () => {
 
-        if (!effectRan.current) {
             setCurrentWork("Fetching settings...")
             await SettingsHelper.getAllFromServerAndSave()
             // await setupWebCalDataFromServer()
@@ -52,7 +51,7 @@ export default function SetupPage() {
                 //User already has data in dexie. 
                 
             if(fetch) await fetchLatestEventsV2()
-
+            if (fetch) await setupWebCalDataFromServer()
             const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
             if(dateFormat){
                 setDateFormat(dateFormat)
@@ -62,18 +61,16 @@ export default function SetupPage() {
                 setTimeFormat(timeFormat)
             }
             redirect()
-        }
               
                 
                 
         
-        return () => {effectRan.current = true;}
     }
     useEffect(()=>{
         let isMounted =true
       
         
-        if(isMounted){
+        if (!effectRan.current) {
 
                 checkifCurrentUserInDexie().then((goOn) =>{
                     if(goOn){
@@ -93,9 +90,7 @@ export default function SetupPage() {
                 
             }
         
-        return ()=>{
-            isMounted=false
-        }
+            return () => {effectRan.current = true;}
 
     },[])
 

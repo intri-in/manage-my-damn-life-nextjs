@@ -2,7 +2,8 @@ import { toast } from "react-toastify";
 import { getAPIURL } from "../general";
 import { getAuthenticationHeadersforUser } from "./user";
 import { getErrorResponse } from "../errros";
-import { addWebCalAccounttoDexie, addWebCalEventstoDexie, isWebCalAccountAlreadyinDexie } from "./dexie/webcal_dexie";
+import { addWebCalAccounttoDexie, addWebCalEventstoDexie, getAllWebcalsforCurrentUserfromDexie, getEventsfromWebcal_Dexie, isWebCalAccountAlreadyinDexie } from "./dexie/webcal_dexie";
+import { WebCalEvents } from "./dexie/dexieDB";
 
 export async function getWebCalsFromServer()
 {
@@ -60,3 +61,24 @@ export async function setupWebCalDataFromServer(){
     }
 }
 
+
+
+export async function getAllEventsFromWebcalForRender(){
+    const allWebcals = await getAllWebcalsforCurrentUserfromDexie()
+    let toReturn: WebCalEvents[] = []
+    
+    if (allWebcals && Array.isArray(allWebcals) && allWebcals.length>0){
+        for (const i in allWebcals){
+            let webcals_events = await getEventsfromWebcal_Dexie(allWebcals[i].webcals_id)
+            //Add Colour
+            for (const j in webcals_events){
+                webcals_events[j]["colour"]=allWebcals[i].colour
+            }
+            toReturn = [...toReturn, ...webcals_events]
+
+
+        }
+    }
+
+    return toReturn
+}

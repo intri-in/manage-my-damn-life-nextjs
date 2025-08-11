@@ -80,7 +80,7 @@ export interface WebCals{
 export interface WebCalEvents{
   id?: number;
   webcals_id: string;
-  data: string;
+  data: string | any;
 }
 export class MySubClassedDexie extends Dexie {
   caldav_accounts!: Table<Caldav_Accounts>; 

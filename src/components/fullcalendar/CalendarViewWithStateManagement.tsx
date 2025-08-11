@@ -37,6 +37,9 @@ import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore";
 import { AddFromTemplateModal } from "../common/AddTask/AddFromTemplateModal";
 import { useTranslation } from "next-i18next";
+import { getAllEventsFromWebcalForRender } from "@/helpers/frontend/webcals";
+import { WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
+import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow";
 
 interface EventObject {
     id: string,
@@ -72,8 +75,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
      */
     const [viewValue, setViewValue] = useState("timeGridDay")
     const [showTasksChecked, setShowTasksChecked] = useState(true)
-    const [allEvents, setEventsArrayFromDexie] = useState<EventsLikeAPIType[]>([])
+    const [allEvents, setEventsArray] = useState<EventsLikeAPIType[]>([])
     const [events, setEvents] = useState<EventObject[]>([])
+    const [webCalEvents, setWebCalEvents] = useState<WebCalEvents[]>([])
     const [firstDay, setFirstDay] = useState(0)
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
@@ -112,7 +116,12 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 }
             })
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
-                setEventsArrayFromDexie(allEventsFromDexie)
+                setEventsArray(allEventsFromDexie)
+            })
+
+            getAllEventsFromWebcalForRender().then(webcal_events =>{
+                setWebCalEvents(webcal_events)
+
             })
         }
         return () => {
@@ -334,6 +343,52 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                     }
                 }
+            }
+
+        }
+
+        //Now we add webcal events.
+        if(webCalEvents && Array.isArray(webCalEvents) && webCalEvents.length>0){
+            
+            for (const k in webCalEvents){
+                const userWantsToSee = await checkIfUserWanttoSeeWebCalIDFromPreferenceObject(webCalEvents[k].webcals_id)
+                console.log("userWantsToSee", userWantsToSee, webCalEvents[k].webcals_id)
+                if(!userWantsToSee){
+                    continue
+                }
+                const data = webCalEvents[k].data
+                if (!data) {
+                    continue
+                }
+                if(!("description" in data)){
+                    continue
+                }
+                if (varNotEmpty(data.description) == false || (varNotEmpty(data.description) && data.description.toString().trim() == "")) {
+                    continue
+                }
+    
+    
+    
+                let allDay = true
+    
+                //console.log(data.end, data.description )
+                let eventObject: EventObject = {
+                    id: data.uid,
+                    title: data.description,
+                    start: moment(data.start).toISOString(),
+                    end: moment(data.end).toISOString(),
+                    allDay: allDay,
+                    editable: false,
+                    draggable: false,
+                    backgroundColor: data.color
+                }
+                finalEvents.push(eventObject)
+    
+               
+    
+                let eventToPush = {}
+    
+                eventToPush[data.uid] = { data: data, event: null }
             }
 
         }

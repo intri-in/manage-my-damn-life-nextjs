@@ -1,4 +1,22 @@
 import { varNotEmpty } from "@/helpers/general"; 
+import { getAllWebcalsforCurrentUserfromDexie } from "../../dexie/webcal_dexie";
+import { USER_PREFERENCE_CALENDARS_TO_SHOW, USER_PREFERENCE_WEBCALS_TO_SHOW } from "../../localstorage";
+
+interface ObjectPreferenceEntry{
+    account: AccountType
+    calendars: any[]
+}
+interface AccountType{
+    caldav_accounts_id?: string | number
+    name?: string | number
+    type?:string
+}
+export interface Calendars_toShow_WebCalAccountType{
+    webcal_id: number | string;
+    name: string;
+    show: boolean
+}    
+
 
 export class Preference_CalendarsToShow{
 
@@ -6,7 +24,7 @@ export class Preference_CalendarsToShow{
     static get(){
         let toReturn = null
         try{
-            const prefFromLocalStorage = localStorage.getItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
+            const prefFromLocalStorage = localStorage.getItem(USER_PREFERENCE_CALENDARS_TO_SHOW)
             if(varNotEmpty(prefFromLocalStorage) && prefFromLocalStorage)
             {
                 return JSON.parse(prefFromLocalStorage)
@@ -22,7 +40,8 @@ export class Preference_CalendarsToShow{
     static remove(){
 
         try{
-            localStorage.removeItem("USER_PREFERENCE_CALENDARS_TO_SHOW")
+            localStorage.removeItem(USER_PREFERENCE_CALENDARS_TO_SHOW)
+            localStorage.removeItem(USER_PREFERENCE_WEBCALS_TO_SHOW)
         }
         catch(e){
             console.warn("Preference_CalendarsToShow.remove", e)
@@ -33,13 +52,33 @@ export class Preference_CalendarsToShow{
         try
         {
             Preference_CalendarsToShow.remove()
-            localStorage.setItem("USER_PREFERENCE_CALENDARS_TO_SHOW", JSON.stringify(preferenceObject))
+            localStorage.setItem(USER_PREFERENCE_CALENDARS_TO_SHOW, JSON.stringify(preferenceObject))
         }catch(e){
             console.warn("Preference_CalendarsToShow.set", e)
 
         }
 
     }
+    static setWebDav(preferenceObject: Calendars_toShow_WebCalAccountType[]){
+        try
+        {
+            Preference_CalendarsToShow.remove()
+            localStorage.setItem(USER_PREFERENCE_WEBCALS_TO_SHOW, JSON.stringify(preferenceObject))
+        }catch(e){
+            console.warn("Preference_CalendarsToShow.setWebDav", e)
+
+        }
+
+    }
+
+    static async generate(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
+
+        //First we generate from caldav accounts and store it
+        const fromCaldav = Preference_CalendarsToShow.generateFromCaldavObject(caldav_accounts)
+        Preference_CalendarsToShow.set(fromCaldav)
+
+    }
+
 
     static generateFromCaldavObject(caldav_accounts: {name: string, caldav_accounts_id: number, calendars: any }[]){
 

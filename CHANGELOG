@@ -1,5 +1,6 @@
 v0.8.0
 - New Features:
+    - Added ability to add and use Web Calendars.
     - Right clicking on Sync button to force a "hard" sync.
     - Right clicking on Logout button now deletes local cache before logout.
     - A banner is now also displayed on Login page informing user if the backend database tables have not been installed. Should help new users during installation.
@@ -8,6 +9,7 @@ v0.8.0
     - Fixed overlay for task labels -- Now displayed at the side
     - Fixed #256
     - Fixed content flickering if the user was not logged in. Now pages don't render anything if the user is not logged in.
+
 v0.7.1
     - Fixed bug #240
         - Was caused by userhash being null.

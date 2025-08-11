@@ -2,7 +2,8 @@ export const LASTSYNC="LASTSYNC"
 
 // IS_SYNCING holds the state of sync. It's true 
 export const IS_SYNCING="IS_SYNCING"
-
+export const USER_PREFERENCE_CALENDARS_TO_SHOW = "USER_PREFERENCE_CALENDARS_TO_SHOW"
+export const USER_PREFERENCE_WEBCALS_TO_SHOW ="USER_PREFERENCE_WEBCALS_TO_SHOW"
 
 export function clearLocalStorage(){
     try{

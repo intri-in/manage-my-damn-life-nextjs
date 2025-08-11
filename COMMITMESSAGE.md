@@ -1,3 +1,3 @@
-- Added frontend ability to add, fetch, and delete webcal links.
-- Added functionality to add/edit colour
+- Added frontend ability to select and hide webcals from Calendar View.
+- Minor bug fixes -- Some calendars were being stored twice on visiting setup page.
 

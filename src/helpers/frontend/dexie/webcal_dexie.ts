@@ -109,3 +109,15 @@ export async function updateEventsinWebcal_Dexie(webcalId, newParsedCal){
     await deleteEventsFromWebCal_Dexie(webcalId)
     await addWebCalEventstoDexie(webcalId, newParsedCal)
 }
+
+export async function getEventsfromWebcal_Dexie(webcalId){
+    const webcals_events =  await db.webcals_events
+    .where('webcals_id')
+    .equals(webcalId)
+    .toArray()
+
+
+    return webcals_events
+
+
+}
