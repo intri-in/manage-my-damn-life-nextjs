@@ -49,19 +49,34 @@ export async function getWebCalsFromServer()
 }
 export async function setupWebCalDataFromServer(){
     const webCals = await getWebCalsFromServer()
-    // console.log("webCals", webCals)
+    // console.log("webCals fetched from Server", webCals)
     if(webCals && Array.isArray(webCals) && webCals.length>0){
         for (const i in webCals){
             if(await isWebCalAccountAlreadyinDexie(webCals[i]["id"]) == false){
 
                 await addWebCalAccounttoDexie(webCals[i]["id"],webCals[i]["name"],webCals[i]["link"],webCals[i]["updateInterval"],webCals[i]["lastFetched"],webCals[i]["colour"])
-                await addWebCalEventstoDexie(webCals[i]["id"],webCals[i]["data"])
+                await addWebCalEventstoDexie(webCals[i]["id"],extractWebCalDataArrayFromGetAPIResponse(webCals[i]["data"]))
             }
         }
     }
 }
 
+function extractWebCalDataArrayFromGetAPIResponse(responseData){
+    let toReturn: any[] = []
+    if(responseData && Array.isArray(responseData)){
+        for (const i in responseData){
+            if("data" in responseData[i] && responseData[i].data){
+                console.log("responseData", responseData[i].data)
+                toReturn.push(responseData[i].data)
+            }
+        }     
 
+    }
+
+    return toReturn
+    
+
+}
 
 export async function getAllEventsFromWebcalForRender(){
     const allWebcals = await getAllWebcalsforCurrentUserfromDexie()

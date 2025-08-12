@@ -349,46 +349,53 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
         //Now we add webcal events.
         if(webCalEvents && Array.isArray(webCalEvents) && webCalEvents.length>0){
-            
+            console.log("webcal", webCalEvents)
             for (const k in webCalEvents){
                 const userWantsToSee = await checkIfUserWanttoSeeWebCalIDFromPreferenceObject(webCalEvents[k].webcals_id)
-                console.log("userWantsToSee", userWantsToSee, webCalEvents[k].webcals_id)
+                console.log("userWantsToSee", userWantsToSee, webCalEvents[k].data)
                 if(!userWantsToSee){
                     continue
                 }
-                const data = webCalEvents[k].data
-                if (!data) {
-                    continue
+                try{
+
+                    let data = JSON.parse(webCalEvents[k].data)
+                    console.log("data", data)
+                    if (!data) {
+                        continue
+                    }
+                    if(!("description" in data)){
+                        continue
+                    }
+                    if (varNotEmpty(data.description) == false || (varNotEmpty(data.description) && data.description.toString().trim() == "")) {
+                        continue
+                    }
+        
+        
+        
+                    let allDay = true
+        
+                    //console.log(data.end, data.description )
+                    let eventObject: EventObject = {
+                        id: data.uid,
+                        title: data.description,
+                        start: moment(data.start).toISOString(),
+                        end: moment(data.end).toISOString(),
+                        allDay: allDay,
+                        editable: false,
+                        draggable: false,
+                        backgroundColor: data.color
+                    }
+                    finalEvents.push(eventObject)
+        
+                   
+        
+                    let eventToPush = {}
+        
+                    eventToPush[data.uid] = { data: data, event: null }
+    
+                }catch(e){
+                    console.warn("Cannot parse event data for webcal:", webCalEvents[k])
                 }
-                if(!("description" in data)){
-                    continue
-                }
-                if (varNotEmpty(data.description) == false || (varNotEmpty(data.description) && data.description.toString().trim() == "")) {
-                    continue
-                }
-    
-    
-    
-                let allDay = true
-    
-                //console.log(data.end, data.description )
-                let eventObject: EventObject = {
-                    id: data.uid,
-                    title: data.description,
-                    start: moment(data.start).toISOString(),
-                    end: moment(data.end).toISOString(),
-                    allDay: allDay,
-                    editable: false,
-                    draggable: false,
-                    backgroundColor: data.color
-                }
-                finalEvents.push(eventObject)
-    
-               
-    
-                let eventToPush = {}
-    
-                eventToPush[data.uid] = { data: data, event: null }
             }
 
         }

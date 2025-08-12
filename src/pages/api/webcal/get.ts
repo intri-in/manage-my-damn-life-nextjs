@@ -15,7 +15,6 @@ export default async function handler(req, res) {
 
             try{
                 const allwebcals= await getWebCalsFromDB(userid)
-                // console.log("allwebcals", allwebcals)
                 return  res.status(200).json({ success: true, data: { message: allwebcals} })
 
             }catch(e){

@@ -1,6 +1,7 @@
 import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
 import { db } from "./dexieDB";
 import { getWebCalsFromServer } from "../webcals";
+import { Json } from "sequelize/types/utils";
 
 export async function addWebCalAccounttoDexie(webcalid,name, link, updateInterval, lastFetched, colour){
     const userid = await getUserIDForCurrentUser_Dexie()
@@ -25,12 +26,18 @@ export async function addWebCalAccounttoDexie(webcalid,name, link, updateInterva
 
 export async function addWebCalEventstoDexie(webcalId, parsedCal){
     for (const i in parsedCal){
+        let dataToSave = parsedCal[i]
+        console.log("typeof(dataToSave)", typeof(dataToSave))
+        if(typeof(dataToSave) !=="string"){
+            dataToSave= JSON.stringify(parsedCal[i])
+        }
         const id = await db.webcals_events.add({
-            data:parsedCal[i],
+            data:dataToSave,
             webcals_id:webcalId
         }).catch(e =>{
-          console.error("insertNewCaldavAccountIntoDexie", e)
+            console.error("insertNewCaldavAccountIntoDexie", e)
         })
+    
     
     }
 }

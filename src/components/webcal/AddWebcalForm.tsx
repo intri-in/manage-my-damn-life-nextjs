@@ -92,6 +92,7 @@ export default function AddWebcalForm({closeAddForm}:{closeAddForm: Function}){
                                 //Add received data into Dexie
                                 const lastFetched =  moment().toISOString()
                                 await addWebCalAccounttoDexie(parseInt(body.data.id), name, link, updateInterval, lastFetched, colour)
+                                console.log("body.data.parsedCal", body.data.parsedCal, typeof(body.data.parsedCal))
                                 await addWebCalEventstoDexie(body.data.id, body.data.parsedCal)
                                 closeAddForm()
         
