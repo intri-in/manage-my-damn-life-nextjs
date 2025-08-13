@@ -1,4 +1,8 @@
 v0.8.0
+- Breaking Changes:
+    - Completely changed the handling of recurring tasks.
+    - Old recurring task created via MMDL might get broken.
+    - MMDL is now compatible with approach followed by other open source clients.
 - New Features:
     - Added ability to add and use Web Calendars.
     - Right clicking on Sync button to force a "hard" sync.

@@ -105,30 +105,30 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     dueDate = moment(parsedTask.due).format(dateFormat)
     // let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
     let timeDifferenceinWords = timeDifferencefromNowinWords_Generic(parsedTask.due)
-    if (isRepeating) {
-        if (("recurrences" in parsedTask) && parsedTask.recurrences) {
-            let recurrenceObj = new RecurrenceHelper(parsedTask)
-            let newDueDate = recurrenceObj.getNextDueDate()
-            let timeDifference = Math.floor((moment(newDueDate).unix() - Math.floor(Date.now() / 1000)) / 86400)
-            if (timeDifference < 0) {
-                dueDateColor = 'red'
-            }
+    // if (isRepeating) {
+    //     if (("recurrences" in parsedTask) && parsedTask.recurrences) {
+    //         let recurrenceObj = new RecurrenceHelper(parsedTask)
+    //         let newDueDate = recurrenceObj.getNextDueDate()
+    //         let timeDifference = Math.floor((moment(newDueDate).unix() - Math.floor(Date.now() / 1000)) / 86400)
+    //         if (timeDifference < 0) {
+    //             dueDateColor = 'red'
+    //         }
 
-            timeDifferenceinWords = timeDifferencefromNowinWords_Generic(newDueDate)
-            dueDateText = moment(newDueDate).format(dateFormat) + " " + timeDifferenceinWords
-        }
+    //         timeDifferenceinWords = timeDifferencefromNowinWords_Generic(newDueDate)
+    //         dueDateText = moment(newDueDate).format(dateFormat) + " " + timeDifferenceinWords
+    //     }
 
-    } else {
-        if (("due" in parsedTask) && parsedTask.due != null) {
-            dueDateText = dueDate + " " + timeDifferenceinWords
-            let timeDifference = Math.floor((moment(parsedTask.due).unix() - Math.floor(Date.now() / 1000)) / 86400)
-            if (timeDifference < 0) {
-                dueDateColor = 'red'
-            }
-
+    // } else {
+    if (("due" in parsedTask) && parsedTask.due != null) {
+        dueDateText = dueDate + " " + timeDifferenceinWords
+        let timeDifference = Math.floor((moment(parsedTask.due).unix() - Math.floor(Date.now() / 1000)) / 86400)
+        if (timeDifference < 0) {
+            dueDateColor = 'red'
         }
 
     }
+
+    // }
     let priorityColor = ""
 
     let priorityStar = (<AiOutlineStar color={priorityColor} size={12} />)

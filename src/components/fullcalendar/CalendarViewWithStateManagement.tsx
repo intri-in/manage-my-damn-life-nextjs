@@ -277,57 +277,53 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         let eventObject: {} | EventObject = {}
                         if (majorTaskFilter(data) && data) {
                             const title = "[" + t("TASK") + "] " + data.summary
+                            // console.log("data", data)
+                            if (data.due || data.start) {
+
+                                
+                                let dueDate = data.due ? moment(data.due).toISOString(true) : moment.unix(moment(data.start).unix() - (10 * 60)).toISOString(true)
+                                let startDate = data.start? moment(data.start).toISOString(true): moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
+                                console.log(startDate, title, dueDate)
+                                const difference = moment(dueDate).unix()-moment(startDate).unix()
+                                const allDay =  difference > 86400 ? true: false
+                                eventObject = {
+                                    id: event.calendar_events_id!.toString(),
+                                    title: title,
+                                    allDay: allDay,
+                                    start: startDate,
+                                    end: dueDate,
+                                    editable: false,
+                                    draggable: false,
+                                    displayEventStart: true,
+                                    displayEventEnd:true,
+                                    backgroundColor: allEvents[i].info.color,
+                                    
+                                }
+                            }
 
                             let rrule = rruleToObject(data.rrule)
 
                             //Check if the event has a recurrence rule.
                             if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
 
-                                let recurrenceObj = new RecurrenceHelper(data)
-                                let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
-                                let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
+                                // let recurrenceObj = new RecurrenceHelper(data)
+                                // let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
+                                // let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
                                 // console.log("REPEATING", startDate, title, dueDate)
 
-                                eventObject = {
-                                    id: event.calendar_events_id!.toString(),
-                                    title: title,
-                                    allDay: true,
-                                    start:startDate,
-                                    end: dueDate,
-                                    displayEventEnd: false,
-                                    editable: false,
-                                    backgroundColor: allEvents[i].info.color,
-                                    rrule: {
+                                eventObject["rrule"] = {
                                         freq: rrule["FREQ"].toLowerCase(),
                                         interval: parseInt(rrule["INTERVAL"]),
                                         dtstart: data["start"] ? data["start"].toISOString() : "",
                                         until: rrule["UNTIL"]
-                                    },
-                                }
+                                    }
+                                
                                 // console.log("eventObject", eventObject)
 
-                            } else {
-                                if (varNotEmpty(data.due) && data.due != "") {
+                            } 
+                               
 
-                                    let dueDate = moment(data.due).toISOString()
-                                    let startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
-                                    //console.log(startDate, title, dueDate)
-
-                                    eventObject = {
-                                        id: event.calendar_events_id!.toString(),
-                                        title: title,
-                                        allDay: false,
-                                        start: startDate,
-                                        end: dueDate,
-                                        editable: true,
-                                        draggable: true,
-                                        displayEventStart: false,
-                                        backgroundColor: allEvents[i].info.color
-                                    }
-                                }
-
-
-                            }
+                            
 
                             if (eventObject && ("id" in eventObject) && eventObject.id && eventinArray(finalEvents, eventObject) == false) {
                                 finalEvents.push(eventObject)
