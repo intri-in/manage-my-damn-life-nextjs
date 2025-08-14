@@ -6,7 +6,7 @@ import { CalendarViewWithStateManagement } from "@/components/fullcalendar/Calen
 import CalendarView from "@/components/page/CalendarViewPage/CalendarView";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { useCustomTheme } from "@/helpers/frontend/theme";
-import { checkLogin_InBuilt } from "@/helpers/frontend/user";
+import { checkLogin_InBuilt, shouldDisplayEmptyPage } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { signIn, useSession } from "next-auth/react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -14,6 +14,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 
 export default function CalendarViewPage(){
   const { data: session, status } = useSession() 
@@ -47,7 +48,7 @@ export default function CalendarViewPage(){
     }
   }, [status, router])
 
-    if(!isloggedIn) return (<></>)   
+    if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
 
 
      

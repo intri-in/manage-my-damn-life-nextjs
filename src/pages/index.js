@@ -16,6 +16,7 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getCurrentLanguage } from '@/helpers/frontend/translations'
 import { AVAILABLE_LANGUAGES } from '@/config/constants'
+import { EmptyPageBeforeLogin } from '@/components/common/EmptyPageBeforeLogin'
 
 export default function HomePage() {
   const { data: session, status } = useSession()  
@@ -79,7 +80,7 @@ export default function HomePage() {
     }
   }, [status, router])
 
-  if(!isloggedIn) return (<></>)   
+  if(!isloggedIn) (<EmptyPageBeforeLogin />)
 
     
 

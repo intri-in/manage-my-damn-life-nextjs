@@ -1,3 +1,4 @@
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 import CalendarView from "@/components/page/CalendarViewPage/CalendarView";
 import ManageFilters from "@/components/page/ManageFiltersPage/ManageFilters";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
@@ -41,7 +42,7 @@ export default function ManageViewPage(){
     }
   }, [status, router])
 
-    if(!isloggedIn) return (<></>)   
+    if(!isloggedIn) (<EmptyPageBeforeLogin />)   
     return(
         <>
         <ManageFilters />

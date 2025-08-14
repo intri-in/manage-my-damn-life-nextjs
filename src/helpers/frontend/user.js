@@ -8,6 +8,9 @@ import axios from "axios";
 import { deleteAllCookies } from "./cookies";
 import { clearDexieDB } from "./dexie/dexie_helper";
 import { SETTING_NAME_NUKE_DEXIE_ON_LOGOUT } from "./settings";
+import { LAST_LOGIN_CHECK_TIME } from "./localstorage";
+import { LOGIN_CHECK_THRESHOLD_SECONDS } from "@/config/constants";
+import moment from "moment";
 
 
 export async function getUserData() {
@@ -77,7 +80,26 @@ export async function insertUserdata() {
 
 }
 
+export function shouldDisplayEmptyPage(isloggedIn){
+    if(isloggedIn){
+        return false
+    }
 
+    if(typeof(window)!="undefined"){
+
+        const lastChecked = Cookies.get(LAST_LOGIN_CHECK_TIME)
+        const currentUnixTimestamp = moment().unix();
+        if(!lastChecked){
+            localStorage.setItem(LAST_LOGIN_CHECK_TIME, currentUnixTimestamp)
+            return true
+        }
+        console.log(currentUnixTimestamp, lastChecked, currentUnixTimestamp-lastChecked )
+        if(currentUnixTimestamp > parseInt(lastChecked) + LOGIN_CHECK_THRESHOLD_SECONDS ){
+            return true
+        }
+    }
+
+}
 export async function checkLogin_InBuilt(router, redirectURL){
     const url_api=getAPIURL()+"auth/inbuilt/check"
     const authorisationData=await getAuthenticationHeadersforUser()

@@ -1,3 +1,4 @@
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 import ManageLabels from "@/components/page/MangerLabelsPage/ManageLabels";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { useCustomTheme } from "@/helpers/frontend/theme";
@@ -40,7 +41,7 @@ export default function ManageLabelsPage(){
     }
   }, [status, router])
 
-    if(!isloggedIn) return (<></>)   
+    if(!isloggedIn) (<EmptyPageBeforeLogin />)   
 
     
     return(

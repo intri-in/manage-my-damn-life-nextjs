@@ -10,6 +10,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 
 
 export default function Settings(){
@@ -44,7 +45,7 @@ export default function Settings(){
     }
   }, [status, router])
 
-    if(!isloggedIn) return (<></>)     
+    if(!isloggedIn) (<EmptyPageBeforeLogin />)     
   
     
     return(

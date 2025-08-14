@@ -15,6 +15,7 @@ import { useTranslation } from "next-i18next";
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 
 
 export default function TaskListPage(){
@@ -70,7 +71,7 @@ export default function TaskListPage(){
               const pageName = params.get('name')
               const type = params.get('type')
 
-              console.log("pageName",urlParsed, pageName ,PAGE_VIEW_JSON[pageName!])
+              // console.log("pageName",urlParsed, pageName ,PAGE_VIEW_JSON[pageName!])
               if(pageName){
       
                   setFilterAtom(PAGE_VIEW_JSON[pageName])
@@ -117,7 +118,7 @@ export default function TaskListPage(){
       
     
   },[setCalDavAtom, setCurrentPageTitle, setFilterAtom, urlParsed])
-  if(!isloggedIn) return (<></>)   
+  if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
 
 
   const output = urlParsed ? <TaskViewListWithStateManagement />: null

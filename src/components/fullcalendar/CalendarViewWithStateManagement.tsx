@@ -281,9 +281,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                             if (data.due || data.start) {
 
                                 
-                                let dueDate = data.due ? moment(data.due).toISOString(true) : moment.unix(moment(data.start).unix() - (10 * 60)).toISOString(true)
-                                let startDate = data.start? moment(data.start).toISOString(true): moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
-                                console.log(startDate, title, dueDate)
+                                let dueDate = data.due ? moment(data.due).toISOString() : moment.unix(moment(data.start).unix() - (60 * 60)).toISOString()
+                                let startDate = data.start? moment(data.start).toISOString(): moment.unix(moment(data.due).unix() - (60 * 60)).toISOString()
+                                // console.log(startDate, title, dueDate, data.rrule)
                                 const difference = moment(dueDate).unix()-moment(startDate).unix()
                                 const allDay =  difference > 86400 ? true: false
                                 eventObject = {
@@ -294,40 +294,40 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                                     end: dueDate,
                                     editable: false,
                                     draggable: false,
-                                    displayEventStart: true,
-                                    displayEventEnd:true,
                                     backgroundColor: allEvents[i].info.color,
                                     
                                 }
-                            }
 
-                            let rrule = rruleToObject(data.rrule)
+                                let rrule = rruleToObject(data.rrule)
 
-                            //Check if the event has a recurrence rule.
-                            if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
-
-                                // let recurrenceObj = new RecurrenceHelper(data)
-                                // let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
-                                // let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
-                                // console.log("REPEATING", startDate, title, dueDate)
-
-                                eventObject["rrule"] = {
-                                        freq: rrule["FREQ"].toLowerCase(),
-                                        interval: parseInt(rrule["INTERVAL"]),
-                                        dtstart: data["start"] ? data["start"].toISOString() : "",
-                                        until: rrule["UNTIL"]
-                                    }
+                                //Check if the event has a recurrence rule.
+                                if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
+    
+                                    // let recurrenceObj = new RecurrenceHelper(data)
+                                    // let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
+                                    // let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
+                                    // console.log("REPEATING", startDate, title, dueDate)
+    
+                                    eventObject["rrule"] = {
+                                            freq: rrule["FREQ"].toLowerCase(),
+                                            interval: parseInt(rrule["INTERVAL"]),
+                                            dtstart: startDate,
+                                            until: rrule["UNTIL"]
+                                        }
+                                    // 
+                                //    console.log("eventObject", data.summary, eventObject)
+    
+                                } 
+                                   
+    
                                 
-                                // console.log("eventObject", eventObject)
-
-                            } 
-                               
-
-                            
-
-                            if (eventObject && ("id" in eventObject) && eventObject.id && eventinArray(finalEvents, eventObject) == false) {
-                                finalEvents.push(eventObject)
+    
+                                if (eventObject && ("id" in eventObject) && eventObject.id && eventinArray(finalEvents, eventObject) == false) {
+                                    finalEvents.push(eventObject)
+                                }
                             }
+
+                           
 
                         }
                         // this.setState((prevState, props) => {
@@ -345,17 +345,17 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
         //Now we add webcal events.
         if(webCalEvents && Array.isArray(webCalEvents) && webCalEvents.length>0){
-            console.log("webcal", webCalEvents)
+            // console.log("webcal", webCalEvents)
             for (const k in webCalEvents){
                 const userWantsToSee = await checkIfUserWanttoSeeWebCalIDFromPreferenceObject(webCalEvents[k].webcals_id)
-                console.log("userWantsToSee", userWantsToSee, webCalEvents[k].data)
+                // console.log("userWantsToSee", userWantsToSee, webCalEvents[k].data)
                 if(!userWantsToSee){
                     continue
                 }
                 try{
 
                     let data = JSON.parse(webCalEvents[k].data)
-                    console.log("data", data)
+                    // console.log("data", data)
                     if (!data) {
                         continue
                     }

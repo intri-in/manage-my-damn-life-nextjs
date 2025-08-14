@@ -12,6 +12,7 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import WebcalManager from "@/components/webcal/WebcalManager";
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 
 
 export default function ManageTemplates(){
@@ -46,7 +47,7 @@ export default function ManageTemplates(){
   }
 }, [status, router])
 
-    if(!isloggedIn) return (<></>)
+    if(!isloggedIn) (<EmptyPageBeforeLogin />)
   
     
     return(
