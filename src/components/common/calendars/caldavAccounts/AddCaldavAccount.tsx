@@ -56,8 +56,7 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
     //     !serverURL.startsWith("https://localhost") &&
     //     !serverURL.startsWith("http://localhost")
     //   ) {
-    //     toast.error(t("ENTER_A_SERVER_NAME"));
-    //     return false;
+    //     toast.warn(t("ENTER_A_SERVER_NAME"));
     //   }
     // }
 

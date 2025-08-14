@@ -2,6 +2,7 @@ import { User } from "@/helpers/api/classes/User"
 import { getICS } from "@/helpers/api/ical"
 import { middleWareForAuthorisation } from "@/helpers/api/user"
 import { varNotEmpty } from "@/helpers/general"
+import { shouldLogforAPI } from "@/helpers/logs"
 import moment from "moment"
 
 export default async function handler(req, res) {
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
                     {
                         obj.stamp = new Date(obj.stamp)
                     }
-                    if(process.env.NEXT_API_DEBUG_MODE.toUpperCase()=="TRUE") console.log(obj)
+                    if(shouldLogforAPI()) console.log(obj)
 
                     let ics=getICS(obj)
 

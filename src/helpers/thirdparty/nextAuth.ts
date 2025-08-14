@@ -13,6 +13,7 @@ export async function nextAuthEnabled(){
 
     }
     // const url_api=getAPIURL()+"oauth/status"
+    // console.log("I AM CALLED")
     const url_api = "/api/oauth/status"
     const requestOptions =
     {

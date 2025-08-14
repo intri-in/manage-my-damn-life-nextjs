@@ -20,10 +20,13 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { AVAILABLE_LANGUAGES } from '@/config/constants';
 import { RequestOptions } from 'https';
+import { installCheck_Cookie } from '@/helpers/install';
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [installed, setInstalled] = useState(true);
+
     const {t} = useTranslation()
     const [showRegistrationLink, setShowRegistrationLink] = useState(false);
     const router = useRouter();
@@ -45,6 +48,16 @@ const Login = () => {
             return getErrorResponse(e);
         }
     }, []);
+    const checkInstallation = async () => {
+        try {
+          const isInstalled = await installCheck_Cookie(router);
+          console.log("isInstalled" ,isInstalled)
+          setInstalled(isInstalled);
+          
+        } catch (error) {
+          console.error("Error checking installation:", error);
+        }
+      };
 
     useEffect(() => {
 
@@ -70,7 +83,7 @@ const Login = () => {
                     }
                     setShowRegistrationLink(showRegistration);
                 } else {
-                    toast.error(t("CANT_GET_REGISTRATION_STATUS_FROM_SERVER"));
+                    // toast.error(t("CANT_GET_REGISTRATION_STATUS_FROM_SERVER"));
                 }
             });
         }
@@ -78,7 +91,18 @@ const Login = () => {
             isMounted = false
         }
     }, [getRegistrationStatusFromServer]);
-
+    useEffect(() => {
+        let isMounted =true
+        if(isMounted){
+    
+          checkInstallation();
+        }
+        return ()=>{
+          isMounted=false
+      }
+    
+      }, []);
+    
     const loginButtonClicked = async () => {
         let isValid = true;
 
@@ -144,13 +168,22 @@ const Login = () => {
             loginButtonClicked();
         }
     };
-
+    const notInstalledBannerClicked = () =>{
+        router.push("/install")
+    }
+    
     const registrationLink = showRegistrationLink ? (
         <div style={{ textAlign: 'center', color: "blue" }}>
             <Link href="accounts/register">{t("REGISTER")}</Link>
         </div>
     ) : null;
-
+    let notInstalledBanner: JSX.Element | null = null;
+    if (!installed) {
+      notInstalledBanner = (
+        <div onClick={notInstalledBannerClicked} style={{ background: "darkred", textAlign: "center", color: "white" }}>{t("MMDL_NOT_INSTALLED")}</div>
+      );
+    }
+  
     return (
         <>
             <Head>
@@ -158,6 +191,8 @@ const Login = () => {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+            {notInstalledBanner}
+
             <Container fluid>
                 <div style={{ margin: "0", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
                     <div style={{ textAlign: 'center' }}>

@@ -3,7 +3,7 @@ import  AppBarGeneric  from '@/components/common/AppBar'
 import { useEffect, useState, useRef } from 'react'
 import { useSession, signIn } from "next-auth/react"
 import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth'
-import { checkLogin_InBuilt, logoutUser_withRedirect } from '@/helpers/frontend/user'
+import { checkLogin_InBuilt } from '@/helpers/frontend/user'
 import { useRouter } from 'next/router'
 import { getIfInstalled, installCheck } from '@/helpers/install'
 import { useCustomTheme } from '@/helpers/frontend/theme'
@@ -16,13 +16,16 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getCurrentLanguage } from '@/helpers/frontend/translations'
 import { AVAILABLE_LANGUAGES } from '@/config/constants'
+import { EmptyPageBeforeLogin } from '@/components/common/EmptyPageBeforeLogin'
 
 export default function HomePage() {
   const { data: session, status } = useSession()  
   const [updated, setUpdated]=useState('')
   const [isSyncing, setIsSyncing] = useState(false)
-  const [installChecked, setInstallChecked] = useState(false)
   const { t, i18n } = useTranslation()
+  const router = useRouter()
+  const [isloggedIn, setIsloggedIn] = useState(false)
+
   // useEffect(()=>{
   //   i18n.changeLanguage(getCurrentLanguage())
   // },[])
@@ -47,24 +50,38 @@ export default function HomePage() {
   //   // }
     
   //   // }, [userAuthenticated])
-  const router = useRouter()
   useCustomTheme()
 
    
 
-    useEffect(() =>{
-      async function checkLogin(){
+  useEffect(() =>{
+
+    let isMounted =true
+    async function checkAuth(){
+      
         if(await nextAuthEnabled()){
           if (status=="unauthenticated" ) {
             signIn()
-          } 
+          }else{
+              setIsloggedIn(true)
+          }
         }else{
           // Check login using inbuilt function.
-          checkLogin_InBuilt(router)
+          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
         }
       }
-       checkLogin() 
-      }, [status, router])
+
+      if(isMounted){
+
+        checkAuth()
+      }
+      return () =>{
+        isMounted = false
+    }
+  }, [status, router])
+
+  if(!isloggedIn) (<EmptyPageBeforeLogin />)
+
     
 
   

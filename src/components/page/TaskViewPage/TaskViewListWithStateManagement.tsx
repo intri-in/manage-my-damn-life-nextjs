@@ -82,7 +82,7 @@ export const TaskViewListWithStateManagement =  () =>{
       isMounted = false
     }
 
-  }, [])
+  }, [setShowListColumn])
 
 
   const postClick =  () =>{
@@ -117,11 +117,6 @@ export const TaskViewListWithStateManagement =  () =>{
         </Head>
         <AppBarGeneric />
         <div className='container-fluid'>
-        <Row>
-          <Col>
-            <div ></div>
-          </Col>
-        </Row>
         <div className='row'>
           <Col  onClick={leftColumDragged} xs={1} sm={1} md={3}  lg={3} style={{ paddingTop: 30, minHeight:"100vh" }}>
             {leftColumnMatter}

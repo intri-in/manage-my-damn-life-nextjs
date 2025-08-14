@@ -311,3 +311,12 @@ export function stringInStringArray(toSearch, haystackArray){
     return false
 
 }
+
+export function isValidJSON(stringTocheck){
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}

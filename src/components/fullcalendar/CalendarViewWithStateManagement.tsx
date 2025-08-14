@@ -37,6 +37,9 @@ import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore";
 import { AddFromTemplateModal } from "../common/AddTask/AddFromTemplateModal";
 import { useTranslation } from "next-i18next";
+import { getAllEventsFromWebcalForRender } from "@/helpers/frontend/webcals";
+import { WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
+import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow";
 
 interface EventObject {
     id: string,
@@ -72,8 +75,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
      */
     const [viewValue, setViewValue] = useState("timeGridDay")
     const [showTasksChecked, setShowTasksChecked] = useState(true)
-    const [allEvents, setEventsArrayFromDexie] = useState<EventsLikeAPIType[]>([])
+    const [allEvents, setEventsArray] = useState<EventsLikeAPIType[]>([])
     const [events, setEvents] = useState<EventObject[]>([])
+    const [webCalEvents, setWebCalEvents] = useState<WebCalEvents[]>([])
     const [firstDay, setFirstDay] = useState(0)
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
@@ -112,7 +116,12 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 }
             })
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
-                setEventsArrayFromDexie(allEventsFromDexie)
+                setEventsArray(allEventsFromDexie)
+            })
+
+            getAllEventsFromWebcalForRender().then(webcal_events =>{
+                setWebCalEvents(webcal_events)
+
             })
         }
         return () => {
@@ -268,61 +277,57 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         let eventObject: {} | EventObject = {}
                         if (majorTaskFilter(data) && data) {
                             const title = "[" + t("TASK") + "] " + data.summary
+                            // console.log("data", data)
+                            if (data.due || data.start) {
 
-                            let rrule = rruleToObject(data.rrule)
-
-                            //Check if the event has a recurrence rule.
-                            if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
-
-                                let recurrenceObj = new RecurrenceHelper(data)
-                                let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
-                                let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
-                                // console.log("REPEATING", startDate, title, dueDate)
-
+                                
+                                let dueDate = data.due ? moment(data.due).toISOString() : moment.unix(moment(data.start).unix() - (60 * 60)).toISOString()
+                                let startDate = data.start? moment(data.start).toISOString(): moment.unix(moment(data.due).unix() - (60 * 60)).toISOString()
+                                // console.log(startDate, title, dueDate, data.rrule)
+                                const difference = moment(dueDate).unix()-moment(startDate).unix()
+                                const allDay =  difference > 86400 ? true: false
                                 eventObject = {
                                     id: event.calendar_events_id!.toString(),
                                     title: title,
-                                    allDay: true,
-                                    start:startDate,
+                                    allDay: allDay,
+                                    start: startDate,
                                     end: dueDate,
-                                    displayEventEnd: false,
                                     editable: false,
+                                    draggable: false,
                                     backgroundColor: allEvents[i].info.color,
-                                    rrule: {
-                                        freq: rrule["FREQ"].toLowerCase(),
-                                        interval: parseInt(rrule["INTERVAL"]),
-                                        dtstart: data["start"] ? data["start"].toISOString() : "",
-                                        until: rrule["UNTIL"]
-                                    },
-                                }
-                                // console.log("eventObject", eventObject)
-
-                            } else {
-                                if (varNotEmpty(data.due) && data.due != "") {
-
-                                    let dueDate = moment(data.due).toISOString()
-                                    let startDate = moment.unix(moment(data.due).unix() - (10 * 60)).toISOString()
-                                    //console.log(startDate, title, dueDate)
-
-                                    eventObject = {
-                                        id: event.calendar_events_id!.toString(),
-                                        title: title,
-                                        allDay: false,
-                                        start: startDate,
-                                        end: dueDate,
-                                        editable: true,
-                                        draggable: true,
-                                        displayEventStart: false,
-                                        backgroundColor: allEvents[i].info.color
-                                    }
+                                    
                                 }
 
+                                let rrule = rruleToObject(data.rrule)
 
+                                //Check if the event has a recurrence rule.
+                                if (varNotEmpty(data.rrule) && data.rrule != '' && varNotEmpty(rrule["FREQ"]) && rrule["FREQ"] != "") {
+    
+                                    // let recurrenceObj = new RecurrenceHelper(data)
+                                    // let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
+                                    // let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
+                                    // console.log("REPEATING", startDate, title, dueDate)
+    
+                                    eventObject["rrule"] = {
+                                            freq: rrule["FREQ"].toLowerCase(),
+                                            interval: parseInt(rrule["INTERVAL"]),
+                                            dtstart: startDate,
+                                            until: rrule["UNTIL"]
+                                        }
+                                    // 
+                                //    console.log("eventObject", data.summary, eventObject)
+    
+                                } 
+                                   
+    
+                                
+    
+                                if (eventObject && ("id" in eventObject) && eventObject.id && eventinArray(finalEvents, eventObject) == false) {
+                                    finalEvents.push(eventObject)
+                                }
                             }
 
-                            if (eventObject && ("id" in eventObject) && eventObject.id && eventinArray(finalEvents, eventObject) == false) {
-                                finalEvents.push(eventObject)
-                            }
+                           
 
                         }
                         // this.setState((prevState, props) => {
@@ -333,6 +338,59 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         // })
 
                     }
+                }
+            }
+
+        }
+
+        //Now we add webcal events.
+        if(webCalEvents && Array.isArray(webCalEvents) && webCalEvents.length>0){
+            // console.log("webcal", webCalEvents)
+            for (const k in webCalEvents){
+                const userWantsToSee = await checkIfUserWanttoSeeWebCalIDFromPreferenceObject(webCalEvents[k].webcals_id)
+                // console.log("userWantsToSee", userWantsToSee, webCalEvents[k].data)
+                if(!userWantsToSee){
+                    continue
+                }
+                try{
+
+                    let data = JSON.parse(webCalEvents[k].data)
+                    // console.log("data", data)
+                    if (!data) {
+                        continue
+                    }
+                    if(!("description" in data)){
+                        continue
+                    }
+                    if (varNotEmpty(data.description) == false || (varNotEmpty(data.description) && data.description.toString().trim() == "")) {
+                        continue
+                    }
+        
+        
+        
+                    let allDay = true
+        
+                    //console.log(data.end, data.description )
+                    let eventObject: EventObject = {
+                        id: data.uid,
+                        title: data.description,
+                        start: moment(data.start).toISOString(),
+                        end: moment(data.end).toISOString(),
+                        allDay: allDay,
+                        editable: false,
+                        draggable: false,
+                        backgroundColor: data.color
+                    }
+                    finalEvents.push(eventObject)
+        
+                   
+        
+                    let eventToPush = {}
+        
+                    eventToPush[data.uid] = { data: data, event: null }
+    
+                }catch(e){
+                    console.warn("Cannot parse event data for webcal:", webCalEvents[k])
                 }
             }
 

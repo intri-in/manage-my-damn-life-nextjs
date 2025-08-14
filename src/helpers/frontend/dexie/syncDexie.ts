@@ -9,10 +9,10 @@ import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
 export async function syncCalDAVSummary(calDavSummaryFromServer){
     const userid = await getUserIDForCurrentUser_Dexie()
     const calDavFromDexie = await getCalDAVSummaryFromDexie()
-    console.log("calDavFromDexie", calDavFromDexie, userid)
+    // console.log("calDavFromDexie", calDavFromDexie, "userid",userid)
     for (const i in calDavSummaryFromServer){
         const indexInDexie = compareCalDAVSummary_andGetIndex(calDavSummaryFromServer[i], calDavFromDexie)
-        console.log("index", indexInDexie)
+        // console.log("index", indexInDexie)
         if(indexInDexie==-1 || indexInDexie=="-1"){
             //Not found in dexie summary.
                 //We need to create the caldav account in dexie.

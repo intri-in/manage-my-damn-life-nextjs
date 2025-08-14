@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Accordion, Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
 import "react-datetime/css/react-datetime.css";
-import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
+
 import Recurrence from "@/components/common/Recurrence";
 import { getStandardDateFormat } from "@/helpers/frontend/settings"
 import moment, { Moment } from "moment"
@@ -38,6 +38,7 @@ import { useTranslation } from "next-i18next"
 import { VAlarmForm } from "@/components/valarm/VAlarmForm"
 import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
 import { vAlarm } from "@/types/valarm"
+import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
@@ -85,20 +86,22 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [isTemplate, setIsTemplate] = useState(false)
     const [alarms, setVAlarm] = useState<vAlarm[]>([])
     const changeDoneStatus = (isDone: boolean) => {
-        if (isDone) {
-            const completedDate = getISO8601Date(moment().toISOString())
-            // console.log(completedDate)
-            setCompleted(completedDate!)
-            setCompletion("100")
-            setStatus("COMPLETED")
-        } else {
+        if(!isDone){
             setCompleted("")
             setStatus("")
             if (completion && parseInt(completion) == 100) {
                 setCompletion("0")
             }
-
         }
+        if(!isRepeatingTask && isDone){
+                const completedDate = getISO8601Date(moment().toISOString())
+                // console.log(completedDate)
+                setCompleted(completedDate!)
+                setCompletion("100")
+                setStatus("COMPLETED")
+            
+        }
+        
     }
     useEffect(() => {
         let isMounted = true
@@ -197,9 +200,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
             //Process done info .
             if (input.taskDone) {
-                setTaskDone(true)
                 // console.log("isRepeatingTask", isRepeatingTask)
                 if (!isRecurring) {
+                    setTaskDone(true)
                     changeDoneStatus(true)
                 }
 
@@ -226,7 +229,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setCompletion(input.completion.toString())
             }
             if("status" in input && input.status){
-                console.log("input.status", input.status)
+                // console.log("input.status", input.status)
                 setStatus(input.status.toString())
             }
 
@@ -301,21 +304,22 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
             //Check and set repeating task parameters.
             setRrule(rruleToObject(parsedData["rrule"]))
+            console.log("rruleToObject(parsedData",rruleToObject(parsedData["rrule"]))
             const isRecurring = parsedData["rrule"] ? true : false
             if (parsedData["rrule"]) {
                 /**
-                 * This is a recurring task. Some clients like Tasks.org Android App let users create recurring tasks without any start date. In this case we set the tasks's recurrence to start from the "dtstamp" to make it compatible.
+                 * This is a recurring task. Some clients like Tasks.org Android App let users create recurring tasks without any start date. In this case we set the tasks's recurrence to start from the "dtstamp" to make it compatible.This was a band-aid fix and has been discontinued since v0.8.0.
                  * 
                  */
-                if (!parsedData["start"]) {
+                // if (!parsedData["start"]) {
 
-                    if ("dtstamp" in parsedData) {
-                        parsedData["start"] = parsedData["dtstamp"]
+                //     if ("dtstamp" in parsedData) {
+                //         parsedData["start"] = parsedData["dtstamp"]
 
-                    } else {
-                        parsedData["start"] = moment(Date.now()).toString()
-                    }
-                }
+                //     } else {
+                //         parsedData["start"] = moment(Date.now()).toString()
+                //     }
+                // }
                 const parsedRecurrenceObj = new RecurrenceHelper(parsedData)
                 // console.log(parsedRecurrenceObj)
                 setRecurrenceObj(parsedRecurrenceObj)
@@ -360,66 +364,83 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     }, [input])
 
     const saveTask = async () => {
-        let recurrences: null | {} = null
-        if (isRepeatingTask) {
-            /**
-             * Forgot why we need to do this.
-             * Probably to set done for the new recurrenceid.
-             * {TODO}: Figure it out
-             */
-            recurrences = _.cloneDeep(recurrenceObj.newRecurrence)
-            try {
+        // let recurrences: null | {} = null
+        // if (isRepeatingTask) {
+        //     /**
+        //      * Forgot why we need to do this.
+        //      * Probably to set done for the new recurrenceid.
+        //      * {TODO}: Figure it out
+        //      */
+        //     recurrences = _.cloneDeep(recurrenceObj.newRecurrence)
+        //     try {
 
-                if (Object.keys(recurrenceObj.newObj).length > 0 && recurrences) {
-                    const nextupKey = recurrenceObj.getNextUpKey()
-                    if (!nextupKey) {
-                        toast.error("NextUpKey is empty!")
-                        return
-                    }
-                    recurrences[nextupKey] = recurrenceObj.newObj[nextupKey]
-                    const completedDate = getISO8601Date(moment().toISOString())
-                    /**
-                     * If done, set next repeating instance as completed.
-                     */
-                    if (taskDone) {
-                        recurrences[nextupKey]["completed"] = completedDate
-                        recurrences[nextupKey]["completion"] = "100"
-                        recurrences[nextupKey]["status"] = "COMPLETED"
+        //         if (Object.keys(recurrenceObj.newObj).length > 0 && recurrences) {
+        //             const nextupKey = recurrenceObj.getNextUpKey()
+        //             if (!nextupKey) {
+        //                 toast.error("NextUpKey is empty!")
+        //                 return
+        //             }
+        //             recurrences[nextupKey] = recurrenceObj.newObj[nextupKey]
+        //             const completedDate = getISO8601Date(moment().toISOString())
+        //             /**
+        //              * If done, set next repeating instance as completed.
+        //              */
+        //             if (taskDone) {
+        //                 recurrences[nextupKey]["completed"] = completedDate
+        //                 recurrences[nextupKey]["completion"] = "100"
+        //                 recurrences[nextupKey]["status"] = "COMPLETED"
 
-                    } else {
-                        recurrences[nextupKey]["completed"] = ""
-                        recurrences[nextupKey]["completion"] = ""
-                        recurrences[nextupKey]["status"] = ""
-                    }
-
-
-                    if (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) == false || (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) && recurrences[nextupKey]["recurrenceid"] == "")) {
-                        recurrences[nextupKey]["recurrenceid"] = getISO8601Date(nextupKey)
-                    }
+        //             } else {
+        //                 recurrences[nextupKey]["completed"] = ""
+        //                 recurrences[nextupKey]["completion"] = ""
+        //                 recurrences[nextupKey]["status"] = ""
+        //             }
 
 
-                }
-            } catch (e) {
-                console.warn("Recurrence problem: " + summary, e,)
-            }
+        //             if (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) == false || (varNotEmpty(recurrences[nextupKey]["recurrenceid"]) && recurrences[nextupKey]["recurrenceid"] == "")) {
+        //                 recurrences[nextupKey]["recurrenceid"] = getISO8601Date(nextupKey)
+        //             }
 
 
-        }
+        //         }
+        //     } catch (e) {
+        //         console.warn("Recurrence problem: " + summary, e,)
+        //     }
+
+
+        // }
 
         if (!summary) {
             toast.error(t("CANT_CREATE_EMPTY_TASK"))
             return
         }
-        let dueDateToSave = ""
-        if (dueDate != null) {
-            //dueDateToSave = fixDueDate(dueDate)
-            dueDateToSave = moment(moment(dueDate).format(dateFullFormat)).toISOString()
-        }
-        // console.log("due date to save", dueDate, taskStart)
-        const valid = isTemplate ? await checkifValid() : true
+        // if (dueDate != null) {
+            //     //dueDateToSave = fixDueDate(dueDate)
+            //     dueDateToSave = moment(moment(dueDate).format(dateFullFormat)).toISOString()
+            // }
+        let dueDateToSave = dueDate
+        let taskStartToSave = taskStart
+
+        // console.log("due date to save", dueDate, taskStart, isTemplate)
+        const valid = isTemplate ? true: await checkifValid()
         if (valid) {
+            // Now comes the patch work for repeating tasks.
+            // If this is a repeating task and it has been marked as done, we just forward the start and due date based on the RRULE.
+            if(isRepeatingTask && taskDone){
+                // console.log("RRULE", rrule)
+                if(taskStart){
+                    taskStartToSave =  RRuleHelper.addRecurrenceDelaytoDate(rrule, taskStart).toISOString()
+                }
+                if(dueDate){
+
+                    dueDateToSave =  RRuleHelper.addRecurrenceDelaytoDate(rrule, dueDate).toISOString()
+
+                }
+            }
+
+            // console.log("taskStart to Save", taskStartToSave, dueDateToSave)
             setSubmitting(true)
-            const todoData = { due: dueDate, start: taskStart, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, recurrences: recurrences, valarms: alarms }
+            const todoData = { due: dueDateToSave, start: taskStartToSave, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, valarms: alarms }
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
             const todo = new VTodoGenerator(finalTodoData, { strict: false })
             // console.log(todo, finalTodoData)
@@ -513,6 +534,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
     }
     const checkifValid = async () => {
+        // console.log("taskStart && !dueDate)", taskStart , dueDate, RRuleHelper.isValidObject(rrule), rrule)
 
         if(isTemplate){
             return true
@@ -544,13 +566,16 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             return false
         }
 
-
         if (varNotEmpty(rrule) && RRuleHelper.isValidObject(rrule)) {
-            if (varNotEmpty(taskStart) == false || (varNotEmpty(taskStart) && taskStart.toString().trim() == "")) {
-                toast.error(t("ERROR_START_DATE_REQUIRED_FOR_RECCURENCE"))
+            if(!taskStart && !dueDate){
+                toast.error(t("ERROR_START_DUE_DATE_REQUIRED_FOR_RECCURENCE"))
                 return false
-
             }
+            // if (varNotEmpty(taskStart) == false || (varNotEmpty(taskStart) && taskStart.toString().trim() == "")) {
+            //     toast.error(t("ERROR_START_DATE_REQUIRED_FOR_RECCURENCE"))
+            //     return false
+
+            // }
         }
 
         if (isRepeatingTask) {
@@ -606,7 +631,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         onChange()
     }
     const onRruleSet = (rrule) => {
-        var newRRULE = RRuleHelper.parseObject(rrule)
+        const newRRULE = RRuleHelper.parseObject(rrule)
         setRrule(newRRULE)
         onChange()
     }
@@ -636,9 +661,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
     const taskDoneChanged = (e) => {
         setTaskDone(e.target.checked)
-        if (!isRepeatingTask) {
-            changeDoneStatus(e.target.checked)
-        }
+        changeDoneStatus(e.target.checked)
+        // if (!isRepeatingTask) {
+        // }
 
     }
     const statusValueChanged = (e) => {
@@ -722,7 +747,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     let dueDateFixed = ""
     if (isRepeatingTask) {
         dueDateFixed = moment(recurrenceObj.getNextDueDate()).format(dateFullFormat)
-        repeatInfoMessage = (<Alert variant="warning">{t("REPEAT_TASK_MESSAGE") + moment(recurrenceObj.getNextDueDate()).format(dateFormat)}</Alert>)
+        repeatInfoMessage = (<Alert variant="warning">{t("REPEAT_TASK_MESSAGE_SIMPLE")}</Alert>)
     }
 
     const templateEditing = isTemplate ? <Alert variant="warning">{t("EDITING_A_TEMPLATE")}</Alert> : <></>
@@ -774,9 +799,12 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
 
             <h4>{t("DUE_DATE")}</h4>
             <Row style={{ marginBottom: 10 }}>
-                {isRepeatingTask ? <p>{dueDateFixed}</p> : (<>
+                {/* {isRepeatingTask ? <p>{dueDateFixed}</p> : (<>
                     <Datepicker value={dueDate} onChangeHook={dueDateChanged} />
-                </>)}
+                </>)} */}
+                   
+                <Datepicker value={dueDate} onChangeHook={dueDateChanged} />
+
             </Row>
             <h4>{t("LABELS")}</h4>
             <div style={{ marginBottom: 10 }}>

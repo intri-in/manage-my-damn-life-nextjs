@@ -67,6 +67,21 @@ export interface Event_Parents{
   parent_id?:string
 }
 
+export interface WebCals{
+  id?: number;
+  webcals_id?: string;
+  userid: string;
+  name: string;
+  link: string;
+  updateInterval: number;
+  lastFetched?: string;
+  colour?:string
+}
+export interface WebCalEvents{
+  id?: number;
+  webcals_id: string;
+  data: string | any;
+}
 export class MySubClassedDexie extends Dexie {
   caldav_accounts!: Table<Caldav_Accounts>; 
   calendars!: Table<Calendars>;
@@ -75,7 +90,8 @@ export class MySubClassedDexie extends Dexie {
   settings!:Table<Settings>
   event_parents!:Table<Event_Parents>
   users!:Table<Users>
-
+  webcals!: Table<WebCals>
+  webcals_events!: Table<WebCalEvents>
   constructor() {
     super('mmdl_dexie_db');
     this.version(1).stores({
@@ -111,7 +127,10 @@ export class MySubClassedDexie extends Dexie {
     this.version(6).stores({
       labels:"++labels_id, name, colour,userid",
     })
-
+    this.version(7).stores({
+      webcals:"++id,webcals_id, name, link,userid,updateInterval,lastFetched,colour",
+      webcals_events:"++id,webcals_id,data"
+    })
 
   }
 }

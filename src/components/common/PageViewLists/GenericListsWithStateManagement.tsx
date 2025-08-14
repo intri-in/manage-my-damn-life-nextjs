@@ -95,7 +95,7 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
         return ()=>{
             isMounted = false
         }
-    }, [generateLabelListfromDexie])
+    }, [])
 
     
     const updateLabelCache = () =>{

@@ -19,6 +19,12 @@ import { users as _users } from "./users";
 import type { usersAttributes, usersCreationAttributes } from "./users";
 import {templates as _templates} from './templates'
 import type { templatesAttributes, templatesCreationAttributes } from "./templates";
+import {webcal_accounts as _webcal_accounts} from './webcal_accounts'
+import type { webcal_accountsAttributes, webcal_accountsCreationAttributes } from "./webcal_accounts";
+import {webcal_events as _webcal_events} from './webcal_events'
+
+import type { webcal_eventsAttributes, webcal_eventsCreationAttributes } from "./webcal_events";
+
 export {
   _caldav_accounts as caldav_accounts,
   _calendar_events as calendar_events,
@@ -29,7 +35,10 @@ export {
   _settings as settings,
   _ssid_table as ssid_table,
   _users as users,
-  _templates as templates
+  _templates as templates,
+  _webcal_accounts as  webcal_accounts,
+  _webcal_events as  webcal_events
+
 };
 
 export type {
@@ -52,7 +61,12 @@ export type {
   usersAttributes,
   usersCreationAttributes,
   templatesAttributes,
-  templatesCreationAttributes
+  templatesCreationAttributes,
+  webcal_accountsAttributes,
+  webcal_accountsCreationAttributes,
+  webcal_eventsAttributes,
+  webcal_eventsCreationAttributes
+
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -66,6 +80,8 @@ export function initModels(sequelize: Sequelize) {
   const ssid_table = _ssid_table.initModel(sequelize);
   const users = _users.initModel(sequelize);
   const templates = _templates.initModel(sequelize)
+  const webcal_accounts = _webcal_accounts.initModel(sequelize)
+  const webcal_events = _webcal_events.initModel(sequelize)
 
   return {
     caldav_accounts: caldav_accounts,
@@ -77,6 +93,9 @@ export function initModels(sequelize: Sequelize) {
     settings: settings,
     ssid_table: ssid_table,
     users: users,
-    templates:templates
+    templates:templates,
+    webcal_accounts:webcal_accounts,
+    webcal_events:webcal_events
+
   };
 }

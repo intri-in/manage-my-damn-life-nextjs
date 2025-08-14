@@ -19,10 +19,13 @@ export function isSyncing(){
 export function shouldSync(){
     const userSetTimeout = getSyncTimeout()
     const isSyncing = getValueFromLocalStorage(IS_SYNCING)
-    if(isSyncing){
+    // console.log("isSyncing", userSetTimeout, isSyncing)
+    if(isSyncing=="true" || isSyncing==true){
         return false
     }
+    // console.log("EHERE")
     let lastSync = getValueFromLocalStorage(LASTSYNC)
+    // console.log("lastSync", lastSync)
     if(!lastSync || isNaN(Number(lastSync))){
         lastSync = Date.now()
         localStorage.setItem(LASTSYNC, lastSync)

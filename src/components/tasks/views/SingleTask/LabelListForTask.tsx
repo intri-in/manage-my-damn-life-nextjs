@@ -10,7 +10,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
     const [finalOutput, setFinalOutput] = useState([<></>])
     const [toolTipOutput, setToolTipOutput] = useState([<></>])
     const renderTooltip = (props) => (
-        <Tooltip key={id} id={`button-tooltip-${id}`} {...props}>
+        <Tooltip style={{zIndex: 1999}} key={`button-tooltip-${id}`} id={`button-tooltip-${id}`} {...props}>
           {toolTipOutput}
         </Tooltip>
       );
@@ -53,7 +53,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
 
             setFinalOutput([
                 <OverlayTrigger
-                placement="top"
+                placement="right"
                 overlay={renderTooltip}
                 key={`${id}_key_Overlay`}
                 >
@@ -61,9 +61,8 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                 <span>
                     <div style={{textAlign:"center", margin:"auto",   display: "block", overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px", zIndex:999 }} className="textDefault">
                     {labelArray}
-
                     </div>
-                    </span>
+                </span>
                 </OverlayTrigger>
                 ]
 

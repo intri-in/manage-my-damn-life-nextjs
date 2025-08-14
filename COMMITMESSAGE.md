@@ -1,3 +1,3 @@
-- Fixed bug #240
-    - Was caused by userhash being null.
-- Fixed workflow to push docker image.
+- Added loading page instead of blank page before login check.
+- Small bug fixes
+- Fixed sorting bug

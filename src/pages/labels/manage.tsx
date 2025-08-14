@@ -1,3 +1,4 @@
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 import ManageLabels from "@/components/page/MangerLabelsPage/ManageLabels";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { useCustomTheme } from "@/helpers/frontend/theme";
@@ -6,33 +7,42 @@ import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { signIn, useSession } from "next-auth/react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
 export default function ManageLabelsPage(){
-    const { data: session, status } = useSession()
-    const router = useRouter()
-    useCustomTheme()
+  const { data: session, status } = useSession() 
+  const [isloggedIn, setIsloggedIn] = useState(false)
+  const router = useRouter()
+  useCustomTheme()
+  useEffect(() =>{
 
-    useEffect(() =>{
-      async function checkAuth(){
+    let isMounted =true
+    async function checkAuth(){
+      
         if(await nextAuthEnabled()){
           if (status=="unauthenticated" ) {
             signIn()
+          }else{
+              setIsloggedIn(true)
           }
         }else{
           // Check login using inbuilt function.
-  
-          checkLogin_InBuilt(router, "/labels/manage")
+          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
         }
-        
       }
-      checkAuth()
-    }, [status, router])
-    
 
-     
-  
+      if(isMounted){
+
+        checkAuth()
+      }
+      return () =>{
+        isMounted = false
+    }
+  }, [status, router])
+
+    if(!isloggedIn) (<EmptyPageBeforeLogin />)   
+
     
     return(
         <>
