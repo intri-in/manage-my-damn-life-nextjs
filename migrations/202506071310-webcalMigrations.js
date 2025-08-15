@@ -11,8 +11,7 @@ module.exports = {
                 link: { type: Sequelize.STRING(1000),},
                 colour:{ type: Sequelize.STRING(100)},
                 updateInterval: { type: Sequelize.STRING(100),},
-                lastFetched: {type: Sequelize.DATE,
-                    defaultValue:Sequelize.fn('now')}
+                lastFetched: {type: Sequelize.STRING(1000)}
             }, {transaction: t}),
             ]);
           });
