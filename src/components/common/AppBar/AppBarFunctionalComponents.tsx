@@ -26,6 +26,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from "next-i18next";
 import {  signOut } from "next-auth/react"
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
+import { SyncButton } from "./SyncButton";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session}) => {
   /**
@@ -111,16 +112,28 @@ const AppBarFunctionalComponent = ({ session}) => {
   };
 
   const logOutClicked = async () => {
+    commonlogoutFunction(false)
+  };
+  const commonlogoutFunction = async (nukeDexie) =>{
+    logoutUser(nukeDexie)
     if(await nextAuthEnabled()){
-      logoutUser()
       signOut()
       router.push('/api/auth/signin')
     }else{
-      logoutUser_withRedirect(router);
+      let urlRedirect = "/"
+      if(typeof(window)!=="undefined"){
+        urlRedirect = window.location.pathname;
+      }
+      logoutUser_withRedirect(router, urlRedirect);
     }
-    
-  };
 
+  }
+
+  const logoutRightClicked = (e) =>{
+    e.preventDefault()
+    commonlogoutFunction(true)
+
+  }
   const settingsClicked = () => {
     router.push("/accounts/settings");
   };
@@ -135,6 +148,10 @@ const AppBarFunctionalComponent = ({ session}) => {
 
   const manageCaldavClicked = () => {
     router.push("/accounts/caldav");
+  };
+
+  const webcalLinkClicked = () => {
+    router.push("/webcal/manage");
   };
 
   const flipThemeMode = () => {
@@ -209,6 +226,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                   <Dropdown.Item onClick={labelManageClicked}>{t("LABEL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={manageFilterClicked}>{t("MANAGE_FILTERS")}</Dropdown.Item>
                   <Dropdown.Item onClick={manageCaldavClicked}>{t("MANAGE") + " " + t("CALDAV_ACCOUNTS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={webcalLinkClicked}>{t("WEBCAL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{t("TEMPLATE_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
                 </Dropdown.Menu>
@@ -251,11 +269,11 @@ const AppBarFunctionalComponent = ({ session}) => {
                       {t("SYNC")}
                     </Tooltip>
                   }>
-                  <div style={{ color: "white", padding: 5 }}>{syncButton} </div>
+                  <div style={{ color: "white", padding: 5 }}><SyncButton isSyncing={spinningButton} /></div>
                 </OverlayTrigger>
               </Nav.Item>
               <Nav.Item style={{ color: "white", padding: 5 }}>
-                <BiLogOut onClick={logOutClicked} size={24} />
+                <BiLogOut onContextMenu={logoutRightClicked} onClick={logOutClicked} size={24} />
               </Nav.Item>
             </Nav>
         </Navbar.Collapse>

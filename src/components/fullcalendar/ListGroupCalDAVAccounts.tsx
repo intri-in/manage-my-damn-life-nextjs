@@ -5,11 +5,12 @@ import Form from 'react-bootstrap/Form';
 import Cookies from 'js-cookie'
 import { getCalendarsToShow, isValid_UserPreference_CalendarsToShow } from '@/helpers/frontend/userpreference';
 import { isValidResultArray, varNotEmpty } from '@/helpers/general';
-import { Preference_CalendarsToShow } from '@/helpers/frontend/classes/UserPreferences/Preference_CalendarsToShow';
+import { Calendars_toShow_WebCalAccountType, Preference_CalendarsToShow } from '@/helpers/frontend/classes/UserPreferences/Preference_CalendarsToShow';
 import { BsCalendarCheck } from 'react-icons/bs';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useTranslation } from 'next-i18next';
+import { flipShowValueforWebCalId, getPreferenceObject_webCalsToShow } from '@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow';
 interface customProps{
     caldav_accounts:  {name: string, caldav_accounts_id: number, calendars: any }[];
     onChange?: () => void;
@@ -18,13 +19,20 @@ interface customProps{
 export function ListGroupCalDAVAccounts(props: customProps ){
     const [modalShow, setModalShow] = useState(false);
     const [prefObject, setPrefObject] =useState([])
+    const [prefObject_WebCal, setPrefObject_WebCal] =useState<Calendars_toShow_WebCalAccountType[]>([])
+
     const [finalOutput, setFinalOutput] = useState<JSX.Element []>([])
+    const [finalOutput_WebCals, setFinalOutput_WebCals] = useState<JSX.Element []>([])
     const {t} = useTranslation()
     useEffect(()=>{
       let isMounted =true
       if(isMounted){
 
         setPrefObject(getLatestPreferenceObject(props.caldav_accounts))
+        getPreferenceObject_webCalsToShow().then(prefObject =>{
+
+          setPrefObject_WebCal(prefObject)
+        })
       }
       return ()=>{
         isMounted=false
@@ -33,7 +41,8 @@ export function ListGroupCalDAVAccounts(props: customProps ){
     useEffect(()=>{
       let output : JSX.Element[]=[]
       //First we check if the preference matrix exists.
-
+      output.push(<h2>{t("CALDAV_ACCOUNTS")}</h2>
+      )
       let isMounted =true
       if(isMounted){
         if(props.caldav_accounts && props.caldav_accounts.length>0 ) 
@@ -59,14 +68,17 @@ export function ListGroupCalDAVAccounts(props: customProps ){
               }
             }
     
-            output.push(<Form>{calendarOutput}</Form>)
+            output.push(<Form>
+              {calendarOutput}
+              </Form>)
           
           }
 
 
-          setFinalOutput(output)
         }
-  
+        setFinalOutput(output)
+
+        
       }
       return ()=>{
         isMounted=false
@@ -74,14 +86,45 @@ export function ListGroupCalDAVAccounts(props: customProps ){
 
     },[prefObject])
 
+    useEffect(()=>{
+      let output : JSX.Element[]=[]
+      //First we check if the preference matrix exists.
 
- 
+      if(prefObject_WebCal && Array.isArray(prefObject_WebCal) && prefObject_WebCal.length>0){
+        let webcals_output: JSX.Element[] =  []
+        for (const i in prefObject_WebCal){
+          webcals_output.push(<Form.Check key={prefObject_WebCal[i].webcal_id.toString()}
+          inline type="checkbox" id={prefObject_WebCal[i].webcal_id.toString()} checked={prefObject_WebCal[i].show} onChange={e => onChangeCheckedForWebcal( e, prefObject_WebCal[i].webcal_id)}  label={prefObject_WebCal[i].name}/>)
+        }
+
+        if(webcals_output.length>0){
+
+          output.push(<Form style={{paddingTop:20}}>
+            <h2>{t("WEBCALS")}</h2>
+            {webcals_output}
+            </Form>)
+        }
+
+        setFinalOutput_WebCals(output)
+
+      }
+    },[prefObject_WebCal])
+    const onChangeCheckedForWebcal = (e, webcal_id) =>{
+      flipShowValueforWebCalId(webcal_id).then(newPrefObject =>{
+        // console.log("webcal_id", webcal_id)
+        setPrefObject_WebCal(newPrefObject)
+      })
+      if(props.onChange){
+        props.onChange()
+      }
+    }
     const onChangeChecked =  (e, indexInPreferenceObject) =>{
       let index = JSON.parse(e.target.id)
       // console.log(e.target.checked)
       Preference_CalendarsToShow.update(index, e.target.checked)
       setPrefObject(getLatestPreferenceObject(props.caldav_accounts))
       if(props.onChange){
+        props.onChange()
         props.onChange()
       }
     }
@@ -101,6 +144,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
       </Modal.Header>
       <Modal.Body>
             {finalOutput}
+            {finalOutput_WebCals}
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={() => setModalShow(false)}>Close</Button>

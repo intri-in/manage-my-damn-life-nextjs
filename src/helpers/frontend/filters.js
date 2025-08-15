@@ -354,11 +354,11 @@ export function applyEventFilter(event, filter)
         {
             let dueDate = event.due
 
-            if ("rrule" in event && event.rrule ) {
-                //Repeating Object
-                var recurrenceObj = new RecurrenceHelper(event)
-                dueDate= recurrenceObj.getNextDueDate()
-            }
+            // if ("rrule" in event && event.rrule ) {
+            //     //Repeating Object
+            //     var recurrenceObj = new RecurrenceHelper(event)
+            //     dueDate= recurrenceObj.getNextDueDate()
+            // }
     
             
             filterByDueResult = filterbyDue(filter.filter.due, dueDate)
@@ -389,14 +389,14 @@ export function applyEventFilter(event, filter)
         {
             let startDate = event.start
 
-            if ("rrule" in event && event.rrule ) {
-               //Recurring event.
-               // We ignore the start date, because it can be way in the past.
-               // We instead use the due date.
-               var recurrenceObj = new RecurrenceHelper(event)
-               startDate= recurrenceObj.getNextDueDate()
+            // if ("rrule" in event && event.rrule ) {
+            //    //Recurring event.
+            //    // We ignore the start date, because it can be way in the past.
+            //    // We instead use the due date.
+            //    var recurrenceObj = new RecurrenceHelper(event)
+            //    startDate= recurrenceObj.getNextDueDate()
 
-            }
+            // }
 
             filterbyStartResult = filterbyStart(filter.filter.start, startDate)
         }

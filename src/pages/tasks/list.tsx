@@ -15,45 +15,49 @@ import { useTranslation } from "next-i18next";
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
+import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 
 
 export default function TaskListPage(){
-    const { data: session, status } = useSession()
-    const router = useRouter()
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [isloggedIn, setIsloggedIn] = useState(false)
+
     useCustomTheme()
      /**
      * Jotai
      */
-     const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
-     const setFilterAtom = useSetAtom(filterAtom)
-     const setCalDavAtom = useSetAtom(calDavObjectAtom)
-     const setUpdateView= useSetAtom(updateViewAtom)
-     const [urlParsed, setURLPased] = useState(false)
+    const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
+    const setFilterAtom = useSetAtom(filterAtom)
+    const setCalDavAtom = useSetAtom(calDavObjectAtom)
+    const [urlParsed, setURLPased] = useState(false)
     const {t} = useTranslation()
     useEffect(() =>{
-      let isMounted = true
-      if(isMounted)
-      {
-        const checkAuth = async () =>{
-          
+
+      let isMounted =true
+      async function checkAuth(){
+        
           if(await nextAuthEnabled()){
             if (status=="unauthenticated" ) {
               signIn()
+            }else{
+                setIsloggedIn(true)
             }
           }else{
             // Check login using inbuilt function.
-    
-            checkLogin_InBuilt(router, "/tasks/list")
+            setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
           }
         }
-        checkAuth()
-  
-      }
-      return ()=>{
-        isMounted = false
-      }
 
-    }, [status,router])
+        if(isMounted){
+
+          checkAuth()
+        }
+        return () =>{
+          isMounted = false
+      }
+    }, [status, router])
+
     
      
     useEffect(()=>{
@@ -67,7 +71,7 @@ export default function TaskListPage(){
               const pageName = params.get('name')
               const type = params.get('type')
 
-              console.log("pageName",urlParsed, pageName ,PAGE_VIEW_JSON[pageName!])
+              // console.log("pageName",urlParsed, pageName ,PAGE_VIEW_JSON[pageName!])
               if(pageName){
       
                   setFilterAtom(PAGE_VIEW_JSON[pageName])
@@ -114,15 +118,16 @@ export default function TaskListPage(){
       
     
   },[setCalDavAtom, setCurrentPageTitle, setFilterAtom, urlParsed])
+  if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
 
 
-    const output = urlParsed ? <TaskViewListWithStateManagement />: null
-    return(
-        <>
-        {output}
-        <GlobalViewManager />
-        </>
-    )
+  const output = urlParsed ? <TaskViewListWithStateManagement />: null
+  return(
+      <>
+      {output}
+      <GlobalViewManager />
+      </>
+  )
 }
 
 export async function getStaticProps({ locale}) {

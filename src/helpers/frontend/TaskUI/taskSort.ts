@@ -25,14 +25,14 @@ function sortByDue(taskList: TaskArrayItem[], ascending: boolean){
         taskList.sort(function(a,b){
             const dueDateA= a.due ? moment(a.due).unix() : 10000000000000
             const dueDateB= b.due ? moment(b.due).unix() : 10000000000000
-            // console.log(a.due, dueDateA, dueDateB, dueDateA-dueDateB)
+            // console.log("sort", a.summary, moment(a.due).toString(), dueDateA, b.summary, moment(b.due).toISOString(), dueDateB, dueDateA-dueDateB)
             return dueDateA - dueDateB
         })
     }else{
         taskList.sort(function(a,b){
             const dueDateA= a.due ? moment(a.due).unix() : -10000000000000
             const dueDateB= b.due ? moment(b.due).unix() : -10000000000000
-            // console.log(a.due, dueDateA, dueDateB, dueDateA-dueDateB)
+            // console.log("sort", a.summary, a.due, dueDateA, b.summary, b.due, dueDateB, dueDateA-dueDateB)
             return dueDateB - dueDateA
         })
     }

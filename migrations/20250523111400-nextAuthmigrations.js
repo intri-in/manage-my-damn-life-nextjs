@@ -43,7 +43,7 @@ module.exports = {
               queryInterface.removeColumn("sessions", "userId",{transaction:t}),
               queryInterface.dropTable('verification_tokens',{transaction:t}),
               queryInterface.removeColumn("accounts", "providerAccountId",{transaction:t}),
-              // queryInterface.removeColumn("accounts", "userId",{transaction:t}),
+              queryInterface.removeColumn("accounts", "userId",{transaction:t}),
 
               
             ])

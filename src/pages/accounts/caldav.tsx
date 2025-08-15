@@ -11,9 +11,11 @@ import { getThemeMode, isDarkModeEnabled, useCustomTheme } from '@/helpers/front
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AVAILABLE_LANGUAGES } from '@/config/constants';
+import { EmptyPageBeforeLogin } from '@/components/common/EmptyPageBeforeLogin';
 
 export default function Caldav() {
   const { data: session, status } = useSession() 
+  const [isloggedIn, setIsloggedIn] = useState(false)
   const router = useRouter()
   const {t} = useTranslation()
   useCustomTheme()
@@ -25,10 +27,12 @@ export default function Caldav() {
       if(await nextAuthEnabled()){
         if (status=="unauthenticated" ) {
           signIn()
+        }else{
+            setIsloggedIn(true)
         }
       }else{
         // Check login using inbuilt function.
-        checkLogin_InBuilt(router,"/accounts/caldav")
+        setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
       }
     }
 
@@ -41,6 +45,7 @@ export default function Caldav() {
   }
 }, [status, router])
 
+    if(!isloggedIn) (<EmptyPageBeforeLogin />)
 
     return (
     <>

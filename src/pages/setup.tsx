@@ -5,18 +5,19 @@ import { db } from "@/helpers/frontend/dexie/dexieDB"
 import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
 import { fetchLatestEventsV2,  fetchLatestEvents_withoutCalendarRefresh,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
-import { logoutUser, logoutUser_withRedirect } from "@/helpers/frontend/user"
+import { logoutUser } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
 import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "next-i18next"
 import { toast } from "react-toastify"
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore"
 import { serverSideTranslations } from "next-i18next/serverSideTranslations"
 import { AVAILABLE_LANGUAGES } from "@/config/constants"
+import { setupWebCalDataFromServer } from "@/helpers/frontend/webcals"
 const SESSION_IS_SETTING_UP="SESSION_IS_SETTING_UP"
 
 export default function SetupPage() {
@@ -30,12 +31,13 @@ export default function SetupPage() {
     const [currentWork, setCurrentWork] = useState("Fetching events and tasks...")
     const router= useRouter()
     const {t} = useTranslation()
+    const effectRan = useRef(false);
+
     const setupEverything = async () => {
 
-        let isMounted =true
-        if(isMounted){
             setCurrentWork("Fetching settings...")
             await SettingsHelper.getAllFromServerAndSave()
+            // await setupWebCalDataFromServer()
             setCurrentWork("Fetching events and data...")
         
             // await fetchLatestEventsV2()
@@ -49,7 +51,7 @@ export default function SetupPage() {
                 //User already has data in dexie. 
                 
             if(fetch) await fetchLatestEventsV2()
-
+            if (fetch) await setupWebCalDataFromServer()
             const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
             if(dateFormat){
                 setDateFormat(dateFormat)
@@ -59,20 +61,16 @@ export default function SetupPage() {
                 setTimeFormat(timeFormat)
             }
             redirect()
-        }
               
                 
                 
         
-        return ()=>{
-            isMounted=false
-        }
     }
     useEffect(()=>{
         let isMounted =true
       
         
-        if(isMounted){
+        if (!effectRan.current) {
 
                 checkifCurrentUserInDexie().then((goOn) =>{
                     if(goOn){
@@ -92,9 +90,7 @@ export default function SetupPage() {
                 
             }
         
-        return ()=>{
-            isMounted=false
-        }
+            return () => {effectRan.current = true;}
 
     },[])
 

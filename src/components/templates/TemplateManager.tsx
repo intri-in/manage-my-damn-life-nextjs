@@ -61,7 +61,7 @@ const getAllTemplatesFromServer = async() =>{
     const finalOutput: JSX.Element[] = []
     const response = await getTemplatesFromServer()
     const borderColor = isDarkModeEnabled() ? "white" : "#F1F1F1"
-    console.log("response", response)
+    // console.log("response", response)
     if(response && Array.isArray(response)){
         for(const i in response){
             let row=(

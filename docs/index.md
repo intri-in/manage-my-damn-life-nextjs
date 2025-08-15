@@ -34,7 +34,7 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 
 This client has been tested with Nextcloud and Baikal.
 
-As of now, it only supports basic authentication, and not OAUTH for CalDAV Accounts. 
+As of now, it only supports basic authentication, and not OAUTH for CalDAV Accounts. See [here](Feature Guide/AddingCalendars.md)
 
 ## Getting Started
 

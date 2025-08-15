@@ -136,12 +136,12 @@ async function getTopLevelUID_V3(todoList: Calendar_Events[])
             //console.log("todoObj", todo,todoObj)
             const parent = getParsedTaskParent(todo)
             let dueDate = todo["due"]
-            if(checkifRepeatingTask(todo)){
-                //Repeating task
-                const recurrenceObj = new RecurrenceHelper(todo)
-                dueDate = recurrenceObj.getNextDueDate()
+            // if(checkifRepeatingTask(todo)){
+            //     //Repeating task
+            //     const recurrenceObj = new RecurrenceHelper(todo)
+            //     dueDate = recurrenceObj.getNextDueDate()
     
-            }
+            // }
             // console.log(todoObj.parsedData.summary, todoObj.hasNoRelatedParent(), todoObj.parsedData.relatedto)
 
             let addToList = false

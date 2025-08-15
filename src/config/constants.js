@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.7.0-dev" 
+export const VERSION_NUMBER = "0.8.0" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -66,3 +66,4 @@ export const END_OF_THE_UNIVERSE_DATE= "4000-12-31T00:00:00.000Z"
 
 export const INSTALL_CHECK_THRESHOLD_SECONDS=86400
 export const SYNC_DEFAULT_TIMEOUT = 1000*60*5
+export const LOGIN_CHECK_THRESHOLD_SECONDS=1800
