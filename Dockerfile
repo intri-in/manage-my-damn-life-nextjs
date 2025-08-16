@@ -9,6 +9,8 @@ RUN apk add --no-cache libc6-compat
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .
 #COPY package.json yarn.lock* pnpm-lock.yaml* ./
 RUN \
+  --mount=type=cache,target=/root/.npm \
+  --mount=type=cache,target=/root/.cache/Cypress \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci --prefer-offline; \
   elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
@@ -29,7 +31,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # If using npm comment out above and use below instead
 # RUN npm i
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
