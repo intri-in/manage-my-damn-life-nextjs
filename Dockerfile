@@ -1,5 +1,6 @@
 ## Source: https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
-FROM node:20.10-alpine AS base
+ARG BASE_IMAGE=node:20.10-alpine
+FROM ${BASE_IMAGE} AS base
 WORKDIR /app
 # Install dependencies only when needed
 FROM base AS deps
