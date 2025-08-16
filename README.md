@@ -21,7 +21,7 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 4. View your tasks as a list, in a gantt view, or on a calendar.  
 1. Create and manage task filters to view your tasks as you see fit.
 1. "Reponsive-ish" view. This is a desktop first project, as multiple clients like JTX Boards, OpenTasks exist for mobile.
-1. OAUTH support
+1. [OAUTH support](./docs/install/Configuration/OAuth.md)
 
 
 ### Planned features
