@@ -21,11 +21,11 @@ module.exports = {
       user_id: { type: Sequelize.UUID },
       createdAt: {
         type: Sequelize.DATE,
-        defaultValue:Sequelize.fn('now'),
+        defaultValue:Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
         type: Sequelize.DATE,
-        defaultValue:Sequelize.fn('now'),
+        defaultValue:Sequelize.literal('CURRENT_TIMESTAMP')
 
       }
     });
