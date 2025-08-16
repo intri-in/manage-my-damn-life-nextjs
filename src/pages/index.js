@@ -80,7 +80,7 @@ export default function HomePage() {
     }
   }, [status, router])
 
-  if(!isloggedIn) (<EmptyPageBeforeLogin />)
+  if(!isloggedIn) return (<EmptyPageBeforeLogin />)
 
     
 
