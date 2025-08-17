@@ -35,6 +35,8 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 
 This client has been tested with Nextcloud and Baikal.
 
+As of now, it only supports basic authentication, and not OAUTH for CalDAV authentication.
+
 ## Getting Started
 
 To get started, you can checkout full documentation [here](https://manage-my-damn-life-nextjs.readthedocs.io/en/latest/install/).
