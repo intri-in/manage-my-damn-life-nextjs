@@ -8,7 +8,7 @@ If you want to run MMDL in a docker container, you have two options:
 ## With Docker Compose
 > ⚠️ **Installation instructions have changed since v0.3.0**
 
-Visit the repository, and download the ```docker-compose.yml.sample` file from Github.
+Visit the repository, and download the [docker-compose.yml.sample](https://raw.githubusercontent.com/intri-in/manage-my-damn-life-nextjs/refs/heads/main/docker-compose.yml.sample) file from Github.
 
 ```
 https://github.com/intri-in/manage-my-damn-life-nextjs.git
