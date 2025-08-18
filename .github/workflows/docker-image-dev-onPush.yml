@@ -1,4 +1,4 @@
-name: Docker Image CI Build and Push on Release - Development
+name: Docker Image CI Build and Push on Push - Development
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
@@ -32,7 +32,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV    
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
@@ -52,5 +54,4 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile
-          tags: |
-            intriin/mmdl:${{ steps.date.outputs.timestamp }}-p
+          tags: intriin/mmdl:${{ env.TIMESTAMP }} 
