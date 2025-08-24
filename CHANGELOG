@@ -1,3 +1,5 @@
+v0.8.1
+- MMDL now works with Sqlite.
 v0.8.0
 - Breaking Changes:
     - Completely changed the handling of recurring tasks.

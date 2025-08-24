@@ -6,6 +6,7 @@ README.md
 .next
 .git
 docs
+.env
 
 
 # config/config.json

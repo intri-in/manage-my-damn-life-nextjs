@@ -1,6 +1,7 @@
 ## Source: https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 ARG BASE_IMAGE=node:20.10-alpine
 FROM ${BASE_IMAGE} AS base
+ENV NODE_PATH=/app/node_modules
 WORKDIR /app
 # Install dependencies only when needed
 FROM base AS deps
@@ -13,7 +14,7 @@ RUN \
   --mount=type=cache,target=/root/.npm \
   --mount=type=cache,target=/root/.cache/Cypress \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci --prefer-offline; \
+  elif [ -f package-lock.json ]; then npm ci --prefer-offline ; \
   elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
@@ -45,6 +46,7 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
+
 ## Add files needed for Sequelize migrations.
 ADD config /app/config
 ADD models /app/models
@@ -56,8 +58,16 @@ COPY --from=builder /app/public ./public
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dotenv ./node_modules/dotenv
+# COPY --from=builder --chown=nextjs:nodejs /app/node_modules/sequelize-cli ./node_modules/sequelize-cli
+USER root
+# RUN mkdir /app/data
+RUN chown nextjs:nodejs /app/config
+RUN chown nextjs:nodejs /app/migrations
+RUN chown nextjs:nodejs /app/models
+RUN npm i -g sequelize-cli --prefer-offline
+# RUN npm i dotenv --prefer-offline
+USER nextjs:nodejs
 
 EXPOSE 3000
 

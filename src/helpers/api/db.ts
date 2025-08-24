@@ -67,8 +67,9 @@ export function getSequelizeObj(raw?): typeof Sequelize{
   }
   if(dialect=="sqlite"){
     return new Sequelize(
-      
-      db_host_settings,
+      {
+      dialect: "sqlite",
+      storage: process.env.DB_NAME}
       
       );
   }
