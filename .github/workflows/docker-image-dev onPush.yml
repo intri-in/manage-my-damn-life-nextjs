@@ -1,9 +1,9 @@
-name: Docker Image CI Build and Push on Release - Main
+name: Docker Image CI Build and Push to Docker on Push to Github - Development
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
   push:
-    branches: ["main"]
+    branches: ["development"]
 
 #  It's configured to run on the latest available version of Ubuntu.
 jobs:
