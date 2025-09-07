@@ -41,6 +41,10 @@ jobs:
           tags: |
             type=ref,event=tag
             latest-dev
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
@@ -52,4 +56,4 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile
-          tags: mmdl:dev-$(date +%s)
+          tags: mmdl:dev-$(env.TIMESTAMP)
