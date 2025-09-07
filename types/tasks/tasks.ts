@@ -1,3 +1,6 @@
+import { vAlarmVTODOGEN } from "@/components/valarm/VAlarmForm"
+import { RruleObject } from "types/recurrence"
+
 export interface ParsedTask{
     due?: string
     dtstamp?: string
@@ -14,7 +17,7 @@ export interface ParsedTask{
     description?: string
     start?: string
     class?: string
-    rrule?: rruleType
+    rrule?: RruleObject
     geo?: string
     location?: string
     organizer?: string
@@ -23,6 +26,8 @@ export interface ParsedTask{
     url?: string
     recurrences?: ParsedTask[]
     tz?: string
+    valarms?:vAlarmVTODOGEN
+    alarms?:vAlarmVTODOGEN
 
 }
 

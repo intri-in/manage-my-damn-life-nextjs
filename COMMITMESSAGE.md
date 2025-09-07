@@ -1,5 +1,3 @@
-- Fixed problem of sqlite not working with MMDL.
-    - Problem stemmed from:
-        - Lack of environment directive to sequelize-cli command
-        - lack of dotenv and sequelize-cli being included in nextJS stand alone build. They were missing from final node_modules. Changed dockerfile to include them.
-        
+- Solved #261
+    - Clicking on task done checkbox now doesn't open Task Editor, it rathers marks the task as done.
+- Added docker image push to the github workflow again.

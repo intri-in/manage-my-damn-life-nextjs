@@ -5,8 +5,19 @@ import { Loading } from "@/components/common/Loading";
 import { RenderTaskList } from "./RenderTaskList";
 import i18next from "i18next";
 import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort";
+import { useSetAtom } from "jotai";
+import { updateViewAtom } from "stateStore/ViewStore";
 
 export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: TaskSection[]}) =>{
+    /**
+     * Jotai
+     */
+
+    const setUpdated = useSetAtom(updateViewAtom)
+
+    /**
+     * Local State
+     */
     const [showDone, setShowDone] = useState(false)
     const [labelList, setLabelList] = useState<labelSelector[]>([])
     // const [isLoading, setLoading] = useState(true)
@@ -15,7 +26,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
     const [search, setSearch] = useState("")
 
     const refilterAndSortTaskList = useCallback(async (showDoneLocal, labelListLocal, taskListLocal: TaskArrayItem[], sortByOption:string, searchTerm) =>{
-        
+        // console.log("taskListLocal", taskListLocal)
         let taskListAfterSearch : TaskArrayItem[] = []
         //First we search the tasks. 
         if(searchTerm){
@@ -29,7 +40,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         let newTaskList_AfterDoneFilter: TaskArrayItem[] = []
         if(showDoneLocal==false){
             newTaskList_AfterDoneFilter = await removeDoneTasksFromTaskListArray(taskListAfterSearch)
-        }else{
+        }else{ 
             newTaskList_AfterDoneFilter=[...taskListAfterSearch]
         }
         // Now we filter by Label.
@@ -54,7 +65,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         return newSortedRow
 
 
-    },[sortOption,])
+    },[sortOption])
     const generateFinalOutput = useCallback(async (showDoneLocal,labelListLocal, taskListSectionsLocal: TaskSection[], sortByLocal:string, searchTerm: string )  =>{
         let finalOutput: JSX.Element[] = []
         // setLoading(true)
@@ -96,11 +107,12 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         return ()=>{
             isMounted = false
         }
-    },[generateFinalOutput, showDone, labelList, taskListSections, search, sortOption])
+    },[generateFinalOutput, labelList, taskListSections, search, sortOption])
     
     const showDoneChangedHook =async (selected: boolean) =>{
         setShowDone(selected)
-        generateFinalOutput(selected, labelList, taskListSections, sortOption,search)
+        setUpdated(Date.now())
+        // generateFinalOutput(selected, labelList, taskListSections, sortOption,search)
     }
    
     const taskSearchChanged = (searchTerm) =>{
@@ -113,7 +125,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         // const newTaskList = sortTasksByRequest(taskListToRender, value)
         // setTaskListtoRender(newTaskList)
         setSortOption(value)
-        console.log("sort", value)
+        // console.log("sort", value)
         generateFinalOutput(showDone, labelList, taskListSections, value, search)
     }
     const labelSelectedChangedHook = async (labelSelectorFromComp: labelSelector[]) =>{

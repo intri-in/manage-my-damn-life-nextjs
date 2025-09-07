@@ -1,5 +1,6 @@
 v0.8.1
 - MMDL now works with Sqlite.
+- Clicking on task done checkbox now doesn't open Task Editor, it rathers marks the task as done. Solves #261.
 v0.8.0
 - Breaking Changes:
     - Completely changed the handling of recurring tasks.

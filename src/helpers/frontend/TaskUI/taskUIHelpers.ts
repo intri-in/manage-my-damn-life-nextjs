@@ -68,12 +68,12 @@ async function getAllChildrenforTask(uid):Promise<TaskArrayItem[]>{
                     // This is a valid event.
    
                     let dueDate = event[0]["parsedData"]["due"]
-                    if(checkifRepeatingTask(event[0]["parsedData"])){
-                        //Repeating task
-                        const recurrenceObj = new RecurrenceHelper(event[0]["parsedData"])
-                        dueDate = recurrenceObj.getNextDueDate()
+                    // if(checkifRepeatingTask(event[0]["parsedData"])){
+                    //     //Repeating task
+                    //     const recurrenceObj = new RecurrenceHelper(event[0]["parsedData"])
+                    //     dueDate = recurrenceObj.getNextDueDate()
             
-                    }
+                    // }
 
                     const children =  await getAllChildrenforTask(event[0]["uid"])
                     if(!checkifUIDAlreadyinChildren(event[0]["uid"], toReturn)){

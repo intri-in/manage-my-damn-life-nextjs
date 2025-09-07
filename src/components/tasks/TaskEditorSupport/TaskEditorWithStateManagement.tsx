@@ -443,7 +443,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             const todoData = { due: dueDateToSave, start: taskStartToSave, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, valarms: alarms }
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
             const todo = new VTodoGenerator(finalTodoData, { strict: false })
-            // console.log(todo, finalTodoData)
+            console.log("Generated TODO: -> ", summary, todo, finalTodoData)
             try{
 
                 const finalVTODO = todo.generate()

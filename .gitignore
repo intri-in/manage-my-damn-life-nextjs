@@ -59,3 +59,4 @@ temp/
 docker-compose.yml.new
 .env
 env.local
+sample_install_mmdm.sqlite

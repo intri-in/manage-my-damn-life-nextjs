@@ -116,9 +116,14 @@ export async function handleUI_TodoUpdate(calendar_id, url, etag, data, caldav_a
         
     preEmptiveUpdateEvent(calendar_id, url, etag, data, "VTODO").then(oldEvent =>{
 
-        onDismissFunction(null, taskName)
+        if(onDismissFunction){
+            onDismissFunction(null, taskName)
+        }
         updateEvent(calendar_id,url, etag, data, caldav_accounts_id,"VTODO", oldEvent).then((body)=>{
-            onDismissFunction(body, taskName)
+            if(onDismissFunction){
+
+                onDismissFunction(body, taskName)
+            }
             
         })
     })
@@ -128,6 +133,8 @@ export async function updateTodo_WithUI(calendar_id, url, etag, dataObj, onDismi
 
     var todo = new VTodoGenerator(dataObj, {strict: false})
     var data = todo.generate()
+    // console.log("data", data)
+    // return
     const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
     if(caldav_accounts_id){
         handleUI_TodoUpdate(calendar_id, url, etag, data, caldav_accounts_id, onDismissFunction, dataObj["summary"])
