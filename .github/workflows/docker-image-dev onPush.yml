@@ -1,10 +1,9 @@
-name: Docker Image CI Build and Push on Release - Development
+name: Docker Image CI Build and Push on Release - Main
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
   push:
-    branches:
-      - development
+    branches: ["main"]
 
 #  It's configured to run on the latest available version of Ubuntu.
 jobs:
@@ -35,16 +34,11 @@ jobs:
         
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: intriin/mmdl
-          tags: |
-            type=ref,event=tag
-            latest-dev
-      - name: Generate timestamp
-        id: timestamp
-        run: echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
+        with:
+      
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
@@ -56,4 +50,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile
-          tags: mmdl:dev-$(env.TIMESTAMP)
+          tags: |
+            intriin/mmdl:${{ env.TIMESTAMP }}
