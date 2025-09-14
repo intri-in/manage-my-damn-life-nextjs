@@ -1,3 +1,3 @@
-- Solved #261
-    - Clicking on task done checkbox now doesn't open Task Editor, it rathers marks the task as done.
-- Added docker image push to the github workflow again.
+v0.8.1 Launch
+- Changed workflow
+ - now latest-dev is added as a tag to the image pushed to docker hub

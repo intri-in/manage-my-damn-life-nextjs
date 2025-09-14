@@ -57,3 +57,4 @@ jobs:
           file: ./Dockerfile
           tags: |
             intriin/mmdl:${{ env.TIMESTAMP }}
+            intriin/mmdl:latest-dev
