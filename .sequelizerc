@@ -3,5 +3,5 @@ const path = require('path');
 module.exports = {
    env: process.env.NODE_ENV,
   'config': path.resolve('config', 'config.js'),
-  
+   debug: true
 }

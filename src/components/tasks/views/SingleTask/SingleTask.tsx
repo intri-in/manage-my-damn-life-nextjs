@@ -1,7 +1,7 @@
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper"
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels"
 import { ISODatetoHuman, timeDifferencefromNowinWords_FromUnixSeconds, timeDifferencefromNowinWords_Generic } from "@/helpers/frontend/general"
-import { isValidResultArray, varNotEmpty } from "@/helpers/general"
+import { getISO8601Date, isValidResultArray, varNotEmpty } from "@/helpers/general"
 import { letterSpacing } from "@mui/system"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import moment from "moment"
@@ -12,7 +12,7 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { MdRepeatOne, MdSpeakerNotes } from "react-icons/md"
 import { currentDateFormatAtom } from "stateStore/SettingsStore"
 import { DescriptionIcon } from "./DescriptionIcon"
-import { getEventColourbyID } from "@/helpers/frontend/dexie/events_dexie"
+import { getEtagFromURL_Dexie, getEventColourbyID, getEventFromDexieByID, getEventURLFromDexie } from "@/helpers/frontend/dexie/events_dexie"
 import { TaskPending } from "@/helpers/api/tasks"
 import { RightclickContextMenuWithState } from "./RightclickContextMenuWithState"
 import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorStore"
@@ -21,7 +21,13 @@ import { ParsedTask } from "types/tasks/tasks"
 import { SummaryText } from "./SummaryText"
 import { LabelListForTask } from "./LabelListForTask"
 import { updateViewAtom } from "stateStore/ViewStore"
-
+import { updateTodo_WithUI } from "@/helpers/frontend/tasks"
+import { onServerResponse_UI } from "@/helpers/frontend/TaskUI/taskUIHelpers"
+import { toast } from "react-toastify"
+import { useTranslation } from "next-i18next"
+import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
+import * as _ from 'lodash' 
+import { getRandomString } from "@/helpers/crypto"
 
 export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, level: number, id: string | number }) => {
 
@@ -33,13 +39,17 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     const setShowTaskEditor = useSetAtom(showTaskEditorAtom)
     const setTaskEditorInput = useSetAtom(taskEditorInputAtom)
     const updateView = useAtomValue(updateViewAtom)
+    const setUpdateViewTime = useSetAtom(updateViewAtom)
+
     /**
      * Local State
      */
+    const {t} = useTranslation()
     const [isRepeating, setIsRepeating] = useState(false)
     const [taskChecked, setTaskChecked] = useState(false)
     const [labelArray, setLabelArray] = useState<string[]>([])
     const [taskColour, setTaskColour] = useState("black")
+    const [isDone, setIsDone] = useState(false)
     var marginLevel = level * 30 + 20
 
     const checkifRepeating = () =>{
@@ -63,21 +73,96 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
             if(parsedTask.categories){
                 setLabelArray(parsedTask.categories)
             }
+            setIsDone(!TaskPending(parsedTask) )
+
         }
         return () => {
             isMounted = false
         }
     }, [parsedTask, id, level])
 
-    const checkBoxClicked = () => {
+    const checkBoxClicked = async () => {
         // setTaskChecked(prev => !prev)
+        /**
         setTaskEditorInput({id: id,
             taskDone: true
         })
         setShowTaskEditor(true)
-      
-    }
+        // console.log(completedDate)
+        setCompleted(completedDate!)
+        setCompletion("100")
+        setStatus("COMPLETED")
+        
+        */
+        let newTask: ParsedTask = _.cloneDeep(parsedTask)
+        console.log(newTask)
+        const eventInfoFromDexie = await getEventFromDexieByID(parseInt(id.toString()))
+        if(eventInfoFromDexie){
+            const calendar_id = eventInfoFromDexie[0].calendar_id
+            if(isDone){
+                //Task is done. We have to mark it as pending.
+                // console.log("task is clicked")
+                if(!newTask["rrule"]){
+        
+                    newTask["completed"]=""
+                    newTask["completion"]="0"
+                    newTask["status"]=""
+                }
+            }else{
+                //Task is pending. We have to mark it as done.
+                const completedDate = moment().toISOString()
+                if(!parsedTask.rrule){
+        
+                    newTask["completed"]=completedDate
+                    newTask["completion"]="100"
+                    newTask["status"]="COMPLETED"
+                }else{
+                    // Recurring Task.
+                    let dueDateToSave = parsedTask["due"]
+                    let taskStartToSave = parsedTask["start"]
+                    let rruleObject = RRuleHelper.stringToObject(parsedTask.rrule)
+            
+                    if(parsedTask["start"]){
+                        taskStartToSave =  RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["start"]).toISOString()
+                    }
+                    if(parsedTask["due"]){
+    
+                        dueDateToSave =  RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["due"]).toISOString()
+    
+                    }
+                    newTask["due"]=dueDateToSave
+                    newTask["start"]=taskStartToSave
+                    newTask['rrule']=rruleObject
+                    // console.log("rrule", newTask)
+                    
+                    
+                    
+                }
+            }
+            //Add advancedTriggerMode to alarms.
+            if(newTask["alarms"] && Array.isArray(newTask["alarms"])){
+                newTask.valarms = newTask["alarms"]
+                for (const i in newTask["valarms"]){
+                    newTask["valarms"][i].advancedTriggerMode = true
+                    newTask["valarms"][i].id = getRandomString(6)
+                }
+            }
+            
+            const eventURL = await getEventURLFromDexie(id)
+            const eventEtag = await getEtagFromURL_Dexie(eventURL)
+            let message = newTask["summary"] ? newTask["summary"]+": " : "" 
+            
+            updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTask,null ).then(reponse =>{
+                setUpdateViewTime(Date.now())
+              })
+    
+              console.log(message+"Task updated!")
+    
+        }
 
+
+    }
+    
     const taskClicked = () => {
         setTaskEditorInput({id: id})
         setShowTaskEditor(true)
@@ -161,7 +246,6 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
 
 
     priorityStar = (<div onClick={priorityStarClicked} style={{ padding: 0, verticalAlign: 'middle', textAlign: 'center' }} className="col-1">{priorityStar}</div>)
-    const isDone = !TaskPending(parsedTask) 
 
     
     return (

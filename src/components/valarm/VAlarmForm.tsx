@@ -9,7 +9,7 @@ import { AiOutlineDelete } from "react-icons/ai"
 import { BsAlarm } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-interface vAlarmVTODOGEN extends vAlarm {
+export interface vAlarmVTODOGEN extends vAlarm {
     id: string,
     advancedTriggerMode: boolean
 }
@@ -20,7 +20,7 @@ export const VAlarmForm = ({ input, onChange }: { input: vAlarm[], onChange: Fun
     const [alarms, setAlarms] = useState<vAlarmVTODOGEN[]>([])
     const [description, setDescription] = useState("Reminder!")
     const [alarmAction, setAlarmAction] = useState("DISPLAY")
-    const [triggerValue, setTriggerValue] = useState(0)
+    const [triggerValue, setTriggerValue] = useState(10)
     const [triggerDirection, setTriggerDirection] = useState("BEFORE")
     const [triggerRelatedto, setTriggerRelatedto] = useState("END")
     const [summary, setSummary] = useState("")

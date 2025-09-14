@@ -1,3 +1,3 @@
-- Added loading page instead of blank page before login check.
-- Small bug fixes
-- Fixed sorting bug
+v0.8.1 Launch
+- Changed workflow
+ - now latest-dev is added as a tag to the image pushed to docker hub

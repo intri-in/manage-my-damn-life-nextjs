@@ -1,9 +1,9 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "scripts": {
-    "dev": "npm run migrate && next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "npm run migrate && next start",
     "lint": "next lint",

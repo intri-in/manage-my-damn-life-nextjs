@@ -8,7 +8,7 @@ import { sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort";
 import { TaskGroup } from "./TaskGroup";
 import { useTranslation } from "next-i18next";
 
-export const RenderTaskList = ({taskList, level, sortBy}: {taskList: TaskArrayItem[], level: number, sortBy: string}) =>{
+export const RenderTaskList = ({taskList, level, sortBy, }: {taskList: TaskArrayItem[], level: number, sortBy: string, }) =>{
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
     const {t} = useTranslation()

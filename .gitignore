@@ -56,6 +56,7 @@ temp/
 # src/helpers/installation.ts
 # src/helpers/models.ts
 # .sequelizerc
-
+docker-compose.yml.new
 .env
 env.local
+sample_install_mmdm.sqlite
