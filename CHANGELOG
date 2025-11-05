@@ -1,3 +1,8 @@
+v0.8.2
+    -Bug Fixes:
+        - Webcal Event Click fix:
+            - Clicking on webcal event now no longer opens Event Editor with random data. 
+    
 v0.8.1
 - MMDL now works with Sqlite.
 - Clicking on task done checkbox now doesn't open Task Editor, it rathers marks the task as done. Solves #261.
