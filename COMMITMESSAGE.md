@@ -1,3 +1,4 @@
-v0.8.1 Launch
-- Changed workflow
- - now latest-dev is added as a tag to the image pushed to docker hub
+Webcal Event Click fix
+    - Clicking on webcal event now no longer opens Event Editor with random data. 
+
+Version bumped to v0.8.2-dev
