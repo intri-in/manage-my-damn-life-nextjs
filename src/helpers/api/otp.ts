@@ -13,7 +13,7 @@ function getOTPHash(otp){
 export async function generateOTP_passwordReset(userid)
 {
     const otp= Math.floor(100000 + Math.random() * 900000)
-    console.log("otp", otp)
+    // console.log("otp", otp)
     const created = Math.floor(Date.now()/1000)
     const type = "PASSWORD_RESET"
 
@@ -30,7 +30,8 @@ export async function generateOTP_passwordReset(userid)
     const reqid = getRandomString(16)
     await deleteAllOTPs_passwordReset(userid)
     const otpHash= getOTPHash(otp)
-    return otp_tableModel.create({ userid: userid, otp:otpHash.toString(), created:created.toString(), type:type, reqid:reqid });
+    const toReturn = otp_tableModel.create({ userid: userid, otp:otpHash.toString(), created:created.toString(), type:type, reqid:reqid });
+    return {...toReturn, otp}
     // var con = getConnectionVar()
     // return new Promise( (resolve, reject) => {
     //     con.query('INSERT INTO otp_table (userid, otp, created, type, reqid) VALUES (?,?,? ,?,?)', [userid, otp, created, type, reqid], function (error, results, fields) {
