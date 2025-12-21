@@ -55,9 +55,13 @@ interface EventObject {
     displayEventStart?: boolean,
     duration?: {seconds?: number}
     rrule?: { freq: string, interval: number, dtstart: string, until: string },
-    backgroundColor: string
-}
+    backgroundColor: string,
+    extendedProps?: ExtendedProps     
 
+}
+interface ExtendedProps{
+    isWebCalEvent?: boolean
+}
 export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: number }) => {
     /**
      * Jotai
@@ -379,7 +383,11 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                         allDay: allDay,
                         editable: false,
                         draggable: false,
-                        backgroundColor: data.color
+                        extendedProps:{
+                            isWebCalEvent:true
+                        },
+                        backgroundColor: data.color,
+                        
                     }
                     finalEvents.push(eventObject)
         
@@ -402,22 +410,29 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         setShowTasksChecked(e.target.checked)
     }
     const eventClick = async (e) => {
-        const eventInfoFromDexie = await getEventFromDexieByID(parseInt(e.event.id.toString()))
-        if(eventInfoFromDexie && eventInfoFromDexie.length>0){
-            if(eventInfoFromDexie[0].type==="VTODO"){
-                setTaskEditorInput({
-                    id: parseInt(e.event.id.toString())
-                })
-                setShowTaskEditor(true)
-
-            }else{
-                
-                setEditorInput({
-                    id: parseInt(e.event.id)
-                })
-                setShow(true)
+        let isWebCalEvent =  false
+        
+        isWebCalEvent = ("extendedProps" in e.event && e.event.extendedProps.isWebCalEvent)
+        if(isWebCalEvent) console.log("This is a webcal event. No edit dialog will be opened.")
+        if(!isWebCalEvent){
+            const eventInfoFromDexie = await getEventFromDexieByID(parseInt(e.event.id.toString()))
+            if(eventInfoFromDexie && eventInfoFromDexie.length>0){
+                if(eventInfoFromDexie[0].type==="VTODO"){
+                    setTaskEditorInput({
+                        id: parseInt(e.event.id.toString())
+                    })
+                    setShowTaskEditor(true)
+    
+                }else{
+                    
+                    setEditorInput({
+                        id: parseInt(e.event.id)
+                    })
+                    setShow(true)
+                }
             }
         }
+        
 
     }
     const handleDateClick = (e) => {

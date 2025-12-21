@@ -1,3 +1,2 @@
-v0.8.1 Launch
-- Changed workflow
- - now latest-dev is added as a tag to the image pushed to docker hub
+Version bumped to 0.8.2
+- Hasty release to main, because of React CVE.
