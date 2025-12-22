@@ -68,7 +68,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
         {
             return 
         }
-        // console.log("calendartoDelete", calendartoDelete)
+        console.log("calendartoDelete", calendartoDelete)
         if(!("name" in calendartoDelete)){
             return
         }
