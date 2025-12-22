@@ -1,2 +1,5 @@
-Version bumped to 0.8.2
-- Hasty release to main, because of React CVE.
+Fixed #283
+    - User now received unhashed OTP.
+    - version bump to 0.8.3-dev    
+    - Removed console log of unhashed otp
+

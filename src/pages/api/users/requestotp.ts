@@ -18,10 +18,11 @@ export default async function handler(req, res) {
 
                     if(response!=null && response.otp!=null)
                     {
+                        // console.log("Response", response)
                         const finalReponse = await sendResetPasswordMessage(userData[0].email, response.otp)
                         if(finalReponse && finalReponse!=false && ("messageId" in finalReponse) && finalReponse.messageId)
                         {
-                            return res.status(200).json({ success: true ,data: {message: {userhash: userData[0].userhash, reqid: response.reqid}}})
+                            return res.status(200).json({ success: true ,data: {message: {userhash: userData[0].userhash, reqid: response.result.reqid}}})
 
                         }else{
                             return res.status(500).json({ success: false ,data: {message: "ERROR_EMAIL_SENDING_FAILED"}})
