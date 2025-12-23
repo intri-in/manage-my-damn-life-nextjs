@@ -40,7 +40,8 @@ import { useTranslation } from "next-i18next";
 import { getAllEventsFromWebcalForRender } from "@/helpers/frontend/webcals";
 import { WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
 import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow";
-
+import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore";
+import momentPlugin from '@fullcalendar/moment';
 interface EventObject {
     id: string,
     title: string,
@@ -74,6 +75,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const updated = useAtomValue(updateCalendarViewAtom)
     const setUpdatedCalendarView = useSetAtom(updateCalendarViewAtom)
     const allUpdated = useAtomValue(updateViewAtom)
+    const timeFormat = useAtomValue(currentSimpleTimeFormatAtom)
+    const dateFormat = useAtomValue(currentSimpleDateFormatAtom)
+    
     /**
      * Local State
      */
@@ -566,7 +570,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
             </div>
             <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin]}
+                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin, momentPlugin]}
                 ref={calendarRef}
                 initialView={viewValue}
                 themeSystem="standard"
@@ -581,7 +585,11 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 eventResize={eventResize}
                 firstDay={firstDay}
                 locales={allLocales}
-            locale={i18n.language}
+                locale={i18n.language}
+                titleFormat={dateFormat} 
+                eventTimeFormat={timeFormat}
+                dayHeaderFormat={dateFormat}
+                slotLabelFormat={timeFormat}
             />
         </>
     )

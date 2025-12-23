@@ -2,6 +2,8 @@ v0.8.3
 - Bug Fixes:
     - Fixed #271
         - Bug was caused because Jotai was only getting a static value. It now fetches value from setting.
+        - Now uses format specified by the user for all headers and time/date format in Calendar View
+        - Upgraded fullcalendar packages 
     - Fixed #283
         - User now received unhashed OTP.
         - version bump to 0.8.3-dev    
