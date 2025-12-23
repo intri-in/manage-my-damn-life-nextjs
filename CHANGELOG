@@ -9,6 +9,8 @@ v0.8.3
         - version bump to 0.8.3-dev    
         - Removed console log of unhashed otp
     - Username is now extracted correctly. It was being taken from session data, regardless of whether NextAuth was enabled or not.
+    - Mulitple packages upgraded  
+
 
 v0.8.2
     -Bug Fixes:
