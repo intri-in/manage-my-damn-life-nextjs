@@ -72,7 +72,7 @@ const AppBarFunctionalComponent = ({ session}) => {
 
   const setUsernameFromSession = async () => {
     try {
-      if (session && session.data) {
+      if(await nextAuthEnabled()){ 
         const { data: sessionData, status } = session;
         if (status !== "loading") {
           setUsername(sessionData.user.name);

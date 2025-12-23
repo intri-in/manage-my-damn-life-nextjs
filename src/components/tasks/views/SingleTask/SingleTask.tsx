@@ -10,7 +10,7 @@ import { useEffect, useState } from "react"
 import { Col, Row, Stack } from "react-bootstrap"
 import { AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { MdRepeatOne, MdSpeakerNotes } from "react-icons/md"
-import { currentDateFormatAtom } from "stateStore/SettingsStore"
+import { currentDateFormatAtom, currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore"
 import { DescriptionIcon } from "./DescriptionIcon"
 import { getEtagFromURL_Dexie, getEventColourbyID, getEventFromDexieByID, getEventURLFromDexie } from "@/helpers/frontend/dexie/events_dexie"
 import { TaskPending } from "@/helpers/api/tasks"
@@ -26,7 +26,7 @@ import { onServerResponse_UI } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { toast } from "react-toastify"
 import { useTranslation } from "next-i18next"
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
-import * as _ from 'lodash' 
+import * as _ from 'lodash'
 import { getRandomString } from "@/helpers/crypto"
 
 export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, level: number, id: string | number }) => {
@@ -35,7 +35,8 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
      * Jotai
     */
     const dateFormat = useAtomValue(currentDateFormatAtom)
-
+    const setDateFormat = useSetAtom(currentSimpleDateFormatAtom)
+    const setTimeFormat = useSetAtom(currentSimpleTimeFormatAtom)
     const setShowTaskEditor = useSetAtom(showTaskEditorAtom)
     const setTaskEditorInput = useSetAtom(taskEditorInputAtom)
     const updateView = useAtomValue(updateViewAtom)
@@ -44,7 +45,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     /**
      * Local State
      */
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [isRepeating, setIsRepeating] = useState(false)
     const [taskChecked, setTaskChecked] = useState(false)
     const [labelArray, setLabelArray] = useState<string[]>([])
@@ -52,7 +53,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     const [isDone, setIsDone] = useState(false)
     var marginLevel = level * 30 + 20
 
-    const checkifRepeating = () =>{
+    const checkifRepeating = () => {
         if ("rrule" in parsedTask && parsedTask.rrule) {
             setIsRepeating(true)
         }
@@ -60,20 +61,20 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     }
     useEffect(() => {
         let isMounted = true
-        const getTaskColour = async () =>{
+        const getTaskColour = async () => {
             const colour = await getEventColourbyID(id)
             setTaskColour(colour)
         }
-    
+
         if (isMounted) {
 
 
             checkifRepeating()
             getTaskColour()
-            if(parsedTask.categories){
+            if (parsedTask.categories) {
                 setLabelArray(parsedTask.categories)
             }
-            setIsDone(!TaskPending(parsedTask) )
+            setIsDone(!TaskPending(parsedTask))
 
         }
         return () => {
@@ -97,84 +98,85 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
         let newTask: ParsedTask = _.cloneDeep(parsedTask)
         console.log(newTask)
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(id.toString()))
-        if(eventInfoFromDexie){
+        if (eventInfoFromDexie) {
             const calendar_id = eventInfoFromDexie[0].calendar_id
-            if(isDone){
+            if (isDone) {
                 //Task is done. We have to mark it as pending.
                 // console.log("task is clicked")
-                if(!newTask["rrule"]){
-        
-                    newTask["completed"]=""
-                    newTask["completion"]="0"
-                    newTask["status"]=""
+                if (!newTask["rrule"]) {
+
+                    newTask["completed"] = ""
+                    newTask["completion"] = "0"
+                    newTask["status"] = ""
                 }
-            }else{
+            } else {
                 //Task is pending. We have to mark it as done.
                 const completedDate = moment().toISOString()
-                if(!parsedTask.rrule){
-        
-                    newTask["completed"]=completedDate
-                    newTask["completion"]="100"
-                    newTask["status"]="COMPLETED"
-                }else{
+                if (!parsedTask.rrule) {
+
+                    newTask["completed"] = completedDate
+                    newTask["completion"] = "100"
+                    newTask["status"] = "COMPLETED"
+                } else {
                     // Recurring Task.
                     let dueDateToSave = parsedTask["due"]
                     let taskStartToSave = parsedTask["start"]
                     let rruleObject = RRuleHelper.stringToObject(parsedTask.rrule)
-            
-                    if(parsedTask["start"]){
-                        taskStartToSave =  RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["start"]).toISOString()
+
+                    if (parsedTask["start"]) {
+                        taskStartToSave = RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["start"]).toISOString()
                     }
-                    if(parsedTask["due"]){
-    
-                        dueDateToSave =  RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["due"]).toISOString()
-    
+                    if (parsedTask["due"]) {
+
+                        dueDateToSave = RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["due"]).toISOString()
+
                     }
-                    newTask["due"]=dueDateToSave
-                    newTask["start"]=taskStartToSave
-                    newTask['rrule']=rruleObject
+                    newTask["due"] = dueDateToSave
+                    newTask["start"] = taskStartToSave
+                    newTask['rrule'] = rruleObject
                     // console.log("rrule", newTask)
-                    
-                    
-                    
+
+
+
                 }
             }
             //Add advancedTriggerMode to alarms.
-            if(newTask["alarms"] && Array.isArray(newTask["alarms"])){
+            if (newTask["alarms"] && Array.isArray(newTask["alarms"])) {
                 newTask.valarms = newTask["alarms"]
-                for (const i in newTask["valarms"]){
+                for (const i in newTask["valarms"]) {
                     newTask["valarms"][i].advancedTriggerMode = true
                     newTask["valarms"][i].id = getRandomString(6)
                 }
             }
-            
+
             const eventURL = await getEventURLFromDexie(id)
             const eventEtag = await getEtagFromURL_Dexie(eventURL)
-            let message = newTask["summary"] ? newTask["summary"]+": " : "" 
-            
-            updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTask,null ).then(reponse =>{
+            let message = newTask["summary"] ? newTask["summary"] + ": " : ""
+
+            updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTask, null).then(reponse => {
                 setUpdateViewTime(Date.now())
-              })
-    
-              console.log(message+"Task updated!")
-    
+            })
+
+            console.log(message + "Task updated!")
+
         }
 
 
     }
-    
+
     const taskClicked = () => {
-        setTaskEditorInput({id: id})
+        setTaskEditorInput({ id: id })
         setShowTaskEditor(true)
     }
 
-    const priorityStarClicked = () =>{
-        setTaskEditorInput({id: id,
+    const priorityStarClicked = () => {
+        setTaskEditorInput({
+            id: id,
             priority: 1
         })
         setShowTaskEditor(true)
     }
-    
+
 
     let borderLeft = "1px solid  gray"
     let border = "1px solid  gray"
@@ -188,6 +190,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     let dueDateText = ""
     let dueDate = ISODatetoHuman(parsedTask.due!)
     dueDate = moment(parsedTask.due).format(dateFormat)
+    console.log("dateFormat", dateFormat)
     // let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
     let timeDifferenceinWords = timeDifferencefromNowinWords_Generic(parsedTask.due)
     // if (isRepeating) {
@@ -233,12 +236,12 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
             )
         }
     }
-    let repeatingTaskIcon : JSX.Element | null = null
+    let repeatingTaskIcon: JSX.Element | null = null
 
     if (isRepeating == true) {
         repeatingTaskIcon = <MdRepeatOne size={16} />
     }
-    let hasDescriptionIcon : JSX.Element | null = null
+    let hasDescriptionIcon: JSX.Element | null = null
     if (parsedTask.description) {
         hasDescriptionIcon = (<DescriptionIcon text={parsedTask.description} />)
 
@@ -247,48 +250,48 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
 
     priorityStar = (<div onClick={priorityStarClicked} style={{ padding: 0, verticalAlign: 'middle', textAlign: 'center' }} className="col-1">{priorityStar}</div>)
 
-    
+
     return (
         <div key={id.toString()}>
-        <ContextMenuTrigger key={id.toString()+"_"+parsedTask.uid+"_contextMenuTrigger"} id={"RIGHTCLICK_MENU_"+id} >
-            <div style={{ marginLeft: marginLevel, }}>
-                <div style={{border: '1px solid  gray', borderLeft: borderLeft, borderRadius: 20, padding:10}}>
-                <Row style={{   display: 'flex', }} >
-                    <Col xs={1} sm={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
-                        <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
-                    </Col>
-                    <Col xs={9} sm={6} md={5} lg={5} onClick={taskClicked} >
-                        <Row>
-                            <Col >
-                                <SummaryText text={parsedTask["summary"]} />
+            <ContextMenuTrigger key={id.toString() + "_" + parsedTask.uid + "_contextMenuTrigger"} id={"RIGHTCLICK_MENU_" + id} >
+                <div style={{ marginLeft: marginLevel, }}>
+                    <div style={{ border: '1px solid  gray', borderLeft: borderLeft, borderRadius: 20, padding: 10 }}>
+                        <Row style={{ display: 'flex', }} >
+                            <Col xs={1} sm={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
+                                <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
+                            </Col>
+                            <Col xs={9} sm={6} md={5} lg={5} onClick={taskClicked} >
+                                <Row>
+                                    <Col >
+                                        <SummaryText text={parsedTask["summary"]} />
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col onClick={taskClicked} className="d-none d-sm-block" sm={3} md={5} lg={3}>
+                                <SummaryText color={dueDateColor} text={dueDateText} />
+                            </Col>
+                            <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
+                                <div style={{ width: "80%" }} className="textDefault">
+                                    <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
+                                </div>
+
+                            </Col>
+                            <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
+                                {repeatingTaskIcon} {hasDescriptionIcon}
+                            </Col>
+                            <Col style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }} xs={1} sm={1} md={1} lg={1} >
+                                {priorityStar}
                             </Col>
                         </Row>
-                    </Col>
-                    <Col onClick={taskClicked} className="d-none d-sm-block" sm={3} md={5} lg={3}>
-                           <SummaryText color={dueDateColor} text={dueDateText}/> 
-                    </Col>
-                    <Col  onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
-                        <div style={{  width: "80%"}} className="textDefault">
-                            <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
-                        </div>
-                        
-                    </Col>
-                    <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
-                    {repeatingTaskIcon} {hasDescriptionIcon}
-                    </Col>
-                    <Col  style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center"}} xs={1} sm={1} md={1} lg={1} >
-                     {priorityStar}
-                    </Col>
-                </Row>
-                <Row onClick={taskClicked}>
-                    <Col>
-                        {parsedTask.completion? <ProgressBar style={{ height: 5 }} now={parseInt(parsedTask.completion?.toString())} variant="secondary" />: null}
-                    </Col>
-                </Row>
+                        <Row onClick={taskClicked}>
+                            <Col>
+                                {parsedTask.completion ? <ProgressBar style={{ height: 5 }} now={parseInt(parsedTask.completion?.toString())} variant="secondary" /> : null}
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
-            </div>
-        </ContextMenuTrigger>
-        <RightclickContextMenuWithState parsedTask={parsedTask} id={id} />
+            </ContextMenuTrigger>
+            <RightclickContextMenuWithState parsedTask={parsedTask} id={id} />
         </div>
     )
 
