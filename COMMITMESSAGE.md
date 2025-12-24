@@ -1,2 +1,1 @@
-Packages upgraded  
-    - npm audit fix run
+Fixed #301· (hopefully)

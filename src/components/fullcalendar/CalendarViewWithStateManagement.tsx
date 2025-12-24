@@ -587,9 +587,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 locales={allLocales}
                 locale={i18n.language}
                 titleFormat={dateFormat} 
-                eventTimeFormat={timeFormat}
-                dayHeaderFormat={dateFormat}
-                slotLabelFormat={timeFormat}
+                eventTimeFormat={timeFormat ?? "HH:mm"}
+                dayHeaderFormat={dateFormat?? "DD/MM/YYYY"}
+                slotLabelFormat={timeFormat?? "HH:mm"}
             />
         </>
     )
