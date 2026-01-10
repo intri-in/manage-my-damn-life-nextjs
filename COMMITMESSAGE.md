@@ -1,1 +1,1 @@
-Fixed #301· (hopefully)
+- When adding subtasks, Claendar is now selected automatically (it used to be empty)
