@@ -29,6 +29,7 @@
     "@fullcalendar/timegrid": "6.1.20",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
+    "@types/lodash": "^4.17.23",
     "accept-language": "3.0.20",
     "axios": "^1.13.2",
     "bcryptjs": "2.4.3",

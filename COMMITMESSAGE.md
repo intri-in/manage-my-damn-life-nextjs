@@ -1,1 +1,1 @@
-- When adding subtasks, Claendar is now selected automatically (it used to be empty)
+- Feature: While moving/copying, the user now has the option to move/copy all the subtasks as well.

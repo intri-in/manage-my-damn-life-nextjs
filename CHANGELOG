@@ -1,4 +1,6 @@
 v0.8.3
+- New Features:
+    - While moving/copying, the user now has the option to move/copy all the subtasks as well.
 - Bug Fixes:
     - Fixed #271
         - Bug was caused because Jotai was only getting a static value. It now fetches value from setting.
