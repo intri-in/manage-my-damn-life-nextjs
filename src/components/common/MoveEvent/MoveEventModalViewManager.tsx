@@ -50,8 +50,6 @@ export const MoveEventModalViewManager = () =>{
     }
 
     return(
-        <>
         <MoveEventModal onServerResponse={onServerResponse}  show={show} handleClose={handleClose} />
-        </>
     )
 }

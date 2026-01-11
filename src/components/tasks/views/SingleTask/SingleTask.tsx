@@ -190,7 +190,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     let dueDateText = ""
     let dueDate = ISODatetoHuman(parsedTask.due!)
     dueDate = moment(parsedTask.due).format(dateFormat)
-    console.log("dateFormat", dateFormat)
+    // console.log("dateFormat", dateFormat)
     // let timeDifferenceinWords = timeDifferencefromNowinWords_FromUnixSeconds(moment(parsedTask.due).unix())
     let timeDifferenceinWords = timeDifferencefromNowinWords_Generic(parsedTask.due)
     // if (isRepeating) {
