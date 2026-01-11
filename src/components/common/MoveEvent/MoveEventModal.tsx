@@ -123,10 +123,10 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
                 const data = await getCalendarEventFromUID_Dexie(children[i].uid)
                 if(children[i].uid && data && data.length>0){
                     const tempParsed = returnGetParsedVTODO(data[0].data)
-                    if(tempParsed && data[0].calendar_events_id){
+                    if(tempParsed && ("summary" in tempParsed) && tempParsed.summary && typeof(tempParsed["summary"]) =="string" && data[0].calendar_events_id){
                         const grandChildren = await processChildren(children[i].uid)
                         
-                        toReturn.push({uid: children[i].uid, calendar_events_id:data[0].calendar_events_id.toString(), summary: tempParsed["summary"]!, data: tempParsed, children: grandChildren})
+                        toReturn.push({uid: children[i]!.uid!, calendar_events_id:data[0].calendar_events_id.toString(), summary: tempParsed["summary"], data: tempParsed, children: grandChildren})
                     }
                     
                 }
@@ -257,11 +257,11 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
                 // Make the request to server.
            
     }
-    const recursiveDeleteEvents = async(toDeleteArray: EventsToMove[], caldav_accounts_id) =>{
+    const recursiveDeleteEvents = async(toDeleteArray: EventsToMove[] | undefined, caldav_accounts_id) =>{
         let toReturn;
         for(const i in toDeleteArray){
 
-            if(toDeleteArray[i].children && Array.isArray(toDeleteArray[i].children) && toDeleteArray[i].children.length>0){
+            if(toDeleteArray[i] && ("children" in toDeleteArray[i]) && toDeleteArray[i].children && Array.isArray(toDeleteArray[i].children) && toDeleteArray[i].children!.length>0){
                 toReturn = await recursiveDeleteEvents(toDeleteArray[i].children, caldav_accounts_id)
             }
             const temp_Event = await getEventFromDexieByID(parseInt(toDeleteArray[i].calendar_events_id))
@@ -275,10 +275,10 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
 
     }
 
-    const recursiveRequestforTodo = async (toMoveArray: EventsToMove[], deleteTask, parentID?) =>{
+    const recursiveRequestforTodo = async (toMoveArray: EventsToMove[] | undefined, deleteTask, parentID?) =>{
 
         let toReturn;
-        if(toMoveArray.length>0){
+        if(toMoveArray && toMoveArray.length>0){
             for(const i in toMoveArray){
                 // const data = await getCalendarEventFromUID_Dexie(toMoveArray[i].uid)
                 if(toMoveArray[i] && toMoveArray[i].data){
@@ -290,13 +290,14 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
                         // console.log("parsed", newParentID, parsed)
                         const todo_child = new VTodoGenerator({...parsed}, { strict: false })
                         const finalVTODO_child = todo_child.generate()
-                        if(toMoveArray[i].children && Array.isArray(toMoveArray[i].children) && toMoveArray[i].children.length>0)
+                        const children = toMoveArray[i].children
+                        if(children && Array.isArray(children) && children!.length>0)
                         {
                             //Add new parent ID
-                            for(const k in toMoveArray[i].children){
-                                toMoveArray[i].children[k].data["relatedto"] = newParentID
+                            for(const k in children){
+                                children[k].data["relatedto"] = newParentID
                             }
-                            toReturn = await recursiveRequestforTodo(toMoveArray[i].children, deleteTask, newParentID)
+                            toReturn = await recursiveRequestforTodo(children, deleteTask, newParentID)
                         }
                         const isChild = parentID ? true: false
                         toReturn = await goMakeRequests(finalVTODO_child, deleteTask, isChild)
@@ -370,15 +371,16 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
         setMoveRelatedChecked(e.target.checked)
     }
 
-    const generateRelatedTaskOutput =  (inputArray: EventsToMove[]) =>{
+    const generateRelatedTaskOutput =  (inputArray: EventsToMove[] | undefined) =>{
         let output: React.JSX.Element[] = []
         if(inputArray && Array.isArray(inputArray) && inputArray.length>0 && inputArray[0].children && Array.isArray(inputArray[0].children)){
             for(const i in inputArray){
                 if( inputArray[i].summary){
                     output.push(<li key={inputArray[i].summary}>{inputArray[i].summary.toString()}</li>)
-                    if(inputArray[i].children){
+                    const children  = inputArray[i].children
+                    if(children){
 
-                        const grandKids = generateRelatedTaskOutput(inputArray[i].children)
+                        const grandKids = generateRelatedTaskOutput(children)
                         output.push(...grandKids)
                     }
                 }
