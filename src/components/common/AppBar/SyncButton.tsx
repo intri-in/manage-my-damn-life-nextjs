@@ -5,6 +5,7 @@ import { useTranslation } from "next-i18next";
 import { IoSyncCircleOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
+import { IS_SYNCING } from "@/helpers/frontend/localstorage";
 
 export const SyncButton = ({isSyncing}) =>{
 
@@ -26,7 +27,15 @@ export const SyncButton = ({isSyncing}) =>{
         setUpdatedCalendarView(Date.now())
 
     }
-    if(isSyncing) return <Spinner animation="border" size="sm" role="status" aria-hidden="true" />
+    const stopSync = (e) =>{
+        toast.info(t("SYNC_STOPPED"))
+        localStorage.setItem(IS_SYNCING, "false")
+        setUpdated(Date.now())
+        setUpdatedCalendarView(Date.now())
+
+
+    }
+    if(isSyncing) return <Spinner onClick={stopSync} animation="border" size="sm" role="status" aria-hidden="true" />
                 
     
     return <IoSyncCircleOutline onContextMenu={handleRightClick} size={24} onClick={syncButtonClicked} />
