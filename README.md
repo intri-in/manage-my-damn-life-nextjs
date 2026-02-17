@@ -40,3 +40,11 @@ As of now, it only supports basic authentication, and not OAUTH for CalDAV authe
 ## Getting Started
 
 To get started, you can checkout full documentation [here](https://manage-my-damn-life-nextjs.readthedocs.io/en/latest/install/).
+
+## Translation
+
+This project uses [Weblate](https://hosted.weblate.org/projects/mmdl-manage-my-damn-life/) for managing translations.
+
+<a href="https://hosted.weblate.org/engage/mmdl-manage-my-damn-life/">
+<img src="https://hosted.weblate.org/widget/mmdl-manage-my-damn-life/multi-auto.svg" alt="Translation status" />
+</a>
