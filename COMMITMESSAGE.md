@@ -1,1 +1,1 @@
-- Feature: While moving/copying, the user now has the option to move/copy all the subtasks as well.
+- Feature: Clicking on sync now allows the user to request a fresh sync. May be useful in some cases.

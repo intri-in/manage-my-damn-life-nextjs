@@ -288,6 +288,7 @@
     "SUMMARY": "Summary",
     "SUNDAY": "Sunday",
     "SYNC": "Sync",
+    "SYNC_STOPPED":"Stopping sync...",
     "SYNTAX": "Syntax",
     "TARGET_CALENDAR": "Target Calendar",
     "TASK": "Task",
