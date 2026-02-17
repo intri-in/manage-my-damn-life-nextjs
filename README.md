@@ -43,6 +43,8 @@ To get started, you can checkout full documentation [here](https://manage-my-dam
 
 ## Translation
 
+This project uses [Weblate](https://hosted.weblate.org/projects/mmdl-manage-my-damn-life/) for managing translations.
+
 <a href="https://hosted.weblate.org/engage/mmdl-manage-my-damn-life/">
 <img src="https://hosted.weblate.org/widget/mmdl-manage-my-damn-life/multi-auto.svg" alt="Translation status" />
 </a>
