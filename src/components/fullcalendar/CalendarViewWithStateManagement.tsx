@@ -204,6 +204,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     if (event.type != "VTODO" && event.type != "VTIMEZONE") {
                         const data = getParsedEvent(allEvents[i].events[j].data)
                         // console.log("Parsed Event", data.summary,  event.calendar_id, data)
+                        // console.log( data.summary )
                         if (varNotEmpty(data) == false) {
                             continue
                         }
@@ -215,7 +216,6 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         let allDay = isAllDayEvent(data.start, data.end)
 
-                        //console.log(data.end, data.summary )
                         let eventObject: EventObject = {
                             id: event.calendar_events_id!.toString(),
                             title: data.summary,
@@ -363,17 +363,28 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 try{
 
                     let data = JSON.parse(webCalEvents[k].data)
-                    // console.log("data", data)
+                    console.log("data webcal", data)
                     if (!data) {
                         continue
                     }
-                    if(!("description" in data)){
+                    if(!("summary" in data)){
                         continue
                     }
-                    if (varNotEmpty(data.description) == false || (varNotEmpty(data.description) && data.description.toString().trim() == "")) {
+
+                    let summary= ""
+                    if(typeof(data.summary)==="string" && data.summary){
+                        summary = data.summary
+                    }else{
+                        // It's an object.
+                        if("val" in data.summary && data.summary.val){
+                            summary = data.summary.val
+                        }
+                    }
+
+                    if(!summary){
                         continue
                     }
-        
+                    
         
         
                     let allDay = true
@@ -381,7 +392,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     //console.log(data.end, data.description )
                     let eventObject: EventObject = {
                         id: data.uid,
-                        title: data.description,
+                        title: summary,
                         start: moment(data.start).toISOString(),
                         end: moment(data.end).toISOString(),
                         allDay: allDay,
