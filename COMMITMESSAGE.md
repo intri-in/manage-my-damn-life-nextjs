@@ -1,1 +1,1 @@
-- Feature: Clicking on sync now allows the user to request a fresh sync. May be useful in some cases.
+Bug fix: Webcal shows the summary of the event, instead of description in "Calendar View".
