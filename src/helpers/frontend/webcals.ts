@@ -2,8 +2,9 @@ import { toast } from "react-toastify";
 import { getAPIURL } from "../general";
 import { getAuthenticationHeadersforUser } from "./user";
 import { getErrorResponse } from "../errros";
-import { addWebCalAccounttoDexie, addWebCalEventstoDexie, getAllWebcalsforCurrentUserfromDexie, getEventsfromWebcal_Dexie, isWebCalAccountAlreadyinDexie } from "./dexie/webcal_dexie";
+import { addWebCalAccounttoDexie, addWebCalEventstoDexie, getAllWebcalsforCurrentUserfromDexie, getEventsfromWebcal_Dexie, isWebCalAccountAlreadyinDexie, updateEventsinWebcal_Dexie, updateWebCalLastFetched_Dexie } from "./dexie/webcal_dexie";
 import { WebCalEvents } from "./dexie/dexieDB";
+import moment from "moment";
 
 export async function getWebCalsFromServer()
 {
@@ -45,6 +46,55 @@ export async function getWebCalsFromServer()
        
     });
   
+
+}
+export async function syncWebcals(){
+        const response = await getAllWebcalsforCurrentUserfromDexie()
+        if(response){
+            for (const k in response){
+                const diff = moment(moment.now()).diff(response[k].lastFetched, "hours")
+                console.log("diff", diff)
+                if(diff>parseInt(response[k].updateInterval.toString())){
+                    console.log(`Syncing Webcal ${response[k].name}`)
+                    await syncWebcalEvents_byId(response[k].id!.toString())
+
+                }
+            }
+        }
+
+}
+export async function syncWebcalEvents_byId(id:string){
+        const url_api = getAPIURL() + "webcal/sync?id=" + id
+        const authorisationData = await getAuthenticationHeadersforUser()
+        const requestOptions ={
+            method: 'GET',
+            mode: 'cors',
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        }
+        const  response = await fetch(url_api, requestOptions as RequestInit)
+        .then(response => response.json())
+        .then(async (body) => {
+            return body
+        }).catch(e =>{
+            console.error(`syncWebcalEvents_byId, ${id}`, e)
+        })
+        // console.log("response", response)
+        if (response && response.success == true) {
+            //We also need to update the WebCal in dexie.
+            if("data" in response && response.data){
+                const data = response.data
+                if("lastFetched" in data && "parsedCal" in data){
+                    await updateWebCalLastFetched_Dexie(id, data.lastFetched)
+                    // console.log("data.parsedCal", data.parsedCal)
+                    await updateEventsinWebcal_Dexie(id, data.parsedCal)
+                    return true
+                }
+
+            }
+        }
+
+        return false
+
 
 }
 export async function setupWebCalDataFromServer(){

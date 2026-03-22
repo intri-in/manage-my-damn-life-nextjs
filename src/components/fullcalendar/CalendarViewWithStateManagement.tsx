@@ -63,6 +63,9 @@ interface EventObject {
 interface ExtendedProps{
     isWebCalEvent?: boolean
 }
+interface ExtendedWebcalEvents extends WebCalEvents{
+    colour?: string
+}
 export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: number }) => {
     /**
      * Jotai
@@ -85,7 +88,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const [showTasksChecked, setShowTasksChecked] = useState(true)
     const [allEvents, setEventsArray] = useState<EventsLikeAPIType[]>([])
     const [events, setEvents] = useState<EventObject[]>([])
-    const [webCalEvents, setWebCalEvents] = useState<WebCalEvents[]>([])
+    const [webCalEvents, setWebCalEvents] = useState<ExtendedWebcalEvents[]>([])
     const [firstDay, setFirstDay] = useState(0)
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
@@ -128,6 +131,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             })
 
             getAllEventsFromWebcalForRender().then(webcal_events =>{
+                // console.log("webcal_events", webcal_events)
                 setWebCalEvents(webcal_events)
 
             })
@@ -363,7 +367,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 try{
 
                     let data = JSON.parse(webCalEvents[k].data)
-                    console.log("data webcal", data)
+                    // console.log("data webcal", data)
                     if (!data) {
                         continue
                     }
@@ -388,20 +392,28 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         
         
                     let allDay = true
-        
-                    //console.log(data.end, data.description )
+                    const start = moment(data.start)
+                    const end = moment(data.end)
+                    const diff = end.diff(start, "days")
+                    if(diff<1){
+                        allDay=false
+                       
+                    }
+                    // console.log("summary, start, end, diff", summary, diff, data)
+                    // console.log(summary, data.colour)
+                    const colour = webCalEvents[k].colour ?? "purple"
                     let eventObject: EventObject = {
                         id: data.uid,
                         title: summary,
-                        start: moment(data.start).toISOString(),
-                        end: moment(data.end).toISOString(),
+                        start: start.toISOString(),
+                        end: end.toISOString(),
                         allDay: allDay,
                         editable: false,
                         draggable: false,
                         extendedProps:{
                             isWebCalEvent:true
                         },
-                        backgroundColor: data.color,
+                        backgroundColor: colour,
                         
                     }
                     finalEvents.push(eventObject)
