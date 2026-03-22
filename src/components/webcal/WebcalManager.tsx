@@ -4,7 +4,7 @@ import { Loading } from "../common/Loading";
 import { Button, Card, Col, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import AddWebcalForm from "./AddWebcalForm";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
-import { getWebCalsFromServer, setupWebCalDataFromServer } from "@/helpers/frontend/webcals";
+import { getWebCalsFromServer, setupWebCalDataFromServer, syncWebcalEvents_byId } from "@/helpers/frontend/webcals";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { getAPIURL } from "@/helpers/general";
@@ -88,50 +88,57 @@ export default function WebcalManager(){
 
 }
 const syncWebCal = async (id) =>{
-    const url_api = getAPIURL() + "webcal/sync?id=" + id
 
-    const authorisationData = await getAuthenticationHeadersforUser()
-    const requestOptions ={
-        method: 'GET',
-        mode: 'cors',
-        headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    const response = await syncWebcalEvents_byId(id)
+    if(response){
+        toast.success(`${t("SYNC")} ${t("DONE").toLowerCase()}`)
+    }else{
+        toast.error(t("ERROR_GENERIC"))
     }
-    const response = await fetch(url_api, requestOptions as RequestInit)
-    .then(response => response.json())
-    .then(async (body) => {
-        // console.log("body", body)
-        if (body != null && body.success != null) {
-            const message = getMessageFromAPIResponse(body)
-            // console.log(body.success, message)
+    // const url_api = getAPIURL() + "webcal/sync?id=" + id
 
-            if (body.success == true) {
-                toast.success(`${t("SYNC")} ${t("DONE").toLowerCase()}`)
-                //We also need to update the WebCal in dexie.
-                if("data" in body && body.data){
-                    const data = body.data
-                    if("lastFetched" in data && "parsedCal" in data){
-                        await updateWebCalLastFetched_Dexie(id, data.lastFetched)
-                        console.log("data.parsedCal", data.parsedCal)
-                        await updateEventsinWebcal_Dexie(id, data.parsedCal)
-                        getAllWebCalsFromDexie()
-                    }
+    // const authorisationData = await getAuthenticationHeadersforUser()
+    // const requestOptions ={
+    //     method: 'GET',
+    //     mode: 'cors',
+    //     headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+    // }
+    // const response = await fetch(url_api, requestOptions as RequestInit)
+    // .then(response => response.json())
+    // .then(async (body) => {
+    //     // console.log("body", body)
+    //     if (body != null && body.success != null) {
+    //         const message = getMessageFromAPIResponse(body)
+    //         // console.log(body.success, message)
 
-                }
+    //         if (body.success == true) {
+    //             toast.success(`${t("SYNC")} ${t("DONE").toLowerCase()}`)
+    //             //We also need to update the WebCal in dexie.
+    //             if("data" in body && body.data){
+    //                 const data = body.data
+    //                 if("lastFetched" in data && "parsedCal" in data){
+    //                     await updateWebCalLastFetched_Dexie(id, data.lastFetched)
+    //                     // console.log("data.parsedCal", data.parsedCal)
+    //                     await updateEventsinWebcal_Dexie(id, data.parsedCal)
+    //                     getAllWebCalsFromDexie()
+    //                 }
 
-
-            }else {
-
-                toast.error(t("ERROR_GENERIC"))
-
-            }
-        } else {
-            toast.error(t("ERROR_GENERIC"))
-        }
+    //             }
 
 
-    }).catch(e => {
-        console.log(e)
-    })
+    //         }else {
+
+    //             toast.error(t("ERROR_GENERIC"))
+
+    //         }
+    //     } else {
+    //         toast.error(t("ERROR_GENERIC"))
+    //     }
+
+
+    // }).catch(e => {
+    //     console.log(e)
+    // })
 
 }
 
@@ -190,7 +197,7 @@ const getAllWebCalsFromDexie = async() =>{
     const finalOutput: JSX.Element[] = []
     const response = await getAllWebcalsforCurrentUserfromDexie()
     const borderColor = isDarkModeEnabled() ? "white" : "#F1F1F1"
-    console.log("getAllWebCalsFromDexie", response)
+    // console.log("getAllWebCalsFromDexie", response)
     if(response && Array.isArray(response)){
         for(const i in response){
             if(!response[i]["id"]){

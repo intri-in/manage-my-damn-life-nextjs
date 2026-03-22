@@ -10,6 +10,7 @@ import { saveAPIEventReponseToDexie } from "./dexie/events_dexie"
 import { Preference_CalendarsToShow } from "./classes/UserPreferences/Preference_CalendarsToShow"
 import { getSyncTimeout } from "./settings"
 import { IS_SYNCING, LASTSYNC, getValueFromLocalStorage } from "./localstorage"
+import { syncWebcals } from "./webcals"
 
 export function isSyncing(){
     const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
@@ -140,6 +141,7 @@ export async function fetchLatestEventsV2(forceSync)
 
         }
     }
+    await syncWebcals()
     
     if(!counter){
         console.log("All calendars up-to-date.")
