@@ -551,6 +551,14 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     if (varNotEmpty(caldav_accounts) && Array.isArray(caldav_accounts) && caldav_accounts.length > 0) {
         calendarsSelect = <ListGroupCalDAVAccounts onChange={userPreferencesChanged} caldav_accounts={caldav_accounts} />
     }
+    const addDayNameInHeader = () =>{
+        if(dateFormat){
+            if(dateFormat.includes("dd") || dateFormat.includes("ddd") || dateFormat.includes("dddd") ){
+               return dateFormat 
+            }
+            return `${dateFormat} ddd`
+        }
+    }
     return (
 
         <>
@@ -599,7 +607,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 locale={i18n.language}
                 titleFormat={dateFormat} 
                 eventTimeFormat={timeFormat ?? "HH:mm"}
-                dayHeaderFormat={dateFormat?? "DD/MM/YYYY"}
+                dayHeaderFormat={dateFormat? `${addDayNameInHeader()}` :  "DD/MM/YYYY ddd"}
                 slotLabelFormat={timeFormat?? "HH:mm"}
             />
         </>
