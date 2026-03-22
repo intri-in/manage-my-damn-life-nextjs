@@ -42,6 +42,22 @@ export function saveLabelArrayToCookie(labels)
         
     }
 }
+
+export function getUserSetDateFormat(){
+    if(typeof(window)!="undefined"){
+
+        return localStorage.getItem(SETTING_NAME_DATE_FORMAT) ?? "DD/MM/YYYY"
+    }
+    return "DD/MM/YYYY"
+}
+
+export function getUserSetTimeFormat(){
+    if(typeof(window)!="undefined"){
+
+        return localStorage.getItem(SETTING_NAME_TIME_FORMAT) ?? "HH:mm"
+    }
+    return "HH:mm"
+}
 export function getCalendarStartDay(){
     const startDay= localStorage.getItem(SETTING_NAME_CALENDAR_START_DAY)
     

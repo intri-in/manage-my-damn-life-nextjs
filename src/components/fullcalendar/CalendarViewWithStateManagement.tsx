@@ -40,7 +40,8 @@ import { useTranslation } from "next-i18next";
 import { getAllEventsFromWebcalForRender } from "@/helpers/frontend/webcals";
 import { WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
 import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow";
-
+import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore";
+import momentPlugin from '@fullcalendar/moment';
 interface EventObject {
     id: string,
     title: string,
@@ -62,6 +63,9 @@ interface EventObject {
 interface ExtendedProps{
     isWebCalEvent?: boolean
 }
+interface ExtendedWebcalEvents extends WebCalEvents{
+    colour?: string
+}
 export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: number }) => {
     /**
      * Jotai
@@ -74,6 +78,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const updated = useAtomValue(updateCalendarViewAtom)
     const setUpdatedCalendarView = useSetAtom(updateCalendarViewAtom)
     const allUpdated = useAtomValue(updateViewAtom)
+    const timeFormat = useAtomValue(currentSimpleTimeFormatAtom)
+    const dateFormat = useAtomValue(currentSimpleDateFormatAtom)
+    
     /**
      * Local State
      */
@@ -81,7 +88,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const [showTasksChecked, setShowTasksChecked] = useState(true)
     const [allEvents, setEventsArray] = useState<EventsLikeAPIType[]>([])
     const [events, setEvents] = useState<EventObject[]>([])
-    const [webCalEvents, setWebCalEvents] = useState<WebCalEvents[]>([])
+    const [webCalEvents, setWebCalEvents] = useState<ExtendedWebcalEvents[]>([])
     const [firstDay, setFirstDay] = useState(0)
     const calendarRef = createRef<FullCalendar>();
     const [caldav_accounts, setCaldavAccounts] = useState([])
@@ -124,6 +131,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             })
 
             getAllEventsFromWebcalForRender().then(webcal_events =>{
+                // console.log("webcal_events", webcal_events)
                 setWebCalEvents(webcal_events)
 
             })
@@ -200,6 +208,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                     if (event.type != "VTODO" && event.type != "VTIMEZONE") {
                         const data = getParsedEvent(allEvents[i].events[j].data)
                         // console.log("Parsed Event", data.summary,  event.calendar_id, data)
+                        // console.log( data.summary )
                         if (varNotEmpty(data) == false) {
                             continue
                         }
@@ -211,7 +220,6 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
                         let allDay = isAllDayEvent(data.start, data.end)
 
-                        //console.log(data.end, data.summary )
                         let eventObject: EventObject = {
                             id: event.calendar_events_id!.toString(),
                             title: data.summary,
@@ -359,34 +367,53 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 try{
 
                     let data = JSON.parse(webCalEvents[k].data)
-                    // console.log("data", data)
+                    // console.log("data webcal", data)
                     if (!data) {
                         continue
                     }
-                    if(!("description" in data)){
+                    if(!("summary" in data)){
                         continue
                     }
-                    if (varNotEmpty(data.description) == false || (varNotEmpty(data.description) && data.description.toString().trim() == "")) {
+
+                    let summary= ""
+                    if(typeof(data.summary)==="string" && data.summary){
+                        summary = data.summary
+                    }else{
+                        // It's an object.
+                        if("val" in data.summary && data.summary.val){
+                            summary = data.summary.val
+                        }
+                    }
+
+                    if(!summary){
                         continue
                     }
-        
+                    
         
         
                     let allDay = true
-        
-                    //console.log(data.end, data.description )
+                    const start = moment(data.start)
+                    const end = moment(data.end)
+                    const diff = end.diff(start, "days")
+                    if(diff<1){
+                        allDay=false
+                       
+                    }
+                    // console.log("summary, start, end, diff", summary, diff, data)
+                    // console.log(summary, data.colour)
+                    const colour = webCalEvents[k].colour ?? "purple"
                     let eventObject: EventObject = {
                         id: data.uid,
-                        title: data.description,
-                        start: moment(data.start).toISOString(),
-                        end: moment(data.end).toISOString(),
+                        title: summary,
+                        start: start.toISOString(),
+                        end: end.toISOString(),
                         allDay: allDay,
                         editable: false,
                         draggable: false,
                         extendedProps:{
                             isWebCalEvent:true
                         },
-                        backgroundColor: data.color,
+                        backgroundColor: colour,
                         
                     }
                     finalEvents.push(eventObject)
@@ -536,6 +563,14 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     if (varNotEmpty(caldav_accounts) && Array.isArray(caldav_accounts) && caldav_accounts.length > 0) {
         calendarsSelect = <ListGroupCalDAVAccounts onChange={userPreferencesChanged} caldav_accounts={caldav_accounts} />
     }
+    const addDayNameInHeader = () =>{
+        if(dateFormat){
+            if(dateFormat.includes("dd") || dateFormat.includes("ddd") || dateFormat.includes("dddd") ){
+               return dateFormat 
+            }
+            return `${dateFormat} ddd`
+        }
+    }
     return (
 
         <>
@@ -566,7 +601,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
             </div>
             <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin]}
+                plugins={[dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin, rrulePlugin, listPlugin, momentPlugin]}
                 ref={calendarRef}
                 initialView={viewValue}
                 themeSystem="standard"
@@ -581,7 +616,11 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 eventResize={eventResize}
                 firstDay={firstDay}
                 locales={allLocales}
-            locale={i18n.language}
+                locale={i18n.language}
+                titleFormat={dateFormat} 
+                eventTimeFormat={timeFormat ?? "HH:mm"}
+                dayHeaderFormat={dateFormat? `${addDayNameInHeader()}` :  "DD/MM/YYYY ddd"}
+                slotLabelFormat={timeFormat?? "HH:mm"}
             />
         </>
     )

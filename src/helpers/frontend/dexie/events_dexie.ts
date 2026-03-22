@@ -9,6 +9,7 @@ import { VTODO } from "../classes/VTODO";
 import { getParsedTaskParent } from "../TaskUI/taskUIHelpers";
 import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
 import { getAllCalDavAccountsFromDexie } from "./caldav_dexie";
+import { deleteParentEntryinDexieById, saveEventParenttoDexie } from "./event_parents_dexie";
 
 export async function getEventColourbyID(calendar_events_id): Promise<string> {
 
@@ -133,6 +134,11 @@ export async function getEtagFromURL_Dexie(url) {
 
 }
 
+/**
+ * 
+ * @param parent_id UID for target task.
+ * @returns children for the target id.
+ */
 export async function getAllChildrenforTask_FromDexie(parent_id){
 
     try {
@@ -193,36 +199,6 @@ export async function getIdFromEvent_ParentsDexie(uid){
         console.warn("getIdFromEvent_ParentsDexie", e)
         return null
     }
-
-}
-/**
- * Saves parent of a task in dexie database.
- * @param parsed parsed Event or Task
- */
-export async function saveEventParenttoDexie(parsed){
-    const parent = getParsedTaskParent(parsed)
-    if(parent){
-        const id_ofChild = await getIdFromEvent_ParentsDexie(parsed["uid"])
-        if(id_ofChild){
-            // Data already exists. Update
-            const updated = await db.event_parents.update(id_ofChild, {parent_id:parent}).catch( e=>{
-                console.error("saveEventParenttoDexie", e)
-            })
-        
-        }else{
-            // New entry. Create.
-            const id = await db.event_parents.add({
-                uid:parsed["uid"],
-                parent_id:parent
-
-            }).catch(e => {
-                console.log(e)
-            })
-    
-        }
-
-    }
-    
 
 }
 
@@ -415,6 +391,7 @@ export async function deleteEventFromDexie(calendar_events_id) {
     try {
         const eventKey = parseInt(calendar_events_id)
         db.calendar_events.delete(eventKey)
+        deleteParentEntryinDexieById(calendar_events_id)
 
     } catch (e) {
         console.error("deleteEventFromDexie", e)

@@ -15,7 +15,7 @@ import * as _ from 'lodash'
 import { RRuleHelper } from '@/helpers/frontend/classes/RRuleHelper';
 import { updateTodo_WithUI } from '@/helpers/frontend/tasks';
 import { onServerResponse_UI } from '@/helpers/frontend/TaskUI/taskUIHelpers';
-import { updateViewAtom } from 'stateStore/ViewStore';
+import { calDavObjectAtom, updateViewAtom } from 'stateStore/ViewStore';
 import { eventEditorInputAtom, showEventEditorAtom } from 'stateStore/EventEditorStore';
 import { returnGetParsedVTODO } from '@/helpers/frontend/calendar';
 import { MdOutlineContentCopy } from "react-icons/md";
@@ -37,6 +37,7 @@ export function RightclickContextMenuWithState(props: propsType) {
   const setTaskEditorInput = useSetAtom(taskEditorInputAtom)
   const setUpdateViewTime = useSetAtom(updateViewAtom)
   const setShowMoveEventModal = useSetAtom(showMoveEventModal)
+  const calDavObject = useAtomValue(calDavObjectAtom)
 
   const showEventEditor = useSetAtom(showEventEditorAtom)
   const setEventEditorInput = useSetAtom(eventEditorInputAtom)
@@ -124,7 +125,8 @@ export function RightclickContextMenuWithState(props: propsType) {
     // setShowTaskEditor(false)
     
     setTaskEditorInput({id: null,
-      parentId: id
+      parentId: id,
+      calendar_id:calendar_id
     })
 
     setShowTaskEditor(true)

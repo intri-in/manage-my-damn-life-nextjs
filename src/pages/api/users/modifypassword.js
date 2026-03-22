@@ -2,7 +2,7 @@ import validator from 'validator';
 import { checkifUserisInDB, deleteAllSSID } from '@/helpers/api/user';
 import { insertUserIntoDB } from '@/helpers/api/user';
 import { User } from '@/helpers/api/classes/User';
-import { deleteAllOTPs_passwordReset, generateOTP_passwordReset, otpIsValid, sendResetPasswordMessage } from '@/helpers/api/otp';
+import { deleteAllOTPs_passwordReset,  otpIsValid, sendResetPasswordMessage } from '@/helpers/api/otp';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
       //console.log(req.body)

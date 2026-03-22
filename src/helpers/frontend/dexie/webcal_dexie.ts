@@ -27,7 +27,7 @@ export async function addWebCalAccounttoDexie(webcalid,name, link, updateInterva
 export async function addWebCalEventstoDexie(webcalId, parsedCal){
     for (const i in parsedCal){
         let dataToSave = parsedCal[i]
-        console.log("typeof(dataToSave)", typeof(dataToSave))
+        // console.log("typeof(dataToSave)", typeof(dataToSave))
         if(typeof(dataToSave) !=="string"){
             dataToSave= JSON.stringify(parsedCal[i])
         }
