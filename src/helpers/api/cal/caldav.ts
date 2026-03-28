@@ -115,7 +115,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
         for(let i=0; i<calendarObjects.length; i++)
         {
             var type = checkifObjectisVTODO(calendarObjects[i].data)
-            var eventfromDB=await getCalendarEventbyURL(calendarObjects[i].url,calendar_id)
+            var eventfromDB=await getCalendarEventbyURL(decodeURIComponent(calendarObjects[i].url),calendar_id)
             var updated=Math.floor(Date.now() / 1000)
             if(eventfromDB!=null && Array.isArray(eventfromDB) && eventfromDB.length>0)
             {
@@ -151,7 +151,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
                 else
                 {
                     await calendar_eventsModel.update(
-                        {etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated.toString(), type:type,},
+                        {etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated.toString(), type:type, deleted:""},
                         {
                         where: {
                             url: decodeURIComponent(calendarObjects[i].url)

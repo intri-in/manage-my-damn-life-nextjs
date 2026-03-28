@@ -31,6 +31,7 @@ export async function syncEventsWithCaldlav(calDavCalendarObjects, calendar_id)
 
 
     const alLObjectsFromDB=  await getCalendarObjectsFromCalendar(calendar_id)
+    // console.log("alLObjectsFromDB.len", alLObjectsFromDB.length, calDavCalendarObjects.length)
 
     if(alLObjectsFromDB!=null && Array.isArray(alLObjectsFromDB) && alLObjectsFromDB.length>0)
     {
@@ -102,14 +103,15 @@ function checkifEventExistsinCalDAVArray(event, calDavCalendarObjects)
     {
         for (const i in calDavCalendarObjects)
         {
-            if(calDavCalendarObjects[i].url==event.url && calDavCalendarObjects[i].etag==event.etag )
-            {
-                found = true
+            if(decodeURIComponent(calDavCalendarObjects[i].url)==decodeURIComponent(event.url) && calDavCalendarObjects[i].etag==event.etag )
+                {
+                    found = true
+                }
+                // console.log("calDavCalendarObjects[i].url", calDavCalendarObjects[i].url, event.url)
+                
             }
-
-        }
     }
-
+    // console.log("found", found)
     return found
 }
 export async function deleteCalendarObjectsFromCalendarDB(calendar_id)

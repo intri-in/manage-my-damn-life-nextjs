@@ -47,7 +47,7 @@ export default async function handler(req, res) {
                         if(response.client!=null)
                         {
                             const calendar =  await getCalendarFromEventURL(decodedURL)
-                            console.log("decodedURL", calendar, decodedURL)
+                            // console.log("decodedURL", calendar, decodedURL)
                             if(calendar){
                                 const objects = await response.client.fetchCalendarObjects({
                                 calendar: calendar[0],

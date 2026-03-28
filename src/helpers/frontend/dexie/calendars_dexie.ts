@@ -140,7 +140,7 @@ export async function insertCalendarsIntoDexie(calendarsFromDB){
     if(calendarsFromDB && calendarsFromDB["caldav_accounts_id"] && calendarsFromDB["calendars"] && Array.isArray(calendarsFromDB["calendars"]) && calendarsFromDB["calendars"].length>0){
         //console.log("here")
         for(const i in calendarsFromDB["calendars"]){
-            const cal_fromDexie =  await checkIfCalendarExistsinDexie(calendarsFromDB["caldav_accounts_id"], calendarsFromDB["calendars"][i]["url"])
+            const cal_fromDexie =  await checkIfCalendarExistsinDexie(calendarsFromDB["caldav_accounts_id"], decodeURIComponent(calendarsFromDB["calendars"][i]["url"]))
             //console.log("checkIfCalendarExistsinDexie",cal_fromDexie)
             if(!cal_fromDexie || (cal_fromDexie && Array.isArray(cal_fromDexie) && cal_fromDexie.length==0)){
                 insertOneCalendarIntoDexie(calendarsFromDB["calendars"][i], calendarsFromDB["caldav_accounts_id"] )
@@ -155,7 +155,7 @@ export async function insertOneCalendarIntoDexie(calendar, caldav_accounts_id){
         const id = await db.calendars.add({
             caldav_accounts_id:  caldav_accounts_id,
             displayName: calendar["displayName"],
-            url: calendar["url"],
+            url: decodeURIComponent(calendar["url"]),
             ctag: calendar["ctag"],
             description: calendar["description"],
             calendarColor: calendar["calendarColor"] ?  calendar["calendarColor"] : getRandomColourCode(),

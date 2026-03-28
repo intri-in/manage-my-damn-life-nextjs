@@ -588,13 +588,17 @@ export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, 
                     if(body.data && body.data.details){
                         const newEvent = body.data.details
                         
-                        // console.log("event to Save", calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type)
+                        console.log("event to Save", calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type)
                         let dataToSave = newEvent["data"]?? data
-                        
-                        saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],dataToSave,type).then((resultOfInsert) =>{
-                            
-                            return resolve(body)
-                        })
+                        if(newEvent && newEvent.etag && newEvent.data && newEvent.url){
+
+                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],dataToSave,type).then((resultOfInsert) =>{
+                                
+                                return resolve(body)
+                            })
+                        }else{
+                                return resolve(body)
+                        }
                         // console.log("details", body.data.details)
                     }else{
 
@@ -654,11 +658,16 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
                         if(body.data && body.data.details){
                             const newEvent= body.data.details
                             let dataToSave = newEvent["data"]?? data
+                            if(newEvent && newEvent.url){
 
-                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],dataToSave,typetoSend).then((resultOfInsert) =>{
-                            
+                                saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],dataToSave,typetoSend).then((resultOfInsert) =>{
+                                
+                                    return resolve(body)
+                                })
+                            }else{
                                 return resolve(body)
-                            })
+
+                            }
     
                         }else{
                                 return resolve(body)

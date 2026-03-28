@@ -4,7 +4,7 @@ import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie
 import { db } from "@/helpers/frontend/dexie/dexieDB"
 import { checkifCurrentUserInDexie } from "@/helpers/frontend/dexie/users_dexie"
 import { SETTING_NAME_DATE_FORMAT, SETTING_NAME_TIME_FORMAT } from "@/helpers/frontend/settings"
-import { fetchLatestEventsV2,  fetchLatestEvents_withoutCalendarRefresh,  refreshCalendarListV2 } from "@/helpers/frontend/sync"
+import { fetchLatestEventsV2,   refreshCalendarListV2 } from "@/helpers/frontend/sync"
 import { logoutUser } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
 import Head from "next/head"
@@ -50,7 +50,7 @@ export default function SetupPage() {
             const fetch = (arrayFromDexie && Array.isArray(arrayFromDexie) && arrayFromDexie.length>0) ? false: true
                 //User already has data in dexie. 
                 
-            if(fetch) await fetchLatestEventsV2()
+            if(fetch) await fetchLatestEventsV2(true)
             if (fetch) await setupWebCalDataFromServer()
             const dateFormat = localStorage.getItem(SETTING_NAME_DATE_FORMAT)
             if(dateFormat){

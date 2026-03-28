@@ -141,7 +141,7 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           console.log("body", body)
           await saveCaldavAccountToDexie(body.data, username);
           await insertCalendarsIntoDexie(body.data);
-          await fetchLatestEventsV2(true)
+          fetchLatestEventsV2(true)
           setRequestPending(false);
           onAccountAddSuccess();
         }else{

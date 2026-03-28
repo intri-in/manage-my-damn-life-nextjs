@@ -127,6 +127,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 }
             })
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
+                setEventsArray([])
+                // console.log("allEventsFromDexie", allEventsFromDexie)
                 setEventsArray(allEventsFromDexie)
             })
 

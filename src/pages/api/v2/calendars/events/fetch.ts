@@ -21,7 +21,7 @@ export default async function handler(req, res) {
             }
 
             var userObj = new User(userid)
-            const calendars_id = await userObj.getCalendarID_FromURLandCaldavAccountID(req.query.caldav_accounts_id, req.query.url)
+            const calendars_id = await userObj.getCalendarID_FromURLandCaldavAccountID(req.query.caldav_accounts_id, decodeURIComponent(req.query.url))
             // console.log("calendars_id", calendars_id,req.query.url)
             if(calendars_id)
             {
