@@ -126,6 +126,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         }
 
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(input.id.toString()))
+        console.log("eventInfoFromDexie", eventInfoFromDexie)
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
             if(unParsedData) setRawICS(unParsedData)

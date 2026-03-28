@@ -118,8 +118,8 @@ export async function fetchLatestEventsV2(forceSync)
         console.warn("Sync already in progress.")
     }
     localStorage.setItem(IS_SYNCING, true)
-    let arrayFromDexie = await refreshCalendarListV2()
-    if(forceSync) arrayFromDexie = await getCalDAVSummaryFromDexie()
+    // let arrayFromDexie = await refreshCalendarListV2()
+    let arrayFromDexie =  (forceSync) ? await refreshCalendarListV2(): await getCalDAVSummaryFromDexie()
     // console.log("arrayFromDexie_caldavAccounts", arrayFromDexie)
     let counter=0
     if(isValidResultArray(arrayFromDexie)){
@@ -220,7 +220,7 @@ export async function fetchFreshEventsFromCalDAV_ForDexie(caldav_accounts_id,url
                 return resolve(null)
             }
         }).catch(e =>{
-            console.error("refreshEventsinDB", e)
+            console.error("fetchFreshEventsFromCalDAV_ForDexie", e)
             return resolve(getErrorResponse(e))
 
         })

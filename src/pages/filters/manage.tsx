@@ -42,7 +42,7 @@ export default function ManageViewPage(){
     }
   }, [status, router])
 
-    if(!isloggedIn) (<EmptyPageBeforeLogin />)   
+    if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
     return(
         <>
         <ManageFilters />

@@ -1,4 +1,4 @@
-export const VERSION_NUMBER = "0.8.3-dev" 
+export const VERSION_NUMBER = "0.9.0-dev" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -61,6 +61,10 @@ export const FULLCALENDAR_BUSINESS_HOURS={
     endTime: '23:00', 
 }
 
+export const CALDAV_OAUTH_PROVIDERS=["GOOGLE"]
+export const CALDAV_OAUTH_SERVER_URL={
+    "GOOGLE":"https://apidata.googleusercontent.com/caldav/v2/"
+}
 //Defines the hard coded default value for Due Before Field in ManageFilter Form.
 export const END_OF_THE_UNIVERSE_DATE= "4000-12-31T00:00:00.000Z"
 

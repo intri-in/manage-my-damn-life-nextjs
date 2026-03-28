@@ -279,7 +279,7 @@ export class User{
     async getCalendarID_FromURLandCaldavAccountID(caldav_accounts_id, url){
 
         const userHasAccesstoCaldavAccount = await this.hasAccesstoCaldavAccountID(caldav_accounts_id)
-
+        // console.log("userHasAccesstoCaldavAccount", userHasAccesstoCaldavAccount ,"next", await CaldavAccount.checkIfCalendarURLinCaldavAccount_GetID(caldav_accounts_id, url))
         if(userHasAccesstoCaldavAccount){
             return await CaldavAccount.checkIfCalendarURLinCaldavAccount_GetID(caldav_accounts_id, url)
         }

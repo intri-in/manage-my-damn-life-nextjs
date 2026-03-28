@@ -9,6 +9,11 @@ export interface caldav_accountsAttributes {
   userid?: string;
   name?: string;
   authMethod?: string;
+  refresh_token?:string,
+  access_token?:string,
+  provider?:string,
+  client_id?:string
+
 }
 
 export type caldav_accountsPk = "caldav_accounts_id";
@@ -24,7 +29,10 @@ export class caldav_accounts extends Model<caldav_accountsAttributes, caldav_acc
   userid?: string;
   name?: string;
   authMethod?: string;
-
+  refresh_token?:string
+  access_token?:string
+  provider?:string
+  client_id?:string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof caldav_accounts {
     return caldav_accounts.init({
@@ -57,7 +65,23 @@ export class caldav_accounts extends Model<caldav_accountsAttributes, caldav_acc
     authMethod: {
       type: DataTypes.STRING(45),
       allowNull: true
-    }
+    },
+     client_id: {
+      type: DataTypes.STRING(1000),
+      allowNull: true
+   },
+    access_token: {
+      type: DataTypes.STRING(1000),
+    allowNull: true
+  },
+  refresh_token: {
+    type: DataTypes.STRING(1000),
+    allowNull:true,
+  },
+  provider: {
+    type: DataTypes.STRING(1000),
+    allowNull:true,
+  },
   }, {
     sequelize,
     tableName: 'caldav_accounts',

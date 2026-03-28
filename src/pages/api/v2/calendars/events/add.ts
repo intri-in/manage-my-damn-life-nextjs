@@ -1,10 +1,10 @@
-import { createEventinCalDAVAccount } from '@/helpers/api/cal/caldav';
+import { createEventinCalDAVAccount, getCalendarFromURL } from '@/helpers/api/cal/caldav';
 import { checkifUserHasAccesstoRequestedCalendar, getCaldavAccountfromUserID, getCaldavAccountIDFromCalendarID, getCalendarfromCalendarID } from '@/helpers/api/cal/calendars';
 import { getAllLablesFromDB } from '@/helpers/api/cal/labels';
 import { getObjectFromDB, insertObjectIntoDB, updateObjectinDB } from '@/helpers/api/cal/object';
 import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
 import { getRandomString } from '@/helpers/crypto';
-import { isValidResultArray, logVar } from '@/helpers/general';
+import { addTrailingSlashtoURL, isValidResultArray, logVar } from '@/helpers/general';
 import validator from 'validator';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -27,33 +27,47 @@ export default async function handler(req, res) {
                     //Insert info into database;
                // var filename=getRandomString(64)+".ics"
                 let filename = validator.escape(req.body.fileName)
-                var url = req.body.url
-                var lastChar = url.substr(-1); 
-                if (lastChar != '/') {       
-                url = url + '/';          
-                }
-                url += filename
+                const url = decodeURIComponent(req.body.url)
+                // console.log("url from req", url)
 
-                var response = await createEventinCalDAVAccount(url, req.body.caldav_accounts_id, req.body.calendar_id, req.body.data)
+                let eventURL = addTrailingSlashtoURL(url)
+
+                eventURL += filename
+                // console.log("full URL", url, eventURL)
+
+                var response = await createEventinCalDAVAccount(eventURL, req.body.caldav_accounts_id, req.body.calendar_id, req.body.data)
                 if(("result" in response) && response.result.status>=200 && response.result.status<300 && ( response.result.error==null || response.result.error=="" ))
                 {
-
+                    // console.log("response", response)
                     //Event has been inserted into the database.
                     // Let's fetch it again to get etag, and add to database.
                     if(response.client!=null)
                     {
-                        const objects = await response.client.fetchCalendarObjects({
-                            calendar: {url: req.body.url, syncToken: req.body.syncToken, ctag: req.body.ctag},
-                            objectUrls:[url]
-                            });
-                        
-                        if(isValidResultArray(objects)){
+                        const calendar = await getCalendarFromURL(url)
+                        console.log("calendar", calendar)
+                        if(calendar && calendar.length>0){
+                                const objects = await response.client.fetchCalendarObjects({
+                                calendar: calendar[0],
+                                objectUrls:[eventURL]
+                                });
+                            console.log("objects", objects)
+                            if(isValidResultArray(objects)){
 
-                            return res.status(200).json({ success: true, data: {message: response.result, details: objects[0]} })
+                                // if(!objects[0]["data"]){
+                                //     /** Google doesn't return generated data for some reason. So we add original generated data. */
+
+                                //     objects[0]["data"] = req.body.data
+                                // }
+                                return res.status(200).json({ success: true, data: {message: response.result, details: objects[0]} })
+                            }else{
+                                return res.status(200).json({ success: true, data: {message: response.result, details: null, forceSync: true} })
+
+                            }
                         }else{
-                            return res.status(200).json({ success: true, data: {message: response.result, details: null, forceSync: true} })
+                                return res.status(500).json({ success: true, data: {message: "INVALID_CALENDAR_OBJECT"} })
 
                         }
+                        
                     }else{
                         return res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
 

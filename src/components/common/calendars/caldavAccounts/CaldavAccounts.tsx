@@ -95,65 +95,6 @@ export default function CaldavAccount({  }) {
     setUpdated(Date.now());
   };
 
-//   const renderCaldavAccountsFromDexie = async() => {
-//     const userid = await getUserIDForCurrentUser_Dexie()
-//     getAllCalDavAccountsFromDexie(userid).then((caldavAccounts) => {
-//       if (caldavAccounts && Array.isArray(caldavAccounts) && caldavAccounts.length > 0) {
-//         const output = caldavAccounts.map((account, index) => {
-//           const calendars:JSX.Element[] = [];
-//           getAllCalendarsFromCalDavAccountIDFromDexie(account.caldav_accounts_id).then((allCals) => {
-//             allCals.forEach((cal) => {
-//               const border = `3px solid ${cal.calendarColor}`;
-//               calendars.push(
-//                 <Col
-//                   key={cal.calendars_id!}
-//                   style={{ borderBottom: border, borderRadius: 10, margin: 5 }}
-//                 >
-//                   <p className="textDefault">{cal.displayName}</p>
-//                 </Col>
-//               );
-//             });
-//           });
-//           return (
-//             <div
-//               key={index}
-//               style={{
-//                 background: "#f5f5f5",
-//                 borderRadius: 10,
-//                 padding: 20,
-//                 margin: 10,
-//                 marginBottom: 30,
-//               }}
-//             >
-//               <Row>
-//                 <Col>
-//                   <h1>{account.name}</h1>
-//                 </Col>
-//                 <Col
-//                   onClick={() => caldavAccountDeleteClicked(account)}
-//                   style={{ textAlign: "right", color: "red" }}
-//                 >
-//                   <AiOutlineDelete />
-//                 </Col>
-//               </Row>
-//               <p>{account.url}</p>
-//               <h2>
-//                 {t("CALENDARS")}{" "}
-//                 <AiOutlinePlusCircle
-//                   onClick={() => calendarAddButtonClicked(account)}
-//                 />
-//               </h2>
-//               <Row>{calendars}</Row>
-//             </div>
-//           );
-//         });
-
-//         setAddedAccounts(output.length > 0 ? output : t("NOTHING_TO_SHOW"));
-//       } else {
-//         setAddedAccounts(t("NOTHING_TO_SHOW"));
-//       }
-//     });
-//   };
 
   const showAddAccountModal = () => {
     setAddAccountScreenVisible(!addAccountScreenVisible);

@@ -45,7 +45,7 @@ export default function Settings(){
     }
   }, [status, router])
 
-    if(!isloggedIn) (<EmptyPageBeforeLogin />)     
+    if(!isloggedIn) return (<EmptyPageBeforeLogin />)     
   
     
     return(
