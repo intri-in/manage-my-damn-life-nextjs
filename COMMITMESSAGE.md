@@ -1,1 +1,1 @@
-Bug fixes to Google CalDAV support. It works now.
+Minor fixes.
