@@ -33,7 +33,7 @@ export const OAuthStepTwo = ({provider, username, name, code}:{provider: string,
                 if(response && response.success){
 
                     deleteOAuthSetupInfoFromStorage()
-                    toast.success("DONE")
+                    toast.success(t("DONE"))
                     router.push("/accounts/caldav/")
                 }else{
                     (t("ERROR_GENERIC)"))
@@ -74,7 +74,6 @@ export const OAuthStepTwo = ({provider, username, name, code}:{provider: string,
             {!errorMessage ? <Alert variant="success">{t("CALDAV_OAUTH_FIRST_STEP_COMPLETED")}</Alert> :
             <Alert variant="danger">{errorMessage}</Alert>
             }
-            {code}
             <Form.Group className="mb-3">
                 <Row>
                     <Col>

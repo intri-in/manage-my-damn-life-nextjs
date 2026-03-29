@@ -1,1 +1,1 @@
-Minor fixes.
+Changed name of env variable NEXT_BASE_URL.

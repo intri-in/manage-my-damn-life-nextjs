@@ -1,4 +1,7 @@
 v0.9.0
+- Breaking Changes
+    - Changed name of env variable NEXT_PUBLIC_BASE_URL to NEXT_BASE_URL. It is a required variable now.
+- New Features
     - Added support for Google CalDAV with OAuth authentication. Solves #259
     
 v0.8.3

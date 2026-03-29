@@ -229,8 +229,8 @@ export function debugging()
 }
 
 export function getBaseURL(){
-    const urlFromEnv = process.env.NEXT_PUBLIC_BASE_URL
-    if(!urlFromEnv) throw new Error("NEXT_PUBLIC_BASE_URL env variable not set.")
+    const urlFromEnv = process.env.NEXT_BASE_URL
+    if(!urlFromEnv) throw new Error("NEXT_BASE_URL env variable not set.")
     return addTrailingSlashtoURL(urlFromEnv)
 }
 
