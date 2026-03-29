@@ -355,5 +355,6 @@
   "GOOGLE": "Google",
   "ENTER_CLIENT_SECRET": "Enter Client Secret",
   "ENTER_CLIENT_ID": "Enter Client Id",
-  "CALDAV_OAUTH_FIRST_STEP_COMPLETED": "First step has been completed. Please enter the required information to continue."
+  "CALDAV_OAUTH_FIRST_STEP_COMPLETED": "First step has been completed! You've been logged into your CalDAV provider. Please enter following the required information to continue to add the CalDAV account.",
+  "ERROR_SINGLE_USE_OAUTH_CODE": "Authentication provided by your provider can only be used once. Please start the process again."
 }

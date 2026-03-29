@@ -1,13 +1,11 @@
-import { getAPIURL } from "../general";
-import { getAuthenticationHeadersforUser } from "./user";
+import { OAUTH_TOKEN_URL } from "../api/tsdav";
+import {  getBaseURL } from "../general";
 
 const OAUTH_TEMPORARY_STORAGE_KEY='OAUTH_TEMPORARY_STORAGE_KEY'
 export type OAuthTemporaryStorageType = {
     name: string,
     provider:string,
-    client_id:string
     username: string
-    client_secret: string
 }
 
 const OAUTH_SCOPES_FOR_GOOGLE="https://www.googleapis.com/auth/calendar  https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.owned"

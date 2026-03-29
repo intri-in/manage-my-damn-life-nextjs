@@ -8,11 +8,14 @@ import { toast } from "react-toastify"
 import { registerCalDAVAccountonServer } from "@/helpers/frontend/apiCalls/caldav"
 import { CALDAV_OAUTH_SERVER_URL } from "@/config/constants"
 import { useRouter } from "next/navigation"
+import { OAuthStepTwo } from "./OAuthStepTwo"
 
 export const ProcessOAuthInfoCaldav = () =>{
     const {t} = useTranslation()
     const [infoFromLocalStorage, setInfoFromLocalStorage] = useState<OAuthTemporaryStorageType | undefined>()
-    const [errorMessage, setShowErrorMessage] = useState("")
+    const [output, setOutput] = useState(<div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"90vh", width:"100%"}}>
+                    <Loading />
+                </div>)
     const searchParams = useSearchParams();
     const code = searchParams?.get("code") 
     const router = useRouter()
@@ -35,32 +38,15 @@ export const ProcessOAuthInfoCaldav = () =>{
         )
 
     }
+    
     useEffect(()=>{
         let isMounted =true
         if(isMounted){
-            if(infoFromLocalStorage && infoFromLocalStorage.client_id && infoFromLocalStorage.client_secret && code){
-                //Make API Call to save data to the server.
-                const url = CALDAV_OAUTH_SERVER_URL[infoFromLocalStorage.provider]
-                registerCalDAVAccountonServer(url, infoFromLocalStorage.username, infoFromLocalStorage.client_secret, infoFromLocalStorage.name, "OAUTH", {client_id:infoFromLocalStorage.client_id, auth_code: code, provider:infoFromLocalStorage.provider}).then((response)=>{
-                    if(response && response.success){
-
-                        router.push("/accounts/caldav/")
-                        deleteOAuthSetupInfoFromStorage()
-                    }else{
-                        if(response.error && response.error.message){
-                            let output = t("ERROR_GENERIC)") + "\n"
-                            output+= JSON.stringify(response.error.message)
-                            deleteOAuthSetupInfoFromStorage()
-                        }else{
-                            setShowErrorMessage(t("ERROR_GENERIC)"))
-                            deleteOAuthSetupInfoFromStorage()
-                        }
-                    }
-                })
-
-                
+            if(infoFromLocalStorage && infoFromLocalStorage.name && infoFromLocalStorage.provider && infoFromLocalStorage.username && code){
+                setOutput(< OAuthStepTwo code={code} name={infoFromLocalStorage.name} username={infoFromLocalStorage.username} provider={infoFromLocalStorage.provider} />)
+               
             }else{
-                setShowErrorMessage("ERROR_GENERIC")
+                setOutput( <ErrorMessageOutput errorMessage="ERROR_GENERIC"  />)
             }
         
         }
@@ -72,21 +58,6 @@ export const ProcessOAuthInfoCaldav = () =>{
     },[code, infoFromLocalStorage])
 
     // const showForm = (infoFromLocalStorage && infoFromLocalStorage.client_id && infoFromLocalStorage.client_secret)
-    let output = (<div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"90vh", width:"100%"}}>
-                    <Loading />
-                </div>)
-    // if(!showForm ){
-    //     output = (<div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"90vh", width:"100%"}}>
-    //                 <Loading />
-    //             </div>)
-    // }
-    if(!code){
-        output = <ErrorMessageOutput errorMessage="ERROR_GENERIC"  />
-    }
-
-    if(errorMessage){
-        output = <ErrorMessageOutput errorMessage="ERROR_GENERIC"  />
-    }
     return(
         <>
             <Row>

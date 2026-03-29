@@ -6,6 +6,8 @@ import { processCalendarFromCaldav } from '@/helpers/api/v2/caldavHelper';
 import { CaldavAccountClass } from '@/helpers/api/v2/classes/CaldavAccountClass';
 import { isCaldavURLinAllowedList } from '@/helpers/validators';
 import { CalDAVAuthObject, getTSDAVCalDAVClient, OAUTH_TOKEN_URL } from '@/helpers/api/tsdav';
+import { getBaseURL } from '@/helpers/general';
+import { fetchOAuthTokenFromProvider } from '@/helpers/api/OAuth';
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
@@ -16,7 +18,6 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
     }
-    // console.log(req.body.url)
     const userid =  await  UsersClass.getUserIDFromLogin(req, res)
     if(userid==null){
         return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
@@ -30,23 +31,29 @@ export default async function handler(req, res) {
     }
     //Sample token for OAUTH
     let token :DAVTokens | undefined = {}
-
+    // console.log("req", req.body)
     if (authMethod.toUpperCase()=="OAUTH"){
         if(!req.body.provider || !req.body.client_id ||  !req.body.auth_code ){
             return res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
         }
-        const tokenURL = OAUTH_TOKEN_URL[req.body.provider]
         //We should exchange the authcode for tokens.
-        token = await fetchOauthTokens({
-        authorizationCode: req.body.auth_code,
-        clientId: req.body.client_id,
-        clientSecret: req.body.password,
-        tokenUrl: tokenURL,
-        redirectUrl: 'https://localhost/accounts/caldav/oauth/register',
-        });
+        token = await fetchOAuthTokenFromProvider({
+            auth_code: req.body.auth_code,
+            client_id: req.body.client_id,
+            client_secret: req.body.password,
+            provider:req.body.provider,
 
-        // console.log("token", token)
-        if(!token.access_token){
+        })
+        // token = await fetchOauthTokens({
+        // authorizationCode: req.body.auth_code,
+        // clientId: req.body.client_id,
+        // clientSecret: req.body.password,
+        // tokenUrl: tokenURL,
+        // redirectUrl: `${getBaseURL()}/accounts/caldav/oauth/register`,
+        // });
+
+        // console.log("token", token,`${getBaseURL()}accounts/caldav/oauth/register`)
+        if(!token || !token.access_token){
             return res.status(401).json({ success: false, data: { message: 'ERROR_INVALID_OAUTH_AUTHORISATION_CODE'} })
         }
     }

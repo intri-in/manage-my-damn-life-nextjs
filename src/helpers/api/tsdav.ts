@@ -15,7 +15,7 @@ export type CalDAVAuthObject = {
 }
 
 export const OAUTH_TOKEN_URL ={
-    "GOOGLE":"https://accounts.google.com/o/oauth2/token",
+    "GOOGLE":"https://oauth2.googleapis.com/token",
 }
 
 type GetTSDAVCalDAVClientInput= {

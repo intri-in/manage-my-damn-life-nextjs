@@ -9,6 +9,7 @@ import Spinner from "react-bootstrap/Spinner";
 import {
   addTrailingSlashtoURL,
   getAPIURL,
+  getBaseURL,
   logVar,
 } from "@/helpers/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
@@ -97,9 +98,10 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
       }
     }
     if (!password?.trim()) {
-
-        toast.error( (authType!="OAUTH") ? t("ENTER_CALDAV_PASSWORD"): t("CLIENT_SECRET_PLACEHOLDER"));
-        return false;
+        if (authType!="OAUTH"){
+          toast.error( (authType!="OAUTH") ? t("ENTER_CALDAV_PASSWORD"): t("CLIENT_SECRET_PLACEHOLDER"));
+          return false;
+        }
 
     }
 
@@ -164,16 +166,15 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
 
   const makeOAuthRequest = () =>{
     if(authType=="OAUTH"){
+      console.log("oauth", `${getBaseURL()}accounts/caldav/oauth/register`)
       const saveObject: OAuthTemporaryStorageType = {
-        client_id:clientId,
         provider:authProvider,
-        client_secret: password,
         name: accountName,
         username: username
       }
       saveOAuthSetupInfoLocally(saveObject)
       if(authProvider=="GOOGLE"){
-        router.push(` https://accounts.google.com/o/oauth2/v2/auth?scope=${getOAuthScopesforProvider("GOOGLE").trim()}&client_id=${clientId}&&redirect_uri=https://localhost/accounts/caldav/oauth/register&&response_type=code&&access_type=offline&&prompt=consent`)
+        router.push(` https://accounts.google.com/o/oauth2/v2/auth?scope=${encodeURIComponent(getOAuthScopesforProvider("GOOGLE").trim())}&client_id=${encodeURIComponent(clientId)}&&redirect_uri=${getBaseURL()}accounts/caldav/oauth/register&&response_type=code&&access_type=offline&&prompt=consent`)
       }
     }
 
@@ -189,10 +190,10 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
   };
 
   const onAuthProviderChanged = (e: any)=>{
-    console.log("e.target.value", e.target.value)
-    if(e.target.value=="GOOGLE"){
-      setServerURL("https://apidata.googleusercontent.com/caldav/v2")
-    }
+    // // console.log("e.target.value", e.target.value)
+    // if(e.target.value=="GOOGLE"){
+    //   setServerURL("https://apidata.googleusercontent.com/caldav/v2")
+    // }
 
   }
 
@@ -269,15 +270,19 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
 
             </>):(<></>)
           }
-            <Form.Label style={{ marginTop: 30 }}>
-              {(authType !="OAUTH") ? t("CALDAV_PASSWORD"): t("CLIENT_SECRET_PLACEHOLDER")}
-            </Form.Label>
-            <Form.Control
-              disabled={requestPending}
-              onChange={serverPasswordValueChanged}
-              type="password"
-              placeholder={(authType !="OAUTH") ? t("CALDAV_PASSWORD_PLACEHOLDER") : t("CLIENT_SECRET_PLACEHOLDER")}
-            />
+            {(authType !="OAUTH") ? (<>
+              <Form.Label style={{ marginTop: 30 }}>
+                {(authType !="OAUTH") ? t("CALDAV_PASSWORD"): t("CLIENT_SECRET_PLACEHOLDER")}
+              </Form.Label>
+              <Form.Control
+                disabled={requestPending}
+                onChange={serverPasswordValueChanged}
+                type="password"
+                placeholder={(authType !="OAUTH") ? t("CALDAV_PASSWORD_PLACEHOLDER") : t("CLIENT_SECRET_PLACEHOLDER")}
+              />
+            </>):<></>
+            } 
+            
         <div style={{ marginTop: 30, textAlign: "center" }}>
           {!requestPending ? (
             <>
