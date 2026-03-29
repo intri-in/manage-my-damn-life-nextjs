@@ -53,7 +53,7 @@ export async function getTSDAVCalDAVClient(input: GetTSDAVCalDAVClientInput): Pr
     
     return new Promise((resolve, reject) => {
         
-        if(input.authMethod.toUpperCase()=="BASIC"){
+        if(!input.authMethod || (input.authMethod && input.authMethod.toUpperCase()=="BASIC")){
             createDAVClient({
                 serverUrl: input.url,
                 credentials: {
