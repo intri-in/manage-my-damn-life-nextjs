@@ -165,19 +165,23 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
   };
 
   const makeOAuthRequest = () =>{
-    if(authType=="OAUTH"){
-      console.log("oauth", `${getBaseURL()}accounts/caldav/oauth/register`)
-      const saveObject: OAuthTemporaryStorageType = {
-        provider:authProvider,
-        name: accountName,
-        username: username
-      }
-      saveOAuthSetupInfoLocally(saveObject)
-      if(authProvider=="GOOGLE"){
-        router.push(` https://accounts.google.com/o/oauth2/v2/auth?scope=${encodeURIComponent(getOAuthScopesforProvider("GOOGLE").trim())}&client_id=${encodeURIComponent(clientId)}&&redirect_uri=${getBaseURL()}accounts/caldav/oauth/register&&response_type=code&&access_type=offline&&prompt=consent`)
-      }
-    }
+    if(typeof(window)!=="undefined"){
+      const redirect_uri = addTrailingSlashtoURL(window.location.origin)
 
+
+      if(authType=="OAUTH"){
+        const saveObject: OAuthTemporaryStorageType = {
+          provider:authProvider,
+          name: accountName,
+          username: username
+        }
+        saveOAuthSetupInfoLocally(saveObject)
+        if(authProvider=="GOOGLE"){
+          router.push(` https://accounts.google.com/o/oauth2/v2/auth?scope=${encodeURIComponent(getOAuthScopesforProvider("GOOGLE").trim())}&client_id=${encodeURIComponent(clientId)}&&redirect_uri=${redirect_uri}accounts/caldav/oauth/register&&response_type=code&&access_type=offline&&prompt=consent`)
+        }
+      }
+
+    }
   }
   const addAccountButtonClicked = () => {
     if (formisValid()) {
