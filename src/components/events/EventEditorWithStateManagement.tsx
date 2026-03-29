@@ -126,6 +126,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         }
 
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(input.id.toString()))
+        console.log("eventInfoFromDexie", eventInfoFromDexie)
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
             if(unParsedData) setRawICS(unParsedData)
@@ -138,7 +139,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             if(parsedData["sequence"]){
                 setSequence(parseInt(parsedData["sequence"]))
 
-                console.log("setSequence", parsedData["sequence"])
+                // console.log("setSequence", parsedData["sequence"])
             }
             setFromDate(moment(parsedData["start"]).toISOString())
             setToDate(moment(parsedData["end"]).toISOString())
@@ -303,7 +304,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         const message = summary ? summary + ": " : ""
         toast.info(message + t("ACTION_SENT_TO_CALDAV"))
 
-        let fileName = getRandomString(64) + ".ics"
+        let fileName = getRandomString(8) + ".ics"
         const calendarFromDexie = await getCalendarbyIDFromDexie(parseInt(calendar_id))
         if (calendarFromDexie && calendarFromDexie.length > 0) {
             let url = calendarFromDexie[0].url

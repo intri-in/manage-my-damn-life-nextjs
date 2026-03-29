@@ -98,7 +98,7 @@ export class CaldavAccount{
         //     if(shouldLogforAPI()) console.log("insertCalendar timezone", e, calendar)
         // }
         return CaldavAccount.calendarModel.create({
-            displayName:calendar.displayName, url:calendar.url, ctag: calendar.ctag, description:calendar.description, calendarColor:calendar.calendarColor, syncToken:calendar.syncToken, timezone:calendar.timezone, caldav_accounts_id:this.caldav_accounts_id, resourcetype:calendar.resourcetype
+            displayName:calendar.displayName, url:decodeURIComponent(calendar.url), ctag: calendar.ctag, description:calendar.description, calendarColor:calendar.calendarColor, syncToken:calendar.syncToken, timezone:calendar.timezone, caldav_accounts_id:this.caldav_accounts_id, resourcetype:calendar.resourcetype
         })
 
         // con.query('INSERT INTO calendars (displayName, url, ctag, description, calendarColor, syncToken, timezone, caldav_accounts_id, resourcetype) VALUES (?,? ,?,?,? ,?,?,?,? )', [displayName, url, ctag,description,calendarColor, syncToken, timezone, this.caldav_accounts_id, resourcetype], function (error, results, fields) {
@@ -246,6 +246,7 @@ export class CaldavAccount{
                 caldav_accounts_id:caldav_accounts_id.toString(),
                 calendars_id:calendar_id
             },
+            raw:true,
         })
         // console.log("calendar", calendar)
 

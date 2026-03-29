@@ -459,7 +459,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 if (isNewTask) {
                     const etag = getRandomString(32)
     
-                    postNewTodo(calendar_id, finalVTODO, etag)
+                    await postNewTodo(calendar_id, finalVTODO, etag)
                 } else {
                     // Make an update request.
                     if (input.id) {

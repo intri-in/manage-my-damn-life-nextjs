@@ -22,7 +22,6 @@ import type { templatesAttributes, templatesCreationAttributes } from "./templat
 import {webcal_accounts as _webcal_accounts} from './webcal_accounts'
 import type { webcal_accountsAttributes, webcal_accountsCreationAttributes } from "./webcal_accounts";
 import {webcal_events as _webcal_events} from './webcal_events'
-
 import type { webcal_eventsAttributes, webcal_eventsCreationAttributes } from "./webcal_events";
 
 export {
@@ -37,7 +36,7 @@ export {
   _users as users,
   _templates as templates,
   _webcal_accounts as  webcal_accounts,
-  _webcal_events as  webcal_events
+  _webcal_events as  webcal_events,
 
 };
 
@@ -82,7 +81,6 @@ export function initModels(sequelize: Sequelize) {
   const templates = _templates.initModel(sequelize)
   const webcal_accounts = _webcal_accounts.initModel(sequelize)
   const webcal_events = _webcal_events.initModel(sequelize)
-
   return {
     caldav_accounts: caldav_accounts,
     calendar_events: calendar_events,
@@ -95,7 +93,6 @@ export function initModels(sequelize: Sequelize) {
     users: users,
     templates:templates,
     webcal_accounts:webcal_accounts,
-    webcal_events:webcal_events
-
+    webcal_events:webcal_events,
   };
 }

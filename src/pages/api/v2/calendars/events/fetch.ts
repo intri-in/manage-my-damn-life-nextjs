@@ -1,7 +1,9 @@
-import { checkifObjectisVTODO, getCaldavClient, saveCalendarEventsintoDB } from "@/helpers/api/cal/caldav";
+import { checkifObjectisVTODO, decryptCalDAVPassword, getCaldavAccountDetailsfromId, getCalDAVAuthObjectFromCalDavAccount, getCaldavClient, saveCalendarEventsintoDB } from "@/helpers/api/cal/caldav";
 import { User } from "@/helpers/api/classes/User";
+import { getTSDAVCalDAVClient, getTSDAVInputFromCalDAVAccount } from "@/helpers/api/tsdav";
 import { getUserIDFromLogin, middleWareForAuthorisation } from "@/helpers/api/user";
 import { isValidResultArray } from "@/helpers/general";
+import { TSDAVAuthMethodTypes } from "types/tsdav";
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
@@ -19,14 +21,17 @@ export default async function handler(req, res) {
             }
 
             var userObj = new User(userid)
-            const calendars_id = await userObj.getCalendarID_FromURLandCaldavAccountID(req.query.caldav_accounts_id, req.query.url)
+            const calendars_id = await userObj.getCalendarID_FromURLandCaldavAccountID(req.query.caldav_accounts_id, decodeURIComponent(req.query.url))
+            // console.log("calendars_id", calendars_id,req.query.url)
             if(calendars_id)
             {
-                var client = await getCaldavClient(req.query.caldav_accounts_id).catch(e =>{
+                const caldavClientDetails=await getCaldavAccountDetailsfromId(req.query.caldav_accounts_id)
+                // console.log("decryptCalDAVPassword(caldavClientDetails[0].password!)", decryptCalDAVPassword(caldavClientDetails[0].password!))
+                var client = await getTSDAVCalDAVClient(getTSDAVInputFromCalDAVAccount(caldavClientDetails,"api/v2/calendars/events/")).catch(e =>{
                     console.error("api/v2/calendars/events/fetch",e)
 
                 })
-                console.log("req.query.ctag", req.query.ctag, req.query.syncToken)
+                // console.log("req.query.ctag", req.query.ctag, req.query.syncToken)
                 if(client){
                     const calendarObjects = await client.fetchCalendarObjects({
                         calendar: {url: req.query.url, ctag: req.query.ctag, syncToken: req.query.syncToken, },

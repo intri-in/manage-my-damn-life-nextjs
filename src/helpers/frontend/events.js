@@ -587,17 +587,22 @@ export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, 
                     
                     if(body.data && body.data.details){
                         const newEvent = body.data.details
-                        // console.log("event to Save", calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type)
-                        saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type).then((resultOfInsert) =>{
-                            
-                            return resolve(body)
-                        })
-                        // console.log("details", body.data.details)
-                    }else{
-                            fetchLatestEventsV2().then(resultofRefresh =>{
+                        
+                        console.log("event to Save", calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],type)
+                        let dataToSave = newEvent["data"]?? data
+                        if(newEvent && newEvent.etag && newEvent.data && newEvent.url){
 
+                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],dataToSave,type).then((resultOfInsert) =>{
+                                
                                 return resolve(body)
                             })
+                        }else{
+                                return resolve(body)
+                        }
+                        // console.log("details", body.data.details)
+                    }else{
+
+                                return resolve(body)
                       
                     }
 
@@ -649,31 +654,38 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
                 .then(response => response.json())
                 .then((body) => {
                     if(body && body.success){
-                        // console.log("update Event", body)
+                        console.log("update Event", body)
                         if(body.data && body.data.details){
                             const newEvent= body.data.details
-                            saveEventToDexie(calendar_id,newEvent["url"], newEvent["etag"],newEvent["data"],typetoSend).then((resultOfInsert) =>{
-                            
+                            let dataToSave = newEvent["data"]?? data
+                            if(newEvent && newEvent.url){
+
+                                saveEventToDexie(calendar_id, newEvent["url"], newEvent["etag"],dataToSave,typetoSend).then((resultOfInsert) =>{
+                                
+                                    return resolve(body)
+                                })
+                            }else{
                                 return resolve(body)
-                            })
+
+                            }
     
                         }else{
-                            fetchLatestEventsV2().then(resultofRefresh =>{
-
                                 return resolve(body)
-                            })
 
                         }
                     }else{
 
+                        return resolve(body)
                         if(oldEvent){
                             
                             // The CalDAV action has failed.
                             // We restore the older version of the event 
-                            saveEventToDexie(calendar_id,oldEvent["url"], oldEvent["etag"],oldEvent["data"],typetoSend).then((resultOfInsert) =>{
+                            // saveEventToDexie(calendar_id,oldEvent["url"], oldEvent["etag"],oldEvent["data"],typetoSend).then((resultOfInsert) =>{
                                 
-                                return resolve(body)
-                            })
+                            //     return resolve(body)
+                            // })
+                        }else{
+
                         }
 
 

@@ -59,7 +59,7 @@ export class Calendars{
     static async updateCalendarinDB(calendar, calFromDB)
     {
         let displayName = typeof(calendar.displayName) == "string" ? calendar.displayName : validator.escape(calendar.displayName) 
-        let url =  calendar.url.toString()
+        let url =  decodeURIComponent(calendar.url.toString())
         let ctag = calendar.ctag.toString()
         let description = typeof(calendar.description) == "string" ? calendar.description : validator.escape(calendar.description).toString()
         let calendarColor = validator.isHexColor(calendar.calendarColor.toString()) ? calendar.calendarColor : ""
@@ -230,7 +230,6 @@ export class Calendars{
             where:{
                 url: url
             },
-            
         })
         if(calendar && Array.isArray(calendar) && calendar.length>0 && ("calendars_id" in calendar[0]) && calendar[0].calendars_id){
             return calendar[0].calendars_id

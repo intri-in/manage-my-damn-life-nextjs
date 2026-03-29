@@ -8,6 +8,9 @@ import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
 import { processCalendarFromCaldav } from "@/helpers/api/v2/caldavHelper"
 import { shouldLogforAPI } from "@/helpers/logs"
+import { getTSDAVCalDAVClient, getTSDAVInputFromCalDAVAccount } from "@/helpers/api/tsdav"
+import { caldav_accounts } from "models/caldav_accounts"
+import { TSDAVAuthMethodTypes } from "types/tsdav"
 const LOGTAG = "api/v2/calendars/refresh"
 export default async function handler(req, res) {
     if (req.method === 'GET') {
@@ -22,7 +25,7 @@ export default async function handler(req, res) {
             }
 
             var user = new User(userid)
-            var caldav_accounts= await user.getCaldavAccountsAllData()
+            var caldav_accounts: caldav_accounts[]= await user.getCaldavAccountsAllData()
             var finalResponse: any= []
             if(caldav_accounts!=null&&Array.isArray(caldav_accounts)&&caldav_accounts.length>0)
             {
@@ -30,27 +33,26 @@ export default async function handler(req, res) {
                 
                 for(const i in caldav_accounts)
                 {
-                    var caldavAccount = new CaldavAccount(caldav_accounts[i])
-                    const client =  await createDAVClient({
-                        serverUrl: caldav_accounts[i].url,
-                        credentials: {
-                            username: caldav_accounts[i].username,
-                            password: AES.decrypt(caldav_accounts[i].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8)
-                        },
-                        authMethod: 'Basic',
-                        defaultAccountType: 'caldav',
-                    }).catch((reason) =>
-                    {
-                        console.error(reason, "api/calendars/refresh")
-                        // Invalid calDAV account. Client is null.
-                    })
+                    var caldavAccount  = new CaldavAccount(caldav_accounts[i])
+                    // const client =  await createDAVClient({
+                    //     serverUrl: caldav_accounts[i].url,
+                    //     credentials: {
+                    //         username: caldav_accounts[i].username,
+                    //         password: AES.decrypt(caldav_accounts[i].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8)
+                    //     },
+                    //     authMethod: 'Basic',
+                    //     defaultAccountType: 'caldav',
+                    // }
+                    const client = await getTSDAVCalDAVClient(getTSDAVInputFromCalDAVAccount([caldav_accounts[i]],"api/v2/calendars/refresh"))
+                
+                    
                     //logVar(caldav_accounts[i], "caldav_accounts: api/calendars/refresh")
                     //logVar(client, "client: api/calendars/refresh")
 
                     if(client!=null && typeof(client)== 'object')
                     {
                         const calendars = await client.fetchCalendars()
-                        if(shouldLogforAPI()) console.log(calendars, "calendars: "+LOGTAG)
+                        if(shouldLogforAPI()) console.log(calendars, "calendars : "+LOGTAG)
                         
                         
                         let tempCalList:any = []

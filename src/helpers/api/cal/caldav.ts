@@ -11,10 +11,15 @@ import ical from '@/../ical/ical'
 import { parseICSWithICALJS } from '../ical';
 import { caldav_accounts } from 'models/caldav_accounts';
 import { calendar_events } from 'models/calendar_events';
+import { CalDAVAuthObject, getTSDAVCalDAVClient, getTSDAVInputFromCalDAVAccount } from '../tsdav';
+import { CaldavAccount } from '../classes/CaldavAccount';
+import { TSDAVAuthMethodTypes } from 'types/tsdav';
+import { calendars } from 'models/calendars';
 
-const caldav_accountsModel = caldav_accounts.initModel(getSequelizeObj())
-const calendar_eventsModel = calendar_events.initModel(getSequelizeObj())
-
+const sqlObject= getSequelizeObj()
+const caldav_accountsModel = caldav_accounts.initModel(sqlObject)
+const calendar_eventsModel = calendar_events.initModel(sqlObject)
+const calendarsModel = calendars.initModel(sqlObject)
 export interface eventAddResultType_Error{
     status: number, 
     error:string, 
@@ -26,6 +31,9 @@ export interface eventAddResultType_Success{
     client: any
 }
 
+export function decryptCalDAVPassword(password: string){
+    return AES.decrypt(password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8)
+}
 /**
  * 
  * @param {*} caldav_account_id  
@@ -46,6 +54,12 @@ export async function getCaldavClient(caldav_account_id)
 
     return client
 
+}
+
+export function getCalDAVAuthObjectFromCalDavAccount(caldav_account: caldav_accounts): CalDAVAuthObject{
+
+
+    return {client_id: caldav_account.client_id!,access_token:  caldav_account.access_token!, provider: caldav_account.provider!, refresh_token: caldav_account.refresh_token!}
 }
 
 export async function createCalDAVAccount(accountname, username, password, url, userid)
@@ -101,7 +115,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
         for(let i=0; i<calendarObjects.length; i++)
         {
             var type = checkifObjectisVTODO(calendarObjects[i].data)
-            var eventfromDB=await getCalendarEventbyURL(calendarObjects[i].url,calendar_id)
+            var eventfromDB=await getCalendarEventbyURL(decodeURIComponent(calendarObjects[i].url),calendar_id)
             var updated=Math.floor(Date.now() / 1000)
             if(eventfromDB!=null && Array.isArray(eventfromDB) && eventfromDB.length>0)
             {
@@ -115,7 +129,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
                             {etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated.toString(), type:type,deleted: "" },
                             {
                             where: {
-                                url: calendarObjects[i].url,
+                                url: decodeURIComponent(calendarObjects[i].url,)
                             },
                             },
                         );
@@ -137,10 +151,10 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
                 else
                 {
                     await calendar_eventsModel.update(
-                        {etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated.toString(), type:type,},
+                        {etag :calendarObjects[i].etag, data: calendarObjects[i].data, updated:  updated.toString(), type:type, deleted:""},
                         {
                         where: {
-                            url: calendarObjects[i].url,
+                            url: decodeURIComponent(calendarObjects[i].url)
                         },
                         },
                     );
@@ -158,7 +172,7 @@ export async function saveCalendarEventsintoDB(calendarObjects, caldav_account_i
             else
             {
                 //Insert into DB.
-                await calendar_eventsModel.create({ url: calendarObjects[i].url, etag:calendarObjects[i].etag, data:calendarObjects[i].data, updated:updated.toString(), calendar_id: calendar_id, type: type});
+                await calendar_eventsModel.create({ url: decodeURIComponent(calendarObjects[i].url), etag:calendarObjects[i].etag, data:calendarObjects[i].data, updated:updated.toString(), calendar_id: calendar_id, type: type});
                 // con.query('INSERT INTO calendar_events (url, etag, data, updated, calendar_id, type) VALUES (?,? ,?,?,?,?)', [calendarObjects[i].url, calendarObjects[i].etag, calendarObjects[i].data, updated, calendar_id, type], function (error, results, fields) {
                 //     if (error) {
                 //         console.log(error)
@@ -263,19 +277,12 @@ export async function createEventinCalDAVAccount(url, caldav_accounts_id, calend
 {
 
     var caldav_account= await getCaldavAccountDetailsfromId(caldav_accounts_id)
+    console.log("url", url)
 
     return new Promise( (resolve, reject) => {
         if(isValidCaldavAccount(caldav_account))
     {
-         createDAVClient({
-            serverUrl: caldav_account[0].url!,
-            credentials: {
-                username: caldav_account[0].username,
-                password: AES.decrypt(caldav_account[0].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8)
-            },
-            authMethod: 'Basic',
-            defaultAccountType: 'caldav',
-        }).then((client) => {
+         getTSDAVCalDAVClient(getTSDAVInputFromCalDAVAccount(caldav_account)).then((client) => {
             client.createCalendarObject({
                 calendar: calendar,
                 filename: url,
@@ -286,7 +293,7 @@ export async function createEventinCalDAVAccount(url, caldav_accounts_id, calend
 
     
         }, (rejected) => {
-            console.log(rejected)
+            console.log("createEventinCalDAVAccount:", rejected)
             var statusText="Server error. Check Logs."
             if(varNotEmpty(rejected) && varNotEmpty(rejected.message))
             {
@@ -312,22 +319,10 @@ export async function updateEventinCalDAVAccount(caldav_accounts_id,  event):Pro
     return new Promise( (resolve, reject) => {
         if(isValidCaldavAccount(caldav_account))
         {
-           createDAVClient({
-                serverUrl: caldav_account[0].url!,
-                credentials: {
-                    username: caldav_account[0].username,
-                    password: AES.decrypt(caldav_account[0].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8) 
-                },
-                authMethod: 'Basic',
-                defaultAccountType: 'caldav',
-            }).then((client) => {
+            getTSDAVCalDAVClient(getTSDAVInputFromCalDAVAccount(caldav_account, "updateEventinCalDAVAccount"))
+            .then((client) => {
                client.updateCalendarObject({
                     calendarObject: event,
-                    headers:getBasicAuthHeaders({
-                        username: caldav_account[0].username,
-                        password: AES.decrypt(caldav_account[0].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8) 
-        
-                    })
                   }).then(result =>{
                     return resolve({result: result, client: client})
                   })
@@ -377,3 +372,39 @@ export async function getCaldavClientBasic(url, username, password)
     })
 }
 
+
+export async function getCalendarFromEventURL(eventUrl: string){
+    const eventResult = await calendar_eventsModel.findAll({
+        where: {
+            url: eventUrl
+        }
+    })
+
+    if(eventResult && eventResult.length>0){
+        const cal_id = eventResult[0].calendar_id
+        if(cal_id){
+            const calendarObj = await calendarsModel.findAll({
+                where:{
+                    calendars_id: cal_id
+                },
+                raw: false
+            })
+
+            return calendarObj
+        }
+    }
+
+    return null
+}
+
+export async function getCalendarFromURL(calendarURL: string){
+        const calendarObj = await calendarsModel.findAll({
+                where:{
+                    url: decodeURIComponent(calendarURL)
+                },
+            })
+
+            return calendarObj 
+
+
+}

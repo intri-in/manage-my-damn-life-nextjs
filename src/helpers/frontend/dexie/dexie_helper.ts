@@ -38,7 +38,7 @@ export function compareCalDAVSummary_andGetIndex(rowToCompare, summaryToCompareW
             // console.log(summaryToCompareWith[j]["caldav_accounts_id"],rowToCompare["caldav_accounts_id"])
             // console.log(summaryToCompareWith[j]["url"],rowToCompare["url"])
             //Found. Now we check if the values match.
-            if(summaryToCompareWith[j]["url"]==rowToCompare["url"] && summaryToCompareWith[j]["username"]==rowToCompare["username"]){
+            if(decodeURIComponent(summaryToCompareWith[j]["url"])==decodeURIComponent(rowToCompare["url"]) && summaryToCompareWith[j]["username"]==rowToCompare["username"]){
                 return j
 
             }

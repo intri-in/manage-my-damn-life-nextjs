@@ -47,7 +47,7 @@ export default function ManageTemplates(){
     }
   }, [status, router])
 
-    if(!isloggedIn) (<EmptyPageBeforeLogin />)   
+    if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
     return(
         <>
         <Head>

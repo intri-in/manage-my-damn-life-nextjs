@@ -1,3 +1,6 @@
+v0.9.0
+    - Added support for Google CalDAV with OAuth authentication. Solves #259
+    
 v0.8.3
 - New Features:
     - While moving/copying, the user now has the option to move/copy all the subtasks as well.
