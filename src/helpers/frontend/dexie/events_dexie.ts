@@ -253,7 +253,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
             console.log("saveEventToDexie", e)
         })
 
-        console.log("saveEventToDexie -> id", id ,parsed.summary, )
+        // console.log("saveEventToDexie -> id", id ,parsed.summary, )
     }
     await saveEventParenttoDexie(parsed)
     

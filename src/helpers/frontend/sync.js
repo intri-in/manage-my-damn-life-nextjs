@@ -132,7 +132,7 @@ export async function fetchLatestEventsV2(forceSync)
                     console.log("Syncing Calendar: "+cal["displayName"], cal["calendars_id"])
                     counter++
                     const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
-                    console.log("Total events fetched", events.length)
+                    if(events && Array.isArray(events)) console.log("Total events fetched", events.length)
                     //Now we save these events in dexie.
                     await saveAPIEventReponseToDexie(cal["calendars_id"],events)
 

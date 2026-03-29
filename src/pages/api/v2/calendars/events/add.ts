@@ -47,7 +47,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
 
         }
-        console.log("response", response)
+        console.log(LOG_TAG, "response", response)
         if(!response.client){
             res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
         }

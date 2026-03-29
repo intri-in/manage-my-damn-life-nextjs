@@ -5,7 +5,9 @@ import { getRandomString } from '@/helpers/crypto';
 import { getCalendarFromEventURL, updateEventinCalDAVAccount } from '@/helpers/api/cal/caldav';
 import { fetchCalendarObjects } from 'tsdav';
 import { isValidResultArray, logVar } from '@/helpers/general';
+import { shouldLogforAPI } from '@/helpers/logs';
 const validator = require('validator')
+const LOG_TAG = "api/v2/calendars/events/modify"
 export default async function handler(req, res) {
     // logVar(req.body, "modify object API CALL")
     if (req.method === 'POST') {
@@ -53,7 +55,7 @@ export default async function handler(req, res) {
                                 calendar: calendar[0],
                                 objectUrls:[decodeURIComponent(req.body.url)],
                               });
-                            console.log("objects", objects)
+                            if(shouldLogforAPI()) console.log(`${LOG_TAG} objects`, objects)
                             if(isValidResultArray(objects))
                             {
                                 newEvent = objects[0]
