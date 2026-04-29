@@ -36,6 +36,10 @@ export const AlarmForm = ({alarmsArray, onChange}: {alarmsArray:AlarmType[], onC
     }
 
     const newAlarmAdded = () =>{
+        if(!alarmValue) {
+            toast.error(t("ERROR_ENTER_A_VALUE_FOR_ALARM"))
+            return
+        }
         let valueinSeconds = -1*parseInt(alarmValue)*60
 
         let found = false

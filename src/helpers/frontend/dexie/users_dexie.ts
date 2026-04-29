@@ -89,7 +89,7 @@ export async function checkifCurrentUserInDexie(){
     if(!userid){
 
         const userhash = await getUserHashforCurrentUser()
-        console.log("userid and hash", userid, userhash)
+        // console.log("userid and hash", userid, userhash)
     
         await addUserToDB_Dexie(userhash)
         

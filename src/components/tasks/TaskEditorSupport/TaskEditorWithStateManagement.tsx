@@ -37,7 +37,7 @@ import next from "next/types"
 import { useTranslation } from "next-i18next"
 import { VAlarmForm } from "@/components/valarm/VAlarmForm"
 import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
-import { vAlarm } from "@/types/valarm"
+import { VAlarmType } from "@/types/valarm"
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
@@ -84,7 +84,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [recurrenceObj, setRecurrenceObj] = useState<any>({})
     const [rawICS, setRawICS] = useState('')
     const [isTemplate, setIsTemplate] = useState(false)
-    const [alarms, setVAlarm] = useState<vAlarm[]>([])
+    const [alarms, setVAlarm] = useState<VAlarmType[]>([])
     const changeDoneStatus = (isDone: boolean) => {
         if(!isDone){
             setCompleted("")
