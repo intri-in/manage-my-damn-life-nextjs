@@ -191,8 +191,10 @@ const AppliedFilters = ({showDone, filterList, searchTerm, showDoneChanged, sear
         <small>{t("FILTERS_APPLIED")}</small>
         {output}
         </Stack>
-    )
+        )
 
+    }else{
+        return (<></>)
     }
     
     
