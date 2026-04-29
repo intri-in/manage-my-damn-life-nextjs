@@ -1,4 +1,4 @@
-export interface vAlarm{
+export interface VAlarmType{
     action: string;
     trigger: vAlarmTrigger;
     description?: string;

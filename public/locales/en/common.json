@@ -113,6 +113,7 @@
   "ENTER_CALDAV_PASSWORD": "Enter CalDAV password",
   "ENTER_CALDAV_USERNAME": "Enter CalDAV user name",
   "ERROR_ENTER_A_SUMMARY_FOR_ALARM": "Summary is mandatory if the Alarm is of the type 'Email'.",
+  "ERROR_ENTER_A_VALUE_FOR_ALARM": "Enter a valid value for the alarm.",
   "ERROR_ENTER_A_DESC_FOR_ALARM": "Description is mandatory if the Alarm is of the type 'Display' or 'Email'.",
   "ERROR_ENTER_A_VALID_ATTENDEE_LIST": "Enter a valid attendee list.",
   "ENTER_CALENDAR_NAME": "Enter calendar name.",

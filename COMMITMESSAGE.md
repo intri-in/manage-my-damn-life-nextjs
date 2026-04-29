@@ -1,1 +1,1 @@
-Bug Fix: Fixed inconsistent handling of task filters.
+Bug Fix: Fixed #323
