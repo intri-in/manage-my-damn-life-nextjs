@@ -6,7 +6,7 @@ v0.9.0
 - Bug Fixes:
     - Fixed #319 and possibly #175
         - Added migrations to increased size of columns in tables Calendars, Users, Caldav_Accounts, and Calendar_Events
-    
+    - Bug Fix: Fixed inconsistent handling of task filters.
 v0.8.3
 - New Features:
     - While moving/copying, the user now has the option to move/copy all the subtasks as well.
