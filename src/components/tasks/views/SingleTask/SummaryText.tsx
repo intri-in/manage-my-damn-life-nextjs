@@ -20,8 +20,8 @@ export const SummaryText = ({text, color}: {text: string | undefined, color?: st
           overlay={renderTooltip}
         >
          <span>
-         <div style={{color:color, overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px",zIndex:-999 }} className="textDefault">
-          {text}
+         <div style={{color:color, overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"20px",zIndex:-999 }} className="textDefault">
+          <small>{text}</small>
           </div>
           </span>
         </OverlayTrigger>

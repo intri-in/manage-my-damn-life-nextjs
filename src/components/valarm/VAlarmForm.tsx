@@ -130,8 +130,8 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
 
             })
 
-            setTriggerValue(0)
-            setDescription("")
+            setTriggerValue(10)
+            setDescription("Reminder!")
         }
     }
 

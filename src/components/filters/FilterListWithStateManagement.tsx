@@ -43,7 +43,7 @@ export const FilterListWithStateManagement = ({postClick}: {postClick: Function}
                 for (let i = 0; i < filtersFromServer.data.message.length; i++) {
                     let jsonFilter = JSON.parse(filtersFromServer.data.message[i].filtervalue)
                     finalOutput.push(
-                        <Row style={{ borderBottom: `1px solid ${borderColor}`, padding: 4 }} key={i + "_words_" + filtersFromServer.data.message[i].name}>
+                    <Row style={{ borderBottom: `1px solid ${borderColor}`, padding: 4 }} key={i + "_words_" + filtersFromServer.data.message[i].name}>
                         <Col xs={10}>
                             <div onClick={()=>filterClicked(jsonFilter, filtersFromServer.data.message[i].name)} className="textDefault" > <FcEmptyFilter /> {filtersFromServer.data.message[i].name}</div>
                         </Col>

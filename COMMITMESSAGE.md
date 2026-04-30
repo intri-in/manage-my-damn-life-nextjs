@@ -1,1 +1,1 @@
-Bug Fix: Fixed #323
+UI fixes and improvements

@@ -51,7 +51,26 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     const [labelArray, setLabelArray] = useState<string[]>([])
     const [taskColour, setTaskColour] = useState("black")
     const [isDone, setIsDone] = useState(false)
+    const [parentIsSmall, setParentIsSmall] = useState(false)
     var marginLevel = level * 30 + 20
+
+    const setUIBasedOnUrl = () =>{
+        if(typeof(window)!=="undefined"){
+            const path = window.location.pathname;
+            if(path=="/"){
+                const screenWidth = window.screen.width;
+                // console.log("screenWidth",screenWidth )
+                setParentIsSmall(true)
+            }
+        }
+    }
+    useEffect(() => {
+        setUIBasedOnUrl()
+        window.addEventListener('resize', setUIBasedOnUrl);
+        return () => {
+        window.removeEventListener('resize', setUIBasedOnUrl);
+        };
+    }, []);
 
     const checkifRepeating = () => {
         if ("rrule" in parsedTask && parsedTask.rrule) {
@@ -250,7 +269,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
 
     priorityStar = (<div onClick={priorityStarClicked} style={{ padding: 0, verticalAlign: 'middle', textAlign: 'center' }} className="col-1">{priorityStar}</div>)
 
-
+    const hideOnCombinedViewClasses = parentIsSmall ? "":""
     return (
         <div key={id.toString()}>
             <ContextMenuTrigger key={id.toString() + "_" + parsedTask.uid + "_contextMenuTrigger"} id={"RIGHTCLICK_MENU_" + id} >
@@ -260,15 +279,12 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                             <Col xs={1} sm={1} md={1} lg={1} style={{ justifyContent: 'center', display: 'flex', }} >
                                 <input onChange={checkBoxClicked} className="" type="checkbox" checked={isDone} />
                             </Col>
-                            <Col xs={9} sm={6} md={5} lg={5} onClick={taskClicked} >
-                                <Row>
-                                    <Col >
-                                        <SummaryText text={parsedTask["summary"]} />
-                                    </Col>
-                                </Row>
+                            <Col xs={9} sm={6} md={5} lg={ parentIsSmall? 8: 4} onClick={taskClicked} >
+                                <SummaryText text={parsedTask["summary"]} />
                             </Col>
-                            <Col onClick={taskClicked} className="d-none d-sm-block" sm={3} md={5} lg={3}>
-                                <SummaryText color={dueDateColor} text={dueDateText} />
+                            
+                            <Col onClick={taskClicked} className={`d-none d-sm-block ${parentIsSmall? "d-lg-none":"d-lg-block"}`} xs={0} sm={3} md={5} lg={4}>
+                                <SummaryText color={dueDateColor} text={dueDateText} /> 
                             </Col>
                             <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
                                 <div style={{ width: "80%" }} className="textDefault">
@@ -276,14 +292,17 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                                 </div>
 
                             </Col>
-                            <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1} >
+                            
+                            <Col onClick={taskClicked} className={`d-sm-none d-md-none ${parentIsSmall?"":"d-lg-block"}`} lg={1} >
                                 {repeatingTaskIcon} {hasDescriptionIcon}
                             </Col>
-                            <Col style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }} xs={1} sm={1} md={1} lg={1} >
+                                
+                          
+                            <Col className={` d-sm-none d-md-block  d-sm-block d-md-none d-lg-block`}  style={{ display: "flex", flexDirection: "row", justifyContent: "end", alignItems: "center" }} xs={1} sm={1} md={1} lg={1} >
                                 {priorityStar}
                             </Col>
                         </Row>
-                        <Row onClick={taskClicked}>
+                        <Row className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" onClick={taskClicked}>
                             <Col>
                                 {parsedTask.completion ? <ProgressBar style={{ height: 5 }} now={parseInt(parsedTask.completion?.toString())} variant="secondary" /> : null}
                             </Col>

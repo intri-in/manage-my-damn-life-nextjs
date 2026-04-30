@@ -16,7 +16,7 @@ export function Loading(props)
     }
     
         return(
-            <div style={{padding: 5, padding:props.padding, textAlign:centered}}>
+            <div key="loading" style={{padding: 5, padding:props.padding, textAlign:centered}}>
                   <Spinner size={size} animation="grow" variant="primary" />
             </div>
         )

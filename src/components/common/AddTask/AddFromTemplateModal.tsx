@@ -18,7 +18,7 @@ import { geParsedtVAlarmsFromServer, getParsedEvent } from '@/helpers/frontend/e
 import { useTranslation } from 'next-i18next';
 export function AddFromTemplateModal() {
     const [show, setShow] = useState(false);
-    const [finalOutput, setFinalOutput] = useState([<Loading centered={true} />])
+    const [finalOutput, setFinalOutput] = useState([<Loading key="loading-init"  centered={true} />])
   
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -151,9 +151,9 @@ export function AddFromTemplateModal() {
         const borderColor = isDarkModeEnabled() ? "white" : "#F1F1F1"
         if(response && Array.isArray(response)){
             for(const i in response){
+                if(!response[i]["name"]) continue
                 let row=(
-                    <>
-                    <div className="card" key={i+"_"+"templateName"} style={{border:`1px solid ${borderColor}`, padding: 20, marginBottom:20, borderRadius: 20}}>
+                    <div className="card" key={i+"_"+"templateName_"+response[i]["name"]} style={{border:`1px solid ${borderColor}`, padding: 20, marginBottom:20, borderRadius: 20}}>
                     <Row>
                     <Col>
                     {response[i]["name"]}
@@ -171,7 +171,6 @@ export function AddFromTemplateModal() {
                     </div>
                     
                     
-                    </>
                 )
                 finalOutput.push(row)
             }
@@ -179,7 +178,7 @@ export function AddFromTemplateModal() {
     
                 setFinalOutput(finalOutput)
             }   else{
-                setFinalOutput([<p>{t("NOTHING_TO_SHOW")}</p>])
+                setFinalOutput([<p key="nothing_toShow">{t("NOTHING_TO_SHOW")}</p>])
             }     
         }
     
@@ -192,7 +191,7 @@ export function AddFromTemplateModal() {
         <div style={{textAlign: "right"}}>
         <Button onClick={handleShow} style={{marginBottom:10}} size="sm" variant="outline-primary">{t("ADD_FROM_TEMPLATE")}</Button>
         </div>
-        <Modal show={show} onHide={handleClose}>
+        <Modal key="addFromTemplateModal" show={show} onHide={handleClose}>
           <Modal.Header closeButton>
             <Modal.Title>{t("ADD_FROM_TEMPLATE")}</Modal.Title>
           </Modal.Header>

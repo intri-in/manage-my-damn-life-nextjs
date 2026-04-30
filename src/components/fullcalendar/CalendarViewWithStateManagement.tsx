@@ -151,7 +151,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         return () => {
             isMounted = false
         }
-    }, [allEvents, showTasksChecked, updateLocal])
+    }, [allEvents, showTasksChecked, updateLocal, webCalEvents])
     const viewChanged = (e) => {
         if (calendarRef && calendarRef.current) {
 

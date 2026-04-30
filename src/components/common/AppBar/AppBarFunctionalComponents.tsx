@@ -88,7 +88,7 @@ const AppBarFunctionalComponent = ({ session}) => {
   const checkInstallation = async () => {
     try {
       const isInstalled = await installCheck_Cookie(router);
-      console.log("isInstalled" ,isInstalled)
+      // console.log("isInstalled" ,isInstalled)
       setInstalled(isInstalled);
       
     } catch (error) {
@@ -196,7 +196,7 @@ const AppBarFunctionalComponent = ({ session}) => {
   const navVariant = darkModeEnabled ? "light": "dark"
   let langOption:JSX.Element[] = []
   for(const i in AVAILABLE_LANGUAGES){
-    langOption.push(      <option value={AVAILABLE_LANGUAGES[i]}>{AVAILABLE_LANGUAGES[i]}</option>)
+    langOption.push(      <option key={i} value={AVAILABLE_LANGUAGES[i]}>{AVAILABLE_LANGUAGES[i]}</option>)
   }
   return (
     <>
