@@ -176,12 +176,12 @@ const AppliedFilters = ({showDone, filterList, searchTerm, showDoneChanged, sear
 
     if(showDone){
         output.push(
-              <div className="p-1"><Badge pill={true} onClick={removeShowDoneFilter} bg="primary">{t("SHOW_DONE_TASKS")}</Badge></div>
+              <div key="SHOW_DONE_TASKS" className="p-1"><Badge pill={true} onClick={removeShowDoneFilter} bg="primary">{t("SHOW_DONE_TASKS")}</Badge></div>
         )
     }
     if(searchTerm){
         output.push(
-              <div className="p-1"><Badge pill={true} onClick={removeSearchTermFilter} bg="primary">{`${t("SEARCH_TERM")}: ${searchTerm}`}</Badge></div>
+              <div key="SEARCH_TERM" className="p-1"><Badge pill={true} onClick={removeSearchTermFilter} bg="primary">{`${t("SEARCH_TERM")}: ${searchTerm}`}</Badge></div>
         )
     }
 
@@ -222,7 +222,7 @@ const FilterListSelector = ({filterList, onChange, t}:{filterList: labelSelector
 
             }
 
-            setLabelOutput([<Stack direction='horizontal'>{output}</Stack>])
+            setLabelOutput([<Stack key="labelList" direction='horizontal'>{output}</Stack>])
         }
 
         return ()=>{

@@ -428,6 +428,8 @@ When it's NOT activated, the fc-button classes won't even be in the DOM.
 .fc .fc-col-header-cell-cushion {
     display: inline-block; /* x-browser for when sticky (when multi-tier header) */
     padding: 2px 4px;
+    font-size: 10px;
+    text-decoration: none; /* Recommended to remove default underline */
   }
 .fc .fc-bg-event,
   .fc .fc-non-business,
