@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Button, Col, Dropdown, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import validator from "validator";
-import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import Spinner from "react-bootstrap/Spinner";
@@ -220,6 +219,14 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           placeholder={t("ENTER_ACCOUNT_NAME")}
         />
         <Form.Label style={{ marginTop: 30 }}>
+          {t("AUTHENTICATION_TYPE")}
+        </Form.Label>
+        <Form.Select onChange={onAuthTypeChanged} value={authType} aria-label="auth-type">
+          <option key="BASIC" value="BASIC">{t("BASIC")}</option>
+          <option key="OAUTH" value="OAUTH">{t("OAUTH")}</option>
+        </Form.Select>
+
+        <Form.Label style={{ marginTop: 30 }}>
           {t("SERVER_URL")}
         </Form.Label>
         <Form.Control
@@ -229,13 +236,6 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           value={serverURL}
           placeholder={t("ENTER_A_SERVER_NAME")}
         />
-        <Form.Label style={{ marginTop: 30 }}>
-          {t("AUTHENTICATION_TYPE")}
-        </Form.Label>
-        <Form.Select onChange={onAuthTypeChanged} value={authType} aria-label="auth-type">
-          <option key="BASIC" value="BASIC">{t("BASIC")}</option>
-          <option key="OAUTH" value="OAUTH">{t("OAUTH")}</option>
-        </Form.Select>
         {
           authType =="OAUTH" ? (
             <>

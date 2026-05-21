@@ -1,1 +1,1 @@
-UI fixes and improvements
+Bug fix: Fixed a bug where webcal colour won't change immediately on the frontend when the user edited it.
