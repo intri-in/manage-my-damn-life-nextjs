@@ -154,7 +154,7 @@ const webcalColourChanged = async (newColour, webcal_id) =>{
     const url_api = getAPIURL() + "webcal/updateColour";
     const authorisationData = await getAuthenticationHeadersforUser();
 
-    console.log("webcal_id", webcal_id, newColour)
+    // console.log("webcal_id", webcal_id, newColour)
 
     const requestOptions = {
       method: "POST",
