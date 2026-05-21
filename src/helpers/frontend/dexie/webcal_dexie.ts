@@ -117,6 +117,11 @@ export async function updateEventsinWebcal_Dexie(webcalId, newParsedCal){
     await addWebCalEventstoDexie(webcalId, newParsedCal)
 }
 
+export async function updateColourforWebcal_Dexie(webcalId, newColour){
+    await db.webcals.update(parseInt(webcalId), {colour:newColour})
+    return
+}
+
 export async function getEventsfromWebcal_Dexie(webcalId){
     const webcals_events =  await db.webcals_events
     .where('webcals_id')
