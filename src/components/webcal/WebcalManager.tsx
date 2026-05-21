@@ -176,13 +176,18 @@ const webcalColourChanged = async (newColour, webcal_id) =>{
 
         if(!body){
             toast.error(t("ERROR_GENERIC"))
+            return
         }
         if(!("success" in body) || !body.success){
             toast.error(t("ERROR_GENERIC"))
+            return
+
+        }else{
+
+            toast.success(t("UPDATE_OK"))
+            //Make change in the local.
+            updateColourforWebcal_Dexie(webcal_id, newColour)
         }
-        toast.success(t("UPDATE_OK"))
-        //Make change in the local.
-        updateColourforWebcal_Dexie(webcal_id, newColour)
 
 
     }).catch(e =>{
