@@ -1,1 +1,2 @@
-Bug fix: Fixed a bug where webcal colour won't change immediately on the frontend when the user edited it.
+Extra files pruned.
+    - Remaining JS files removed. Already have been migrated to TS equivalent.

@@ -1,4 +1,3 @@
-import FilterList from "@/components/filters/FilterList"
 import { SYSTEM_DEFAULT_LABEL_PREFIX } from "@/config/constants"
 import { PRIMARY_COLOUR } from "@/config/style"
 import { getAllLabelsFromDexie, updateLabelCacheInDexie } from "@/helpers/frontend/dexie/dexie_labels"
