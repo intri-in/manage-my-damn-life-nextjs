@@ -1,12 +1,11 @@
-import React, { FC, ReactElement, useEffect, useState } from 'react';
-import TaskList from "../../tasks/TaskList";
+import React, { useEffect, useState } from 'react';
 import { getTodaysDateUnixTimeStamp, varNotEmpty } from "@/helpers/general";
 import { MYDAY_LABEL } from "@/config/constants";
 import Form from 'react-bootstrap/Form';
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions";
 import { isValidFilter } from "@/helpers/frontend/filters";
 import * as _ from 'lodash'
-import { getValueFromLocalStorage, storeValuetoLocalStorage } from "@/helpers/frontend/localstorage";
+import { storeValuetoLocalStorage } from "@/helpers/frontend/localstorage";
 import { useTranslation } from "next-i18next";
 
 export const STORAGE_KEY_MENU_OPTION_SELECTED= "STORAGE_KEY_MENU_OPTION_SELECTED"
