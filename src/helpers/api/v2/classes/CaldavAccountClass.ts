@@ -49,7 +49,9 @@ export class CaldavAccountClass{
             refresh_token: caldav_auth_object?.refresh_token, 
             access_token:caldav_auth_object?.access_token,
             client_id:caldav_auth_object?.client_id,
-            provider:caldav_auth_object?.provider
+            provider:caldav_auth_object?.provider,
+            expires_in: caldav_auth_object?.expires_in,
+            last_updated:caldav_auth_object?.last_updated,
          })
 
         const newID= await this.accountExists(username, url,this.userid)

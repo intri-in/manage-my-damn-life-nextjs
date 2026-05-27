@@ -8,6 +8,7 @@ import { isCaldavURLinAllowedList } from '@/helpers/validators';
 import { CalDAVAuthObject, getTSDAVCalDAVClient, OAUTH_TOKEN_URL } from '@/helpers/api/tsdav';
 import { getBaseURL } from '@/helpers/general';
 import { fetchOAuthTokenFromProvider } from '@/helpers/api/OAuth';
+import moment from 'moment';
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
@@ -52,7 +53,7 @@ export default async function handler(req, res) {
         // redirectUrl: `${getBaseURL()}/accounts/caldav/oauth/register`,
         // });
 
-        // console.log("token", token,`${getBaseURL()}accounts/caldav/oauth/register`)
+        console.log("token", token,`${getBaseURL()}accounts/caldav/oauth/register`)
         if(!token || !token.access_token){
             return res.status(401).json({ success: false, data: { message: 'ERROR_INVALID_OAUTH_AUTHORISATION_CODE'} })
         }
@@ -70,7 +71,10 @@ export default async function handler(req, res) {
             access_token: token.access_token!,
             refresh_token:  token.refresh_token,
             auth_code: req.body.auth_code,
-            provider: req.body.provider
+            provider: req.body.provider,
+            expires_in: token.expires_in!.toString(),
+            last_updated: moment(moment.now()).toISOString()
+
         }
         let response = {}
         const client =  await getTSDAVCalDAVClient({
@@ -87,7 +91,7 @@ export default async function handler(req, res) {
                 if(caldav_accounts_fromDB==null){
                     //Save Caldav Account.
                     caldav_accounts_fromDB = await caldav_account.save(accountname, username, password, url, authMethod, caldav_auth_object)
-                    var output ={
+                    const output ={
                         name: caldav_accounts_fromDB!.name,
                         username:req.body.username,
                         caldav_accounts_id: caldav_accounts_fromDB!.caldav_accounts_id,

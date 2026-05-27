@@ -1,9 +1,12 @@
-import { createDAVClient, DAVClient } from "tsdav"
+import { createDAVClient, DAVClient, refreshAccessToken } from "tsdav"
 import { TSDAVAuthMethodTypes } from "types/tsdav"
 import { addTrailingSlashtoURL, getBaseURL, logError } from "../general"
 import { caldav_accounts } from "models/caldav_accounts"
 import { AES } from 'crypto-js';
 import { decryptCalDAVPassword } from "./cal/caldav";
+import moment from "moment";
+import { updateCalDAVAccountAccessTokeninDB } from "./caldav_accounts";
+import { refreshOAuthTokenFromProvider } from "./OAuth";
 
 export type CalDAVAuthObject = {
     client_id: string,
@@ -12,13 +15,15 @@ export type CalDAVAuthObject = {
     provider?:string,
     auth_code?:string
     client_secret?:string
+    expires_in?:string
+    last_updated?:string
 }
 
 export const OAUTH_TOKEN_URL ={
     "GOOGLE":"https://oauth2.googleapis.com/token",
 }
 
-type GetTSDAVCalDAVClientInput= {
+export type GetTSDAVCalDAVClientInput= {
     url: string, 
     username:string, 
     password: string, 
@@ -43,10 +48,45 @@ export function getTSDAVInputFromCalDAVAccount(caldav_account: caldav_accounts[]
                 refresh_token: caldav_account[0].refresh_token!,
                 client_secret: decryptedPass,
                 provider: caldav_account[0].provider!,
+                expires_in: caldav_account[0].expires_in!,
+                last_updated: caldav_account[0].last_updated!,
             },
             logErrorPrefix:logErrorPrefix??"getTSDAVInputFromCalDAVAccount"
         }
 
+}
+export function accessTokenNeedsRefresh(caldav_auth_object: caldav_accounts ){
+    // console.log("caldav_auth_object", caldav_auth_object)
+    if(!caldav_auth_object){
+        console.error("accessTokenNeedsRefresh: No caldav_auth_object provided")
+        return true
+    }
+    if(!caldav_auth_object.access_token){
+        console.error("accessTokenNeedsRefresh: caldav_auth_object.access_token is empty")
+        return true
+    }
+    if(!caldav_auth_object.last_updated || !caldav_auth_object.expires_in){
+        return true
+
+    }
+    const startingTime = moment(caldav_auth_object.last_updated)
+    const differenceInSeconds = startingTime.diff(moment(moment.now()), "seconds")
+    if(differenceInSeconds>=parseInt(caldav_auth_object.expires_in)){
+        return true
+    }
+    // console.log("startingTime", startingTime, differenceInSeconds)
+    return false
+
+}
+
+export async function refreshTokenAndSaveinDB(input: caldav_accounts){
+
+    const result = await refreshOAuthTokenFromProvider(input)
+    console.log("refreshTokenAndSaveinDB result", result)
+    if(result && result.access_token && result.expires_in){
+        //Save the new token in database.
+        await updateCalDAVAccountAccessTokeninDB(input, {access_token: result.access_token, expires_in:result.expires_in.toString()})
+    }
 }
 export async function getTSDAVCalDAVClient(input: GetTSDAVCalDAVClientInput): Promise<any| null> {
     // console.log("OAUTH_TOKEN_URL[caldav_auth_object?.provider!],", OAUTH_TOKEN_URL[caldav_auth_object?.provider!])
@@ -70,7 +110,6 @@ export async function getTSDAVCalDAVClient(input: GetTSDAVCalDAVClientInput): Pr
             })
             }else{
 
-               
              createDAVClient({
                 serverUrl: input.url,
                 credentials: {

@@ -12,13 +12,15 @@ export interface caldav_accountsAttributes {
   refresh_token?:string,
   access_token?:string,
   provider?:string,
-  client_id?:string
+  client_id?:string,
+  expires_in?:string,
+  last_updated?:string
 
 }
 
 export type caldav_accountsPk = "caldav_accounts_id";
 export type caldav_accountsId = caldav_accounts[caldav_accountsPk];
-export type caldav_accountsOptionalAttributes = "caldav_accounts_id" | "username" | "password" | "url" | "userid" | "name" | "authMethod";
+export type caldav_accountsOptionalAttributes = "caldav_accounts_id" | "username" | "password" | "url" | "userid" | "name" | "authMethod" | "refresh_token" | "access_token" | "provider" | "client_id" | "expires_in" | "last_updated";
 export type caldav_accountsCreationAttributes = Optional<caldav_accountsAttributes, caldav_accountsOptionalAttributes>;
 
 export class caldav_accounts extends Model<caldav_accountsAttributes, caldav_accountsCreationAttributes> implements caldav_accountsAttributes {
@@ -33,6 +35,8 @@ export class caldav_accounts extends Model<caldav_accountsAttributes, caldav_acc
   access_token?:string
   provider?:string
   client_id?:string
+  expires_in?:string
+  last_updated?:string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof caldav_accounts {
     return caldav_accounts.init({
@@ -81,6 +85,14 @@ export class caldav_accounts extends Model<caldav_accountsAttributes, caldav_acc
   provider: {
     type: DataTypes.STRING(1000),
     allowNull:true,
+  },
+  expires_in: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+    },
+  last_updated: {
+      type: DataTypes.STRING(45),
+      allowNull: true
   },
   }, {
     sequelize,
