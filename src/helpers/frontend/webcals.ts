@@ -116,7 +116,7 @@ function extractWebCalDataArrayFromGetAPIResponse(responseData){
     if(responseData && Array.isArray(responseData)){
         for (const i in responseData){
             if("data" in responseData[i] && responseData[i].data){
-                console.log("responseData", responseData[i].data)
+                // console.log("responseData", responseData[i].data)
                 toReturn.push(responseData[i].data)
             }
         }     
