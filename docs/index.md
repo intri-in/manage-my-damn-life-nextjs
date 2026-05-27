@@ -6,8 +6,8 @@ Manage my Damn Life (MMDL) is a self hosted front end for managing your CalDAV t
 
 ![Demo](pics/screenRecord.gif)
 ![Task View](pics/screenshots/TaskView.png "Task View")
-![Home](pics/screenshots/HomeView.png "Task View")
-![GanttView](pics/screenshots/GanttView.png "Task View")
+![Home](pics/screenshots/HomeView.png "Home View")
+![GanttView](pics/screenshots/GanttView.png "Gantt View")
 
 More screenshots are available in the directory '/docs/pics/screenshots'
 
@@ -17,7 +17,7 @@ More screenshots are available in the directory '/docs/pics/screenshots'
     - Supports sub tasks.
     - Supports many fields like due, status, description, recurrence, and more
 2. Manage calendar events.  
-3. Supports multiple CalDAV accounts, and multiple user accounts.
+3. Supports multiple CalDAV accounts and multiple user accounts.
 4. View your tasks as a list, in a gantt view, or on a calendar.  
 1. Create and manage task filters to view your tasks as you see fit.
 1. "Reponsive-ish" view. This is a desktop first project, as multiple clients like JTX Boards, OpenTasks exist for mobile.
@@ -32,15 +32,22 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 
 ## Compatibility
 
-This client has been tested with Nextcloud and Baikal.
+This client has been tested with Nextcloud, Radicale, and Baikal. MMDL uses "tsdav" library for CalDAV access, so it should support all servers supported by [tsdav](https://tsdav.vercel.app/docs/).
 
-As of now, it only supports basic authentication, and not OAUTH for CalDAV Accounts. See [here](Feature Guide/AddingCalendars.md)
+MMDL also supports OAuth authentication for CalDAV Accounts. As of now, Google Calendars is supported. To get started, checkout the guide [here](Feature%20Guide/GoogleCaldav)
 
 ## Getting Started
 
 To get started, you can checkout installation documentation [here](install/index.md).
 
 
+## Translation
+
+This project uses [Weblate](https://hosted.weblate.org/projects/mmdl-manage-my-damn-life/) for managing translations.
+
+<a href="https://hosted.weblate.org/engage/mmdl-manage-my-damn-life/">
+<img src="https://hosted.weblate.org/widget/mmdl-manage-my-damn-life/multi-auto.svg" alt="Translation status" />
+</a>
 
 
 
