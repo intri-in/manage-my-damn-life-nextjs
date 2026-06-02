@@ -1,1 +1,1 @@
-Added detailed docs for making Google Calendars work with MMDL.
+Fixed bug with Webcal sync.

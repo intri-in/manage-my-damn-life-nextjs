@@ -53,11 +53,12 @@ export async function syncWebcals(){
         if(response){
             for (const k in response){
                 const diff = moment(moment.now()).diff(response[k].lastFetched, "hours")
-                console.log("diff", diff)
-                if(diff>parseInt(response[k].updateInterval.toString())){
+                // console.log("diff", diff)
+                if(diff>=parseInt(response[k].updateInterval.toString())){
                     console.log(`Syncing Webcal ${response[k].name}`)
-                    await syncWebcalEvents_byId(response[k].id!.toString())
-
+                    await syncWebcalEvents_byId(response[k].webcals_id!.toString())
+                }else{
+                    console.log(`Sync interval prevents refresh of Webcal ${response[k].name}`)
                 }
             }
         }

@@ -8,7 +8,7 @@ import { createDAVClient } from "tsdav"
 import CryptoJS from "crypto-js"
 import { processCalendarFromCaldav } from "@/helpers/api/v2/caldavHelper"
 import { shouldLogforAPI } from "@/helpers/logs"
-import { getTSDAVCalDAVClient, getTSDAVInputFromCalDAVAccount } from "@/helpers/api/tsdav"
+import { accessTokenNeedsRefresh, getTSDAVCalDAVClient, getTSDAVInputFromCalDAVAccount, refreshTokenAndSaveinDB } from "@/helpers/api/tsdav"
 import { caldav_accounts } from "models/caldav_accounts"
 import { TSDAVAuthMethodTypes } from "types/tsdav"
 const LOGTAG = "api/v2/calendars/refresh"
@@ -34,15 +34,13 @@ export default async function handler(req, res) {
                 for(const i in caldav_accounts)
                 {
                     var caldavAccount  = new CaldavAccount(caldav_accounts[i])
-                    // const client =  await createDAVClient({
-                    //     serverUrl: caldav_accounts[i].url,
-                    //     credentials: {
-                    //         username: caldav_accounts[i].username,
-                    //         password: AES.decrypt(caldav_accounts[i].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8)
-                    //     },
-                    //     authMethod: 'Basic',
-                    //     defaultAccountType: 'caldav',
-                    // }
+                    // console.log(">>>>" ,caldav_accounts[i].authMethod?.toUpperCase()=="OAUTH",accessTokenNeedsRefresh(caldav_accounts[i]) )
+                    if(caldav_accounts[i].authMethod?.toUpperCase()=="OAUTH" && accessTokenNeedsRefresh(caldav_accounts[i])){
+                        await refreshTokenAndSaveinDB(caldav_accounts[i])
+            
+                    }
+                    
+                    
                     const client = await getTSDAVCalDAVClient(getTSDAVInputFromCalDAVAccount([caldav_accounts[i]],"api/v2/calendars/refresh"))
                 
                     
