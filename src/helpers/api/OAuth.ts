@@ -38,8 +38,9 @@ export async function fetchOAuthTokenFromProvider({provider, auth_code, client_i
 
 export async function refreshOAuthTokenFromProvider(caldav_account: caldav_accounts){
   if(!caldav_account) return
-    const decryptedPass = decryptCalDAVPassword(caldav_account.password!)
+        // console.log("decryptedPass", caldav_account.password)
 
+        const decryptedPass = decryptCalDAVPassword(caldav_account.password!)
         const url_api = OAUTH_TOKEN_URL[caldav_account.provider!]
         const body = new URLSearchParams({
             client_id: caldav_account.client_id!,

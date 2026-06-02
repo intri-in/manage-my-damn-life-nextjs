@@ -148,6 +148,7 @@ export async function deleteWebCalDataFromDB(webcalid){
 }
 
 export async function userHasAccessToWebcal(userid, webcalid){
+    // console.log("userid, webcalid",userid, webcalid)
     const webcals= await webcal_accountsModel.findAll({
         where: {
             userid: userid.toString(),

@@ -51,7 +51,7 @@ export async function isWebCalAccountAlreadyinDexie(webcalid){
 export async function getPrimaryKeyFromWebCalId_Dexie(webcalId){
     const webcal =  await db.webcals
     .where('webcals_id')
-    .equals(webcalId)
+    .equals(parseInt(webcalId))
     .toArray();
 
     if(webcal && Array.isArray(webcal) && webcal.length>0){
