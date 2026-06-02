@@ -23,7 +23,6 @@ export default async function handler(req, res) {
 
                 return  res.status(401).json({ success: false, data: { message: "USER_DOESNT_HAVE_ACCESS_TO_WEBCAL"} })
             }
-
             const syncStatus = await syncWebcal(req.query.id)
 
             const message = syncStatus.status ? "" : "ERROR_GENERIC"

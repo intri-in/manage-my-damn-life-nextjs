@@ -51,7 +51,7 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     if (isValidResultArray(eventArray)) {
 
         for (const i in eventArray) {
-            let parsed :{} | null | undefined= null
+            let parsed 
             const type = returnEventType(eventArray[i]["data"])
 
             if(eventArray[i]["type"].toUpperCase()=="VEVENT")
@@ -79,7 +79,7 @@ export async function saveAPIEventReponseToDexie(calendars_id, eventArray) {
     
             }
 
-            // console.log("parsed",parsed.summary, parsed, calendars_id)
+            // console.log("parsed",parsed.summary!, parsed, calendars_id)
             await saveEventToDexie(calendars_id, eventArray[i]["url"], eventArray[i]["etag"], eventArray[i]["data"], eventArray[i]["type"],parsed)
 
         }
@@ -204,6 +204,7 @@ export async function getIdFromEvent_ParentsDexie(uid){
 
 export async function saveEventToDexie(calendars_id, url, etag, data, type, parsedInput?) {
     let parsed = parsedInput
+    if(!url) return
     if(!parsedInput){
 
         if (type=="VTODO"){
@@ -213,25 +214,26 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         }
     }
 
-    // console.log("parsed,type", parsed,type,data)
+    // console.log("calendars_id, url", calendars_id, url, )
 
 
     //Check if event exists in Dexie already, if so, we update it.
-    const eventID = await getEventbyURLFromDexie(url)
+    const eventID = await getEventbyURLFromDexie(decodeURIComponent(url))
+    // console.log("decodeURIComponent(url)", decodeURIComponent(url), eventID)
     const parsedType = returnEventType(data)
     let typeToInsert = type
     if (parsedType) {
         typeToInsert = parsedType
     }
 
-    if (eventID) {
+    if (eventID && eventID.calendar_events_id) {
         // Update if new etag is different.
         //console.log("events etag",eventID["etag"], etag,  eventID["etag"]==etag )
         // console.log("typeToInsert", typeToInsert, type, parsedType)
 
         const updated = await db.calendar_events.update(eventID, { etag: etag, data: data, type: typeToInsert,uid: parsed["uid"],
-        parsedData:parsed
-    })
+        parsedData:parsed, calendar_id:calendars_id
+         })
         //Update parsed value
         // console.log("updated", updated)
     } else {
@@ -239,7 +241,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
 
         // console.log("typeToInsert", typeToInsert, type, parsedType)
         const id = await db.calendar_events.add({
-            url: url,
+            url: decodeURIComponent(url),
             etag: etag,
             data: data,
             calendar_id: calendars_id.toString(),
@@ -251,8 +253,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
             console.log("saveEventToDexie", e)
         })
 
-        // console.log("id", id)
-
+        // console.log("saveEventToDexie -> id", id ,parsed.summary, )
     }
     await saveEventParenttoDexie(parsed)
     
@@ -339,19 +340,20 @@ export async function getAllEventsFromCalendarID_Dexie(calendars_id, type?:strin
 }
 export async function fetchEventsForCalendarsFromDexie(calendars_id, type?) {
 
+    if(!calendars_id) return null
     try {
         let events: Calendar_Events[] | null = null
         if (type) {
             events = await db.calendar_events
                 .where('calendar_id')
-                .equals(calendars_id.toString())
+                .anyOf([Number(calendars_id), String(calendars_id)])
                 .and(item => item.type == type)
                 .toArray();
 
         } else {
             events = await db.calendar_events
                 .where('calendar_id')
-                .equals(calendars_id.toString())
+                .anyOf([Number(calendars_id), String(calendars_id)])
                 .toArray();
         }
 
@@ -372,7 +374,7 @@ export async function deleteExtraEventsFromDexie(calendars_id, eventArray) {
         var found = false;
 
         for (const j in eventArray) {
-            if (eventArray[j]["url"] == allEventsFromDexie[i]["url"]) {
+            if (decodeURIComponent(eventArray[j]["url"]) == decodeURIComponent(allEventsFromDexie[i]["url"])) {
                 //Event found.
                 found = true
             }

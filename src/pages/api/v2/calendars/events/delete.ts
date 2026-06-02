@@ -1,12 +1,6 @@
-import { createEventinCalDAVAccount, getCaldavAccountDetailsfromId } from '@/helpers/api/cal/caldav';
-import { checkifUserHasAccesstoRequestedCalendar, getCaldavAccountfromUserID, getCaldavAccountIDFromCalendarID, getCalendarfromCalendarID } from '@/helpers/api/cal/calendars';
-import { getAllLablesFromDB } from '@/helpers/api/cal/labels';
-import { deleteCalendarObjectsFromDB, getObjectFromDB, insertObjectIntoDB, updateObjectinDB } from '@/helpers/api/cal/object';
-import { middleWareForAuthorisation, getUseridFromUserhash , getUserHashSSIDfromAuthorisation, getUserIDFromLogin} from '@/helpers/api/user';
-import { getRandomString } from '@/helpers/crypto';
-import { AES } from 'crypto-js';
-import { createDAVClient, deleteCalendarObject } from 'tsdav';
-import CryptoJS from 'crypto-js';
+import { getCaldavAccountDetailsfromId } from '@/helpers/api/cal/caldav';
+import { getTSDAVCalDAVClient, getTSDAVInputFromCalDAVAccount } from '@/helpers/api/tsdav';
+import { middleWareForAuthorisation,  getUserIDFromLogin} from '@/helpers/api/user';
 import { isValidResultArray } from '@/helpers/general';
 const validator = require("validator")
 export default async function handler(req, res) {
@@ -32,22 +26,14 @@ export default async function handler(req, res) {
 
                 }
                 // Delete event from CalDAV first.
-                var client = await createDAVClient({
-                    serverUrl: caldav_account[0].url,
-                    credentials: {
-                        username: caldav_account[0].username,
-                        password: AES.decrypt(caldav_account[0].password,process.env.AES_PASSWORD).toString(CryptoJS.enc.Utf8)
-                    },
-                    authMethod: 'Basic',
-                    defaultAccountType: 'caldav',
-                }).catch(e =>{
-                    console.log("createDAVClient:", e)
+                const client = await getTSDAVCalDAVClient(getTSDAVInputFromCalDAVAccount(caldav_account, "updateEventinCalDAVAccount")).catch(e =>{
+                    console.log("api/v2/calendars/events/delete getTSDAVCalDAVClient:", e)
 
                 })
                 if(client!=null && client!=undefined){
                     const response_caldav = await client.deleteCalendarObject({
                         calendarObject: {
-                        url: req.body.url,
+                        url: decodeURIComponent(req.body.url),
                         etag: req.body.etag,
                         },
                     }).catch(e =>{

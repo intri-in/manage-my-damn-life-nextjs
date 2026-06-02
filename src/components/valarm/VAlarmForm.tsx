@@ -1,6 +1,6 @@
 import { getRandomString } from "@/helpers/crypto"
 import { varNotEmpty } from "@/helpers/general"
-import { attendeeType, vAlarm } from "@/types/valarm"
+import { attendeeType, VAlarmType } from "@/types/valarm"
 import moment from "moment"
 import { useTranslation } from "next-i18next"
 import { useEffect, useState } from "react"
@@ -9,12 +9,12 @@ import { AiOutlineDelete } from "react-icons/ai"
 import { BsAlarm } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-export interface vAlarmVTODOGEN extends vAlarm {
+export interface vAlarmVTODOGEN extends VAlarmType {
     id: string,
     advancedTriggerMode: boolean
 }
 
-export const VAlarmForm = ({ input, onChange }: { input: vAlarm[], onChange: Function }) => {
+export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange: Function }) => {
 
     // const [alarmValue, setAlarmValue] = useState("")
     const [alarms, setAlarms] = useState<vAlarmVTODOGEN[]>([])
@@ -33,7 +33,7 @@ export const VAlarmForm = ({ input, onChange }: { input: vAlarm[], onChange: Fun
         if (isMounted) {
 
             // setAlarms(input) 
-            // console.log("input", input)
+            console.log("input Alarm", input)
             if (input && Array.isArray(input) && input.length > 0) {
                 let inputNew: vAlarmVTODOGEN[] = []
                 for (const i in input) {
@@ -130,8 +130,8 @@ export const VAlarmForm = ({ input, onChange }: { input: vAlarm[], onChange: Fun
 
             })
 
-            setTriggerValue(0)
-            setDescription("")
+            setTriggerValue(10)
+            setDescription("Reminder!")
         }
     }
 

@@ -3,6 +3,7 @@ import { getSequelizeObj } from "../../db"
 import { caldav_accounts } from "models/caldav_accounts"
 import { sequelize } from "models"
 import { AES } from 'crypto-js';
+import { CalDAVAuthObject } from "../../tsdav";
 
 export class CaldavAccountClass{
     userid: string
@@ -38,9 +39,20 @@ export class CaldavAccountClass{
 
     }
 
-    async save(accountname, username, password, url, authMethod){
+    async save(accountname, username, password, url, authMethod,caldav_auth_object?:CalDAVAuthObject){
         const encryptedPass = AES.encrypt(password, process.env.AES_PASSWORD).toString()
-        await this.model.create({name: accountname, username: username, userid: this.userid, password: encryptedPass, authMethod: authMethod,url:url })
+        await this.model.create({name: accountname, 
+            username: username, 
+            userid: this.userid, 
+            password: encryptedPass, 
+            authMethod: authMethod,url:url, 
+            refresh_token: caldav_auth_object?.refresh_token, 
+            access_token:caldav_auth_object?.access_token,
+            client_id:caldav_auth_object?.client_id,
+            provider:caldav_auth_object?.provider,
+            expires_in: caldav_auth_object?.expires_in,
+            last_updated:caldav_auth_object?.last_updated,
+         })
 
         const newID= await this.accountExists(username, url,this.userid)
         return newID

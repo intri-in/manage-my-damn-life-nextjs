@@ -1,14 +1,16 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.8.2",
+  "version": "0.9.0-dev",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npm run migrate && next start",
+    "start": "next start",
     "lint": "next lint",
     "migrate": "npx sequelize-cli db:migrate --env local",
+    "migrate-sqlite": "npx sequelize-cli db:migrate --env sqlite",
     "undo-migrate": "npx sequelize-cli db:migrate:undo  --env local",
+    "undo-migrate-sqlite": "npx sequelize-cli db:migrate:undo  --env sqlite",
     "cypress": "cypress open"
   },
   "dependencies": {

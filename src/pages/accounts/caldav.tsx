@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import AppBarGeneric  from "@/components/common/AppBar"
 import CaldavAccounts from '@/components/common/calendars/caldavAccounts/CaldavAccounts'
 import { signIn, useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { nextAuthEnabled } from '@/helpers/thirdparty/nextAuth';
 import { useRouter } from 'next/router';
 import { checkLogin_InBuilt } from '@/helpers/frontend/user';
@@ -12,40 +12,16 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AVAILABLE_LANGUAGES } from '@/config/constants';
 import { EmptyPageBeforeLogin } from '@/components/common/EmptyPageBeforeLogin';
+import { useAuthGuard } from '@/helpers/frontend/hooks/useAuthGuard';
 
 export default function Caldav() {
-  const { data: session, status } = useSession() 
-  const [isloggedIn, setIsloggedIn] = useState(false)
-  const router = useRouter()
+  const isLoggedIn = useAuthGuard("/accounts/caldav");
+
   const {t} = useTranslation()
   useCustomTheme()
-  useEffect(() =>{
 
-    let isMounted =true
-    async function checkAuth(){
-      
-      if(await nextAuthEnabled()){
-        if (status=="unauthenticated" ) {
-          signIn()
-        }else{
-            setIsloggedIn(true)
-        }
-      }else{
-        // Check login using inbuilt function.
-        setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
-      }
-    }
 
-    if(isMounted){
-
-      checkAuth()
-    }
-    return () =>{
-      isMounted = false
-  }
-}, [status, router])
-
-    if(!isloggedIn) (<EmptyPageBeforeLogin />)
+    if(!isLoggedIn) return(<EmptyPageBeforeLogin />)
 
     return (
     <>

@@ -1,5 +1,5 @@
 import Accordion from 'react-bootstrap/Accordion';
-import { Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { Badge, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { TaskArrayItem, TaskSection } from '@/helpers/frontend/TaskUI/taskUIHelpers';
 import { isValidResultArray, stringInStringArray } from '@/helpers/general';
@@ -9,7 +9,8 @@ import { SYSTEM_DEFAULT_LABEL_PREFIX } from '@/config/constants';
 import { FaSearch } from "react-icons/fa";
 import { SortBySelect } from './SortByButton';
 import { useTranslation } from 'next-i18next';
-
+import Stack from 'react-bootstrap/Stack';
+import { toast } from 'react-toastify';
 
 export interface labelSelector{
     name: string,
@@ -38,7 +39,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
                                 
                                 for(const k in todo["category"]){
                                     // console.log(todo["category"][k])
-                                    if(todo.category[k].startsWith(SYSTEM_DEFAULT_LABEL_PREFIX)==false && searchLabelArray(todo["category"][k], finalList)==false){
+                                    if(todo["category"][k] && todo.category[k].startsWith(SYSTEM_DEFAULT_LABEL_PREFIX)==false && searchLabelArray(todo["category"][k], finalList)==false){
                                        finalList.push({
                                         name: todo["category"][k],
                                         selected: false
@@ -64,6 +65,7 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
         // console.log(Array.isArray(taskListSections), "taskListSection")
         if(isMounted){
             //Generate List of filters on mount.
+            searchTasks({target:{value: ""}})
             setSearch("")
             generateFilterList()
         }
@@ -115,45 +117,88 @@ export const LocalTaskFilters = ({taskListSections, showDoneChangedHook, labelSe
     }
     const placeholderText = t("SEARCH")
     return(
-    <Accordion >
-        <Accordion.Item eventKey="0">
-            <Accordion.Header>{t("FILTERS")}</Accordion.Header>
-            <Accordion.Body>
-            <Container fluid>
-            <Row className=' d-flex  align-items-center' style={{marginBottom: 5}}>
-                <Col><FilterListSelector t={t} onChange={selectedLabelsChanged} filterList={filterList} /></Col>
-                <Col className='d-flex justify-content-center' style={{alignItems:"center"}}>
-                <Form.Check 
-                type="switch"
-                checked={showDone}
-                onChange={showDoneChanged}
-                label={t("SHOW_DONE_TASKS")}
-            /> 
-                </Col>
-                <Col className='d-flex justify-content-end'>
-                <SortBySelect onChangeHandler={onChangeSort} />
-                </Col>
+        <>
+            <AppliedFilters showDone={showDone} filterList={filterList} searchTerm={search} showDoneChanged={showDoneChanged} searchTasks={searchTasks} />
+            <Accordion >
+                <Accordion.Item eventKey="0">
+                    <Accordion.Header>{t("FILTERS")}</Accordion.Header>
+                    <Accordion.Body>
+                    <Container fluid>
+                    <Stack gap={2}>
+                        <Row style={{marginBottom: 2}}>
+                            <Col className='d-flex align-content-center' style={{alignItems:"center"}}>
+                            <Form.Check 
+                            type="switch"
+                            checked={showDone}
+                            onChange={showDoneChanged}
+                            label={t("SHOW_DONE_TASKS")}
+                            /> 
+                            </Col>
+                            <Col className='d-flex justify-content-end'>
+                            <SortBySelect onChangeHandler={onChangeSort} />
+                            </Col>
 
-            </Row>
-            <Row className=' d-flex  align-items-center'>
-                <Col md={1} lg={1}>
-                </Col>
-                <Col md={11} lg={11}>
-                </Col>
-            </Row>
-            <InputGroup className="mb-3">
-                <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
-                       
-                    <Form.Control size="sm" value={search} onChange={searchTasks} placeholder={placeholderText} />
-            </InputGroup>
+                            
+                        </Row>
+                    <b>{t("LIST_SPECIFIC_FILTERS")}</b>
+                    <InputGroup className="mb-1">
+                        <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
+                            <Form.Control size="sm" value={search} onChange={searchTasks} placeholder={placeholderText} />
+                    </InputGroup>
+                    <Row className=' d-flex  align-items-center' style={{marginBottom: 5}}>
+                        <Col><FilterListSelector t={t} onChange={selectedLabelsChanged} filterList={filterList} /></Col>
+                    </Row>
+                    </Stack>
+                
+                  
 
-            </Container>
-            </Accordion.Body>
-        </Accordion.Item>
-    </Accordion>
+                    </Container>
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
+        </>
 )
 }
 
+const AppliedFilters = ({showDone, filterList, searchTerm, showDoneChanged, searchTasks}:{showDone: boolean, filterList: labelSelector[], searchTerm: string, showDoneChanged:Function, searchTasks:Function}) =>{
+    const {t} = useTranslation()
+
+    let output: JSX.Element[] = []
+    const removeShowDoneFilter = () =>{
+        showDoneChanged({target:{checked: false}})
+        toast.info(t("TASK_FILTER_REMOVED"))
+    }
+    const removeSearchTermFilter =  () =>{
+        searchTasks({target:{value: ""}})
+        toast.info(t("TASK_FILTER_REMOVED"))
+
+    }
+
+    if(showDone){
+        output.push(
+              <div key="SHOW_DONE_TASKS" className="p-1"><Badge pill={true} onClick={removeShowDoneFilter} bg="primary">{t("SHOW_DONE_TASKS")}</Badge></div>
+        )
+    }
+    if(searchTerm){
+        output.push(
+              <div key="SEARCH_TERM" className="p-1"><Badge pill={true} onClick={removeSearchTermFilter} bg="primary">{`${t("SEARCH_TERM")}: ${searchTerm}`}</Badge></div>
+        )
+    }
+
+    if(output.length>0){
+        return(
+        <Stack style={{display:"flex",  alignItems:"center", }} direction="horizontal" gap={1}>
+        <small>{t("FILTERS_APPLIED")}</small>
+        {output}
+        </Stack>
+        )
+
+    }else{
+        return (<></>)
+    }
+    
+    
+}
 const FilterListSelector = ({filterList, onChange, t}:{filterList: labelSelector[], onChange: Function, t:any}) => {
 
     const [labelOutput, setLabelOutput] = useState<JSX.Element[]>([])
@@ -177,7 +222,7 @@ const FilterListSelector = ({filterList, onChange, t}:{filterList: labelSelector
 
             }
 
-            setLabelOutput(output)
+            setLabelOutput([<Stack key="labelList" direction='horizontal'>{output}</Stack>])
         }
 
         return ()=>{
@@ -188,7 +233,7 @@ const FilterListSelector = ({filterList, onChange, t}:{filterList: labelSelector
 
     return(
         <>
-            <p><b>{t("FILTER_BY_LABEL")}:</b></p>
+            <i>{t("FILTER_BY_LABEL")}:</i>
             {labelOutput}
         </>
     )

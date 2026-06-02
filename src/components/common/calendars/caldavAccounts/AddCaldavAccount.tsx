@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Dropdown, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import validator from "validator";
-import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
 import Spinner from "react-bootstrap/Spinner";
 import {
   addTrailingSlashtoURL,
   getAPIURL,
+  getBaseURL,
   logVar,
 } from "@/helpers/general";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
@@ -20,6 +20,12 @@ import { dummyTranslationFunction } from "@/helpers/frontend/translations";
 import { getUserIDForCurrentUser_Dexie } from "@/helpers/frontend/dexie/users_dexie";
 import { useTranslation } from "next-i18next";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
+import { CalDAVOAuthProvidersList } from "./CalDAVOAuthProvidersList";
+import { redirect } from "next/navigation";
+import { useRouter } from "next/router";
+import { encodeURL } from "js-base64";
+import { getOAuthScopesforProvider, OAuthTemporaryStorageType, saveOAuthSetupInfoLocally } from "@/helpers/frontend/caldav_OAuth";
+import { CalDAVAuthObject } from "@/helpers/api/tsdav";
 
 const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
   const [serverURL, setServerURL] = useState("");
@@ -27,7 +33,11 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [requestPending, setRequestPending] = useState(false);
+  const [authType, setAuthType] = useState("BASIC")
+  const [authProvider, setAuthProvider] = useState("GOOGLE")
+  const [clientId, setClientId] = useState("")
   const {t} = useTranslation()
+  const router =  useRouter()
   const serverURLValueChanged = (event) => {
     setServerURL(event.target.value);
   };
@@ -48,8 +58,18 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
     onAddAccountDismissed();
   };
 
+  const onAuthTypeChanged = (e) =>{
+    setAuthType(e.target.value)
+  }
+
   const formisValid = () => {
-    if (!serverURL) return false;
+    if (!serverURL?.trim()) {
+      if(authType!="OAUTH"){
+        toast.error(t("ENTER_A_SERVER_NAME"));
+        return false;
+
+      }
+    }
 
     // if (!validator.isURL(addTrailingSlashtoURL(serverURL))) {
     //   if (
@@ -64,15 +84,24 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
       toast.error(t("ENTER_ACCOUNT_NAME"));
       return false;
     }
-
-    if (!password?.trim()) {
-      toast.error(t("ENTER_CALDAV_PASSWORD"));
+    
+    if (!username?.trim()) {
+      toast.error(t("CALDAV_USERNAME_PLACEHOLDER"));
       return false;
     }
+    if(authType=="OAUTH"){
+      if(!clientId.trim()){
+        toast.error(t("CLIENT_ID_PLACEHOLDER"));
+        return false;
 
-    if (!username?.trim()) {
-      toast.error(t("ENTER_CALDAV_USERNAME"));
-      return false;
+      }
+    }
+    if (!password?.trim()) {
+        if (authType!="OAUTH"){
+          toast.error( (authType!="OAUTH") ? t("ENTER_CALDAV_PASSWORD"): t("CLIENT_SECRET_PLACEHOLDER"));
+          return false;
+        }
+
     }
 
     return true;
@@ -90,6 +119,7 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
         username,
         password,
         accountname: accountName,
+        authType: authType
       }),
       headers: new Headers({
         authorization: authorisationData,
@@ -112,7 +142,7 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           console.log("body", body)
           await saveCaldavAccountToDexie(body.data, username);
           await insertCalendarsIntoDexie(body.data);
-          await fetchLatestEventsV2(true)
+          fetchLatestEventsV2(true)
           setRequestPending(false);
           onAccountAddSuccess();
         }else{
@@ -133,12 +163,46 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
     }
   };
 
+  const makeOAuthRequest = () =>{
+    if(typeof(window)!=="undefined"){
+      const redirect_uri = addTrailingSlashtoURL(window.location.origin)
+
+
+      if(authType=="OAUTH"){
+        const saveObject: OAuthTemporaryStorageType = {
+          provider:authProvider,
+          name: accountName,
+          username: username
+        }
+        saveOAuthSetupInfoLocally(saveObject)
+        if(authProvider=="GOOGLE"){
+          router.push(` https://accounts.google.com/o/oauth2/v2/auth?scope=${encodeURIComponent(getOAuthScopesforProvider("GOOGLE").trim())}&client_id=${encodeURIComponent(clientId)}&&redirect_uri=${redirect_uri}accounts/caldav/oauth/register&&response_type=code&&access_type=offline&&prompt=consent`)
+        }
+      }
+
+    }
+  }
   const addAccountButtonClicked = () => {
     if (formisValid()) {
-      makeServerRequest();
+        if(authType!="OAUTH"){
+            makeServerRequest();
+        }else{
+          makeOAuthRequest()
+        }
     }
   };
 
+  const onAuthProviderChanged = (e: any)=>{
+    // // console.log("e.target.value", e.target.value)
+    // if(e.target.value=="GOOGLE"){
+    //   setServerURL("https://apidata.googleusercontent.com/caldav/v2")
+    // }
+
+  }
+
+  const onClientIdChanged =(e)=>{
+    setClientId(e.target.value)
+  }
   return (
     <>
       <Row>
@@ -155,16 +219,39 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           placeholder={t("ENTER_ACCOUNT_NAME")}
         />
         <Form.Label style={{ marginTop: 30 }}>
+          {t("AUTHENTICATION_TYPE")}
+        </Form.Label>
+        <Form.Select onChange={onAuthTypeChanged} value={authType} aria-label="auth-type">
+          <option key="BASIC" value="BASIC">{t("BASIC")}</option>
+          <option key="OAUTH" value="OAUTH">{t("OAUTH")}</option>
+        </Form.Select>
+
+        <Form.Label style={{ marginTop: 30 }}>
           {t("SERVER_URL")}
         </Form.Label>
         <Form.Control
-          disabled={requestPending}
+          disabled={(requestPending || (authType =="OAUTH"))}
           onChange={serverURLValueChanged}
           type="URL"
+          value={serverURL}
           placeholder={t("ENTER_A_SERVER_NAME")}
         />
+        {
+          authType =="OAUTH" ? (
+            <>
+             <Form.Label style={{ marginTop: 30 }}>
+                {t("AUTHENTICATION_PROVIDER")}
+              </Form.Label>
+              <Form.Select onChange={onAuthProviderChanged} value={authProvider} aria-label="auth-type">
+                <CalDAVOAuthProvidersList t={t} />
+              </Form.Select>
+            </>
+
+          ):(<></>)
+        }
+       
         <Form.Label style={{ marginTop: 30 }}>
-          {t("CALDAV_USERNAME")}
+          {t("CALDAV_USERNAME")} 
         </Form.Label>
         <Form.Control
           disabled={requestPending}
@@ -172,15 +259,34 @@ const AddCaldavAccount = ({ onAddAccountDismissed, onAccountAddSuccess }) => {
           type="URL"
           placeholder={t("CALDAV_USERNAME_PLACEHOLDER")}
         />
-        <Form.Label style={{ marginTop: 30 }}>
-          {t("CALDAV_PASSWORD")}
-        </Form.Label>
-        <Form.Control
-          disabled={requestPending}
-          onChange={serverPasswordValueChanged}
-          type="password"
-          placeholder={t("CALDAV_PASSWORD_PLACEHOLDER")}
-        />
+          {(authType =="OAUTH") ?
+            (<>
+              <Form.Label style={{ marginTop: 30 }}>
+                {t("CLIENT_ID")} 
+              </Form.Label>
+              <Form.Control
+                disabled={requestPending}
+                value={clientId}
+                onChange={onClientIdChanged}
+                type="URL"
+                placeholder={t("CLIENT_ID_PLACEHOLDER")}
+              />
+
+            </>):(<></>)
+          }
+            {(authType !="OAUTH") ? (<>
+              <Form.Label style={{ marginTop: 30 }}>
+                {(authType !="OAUTH") ? t("CALDAV_PASSWORD"): t("CLIENT_SECRET_PLACEHOLDER")}
+              </Form.Label>
+              <Form.Control
+                disabled={requestPending}
+                onChange={serverPasswordValueChanged}
+                type="password"
+                placeholder={(authType !="OAUTH") ? t("CALDAV_PASSWORD_PLACEHOLDER") : t("CLIENT_SECRET_PLACEHOLDER")}
+              />
+            </>):<></>
+            } 
+            
         <div style={{ marginTop: 30, textAlign: "center" }}>
           {!requestPending ? (
             <>

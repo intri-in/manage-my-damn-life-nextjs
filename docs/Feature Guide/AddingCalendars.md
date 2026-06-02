@@ -1,8 +1,8 @@
-## Adding Calendars to MMDL
+# Adding Calendars to MMDL
 
 MMDL supports the use of Baikal and Nextflow CalDav contents. Although, this may not be "out of the box" due to the default settings of these servers.
 
-### Baikal
+## Baikal
 
 In order to use the Baikal server the `Authentication Type` must be changed from 'Digest' to 'Basic'. Without this change, any attempt to log into the Baikal server from MMDL will result in an error that looks like:
 

@@ -11,22 +11,23 @@ export async function getCalDAVSummaryFromDexie(){
   // console.time("dexie_getUserIDFromHash_Dexie")
   const userid = await getUserIDForCurrentUser_Dexie()    
   // console.timeEnd("dexie_getUserIDFromHash_Dexie")
-  
   // console.time("dexie_getAllCalDavAccountsFromDexie")
   const caldavAccounts = await getAllCalDavAccountsFromDexie(userid)
+  // console.log("userid, caldavAccounts", userid, caldavAccounts)
   // console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
 
   let toReturn :any = []
   if(Array.isArray(caldavAccounts)){
     for(const i in caldavAccounts){
       const allCals = await getAllCalendarsFromCalDavAccountIDFromDexie(caldavAccounts[i]["caldav_accounts_id"])
+      // console.log("allCals", allCals)
       if(isValidResultArray(allCals)){
         caldavAccounts[i]["calendars"] = allCals
       }
       toReturn.push(caldavAccounts[i])
     }
   }
-  // console.log(toReturn, "toReturn")
+  // console.log("getCalDAVSummaryFromDexie", toReturn)
   
   return toReturn
 }

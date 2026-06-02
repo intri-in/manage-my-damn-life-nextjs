@@ -6,8 +6,8 @@ Manage my Damn Life (MMDL) is a self hosted front end for managing your CalDAV t
 
 ![Demo](docs/pics/screenRecord.gif)
 ![Task View](docs/pics/screenshots/TaskView.png "Task View")
-![Home](docs/pics/screenshots/HomeView.png "Task View")
-![GanttView](docs/pics/screenshots/GanttView.png "Task View")
+![Home](docs/pics/screenshots/HomeView.png "Home View")
+![GanttView](docs/pics/screenshots/GanttView.png "Gantt View")
 
 More screenshots are available in the directory '/docs/pics/screenshots'
 
@@ -33,13 +33,14 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 
 ## Compatibility
 
-This client has been tested with Nextcloud and Baikal.
+This client has been tested with Nextcloud, Radicale, and Baikal. MMDL uses "tsdav" library for CalDAV access, so it should support all servers supported by [tsdav](https://tsdav.vercel.app/docs/).
 
-As of now, it only supports basic authentication, and not OAUTH for CalDAV authentication.
+MMDL also supports OAuth authentication for CalDAV Accounts. As of now, Google Calendars is supported. To get started, checkout the guide [here](docs/Feature%20Guide/GoogleCaldav.md)
 
 ## Getting Started
 
-To get started, you can checkout full documentation [here](https://manage-my-damn-life-nextjs.readthedocs.io/en/latest/install/).
+To get started, you can checkout installation documentation [here](install/index.md).
+
 
 ## Translation
 
@@ -48,3 +49,4 @@ This project uses [Weblate](https://hosted.weblate.org/projects/mmdl-manage-my-d
 <a href="https://hosted.weblate.org/engage/mmdl-manage-my-damn-life/">
 <img src="https://hosted.weblate.org/widget/mmdl-manage-my-damn-life/multi-auto.svg" alt="Translation status" />
 </a>
+

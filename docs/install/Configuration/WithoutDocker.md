@@ -26,6 +26,19 @@ curl https://raw.githubusercontent.com/intri-in/manage-my-damn-life-nextjs/main/
 These are the variables that you need to change for MMDL to function properly. If you're running 
 
 
+### NEXT_BASE_URL
+
+> Required to Change From Default: **Yes**
+
+URL of your front end.
+
+```
+Example:
+
+NEXT_BASE_URL=http://localhost
+```
+
+
 ### DB_HOST
 
 

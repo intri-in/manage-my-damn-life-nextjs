@@ -1,8 +1,5 @@
 import { GlobalViewManager } from "@/components/common/GlobalViewManager/GlobalViewManager";
-import { EventEditorViewManager } from "@/components/events/EventEditorViewManager";
-import TaskViewList from "@/components/page/TaskViewPage/TaskViewList";
 import { TaskViewListWithStateManagement } from "@/components/page/TaskViewPage/TaskViewListWithStateManagement";
-import { TaskEditorViewManager } from "@/components/tasks/TaskEditorSupport/TaskEditorViewManager";
 import { useCustomTheme } from "@/helpers/frontend/theme";
 import { checkLogin_InBuilt } from "@/helpers/frontend/user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";

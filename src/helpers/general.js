@@ -1,6 +1,12 @@
 import moment from "moment"
 import { dueDatetoUnixStamp } from "./frontend/general"
-
+export function fullyDecodeUrl(url) {
+  let decoded = url;
+  while (decoded !== decodeURIComponent(decoded)) {
+    decoded = decodeURIComponent(decoded);
+  }
+  return decoded;
+}
 export const DAY_ARRAY = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
 /**
  * Checks if a variable is an array of length >0
@@ -220,6 +226,15 @@ export function debugging()
     }else{
         return false
     }
+}
+
+export function getBaseURL(){
+    const urlFromEnv = process.env.NEXT_BASE_URL
+    if(!urlFromEnv) {
+        console.error("NEXT_BASE_URL env variable not set.")
+        throw new Error("NEXT_BASE_URL env variable not set.")
+    }
+    return addTrailingSlashtoURL(urlFromEnv)
 }
 
 export function getAPIURL()

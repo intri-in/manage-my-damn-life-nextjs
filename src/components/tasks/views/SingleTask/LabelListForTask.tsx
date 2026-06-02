@@ -7,8 +7,8 @@ import { ParsedTask } from "types/tasks/tasks"
 
 export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: string}) => {
 
-    const [finalOutput, setFinalOutput] = useState([<></>])
-    const [toolTipOutput, setToolTipOutput] = useState([<></>])
+    const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
+    const [toolTipOutput, setToolTipOutput] = useState<JSX.Element[]>([])
     const renderTooltip = (props) => (
         <Tooltip style={{zIndex: 1999}} key={`button-tooltip-${id}`} id={`button-tooltip-${id}`} {...props}>
           {toolTipOutput}
@@ -59,7 +59,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
                 >
 
                 <span>
-                    <div style={{textAlign:"center", margin:"auto",   display: "block", overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"16px", zIndex:999 }} className="textDefault">
+                    <div style={{textAlign:"center", margin:"auto",   display: "block", overflowY:"hidden", textOverflow: "ellipsis",  maxHeight:"20px", zIndex:999 }} className="textDefault">
                     {labelArray}
                     </div>
                 </span>

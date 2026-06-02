@@ -127,6 +127,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 }
             })
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
+                setEventsArray([])
+                // console.log("allEventsFromDexie", allEventsFromDexie)
                 setEventsArray(allEventsFromDexie)
             })
 
@@ -149,7 +151,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         return () => {
             isMounted = false
         }
-    }, [allEvents, showTasksChecked, updateLocal])
+    }, [allEvents, showTasksChecked, updateLocal, webCalEvents])
     const viewChanged = (e) => {
         if (calendarRef && calendarRef.current) {
 
@@ -481,6 +483,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         console.log(ics)
         if (varNotEmpty(ics)) {
             const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
+            console.log("response from Modify", response)
             if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
                 toast.success(messageHeader + t("UPDATE_OK"))
 

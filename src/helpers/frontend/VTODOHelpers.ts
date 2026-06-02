@@ -1,5 +1,5 @@
 
-import { vAlarm } from '@/types/valarm';
+import { VAlarmType } from '@/types/valarm';
 
 function parseVAlarmTime(time:string){
     if(time){
@@ -24,8 +24,8 @@ function parseVAlarmTime(time:string){
     return ""
 }
 
-export function getParsedAlarmsFromTodo(parsedDataRow): vAlarm[]{
-    let toReturn: vAlarm[] = []
+export function getParsedAlarmsFromTodo(parsedDataRow): VAlarmType[]{
+    let toReturn: VAlarmType[] = []
     try{
         // console.log("parsedDataRow type", parsedDataRow.type)
         if(parsedDataRow && "type" in parsedDataRow){

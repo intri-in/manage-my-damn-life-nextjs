@@ -81,12 +81,12 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
                 let key=caldavSummary[j].caldav_accounts_id+"-"+caldavSummary[j].calendars[i].calendars_id
                 // console.log(key)
                 //<a style={{textDecoration: 'none'}} href={href}>
-                let cal=(<ListGroup.Item key={key} className="textDefault" onClick={()=> calendarNameClicked(caldavSummary[j].caldav_accounts_id, caldavSummary[j].calendars[i].calendars_id)} style={{ borderColor:caldavSummary[j].calendars[i].calendarColor, borderLeftWidth: 10, marginBottom:10 }}>
+                let cal=(<ListGroup.Item key={key} className="textDefault" onClick={()=> calendarNameClicked(caldavSummary[j].caldav_accounts_id, caldavSummary[j].calendars[i].calendars_id)} style={{ borderColor:caldavSummary[j].calendars[i].calendarColor, borderLeftWidth: 10, marginBottom:10, }}>
                     <Row>
-                        <Col xs={10}>
+                        <Col style={{overflowY:"hidden", textOverflow: "ellipsis" }} xs={10}>
                             {caldavSummary[j].calendars[i].displayName}
                         </Col>
-                        <Col xs={2}> <Link target="_blank" href={`?type=CAL&&caldav_accounts_id=${caldavSummary[j].caldav_accounts_id}&&calendars_id=${caldavSummary[j].calendars[i].calendars_id}`}><FaExternalLinkAlt className="textDefault" /> </Link>
+                        <Col xs={2}> <Link  target="_blank" href={`?type=CAL&&caldav_accounts_id=${caldavSummary[j].caldav_accounts_id}&&calendars_id=${caldavSummary[j].calendars[i].calendars_id}`}><FaExternalLinkAlt className="textDefault" /> </Link>
 </Col>
                         </Row></ListGroup.Item>)
                 calendars.push(cal)                    

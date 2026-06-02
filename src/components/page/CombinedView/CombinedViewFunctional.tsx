@@ -22,7 +22,7 @@ export const CombinedViewFunctional = (props) => {
 
 
   const updateDimensions = () => {
-    console.log(window.innerWidth)
+    // console.log(window.innerWidth)
     if (window.innerWidth < 768) {
       setShowListColumn(false);
       setCalendarAR(0.3);

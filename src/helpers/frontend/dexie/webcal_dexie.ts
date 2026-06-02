@@ -51,7 +51,7 @@ export async function isWebCalAccountAlreadyinDexie(webcalid){
 export async function getPrimaryKeyFromWebCalId_Dexie(webcalId){
     const webcal =  await db.webcals
     .where('webcals_id')
-    .equals(webcalId)
+    .equals(parseInt(webcalId))
     .toArray();
 
     if(webcal && Array.isArray(webcal) && webcal.length>0){
@@ -115,6 +115,11 @@ export async function updateWebCalLastFetched_Dexie(webcalid, lastFetched){
 export async function updateEventsinWebcal_Dexie(webcalId, newParsedCal){
     await deleteEventsFromWebCal_Dexie(webcalId)
     await addWebCalEventstoDexie(webcalId, newParsedCal)
+}
+
+export async function updateColourforWebcal_Dexie(webcalId, newColour){
+    await db.webcals.update(parseInt(webcalId), {colour:newColour})
+    return
 }
 
 export async function getEventsfromWebcal_Dexie(webcalId){

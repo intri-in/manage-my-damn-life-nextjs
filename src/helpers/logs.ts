@@ -6,3 +6,13 @@ export function shouldLogforAPI() :boolean{
     }
     return false
 }
+
+export function shouldLogforSequelize():boolean{
+    if(process.env.SEQUELIZE_DEBUG_LOGGING && process.env.SEQUELIZE_DEBUG_LOGGING.toLowerCase()=="true")
+    {
+
+        return true
+    }
+    return false
+
+}

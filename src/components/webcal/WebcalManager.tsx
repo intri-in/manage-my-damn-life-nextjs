@@ -14,7 +14,7 @@ import moment from "moment";
 import { useAtomValue } from "jotai";
 import { currentDateFormatAtom } from "stateStore/SettingsStore";
 import { IoSyncCircleOutline } from "react-icons/io5";
-import { deleteEventsFromWebCal_Dexie, deleteWebCalbyWebCalIdFromDexie, getAllWebcalsforCurrentUserfromDexie, getPrimaryKeyFromWebCalId_Dexie, getWebCalIDFromPrimaryID_Dexie, updateEventsinWebcal_Dexie, updateWebCalLastFetched_Dexie } from "@/helpers/frontend/dexie/webcal_dexie";
+import { deleteEventsFromWebCal_Dexie, deleteWebCalbyWebCalIdFromDexie, getAllWebcalsforCurrentUserfromDexie, getPrimaryKeyFromWebCalId_Dexie, getWebCalIDFromPrimaryID_Dexie, updateColourforWebcal_Dexie, updateEventsinWebcal_Dexie, updateWebCalLastFetched_Dexie } from "@/helpers/frontend/dexie/webcal_dexie";
 import ColourPicker from "../common/ColourPIcker";
 
 export default function WebcalManager(){
@@ -154,7 +154,8 @@ const webcalColourChanged = async (newColour, webcal_id) =>{
     const url_api = getAPIURL() + "webcal/updateColour";
     const authorisationData = await getAuthenticationHeadersforUser();
 
-    // console.log("webcal_id", webcal_id, await getWebCalIDFromPrimaryID_Dexie(webcal_id))
+    // console.log("webcal_id", webcal_id, newColour)
+
     const requestOptions = {
       method: "POST",
       body: JSON.stringify({
@@ -175,11 +176,18 @@ const webcalColourChanged = async (newColour, webcal_id) =>{
 
         if(!body){
             toast.error(t("ERROR_GENERIC"))
+            return
         }
         if(!("success" in body) || !body.success){
             toast.error(t("ERROR_GENERIC"))
+            return
+
+        }else{
+
+            toast.success(t("UPDATE_OK"))
+            //Make change in the local.
+            updateColourforWebcal_Dexie(webcal_id, newColour)
         }
-        toast.success(t("UPDATE_OK"))
 
 
     }).catch(e =>{
