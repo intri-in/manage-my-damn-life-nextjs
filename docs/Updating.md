@@ -46,6 +46,13 @@ MMDL using Dexie database in your browser for data storage. Sometimes, after upd
 - Logout and Log back in.
 - Turn this setting off to speed up login time.
 
+## Updating to v0.9.0
+ 
+ ### Breaking changes
+ 
+ The name of env variable NEXT_PUBLIC_BASE_URL has been changed to NEXT_BASE_URL. It is a required variable now. Please set it, otherwise the backend will throw an error while adding OAuth Account.
+
+
 ## Updating to v0.6.0
 
 ### Breaking changes
