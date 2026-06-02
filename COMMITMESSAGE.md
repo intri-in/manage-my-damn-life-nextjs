@@ -1,1 +1,2 @@
-Fixed bug with Webcal sync.
+Bumped version no. to v0.9.0
+- Edit to sample.env file
