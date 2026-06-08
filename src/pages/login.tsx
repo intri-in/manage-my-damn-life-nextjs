@@ -9,7 +9,6 @@ import { Button } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { getAuthenticationHeadersforUser, setLoginCookie } from '@/helpers/frontend/user';
 import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { getAPIURL, logVar } from '@/helpers/general';
@@ -21,33 +20,18 @@ import { useTranslation } from 'next-i18next';
 import { AVAILABLE_LANGUAGES } from '@/config/constants';
 import { RequestOptions } from 'https';
 import { installCheck_Cookie } from '@/helpers/install';
+import { userRegistrationAllowed } from '@/helpers/api/settings';
 
-const Login = () => {
+const Login = ({showRegistrationLink}) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [installed, setInstalled] = useState(true);
 
     const {t} = useTranslation()
-    const [showRegistrationLink, setShowRegistrationLink] = useState(false);
+    // const [showRegistrationLink, setShowRegistrationLink] = useState(false);
     const router = useRouter();
 
-    const getRegistrationStatusFromServer = useCallback(async () => {
-        const url_api = getAPIURL() + "users/settings/registrationstatus";
-
-        const requestOptions = {
-            method: 'GET',
-            mode: 'cors',
-        };
-
-        try {
-            const response = await fetch(url_api, requestOptions as RequestInit);
-            const body = await response.json();
-            return body;
-        } catch (e) {
-            console.error("getRegistrationStatusFromServer", e);
-            return getErrorResponse(e);
-        }
-    }, []);
+   
     const checkInstallation = async () => {
         try {
           const isInstalled = await installCheck_Cookie(router);
@@ -73,24 +57,11 @@ const Login = () => {
                 }
             }
 
-            getRegistrationStatusFromServer().then((body) => {
-                console.log(body)
-                if (body && body.success === true) {
-                    let showRegistration = false;
-                    const message = getMessageFromAPIResponse(body)
-                    if (message === "1" || message==true || (typeof(message)=="string" && message.toLowerCase() === "true")) {
-                        showRegistration = true;
-                    }
-                    setShowRegistrationLink(showRegistration);
-                } else {
-                    // toast.error(t("CANT_GET_REGISTRATION_STATUS_FROM_SERVER"));
-                }
-            });
         }
         return () => {
             isMounted = false
         }
-    }, [getRegistrationStatusFromServer]);
+    }, []);
     useEffect(() => {
         let isMounted =true
         if(isMounted){
@@ -223,9 +194,10 @@ const Login = () => {
 
 export default Login;
 
-export async function getStaticProps({ locale }) {
+export async function getServerSideProps({ locale }) {
     return {
         props: {
+            showRegistrationLink: await userRegistrationAllowed(), // or fetch from DB, etc.
             ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
         },
     };

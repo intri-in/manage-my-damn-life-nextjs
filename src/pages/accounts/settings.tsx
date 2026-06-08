@@ -1,5 +1,4 @@
 import AppBarGeneric from "@/components/common/AppBar";
-import SettingsPage from "@/components/page/SettingsPage/SettingsPage";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { useCustomTheme } from "@/helpers/frontend/theme";
 import { checkLogin_InBuilt } from "@/helpers/frontend/user";
@@ -11,9 +10,10 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
+import SettingsPage from "@/components/page/SettingsPage/SettingsPageFunctional";
 
 
-export default function Settings(){
+export default function Settings({registrationDisabledFromEnv}:{registrationDisabledFromEnv:boolean}){
   const { data: session, status } = useSession() 
   const [isloggedIn, setIsloggedIn] = useState(false)
   const router = useRouter()
@@ -57,16 +57,16 @@ export default function Settings(){
             </Head>
             <AppBarGeneric />
 
-            <SettingsPage i18next={t}  />
+            <SettingsPage registrationDisabledFromEnv={registrationDisabledFromEnv} i18next={t}  />
         </>
     )
 }
 
-export async function getStaticProps({ locale}) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
-      // Will be passed to the page component as props
-    },
-  }
+export async function getServerSideProps({ locale }) {
+    return {
+        props: {
+            registrationDisabledFromEnv: process.env.DISABLE_USER_REGISTRATION ? true: false, // or fetch from DB, etc.
+            ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+        },
+    };
 }

@@ -35,11 +35,11 @@ More screenshots are available in the directory '/docs/pics/screenshots'
 
 This client has been tested with Nextcloud, Radicale, and Baikal. MMDL uses "tsdav" library for CalDAV access, so it should support all servers supported by [tsdav](https://tsdav.vercel.app/docs/).
 
-MMDL also supports OAuth authentication for CalDAV Accounts. As of now, Google Calendars is supported. To get started, checkout the guide [here](docs/Feature%20Guide/GoogleCaldav.md)
+MMDL also supports OAuth authentication for CalDAV Accounts. As of now, Google Calendars is supported. To get started, checkout the guide [here](docs/Feature%20Guide/GoogleCaldav.md).
 
 ## Getting Started
 
-To get started, you can checkout installation documentation [here](install/index.md).
+To get started, you can checkout installation documentation [here](docs/install/index.md).
 
 
 ## Translation

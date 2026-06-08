@@ -1,3 +1,9 @@
+v0.9.1
+- Breaking Changes
+    - Changed name of env variable NEXT_PUBLIC_DISABLE_USER_REGISTRATION to DISABLE_USER_REGISTRATION. This is necessary as public env vars in NextJS get built into docker image.
+- Bug fixes:
+    - Fixed #337
+
 v0.9.0
 - Breaking Changes
     - Changed name of env variable NEXT_PUBLIC_BASE_URL to NEXT_BASE_URL. It is a required variable now.
