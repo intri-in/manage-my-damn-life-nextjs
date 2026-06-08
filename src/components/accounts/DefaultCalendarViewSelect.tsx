@@ -7,7 +7,7 @@ import { useTranslation } from 'next-i18next';
 
 const defaultOptions = FULLCALENDAR_VIEWLIST
 
-function DefaultCalendarViewSelect(props:null) {
+function DefaultCalendarViewSelect() {
     const [valueofDDL, setValueofDDL] = useState("")
     const{t} = useTranslation()
     useEffect(()=>{

@@ -12,7 +12,7 @@ const defaultOptions = FULLCALENDAR_VIEWLIST
 
 
 
-function CalendarStartDayWeek(props:null){
+function CalendarStartDayWeek(){
     const [valueofDDL, setValueofDDL] = useState("1")
     const {t} = useTranslation()
     useEffect(()=>{

@@ -11,8 +11,9 @@ import { Container, Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
+import {displayCreateAccountLinkOnFrontend } from "@/helpers/api/install";
 
-const StartInstall = () => {
+const StartInstall = ({showRegistrationLink}:{showRegistrationLink: boolean}) => {
   const [output, setOutput] = useState<JSX.Element | JSX.Element[]>([<></>]);
   const router = useRouter();
   const {t} = useTranslation()
@@ -101,7 +102,10 @@ const StartInstall = () => {
       <Alert variant="success">{t("INSTALL_SUCESSFUL")}</Alert>
       <Row style={{textAlign:"center"}}>
         <Col>
-      <Button onClick={createAccountClicked}>{t("CREATE_ACCOUNT")}</Button>
+          {
+            showRegistrationLink ? 
+            <Button onClick={createAccountClicked}>{t("CREATE_ACCOUNT")}</Button>:null
+          }
         </Col>
         <Col>
       <Button onClick={continueClicked}>{t("CONTINUE")}</Button>
@@ -193,9 +197,12 @@ const StartInstall = () => {
 
 export default StartInstall;
 
-export async function getStaticProps({ locale }) {
+
+
+export async function getServerSideProps({ locale }) {
     return {
         props: {
+            showRegistrationLink: (await displayCreateAccountLinkOnFrontend()), // or fetch from DB, etc.
             ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
         },
     };
