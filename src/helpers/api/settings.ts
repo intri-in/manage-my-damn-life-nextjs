@@ -53,7 +53,7 @@ export async function userRegistrationAllowed()
         }
     }
     
-    let fromEnv = process.env.NEXT_PUBLIC_DISABLE_USER_REGISTRATION ? process.env.NEXT_PUBLIC_DISABLE_USER_REGISTRATION : "false"
+    let fromEnv = process.env.DISABLE_USER_REGISTRATION ? process.env.DISABLE_USER_REGISTRATION : "false"
 
 
     if(!disabledFromDB && fromEnv == "false")

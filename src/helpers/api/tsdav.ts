@@ -71,7 +71,7 @@ export function accessTokenNeedsRefresh(caldav_auth_object: caldav_accounts ){
     const startingTime = moment(caldav_auth_object.last_updated)
     // const differenceInSeconds = startingTime.diff(moment(moment.now()), "seconds")
     const differenceInSeconds = moment(moment.now()).diff(startingTime, "seconds")
-    console.log("startingTime", startingTime, differenceInSeconds)
+    // console.log("startingTime", startingTime, differenceInSeconds)
     if(differenceInSeconds>=parseInt(caldav_auth_object.expires_in)){
         return true
     }

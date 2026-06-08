@@ -114,6 +114,9 @@ Now that we have enabled app in Google's Developer Console, we will need to add 
 ![Screen 13](../pics/googleOAuth/13.png) 
 
 - You will then be shown the permissions that the new app is requesting. Select **all three** to make sure MMDL has permissions to read/edit/delete items from your Google Calendar account. 
+
+![Screen 14](../pics/googleOAuth/14.png) 
+
 - You will be redirected back to MMDL. Enter your Client Id and Client Secret to finally add your Google Calendars to MMDL.
 - Wait for sync to complete and voila!
  

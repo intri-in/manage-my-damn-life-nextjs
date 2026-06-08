@@ -335,6 +335,7 @@
   "USERS": "Users",
   "USER_INSERT_OK": "User was created successfully!",
   "USER_REG_DISABLED_FROM_ENV": "User registration is disabled from env variable. You'll need to change the value there to enable it.",
+  "USER_REG_DISABLED": "User registration is disabled.",
   "VALUE": "Value",
   "VERSION": "Version",
   "VIEW": "View",
