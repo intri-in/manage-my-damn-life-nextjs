@@ -101,6 +101,11 @@ export async function isInstalled_CheckWithSequelize(){
     }
     return true
 }
+export async function isInstalled_CheckWithSequelizeForFrontEnd(){
+    const dbConnectionOK = await testDBConnection()
+    if(!dbConnectionOK) return false
+    return isInstalled_CheckWithSequelize()
+}
 export async function isInstalled(log)
 {
     return isInstalled_CheckWithSequelize()
@@ -195,7 +200,9 @@ export async function getListofTablesWithSequelize(){
 export async function displayCreateAccountLinkOnFrontend(){
     const regAllowed = await userRegistrationAllowed()
     if(!regAllowed) return false
-    const userList = await users.findAll()
+    const userList = await users.findAll().catch(e=>{
+        console.error("displayCreateAccountLinkOnFrontend", e)
+    })
     if(userList && Array.isArray(userList) && userList.length>0) return false
     return true
     

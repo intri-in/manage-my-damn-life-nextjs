@@ -15,8 +15,9 @@ import { MdArrowBack } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import validator from 'validator';
 import { userRegistrationAllowed } from '@/helpers/api/settings';
+import { isInstalled_CheckWithSequelize } from '@/helpers/api/install';
 
-const Register = ({registrationAllowed}) => {
+const Register = ({registrationAllowed, installed}) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -67,6 +68,9 @@ const Register = ({registrationAllowed}) => {
             makeRequestToServer();
         }
     };
+    const notInstalledBannerClicked = () =>{
+        router.push("/install")
+    }
 
     const makeRequestToServer = async () => {
         const url_api = `${getAPIURL()}users/register`;
@@ -100,6 +104,14 @@ const Register = ({registrationAllowed}) => {
             console.error("makeRequestToServer", e);
         }
     };
+    let notInstalledBanner;
+    if (!installed) {
+      notInstalledBanner = (
+        <div onClick={notInstalledBannerClicked} style={{ background: "darkred", textAlign: "center", color: "white" }}>{t("MMDL_NOT_INSTALLED")}</div>
+      );
+    }
+
+
     return (
         <>
             <Head>
@@ -107,6 +119,7 @@ const Register = ({registrationAllowed}) => {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+            {notInstalledBanner}
             <Container fluid>
                 <div style={{
                     margin: "0",
@@ -191,6 +204,7 @@ export default Register;
 export async function getServerSideProps({ locale }) {
     return {
         props: {
+            installed: await isInstalled_CheckWithSequelize(),
             registrationAllowed: await userRegistrationAllowed(), // or fetch from DB, etc.
             ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
         },
