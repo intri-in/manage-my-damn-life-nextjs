@@ -91,11 +91,11 @@ export async function sequelizeCanConnecttoDB(){
   var sequelize= getSequelizeObj()
   try {
     await sequelize.authenticate();
-    if(shouldLogforAPI()) console.log('Connection has been established successfully.');
+    if(shouldLogforAPI()) console.log('sequelizeCanConnecttoDB: Connection has been established successfully.');
 
     return true
   } catch (error) {
-    if(shouldLogforAPI()) console.log('Db Connection Failed:', error);
+    if(shouldLogforAPI()) console.log('sequelizeCanConnecttoDB: Db Connection Failed:', error);
     return error
   }
   

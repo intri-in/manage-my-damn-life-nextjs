@@ -21,27 +21,17 @@ import { AVAILABLE_LANGUAGES } from '@/config/constants';
 import { RequestOptions } from 'https';
 import { installCheck_Cookie } from '@/helpers/install';
 import { userRegistrationAllowed } from '@/helpers/api/settings';
+import { isInstalled_CheckWithSequelize, isInstalled_CheckWithSequelizeForFrontEnd, testDBConnection } from '@/helpers/api/install';
 
-const Login = ({showRegistrationLink}) => {
+const Login = ({showRegistrationLink, installed}) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [installed, setInstalled] = useState(true);
 
     const {t} = useTranslation()
     // const [showRegistrationLink, setShowRegistrationLink] = useState(false);
     const router = useRouter();
 
    
-    const checkInstallation = async () => {
-        try {
-          const isInstalled = await installCheck_Cookie(router);
-          console.log("isInstalled" ,isInstalled)
-          setInstalled(isInstalled);
-          
-        } catch (error) {
-          console.error("Error checking installation:", error);
-        }
-      };
 
     useEffect(() => {
 
@@ -62,17 +52,7 @@ const Login = ({showRegistrationLink}) => {
             isMounted = false
         }
     }, []);
-    useEffect(() => {
-        let isMounted =true
-        if(isMounted){
-    
-          checkInstallation();
-        }
-        return ()=>{
-          isMounted=false
-      }
-    
-      }, []);
+ 
     
     const loginButtonClicked = async () => {
         let isValid = true;
@@ -197,7 +177,10 @@ export default Login;
 export async function getServerSideProps({ locale }) {
     return {
         props: {
-            showRegistrationLink: await userRegistrationAllowed(), // or fetch from DB, etc.
+        installed : await isInstalled_CheckWithSequelizeForFrontEnd(), 
+        showRegistrationLink: await userRegistrationAllowed().catch(e =>{
+               console.error("userRegistrationAllowed", e)
+            }), // or fetch from DB, etc.
             ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
         },
     };
