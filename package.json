@@ -9,8 +9,8 @@
     "lint": "next lint",
     "migrate": "npx sequelize-cli db:migrate --env local",
     "migrate-sqlite": "npx sequelize-cli db:migrate --env sqlite",
-    "undo-migrate": "npx sequelize-cli db:migrate:undo  --env local",
-    "undo-migrate-sqlite": "npx sequelize-cli db:migrate:undo  --env sqlite",
+    "undo-migrate": "npx sequelize-cli db:migrate:undo --env local",
+    "undo-migrate-sqlite": "npx sequelize-cli db:migrate:undo --env sqlite",
     "cypress": "cypress open"
   },
   "dependencies": {

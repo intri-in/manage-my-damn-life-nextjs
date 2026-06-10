@@ -1,3 +1,6 @@
+v0.9.2
+- Bug fixes:
+    - Fixed #340
 v0.9.1
 - Breaking Changes
     - Changed name of env variable NEXT_PUBLIC_DISABLE_USER_REGISTRATION to DISABLE_USER_REGISTRATION. This is necessary as public env vars in NextJS get built into docker image.

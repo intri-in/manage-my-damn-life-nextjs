@@ -1,6 +1,7 @@
 import { getConnectionVar, getSequelizeObj } from '@/helpers/api/db';
 import { settings } from 'models/settings';
 import { users } from 'models/users';
+import { isInstalled_CheckWithSequelize } from './install';
 
 const Users= users.initModel(getSequelizeObj())
 const Settings = settings.initModel(getSequelizeObj())
@@ -13,6 +14,8 @@ export async function getRegistrationStatus()
         },
         raw: true,
         nest: true,
+    }).catch(e =>{
+        console.error("getRegistrationStatus", e)
     })
 
     if(resultfromDB && Array.isArray(resultfromDB) && resultfromDB.length>0 &&  resultfromDB[0].name!=null && resultfromDB[0].name!=undefined && resultfromDB[0].global!=null && resultfromDB[0].name!="" && resultfromDB[0].global!="false"   && resultfromDB[0].global!="0" ){
@@ -44,7 +47,8 @@ export async function getRegistrationStatus()
 
 export async function userRegistrationAllowed()
 {
-
+    let db_enabled = await isInstalled_CheckWithSequelize()
+    if(!db_enabled) return true
     let fromDB = await getRegistrationStatus()
     let disabledFromDB = false
     if(fromDB){
