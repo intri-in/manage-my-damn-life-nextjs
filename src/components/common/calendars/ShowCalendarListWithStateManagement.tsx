@@ -63,7 +63,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
         let finalOutput : JSX.Element[]= []
         for(let j=0; j<caldavSummary.length; j++)
         {
-            if(caldavSummary[j].authMethod?.toUpperCase()=="OAUTH"){
+            if(caldavSummary[j].authMethod?.toUpperCase()=="OAUTH" && caldavSummary[j].provider?.toUpperCase()=="GOOGLE"){
                 continue
 
             }

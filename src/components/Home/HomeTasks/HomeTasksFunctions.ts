@@ -79,6 +79,10 @@ export async function refreshMenuOptionsFromServer(menuOptions: {}, t)
 
     for (const i in calendars)
     {
+         if(calendars[i].authMethod?.toUpperCase()=="OAUTH" && calendars[i].provider?.toUpperCase()=="GOOGLE"){
+                continue
+
+        }
         var calendarOptions:any = []
         var finalKey = calendars[i]["name"]
         for (const j in calendars[i]["calendars"])
