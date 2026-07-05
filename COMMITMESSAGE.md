@@ -1,1 +1,3 @@
-Fixed #340
+- Google Calendars are no longer shown in task list as Google Tasks don't work using CalDAV (they use a separate API)
+- Minor UI Fixes and improvements
+- Minor type error fixes

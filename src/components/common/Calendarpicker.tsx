@@ -3,7 +3,9 @@ import { isValidResultArray } from "@/helpers/general"
 import { useEffect, useState } from "react"
 import { Form } from "react-bootstrap"
 
-export const CalendarPicker = ({calendar_id, disabled, onSelectedHook}:{calendar_id:string | number,disabled?: boolean,onSelectedHook: Function}) =>{
+type type = "event" | "task" 
+
+export const CalendarPicker = ({calendar_id, disabled, onSelectedHook, type}:{calendar_id:string | number,disabled?: boolean,onSelectedHook: Function, type?: type}) =>{
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
    
 
@@ -23,27 +25,32 @@ export const CalendarPicker = ({calendar_id, disabled, onSelectedHook}:{calendar
     }
     const generateCalendarDDL = async() =>{
         let calendarOutput: JSX.Element[]= []
-        let calendarsFromServer = await getCalDAVSummaryFromDexie()
-      
-        if (isValidResultArray(calendarsFromServer)) {
-            calendarOutput = []
-            calendarOutput.push(<option key="calendar-select-empty" ></option>)
+        let caldavSummary_fromDexie = await getCalDAVSummaryFromDexie()
+        
+        if (isValidResultArray(caldavSummary_fromDexie)) {
 
-            for (let i = 0; i < calendarsFromServer.length; i++) {
+            for (let i = 0; i < caldavSummary_fromDexie.length; i++) {
                 let tempOutput: JSX.Element[] = []
-                if(!isValidResultArray(calendarsFromServer[i].calendars)){
+                if(!isValidResultArray(caldavSummary_fromDexie[i].calendars)){
                     continue
                 }
-                for (let j = 0; j < calendarsFromServer[i].calendars.length; j++) {
-                    const value: string = calendarsFromServer[i].calendars[j].calendars_id.toString()
-                    // console.log(calendarsFromServer[i].calendars[j].calendars_id)
-                    const key = j + "." + value
-                    tempOutput.push(<option  key={key} style={{ background: calendarsFromServer[i].calendars[j].calendarColor }} value={value}>{calendarsFromServer[i].calendars[j].displayName}</option>)
+                if(type=="task"){
+                    //we must skip unsupported calendars.
+                    if(caldavSummary_fromDexie[i].authMethod?.toUpperCase()=="OAUTH" && caldavSummary_fromDexie[i].provider?.toUpperCase()=="GOOGLE"){
+                        continue
+                    }
                 }
-                calendarOutput.push(<optgroup key={`${calendarsFromServer[i].name}_group_${i}`} label={calendarsFromServer[i].name}>{tempOutput}</optgroup>)
+                for (let j = 0; j < caldavSummary_fromDexie[i].calendars.length; j++) {
+                    const value: string | undefined = caldavSummary_fromDexie[i]?.calendars[j]?.calendars_id?.toString()
+                    // console.log(caldavSummary_fromDexie[i].calendars[j].calendars_id)
+                    const key = j + "." + value
+                    tempOutput.push(<option  key={key} style={{ background: caldavSummary_fromDexie[i].calendars[j].calendarColor }} value={value}>{caldavSummary_fromDexie[i].calendars[j].displayName}</option>)
+                }
+                calendarOutput.push(<optgroup key={`${caldavSummary_fromDexie[i].name}_group_${i}`} label={caldavSummary_fromDexie[i].name}>{tempOutput}</optgroup>)
                 
             }
         }
+        if (calendarOutput.length>0) calendarOutput = [<option key="calendar-select-empty" ></option>, ...calendarOutput]
         
         setFinalOutput([<Form.Select key="calendarOptions" onChange={calendarSelected} value={calendar_id} disabled={disabled} >{calendarOutput}</Form.Select>])
     }

@@ -15,7 +15,7 @@ import { toast } from "react-toastify"
 import { useAtomValue, useSetAtom } from 'jotai'
 import { calDavObjectAtom, currentPageAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
 import { FilterListWithStateManagement } from "@/components/filters/FilterListWithStateManagement"
-import { BsCalendar3 } from "react-icons/bs"
+import { BsBookmark, BsCalendar3 } from "react-icons/bs"
 import { ShowCalendarListWithStateManagement } from "../calendars/ShowCalendarListWithStateManagement"
 import { useTranslation } from "next-i18next"
 export const GenericListsWithStateManagement = ({postClick}: {postClick: Function}) =>{
@@ -169,15 +169,20 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                 <br />
 
                 <div style={{margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
-                    <Col><h3><AiOutlineFilter />{t("FILTERS")}</h3></Col>
-                    <Col style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={settingButtonColor} /></Link></Col>
+                    <Col style={{display: "flex",  alignItems:'center', justifyContent:"left"}} xs={10}>
+
+                        <h3><AiOutlineFilter />{t("FILTERS")}</h3>
+                        </Col>
+                    <Col xs={2} style={{textAlign:"right"}}><Link href="/filters/manage"> <AiOutlineSetting color={settingButtonColor} /></Link></Col>
                 </div>
                 <Row style={{borderBottom: `1px solid ${borderBottomColor}`, margin: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} >
                     <Col><FilterListWithStateManagement postClick={postClick}  /></Col>
                 </Row>
                 <Row style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', display: "flex" }} >
-                    <Col><h3>{t("BY_LABELS")}</h3></Col>
-                    <Col> <h3 style={{textAlign: "right"}}><IoRefreshCircleOutline onClick={updateLabelCache} color={settingButtonColor} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={settingButtonColor}/></Link></h3></Col>
+                    <Col style={{display: "flex",  alignItems:'center', justifyContent:"left"}} xs={8}>
+                    
+                        <h3><BsBookmark />&nbsp;{t("LABELS")}</h3></Col>
+                    <Col  style={{textAlign:"right"}} xs={4}> <IoRefreshCircleOutline onClick={updateLabelCache} color={settingButtonColor} />&nbsp;&nbsp;<Link href="/labels/manage"><AiOutlineSetting  color={settingButtonColor}/></Link></Col>
                 </Row>
                 <div style={{marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', borderBottom: `1px solid ${borderBottomColor}`}}  className="row">
                         <div className="col-12">
@@ -185,13 +190,13 @@ export const GenericListsWithStateManagement = ({postClick}: {postClick: Functio
                         </div>
                 </div>
                 <div style={{marginTop: 40, marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }} className="row">
-                        <Col>
+                        <Col style={{display: "flex",  alignItems:'center', justifyContent:"left"}} xs={10}>
                         <h3><BsCalendar3 />&nbsp;{t("CALENDARS")}</h3>
                         </Col>
-                        <Col style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting color={settingButtonColor} /></Link> </Col>
+                        <Col xs={2} style={{textAlign:"right"}}><Link href="/accounts/caldav"><AiOutlineSetting color={settingButtonColor} /></Link> </Col>
 
                     </div>
-                    <Row style={{ marginTop: 10, marginLeft: 20, marginRight: 20, padding: 5, justifyContent: 'center', alignItems:'center', }}>
+                    <Row style={{ marginTop: 10, marginLeft: 20, marginRight: 20, padding: 5}}>
                         <ShowCalendarListWithStateManagement postClick={postClick}  />
                     </Row>
 
