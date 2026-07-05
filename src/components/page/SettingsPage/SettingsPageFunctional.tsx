@@ -36,6 +36,7 @@ import { TimeFormatSetting } from "./TimeFormatSetting";
 import AdvancedSettings from "./AdvancedSettings";
 import ToastSettings from "./ToastSettings";
 import CalendarStartDayWeek from "@/components/settings/CalendarStartDayWeek";
+import { Caldav_Summary } from "@/types/generic";
  
 interface SettingsPageProps {
   i18next: (key: string) => string;
@@ -58,7 +59,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ i18next, registrationDisabl
     <Loading centered={true} padding={30} />
   );
   const [calendarsFromServer, setCalendarsFromServer] = useState<
-    CalendarSummary[]
+    Caldav_Summary[]
   >([]);
   const [defaultCalendar, setDefaultCalendar] = useState<string>("");
   const [allowReg, setAllowReg] = useState<number>(1);

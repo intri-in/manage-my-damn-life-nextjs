@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     }
     //Sample token for OAUTH
     let token :DAVTokens | undefined = {}
+    const provider = req.body.provider
     // console.log("req", req.body)
     if (authMethod.toUpperCase()=="OAUTH"){
         if(!req.body.provider || !req.body.client_id ||  !req.body.auth_code ){
@@ -111,7 +112,10 @@ export default async function handler(req, res) {
             username:req.body.username,
             caldav_accounts_id: caldav_accounts_fromDB!.caldav_accounts_id,
             url: caldav_accounts_fromDB!.url,
-            calendars: processCalDAVResponse(calendars)
+            calendars: processCalDAVResponse(calendars),
+            authMethod: authMethod,
+            provider: provider
+
         }   
             
         return res.status(200).json({ version: 2, success: true, data: output})

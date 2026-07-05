@@ -84,9 +84,13 @@ export async function refreshMenuOptionsFromServer(menuOptions: {}, t)
         for (const j in calendars[i]["calendars"])
         {
             let tempObj: any = {}
-            tempObj[calendars[i]["calendars"][j]["displayName"]]={calendars_id: calendars[i]["calendars"][j]["calendars_id"], caldav_accounts_id:  calendars[i]["caldav_accounts_id"]}
+            const displayName = calendars[i]["calendars"][j]["displayName"];
+            if(displayName){
 
-            calendarOptions.push(tempObj)
+                tempObj[displayName]={calendars_id: calendars[i]["calendars"][j]["calendars_id"], caldav_accounts_id:  calendars[i]["caldav_accounts_id"]}
+    
+                calendarOptions.push(tempObj)
+            }
 
         }
         if(calendarOptions.length>0)

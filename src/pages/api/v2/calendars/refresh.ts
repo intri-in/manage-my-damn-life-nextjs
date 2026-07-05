@@ -74,7 +74,7 @@ export default async function handler(req, res) {
                             }
     
                             }
-                        finalResponse.push({username: caldav_accounts[i].username, url: caldav_accounts[i].url, name:caldav_accounts[i].name, status: "ok", caldav_accounts_id:caldav_accounts[i]["caldav_accounts_id"], calendars: tempCalList})
+                        finalResponse.push({username: caldav_accounts[i].username, url: caldav_accounts[i].url, name:caldav_accounts[i].name, status: "ok", provider: caldav_accounts[i].provider, authMethod: caldav_accounts[i].authMethod, caldav_accounts_id:caldav_accounts[i]["caldav_accounts_id"], calendars: tempCalList})
                         
                         
                     }else{
