@@ -1,10 +1,22 @@
 export interface TaskFilter{
     logic?: "or" | "and",
-    filter?: basicFilter
+    filter?: BasicMMDlFilter
 }
 
-interface basicFilter{
-    due?: [number, number],
-    label?:string,
-    priority?:number
+export interface BasicMMDlFilter{
+    due?: [number | string, number | string],
+    dueRelative?:DueRelative,
+    label?:string[],
+    priority?:number | string,
+    start?:StartDate,
+    startRelative?: DueRelative
+}
+interface StartDate{
+    before: string ,
+    after: string
+}
+export interface DueRelative{
+    direction: string,
+    value: number,
+    unit: "HOURS" | "DAYS"
 }

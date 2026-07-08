@@ -23,21 +23,6 @@ export class Filters{
                 userid: userid.toString()
             }
         })
-        console.log("response")
-        // var con = getConnectionVar()
-
-        // return new Promise( (resolve, reject) => {
-        //     con.query('DELETE FROM custom_filters WHERE custom_filters_id=?', [this.filterid], function (error, results, fields) {
-        //     if (error) {
-        //         return resolve(error)
-        //     }
-        //     con.end()
-
-        //     return resolve(null)
-        //     });
-        // })
-    
-
     }
 
     /**

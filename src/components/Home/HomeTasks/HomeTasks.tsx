@@ -3,10 +3,10 @@ import { getTodaysDateUnixTimeStamp, varNotEmpty } from "@/helpers/general";
 import { MYDAY_LABEL } from "@/config/constants";
 import Form from 'react-bootstrap/Form';
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions";
-import { isValidFilter } from "@/helpers/frontend/filters";
 import * as _ from 'lodash'
 import { storeValuetoLocalStorage } from "@/helpers/frontend/localstorage";
 import { useTranslation } from "next-i18next";
+import { checkIfFilterValid } from '@/helpers/frontend/filtersTS';
 
 export const STORAGE_KEY_MENU_OPTION_SELECTED= "STORAGE_KEY_MENU_OPTION_SELECTED"
 
@@ -87,7 +87,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
 
         if(isMounted){
             const value = selectedValue
-            var filterValue = {logic: "or", filter:{}}
+            var filterValue = {logic: "or" as const, filter:{}}
             if(varNotEmpty(value) &&typeof(value=="string"))
             {
                 var valueArray = value.split(',')
@@ -104,7 +104,7 @@ function HomeTasks(props:homeTasksPropsInterface) {
                             {
     
                                 filterValue= menuOptions[valueArray[0]][k][valueArray[1]]
-                                if(isValidFilter(filterValue))
+                                if(checkIfFilterValid(filterValue))
                                 {
                                     setFilter(filterValue)
                                     setCaldavAccountsId(null)

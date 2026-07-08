@@ -42,7 +42,7 @@ export default function TaskListPage(){
             }
           }else{
             // Check login using inbuilt function.
-            setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
+            setIsloggedIn(await checkLogin_InBuilt(router,"/tasks/list"))
           }
         }
 
