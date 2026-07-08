@@ -2,7 +2,6 @@ import { getAPIURL, isValidResultArray, logError, logVar, varNotEmpty } from "..
 import { arrangeTodoListbyHierarchy, getParsedTodoList, getUnparsedEventData, returnGetParsedVTODO } from "./calendar"
 import { dueDatetoUnixStamp, getI18nObject, ISODatetoHuman, ISODatetoHumanISO } from "./general"
 import ical from '@/../ical/ical'
-import { applyEventFilter } from "./filters"
 import moment from "moment"
 import { getAuthenticationHeadersforUser } from "./user"
 import * as _ from 'lodash'
@@ -11,6 +10,7 @@ import { deleteEventByURLFromDexie, getEventbyURLFromDexie, restoreEventtoDexie,
 import { fetchLatestEventsV2 } from "./sync"
 import { toast } from "react-toastify"
 import { parseVALARMTIME } from "./rfc5545"
+import { applyEventFilter } from "./filtersTS"
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= _.cloneDeep(calendarEvents)
@@ -79,13 +79,7 @@ export function majorTaskFilter(todo)
     }
 }
 
-function checkifEventisAlreadyinFilteredList(calendarEvents, filteredList)
-{
-    if(isValidResultArray(filteredList))
-    {
-       // for (const i in )
-    }
-}
+
 export function applyTaskFilter(todo,filter)
 {
 

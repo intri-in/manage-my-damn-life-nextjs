@@ -4,12 +4,12 @@ import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
 import { useEffect, useState } from "react"
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions"
 import * as _ from 'lodash'
-import { isValidFilter } from "@/helpers/frontend/filters"
 import { Form } from "react-bootstrap"
 import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
 import { useSetAtom } from "jotai"
 import { TaskFilter } from "types/tasks/filters"
 import { useTranslation } from "next-i18next"
+import { checkIfFilterValid } from "@/helpers/frontend/filtersTS"
 const defaultMenuOptions = PAGE_VIEW_JSON
 interface FilterValueType extends TaskFilter{
     caldav_accounts_id?:string|number,
@@ -62,7 +62,7 @@ export const HomeTasksDDL = () => {
                             if (valueArray[1] in menuOptions[valueArray[0]][k]) {
 
                                 filterValue = menuOptions[valueArray[0]][k][valueArray[1]]
-                                if (isValidFilter(filterValue)) {
+                                if (checkIfFilterValid(filterValue)) {
                                     // setFilter(filterValue)
                                     // setCaldavAccountsId(null)
                                     // setCalendarsId(null) 

@@ -1,3 +1,2 @@
-- Google Calendars are no longer shown in task list as Google Tasks don't work using CalDAV (they use a separate API)
-- Minor UI Fixes and improvements
-- Minor type error fixes
+- Added ability to create filters relative to due date and start date.
+- Minor bug fixes
