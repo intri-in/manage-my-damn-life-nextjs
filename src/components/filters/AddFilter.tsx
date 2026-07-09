@@ -44,6 +44,7 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filternameInvalid, setFilternameInvalid] = useState(false);
   const [selectedLables, setSelectedLables] = useState<string[]>([]);
+  const [labelLogic, setLabelLogic] = useState("OR")
   const [labelListFromDexie, setLabelListFromDexie] = useState<Labels[]>([])
   const [filterbyStart, setFilterbyStart] = useState(false)
   const [startAfter, setStartAfter] = useState("")
@@ -92,9 +93,21 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
         setDueDateRelativeValue(filterInput.filter.dueRelative.value)
       }
 
-      if(Array.isArray(filterInput.filter.label) && filterInput.filter.label.length>0){
-        setFilterbyLabelChecked(true);
-        setSelectedLables(filterInput.filter.label)
+      if(filterInput.filter.label){
+        let labelList: string[] = []
+        if(Array.isArray(filterInput.filter.label)){
+          labelList = filterInput.filter.label
+        }else{
+          if(filterInput.filter.label.logic && filterInput.filter.label.filters && Array.isArray(filterInput.filter.label.filters)){
+            labelList = filterInput.filter.label.filters
+            setLabelLogic(filterInput.filter.label.logic)
+          } 
+        }
+        if(labelList.length>0){
+          setFilterbyLabelChecked(true);
+          setSelectedLables(labelList)
+        }
+
       }
       if (filterInput.filter.priority && filterInput.filter.priority!="0" ) {
         setFilterbyPriority(true);
@@ -204,7 +217,7 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
   }
 
   const getCurrentSelectedFilter = ()  =>{
-    let filter: BasicMMDlFilter =  { due: [dueDateFrom, dueDateBefore], label: selectedLables, priority: priorityValue, start:{before:startBefore, after:startAfter} }
+    let filter: BasicMMDlFilter =  { due: [dueDateFrom, dueDateBefore], label: {filters: selectedLables, logic: labelLogic}, priority: priorityValue, start:{before:startBefore, after:startAfter} }
     if(filterbyDueRelativeChecked){
       filter.dueRelative= {direction: dueDateRelativeDirection, value: dueDateRelativeValue, unit: dueDateRelativeUnit
      }
@@ -356,6 +369,10 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
     }
   }
 
+  const labelLogicChanged = (e) =>{
+    setLabelLogic(e.target.value)
+  }
+
   const addFormClosed = () =>{
     // setFilterName("")
     // setDueDateBefore("")
@@ -478,6 +495,11 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
         <br />
         {filterbyLabelChecked && (
             <>
+            <Form.Select value={labelLogic} onChange={labelLogicChanged}>
+                <option value="OR">{t("OR")}</option>
+                <option value="AND">{t("AND")}</option>
+            </Form.Select>
+            <br />
             {generateLabelCheckList()}
             <br />
             </>

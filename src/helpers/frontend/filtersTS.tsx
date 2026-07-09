@@ -3,6 +3,7 @@ import { varNotEmpty } from "../general"
 import { dummyTranslationFunction } from "./translations"
 import { TaskFilter } from "types/tasks/filters"
 import { Fragment } from "react";
+import { C } from "@fullcalendar/core/internal-common";
 export function filterToWords(filter: TaskFilter, dateTimeFormat: string, t: any): JSX.Element[]
 {
     if(!filter.filter){
@@ -53,26 +54,37 @@ export function filterToWords(filter: TaskFilter, dateTimeFormat: string, t: any
     }
 
 
-    if(filter.filter.label!=null && filter.filter.label.length>0)
-    {
+    if(filter.filter.label){
+        let logic = "OR"
+        let labelList: string[] = []
         let labelString: JSX.Element[] = []
+        if(Array.isArray(filter.filter.label)){
+            labelList = filter.filter.label
+        }else{
+            if(filter.filter.label.logic && filter.filter.label.filters && Array.isArray(filter.filter.label.filters)){
+                labelList = filter.filter.label.filters
+                logic = filter.filter.label.logic
+            }
+        }
 
-        for(let j=0; j<filter.filter.label.length; j++)
+        for(let j=0; j<labelList.length; j++)
         {
             if(j!=0)
             {
                 labelString.push(<Fragment key={`orName_${j}`}>
-                or 
+                {t(logic)} 
                 </Fragment>)
             }
-            labelString.push(<i key={filter.filter.label[j]}>&nbsp;{filter.filter.label[j]}&nbsp;</i>)
-           
+            labelString.push(<i key={labelList[j]}>&nbsp;{labelList[j]}&nbsp;</i>)
+        
 
         }
-        
-        toReturnArray.push(<Fragment key="labelFilter">
-        &#123; {t("TASK_HAS_ANY_OF_LABELS").toUpperCase()} &#91; {labelString} &#93;  &#125;
-        </Fragment>)
+        if(labelList.length>0){
+
+            toReturnArray.push(<Fragment key="labelFilter">
+            &#123; {(logic=="OR")? t("TASK_HAS_ANY_OF_LABELS").toUpperCase():t("TASK_HAS_ALL_OF_LABELS").toUpperCase()} &#91; {labelString} &#93;  &#125;
+            </Fragment>)
+        }
         
     }
 
@@ -216,19 +228,31 @@ export function checkIfFilterValid(filter: TaskFilter): {status: boolean, messag
         errorMessages.dueRelative= "ERROR_DUE_DATE_INVALID_EMPTY_FILTER"
         
     }
-    if(filter.filter.label && Array.isArray(filter.filter.label) && filter.filter.label.length>0){
-        let count = 0
-        for(const i in filter.filter.label){
-            if(filter.filter.label[i]){
-                count ++
+    
+    if(filter.filter.label){
+        //Label can be Array, at least before 0.9.2. This is legacy support.
+        let labelList: string [] = []
+
+        if(Array.isArray(filter.filter.label)){
+            labelList = filter.filter.label
+        }else{
+            // New version of the filter
+            if(filter.filter.label.logic && filter.filter.label.filters && Array.isArray( filter.filter.label.filters)){
+                labelList = filter.filter.label.filters
             }
         }
-        if(count>0){
-            hasValidLabelFilter = true
-        }else{
-            errorMessages.label= "ERROR_LABEL_EMPTY_LIST"
+            let count = 0
+            for(const i in labelList){
+                if(labelList[i]){
+                    count ++
+                }
+            }
+            if(count>0){
+                hasValidLabelFilter = true
+            }else{
+                errorMessages.label= "ERROR_LABEL_EMPTY_LIST"
 
-        }
+            }
     }else{
         errorMessages.label= "ERROR_LABEL_EMPTY_LIST"
 
@@ -339,19 +363,28 @@ export function applyEventFilter(event: any, filter: TaskFilter)
     /**
      * Only consider logic if there are more than one condition. Override logic to "or"
      */
-    // console.log(countConditionsinFilter(filter))
+    // console.log("countConditionsinFilter(filter)", countConditionsinFilter(filter), filter)
     if(countConditionsinFilter(filter)<=1){
-
         logic="or"
     }
     
         let filterByLabelResult = false
-        if(filter.filter.label!=null)
+        if(filter.filter.label)
         {
-            filterByLabelResult= filterbyLabel(filter.filter.label, event.category)
-            // console.log("filterByLabelResult", filterByLabeleResult, event.category, filter.filter.label)
+            let labelList: string[] = []
+            let logicForLabel= "OR"
+            if(Array.isArray(filter.filter.label)){
+                labelList = filter.filter.label
+            }else{
+                if(filter.filter.label.logic && filter.filter.label.filters && Array.isArray(filter.filter.label.filters)){
+                    labelList = filter.filter.label.filters
+                    logicForLabel = filter.filter.label.logic
+                }
+            }
+            if(labelList.length>0) filterByLabelResult= filterbyLabel(labelList, event.category, logicForLabel)
+            // console.log("filterByLabelResult", filterByLabelResult, event.category, event.summary)
         }
-        if(!filterbyLabel && logic=="and"){
+        if(!filterByLabelResult && logic=="and"){
             return false
         }
 
@@ -429,71 +462,124 @@ export function applyEventFilter(event: any, filter: TaskFilter)
  * Counts the number of condition there are in a filter
  * @param {*} filter 
  */
-function countConditionsinFilter(filter){
+function countConditionsinFilter(filter: TaskFilter){
 
     let counter =0
     if(!checkIfFilterValid(filter)){
         return counter
     }
-
     const filterData = filter.filter
+    if(!filterData) return 0
 
-    if("priority" in filterData && filterData.priority){
+
+    if("priority" in filterData && filterData.priority && filterData.priority!="0"){
         counter++
     }
 
-    if("due" in filterData && filterData.due){
+    if("due" in filterData && filterData.due && Array.isArray(filterData.due) && filterData.due.length>0 && (filterData.due[0] || filterData.due[1])){
         counter++
     }
 
     if("label" in filterData && filterData.label){
+        let labelArray = getLabelArrayFromFilter(filter)
+        if(labelArray.length>0) counter++
+    }
+
+    if("start" in filterData && filterData.start && Array.isArray(filterData.start) && filterData.start.length>0 && (filterData.start[0] || filterData.start[1])){
+        counter++
+    }
+    if(filterData.dueRelative && filterData.dueRelative.value){
         counter++
     }
 
-    if("start" in filterData && filterData.start){
-        counter++
-    }
-    if(filterData.dueRelative){
-        counter++
-    }
-
-    if(filterData.startRelative){
+    if(filterData.startRelative && filterData.startRelative.value){
         counter++
     }
 
 
     return counter
 }
-function filterbyLabel(filterArray, categoryArray)
+/**
+ * Gets label array from filter. Respects both pre 0.9.2 filter, which had a simple array for label list
+ * @param filter 
+ * @returns String array of labels in the filter.
+ */
+function getLabelArrayFromFilter(filter: TaskFilter): string[]{
+    let labelArray: string[] = []
+    if(filter.filter && filter.filter.label){
+        const filterData = filter.filter
+        if(Array.isArray(filterData.label)){
+            labelArray = filterData.label
+        }else {
+            if(filterData.label?.filters && Array.isArray(filterData.label?.filters)&&filterData.label?.logic){
+                labelArray = filterData.label.filters
+            }
+            
+        }
+    }
+    return labelArray
+
+}
+function filterbyLabel(filterArray, categoryArray, logic="OR"): boolean
 {
-    let toReturn = false
-    // console.log("filterArray", filterArray, "categoryArray", categoryArray)
-    if(filterArray!=null && filterArray.length>0 )
+    if(logic.toUpperCase()=="OR") return filterbyLabelLogicOR(filterArray, categoryArray)
+    let found= new Map()
+    for (let i=0; i<filterArray.length; i++){
+        found.set(filterArray[i], false)
+    }
+    // console.log("filterArray, categoryArray, logic", filterArray, categoryArray, logic, found)
+    if(filterArray!=null && filterArray.length>0)
     {
-        if(categoryArray!=null )
-        {
-            for (let j=0; j<categoryArray.length; j++)
-            {
-                 
-                for (let i=0; i<filterArray.length; i++)
-                {
-                    if(filterArray[i].trim()==categoryArray[j].trim())
-                    {
-                        return true
+        if(categoryArray!=null && Array.isArray(categoryArray)){
+            for (let j=0; j<categoryArray.length; j++){
+                for (let i=0; i<filterArray.length; i++){
+                    // console.log("filterArray", filterArray[i], categoryArray[j])
+                    if(filterArray[i].trim()==categoryArray[j].trim()){
+                        found.set(filterArray[i],true)
+                        // console.log("HERE MAN", found)
                     }
-                    
                 }
             }
         }
-        else
-        {
+        else{
             return false
         }        
         
     }
+    for (const [key, value] of found) {
+        // console.log("key value", key,value)
+        if(!value) return false
+    }
+    return true
 
+}
 
-    return toReturn
+function filterbyLabelLogicOR(filterArray, categoryArray){
+    let toReturn = false
+    if(filterArray!=null && filterArray.length>0 )
+        {
+            if(categoryArray!=null && Array.isArray(categoryArray))
+            {
+                for (let j=0; j<categoryArray.length; j++)
+                {
+                    
+                    for (let i=0; i<filterArray.length; i++)
+                    {
+                        if(filterArray[i].trim()==categoryArray[j].trim())
+                        {
+                            return true
+                        }
+                        
+                    }
+                }
+            }
+            else
+            {
+                return false
+            }        
+            
+        }
+        return toReturn
 }
 function filterbyStart(filter_start, startDate ){
     let toReturn = false

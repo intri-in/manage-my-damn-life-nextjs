@@ -1,2 +1,1 @@
-- Added ability to create filters relative to due date and start date.
-- Minor bug fixes
+- Added improved filtering ability with labels. User can now select "And/Or" logic for labels.

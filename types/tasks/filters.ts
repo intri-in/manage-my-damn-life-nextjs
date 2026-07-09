@@ -4,12 +4,16 @@ export interface TaskFilter{
 }
 
 export interface BasicMMDlFilter{
-    due?: [number | string, number | string],
+    due?: [string, string],
     dueRelative?:DueRelative,
-    label?:string[],
+    label?:string[] | FilterLabelType,
     priority?:number | string,
     start?:StartDate,
     startRelative?: DueRelative
+}
+interface FilterLabelType{
+    logic: string,
+    filters: string[]
 }
 interface StartDate{
     before: string ,

@@ -329,6 +329,7 @@
   "TASK_FILTER_REMOVED": "Task filter removed.",
   "TASK_HAS_A_MINIMUM_PRIORITY_OF": "Task has a minimum priority of",
   "TASK_HAS_ANY_OF_LABELS": "Task has any of these labels",
+  "TASK_HAS_ALL_OF_LABELS": "Task has all of these labels",
   "TASK_STARTS": "Task Starts",
   "TASK_STARTS_AFTER": "Task starts after",
   "TASK_STARTS_BEFORE": "Task starts before",
