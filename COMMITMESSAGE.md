@@ -1,1 +1,1 @@
-- Added improved filtering ability with labels. User can now select "And/Or" logic for labels.
+- Release v0.9.3.
