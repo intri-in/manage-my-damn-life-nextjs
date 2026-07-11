@@ -3,7 +3,7 @@ import { Loading } from "@/components/common/Loading"
 import { Toastify } from "@/components/Generic";
 import { getRandomString } from "@/helpers/crypto";
 import { FilterHelper } from "@/helpers/frontend/classes/FilterHelper";
-import { filtertoWords, getFiltersFromServer } from "@/helpers/frontend/filters";
+import { getFiltersFromServer } from "@/helpers/frontend/filters";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { dateTimeReviver } from "@/helpers/general";
@@ -16,15 +16,15 @@ import Button from "react-bootstrap/Button";
 import { useTranslation } from "next-i18next";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { currentDateFormatAtom } from "stateStore/SettingsStore";
 import { useAtomValue } from "jotai";
 import { AddFilter } from "@/components/filters/AddFilter";
+import { filterToWords } from "@/helpers/frontend/filtersTS";
 
 const ManageFilters = () => {
   const router = useRouter();
   // const [addFilterForm, setAddFilterForm] = useState(<></>);
-  const [filterList, setFilterList] = useState([<Loading />]);
+  const [filterList, setFilterList] = useState([<Loading key="loading" />]);
   const [showAddForm, setShowAddForm] = useState(false)
   const [filterName, setFilterName] = useState("")
   const [filtertoEdit, setFiltertoEdit] = useState<any>(null)
@@ -53,7 +53,7 @@ const ManageFilters = () => {
         finalOutput.push(
           <div
             className="card"
-            key={`${i}_filterName`}
+            key={`${i}_filterName_${filter.name}`}
             style={{
               border: `1px solid ${borderColor}`,
               padding: 20,
@@ -65,15 +65,15 @@ const ManageFilters = () => {
               <Col>
                 <h3>{filter.name}</h3>
                 <p
-                  key={`${i}_${filter.name}`}
+                  key={`${i}_${filter.name}_nameofFilter`}
                   className="textDefault"
                 >
-                  {filtertoWords(jsonFilter, fullDateFormatFromAtom, t)}
+                  {filterToWords(jsonFilter, fullDateFormatFromAtom, t)}
                 </p>
               </Col>
               <Col style={{ textAlign: "right" }}>
                 <AiOutlineEdit
-                  key={`${i}_words_${getRandomString(6)}`}
+                  key={`${i}_words_${filter.name}_edit`}
                   onClick={() => handleEditFilterButtonClick(filter)}
                   color="red"
                 />
@@ -97,7 +97,7 @@ const ManageFilters = () => {
       }
     }
     setFilterList(
-      finalOutput.length > 0 ? finalOutput : [<p>{t("NO_FILTERS_TO_SHOW")}</p>]
+      finalOutput.length > 0 ? finalOutput : [<p key="nofilterstoshow">{t("NO_FILTERS_TO_SHOW")}</p>]
     );
   };
 
@@ -109,6 +109,9 @@ const ManageFilters = () => {
   
   const handleClose = () =>{
     setShowAddForm(false)
+    setFiltertoEdit(null)
+    setMode("")
+    setFilterName("")
     // setAddFilterForm(<></>)
   }
   const handleEditFilterButtonClick = (filter) => {

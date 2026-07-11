@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import allLocales from '@fullcalendar/core/locales-all'
-import { getAllEvents, getCaldavAccountsfromServer, getParsedTodoList, returnGetParsedVTODO } from "@/helpers/frontend/calendar";
+import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import Form from 'react-bootstrap/Form';
@@ -42,6 +42,7 @@ import { WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
 import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow";
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore";
 import momentPlugin from '@fullcalendar/moment';
+import { Caldav_Summary } from "@/types/generic";
 interface EventObject {
     id: string,
     title: string,
@@ -91,7 +92,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const [webCalEvents, setWebCalEvents] = useState<ExtendedWebcalEvents[]>([])
     const [firstDay, setFirstDay] = useState(0)
     const calendarRef = createRef<FullCalendar>();
-    const [caldav_accounts, setCaldavAccounts] = useState([])
+    const [caldav_accounts, setCaldavAccounts] = useState<Caldav_Summary[]>([])
     const [updateLocal, setUpdateLocal] = useState(Date.now())
     const {t, i18n} = useTranslation("common")
     useEffect(() =>{

@@ -12,7 +12,9 @@ export interface Caldav_Accounts{
   url: number;
   name: string;
   authMethod?: string;
-  userid:number
+  userid:number,
+  provider?: string
+  
 }
 
 export interface Calendars{
@@ -130,6 +132,9 @@ export class MySubClassedDexie extends Dexie {
     this.version(7).stores({
       webcals:"++id,webcals_id, name, link,userid,updateInterval,lastFetched,colour",
       webcals_events:"++id,webcals_id,data"
+    })
+    this.version(8).stores({
+      caldav_accounts: '++id,caldav_accounts_id, username, url, name, authMethod,userid,provider',
     })
 
   }

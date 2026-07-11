@@ -1,10 +1,11 @@
 import { isValidResultArray } from "@/helpers/general";
-import { deleteCalDAVAccountFromDexie, getCalDAVSummaryFromDexie, saveCaldavAccountToDexie } from "./caldav_dexie";
+import { deleteCalDAVAccountFromDexie, getCalDAVSummaryFromDexie, saveCaldavAccountToDexie, updateCaldavAccountInDexie } from "./caldav_dexie";
 import { deleteOneCalendarFromDexie, getCalendarIDFromUrl_Dexie, insertOneCalendarIntoDexie, updateCalendarSyncTokenAndCtag } from "./calendars_dexie";
 import { caldavAccountsfromServer } from "../calendar";
 import { compareCalDAVSummary_andGetIndex } from "./dexie_helper";
 import { getUserDataFromCookies } from "../user";
 import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
+import { caldav_accounts } from "models/caldav_accounts";
 
 export async function syncCalDAVSummary(calDavSummaryFromServer){
     const userid = await getUserIDForCurrentUser_Dexie()
@@ -17,6 +18,9 @@ export async function syncCalDAVSummary(calDavSummaryFromServer){
             //Not found in dexie summary.
                 //We need to create the caldav account in dexie.
             await saveCaldavAccountToDexie(calDavSummaryFromServer[i],calDavSummaryFromServer[i].username,userid)
+        }else{
+            //if we find, we still save misc. details like provider and authMethod. This is necessary due to change pushed in v0.9.3.
+            await updateCaldavAccountInDexie(calDavSummaryFromServer[i])
         }
 
     }
@@ -36,6 +40,7 @@ export async function syncCalDAVSummary(calDavSummaryFromServer){
 
 
 }
+
 
 export async function syncCalendarList(calDavSummaryFromServer){
     const calDavFromDexie = await getCalDAVSummaryFromDexie()

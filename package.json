@@ -1,6 +1,6 @@
 {
   "name": "manage-my-damn-life-nextjs",
-  "version": "0.9.1",
+  "version": "0.9.3",
   "private": true,
   "scripts": {
     "dev": "next dev",

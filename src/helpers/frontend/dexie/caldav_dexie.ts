@@ -3,8 +3,10 @@ import { Caldav_Accounts, db } from "./dexieDB";
 import { deleteAllCalendarsFromCaldavAccountID_Dexie, getAllCalendarsFromCalDavAccountIDFromDexie, getCalendarNameByIDFromDexie } from "./calendars_dexie";
 import { getUserDataFromCookies } from "../user";
 import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
+import { Caldav_Summary } from "@/types/generic";
+import { caldav_accounts, caldav_accountsAttributes } from "models/caldav_accounts";
 
-export async function getCalDAVSummaryFromDexie(){
+export async function getCalDAVSummaryFromDexie():Promise<Caldav_Summary[]>{
   const userData = getUserDataFromCookies()
   const userHash = userData["userhash"]
   // console.log("userData", userData)
@@ -12,17 +14,20 @@ export async function getCalDAVSummaryFromDexie(){
   const userid = await getUserIDForCurrentUser_Dexie()    
   // console.timeEnd("dexie_getUserIDFromHash_Dexie")
   // console.time("dexie_getAllCalDavAccountsFromDexie")
-  const caldavAccounts = await getAllCalDavAccountsFromDexie(userid)
+  const caldavAccounts: Caldav_Summary[] = await getAllCalDavAccountsFromDexie(userid) as Caldav_Summary[]
   // console.log("userid, caldavAccounts", userid, caldavAccounts)
   // console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
 
-  let toReturn :any = []
+  let toReturn :Caldav_Summary[] = []
   if(Array.isArray(caldavAccounts)){
     for(const i in caldavAccounts){
       const allCals = await getAllCalendarsFromCalDavAccountIDFromDexie(caldavAccounts[i]["caldav_accounts_id"])
       // console.log("allCals", allCals)
       if(isValidResultArray(allCals)){
         caldavAccounts[i]["calendars"] = allCals
+      }else{
+        caldavAccounts[i]["calendars"] = []
+
       }
       toReturn.push(caldavAccounts[i])
     }
@@ -161,6 +166,8 @@ export async function insertNewCaldavAccountIntoDexie(caldavFromDB, username,use
         username: username,
         url:  caldavFromDB["url"],
         caldav_accounts_id:  caldavFromDB["caldav_accounts_id"],
+        authMethod: caldavFromDB["authMethod"],
+        provider: caldavFromDB["provider"],
         userid:parseInt(userid),
     }).catch(e =>{
       console.error("insertNewCaldavAccountIntoDexie", e)
@@ -178,4 +185,17 @@ export async function deleteCalDAVAccountFromDexie(caldav_accounts_id){
   }
   //Delete all Calendars too.
 
+}
+
+export async function updateCaldavAccountInDexie(caldav_acccount_toUpdate: caldav_accounts){
+  if(caldav_acccount_toUpdate?.caldav_accounts_id && caldav_acccount_toUpdate?.authMethod){
+    const key = await getKeyFromCaldavAccountsID(caldav_acccount_toUpdate.caldav_accounts_id)
+    // console.log("key", key, caldav_acccount_toUpdate.caldav_accounts_id)
+    const id = await db.caldav_accounts.update(key, {
+      name: caldav_acccount_toUpdate.name,
+      authMethod: caldav_acccount_toUpdate.authMethod,
+      provider: caldav_acccount_toUpdate.provider,
+    })
+  }
+    
 }

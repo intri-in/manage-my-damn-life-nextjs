@@ -1,1 +1,1 @@
-Fixed #340
+- Release v0.9.3.

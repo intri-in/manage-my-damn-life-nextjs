@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import ColourPicker from "../../ColourPIcker";
 import { isDarkModeEnabled } from "@/helpers/frontend/theme";
 import { useTranslation } from "next-i18next";
+import { Caldav_Summary } from "@/types/generic";
 
 interface functionalProps {
 
@@ -47,7 +48,7 @@ export enum Resourcetype {
 }
 
 export const CaldavAccountTable = (props: functionalProps) => {
-    const [caldavAccounts, setCalDAVAccounts] = useState<CaldavAccount[]>([])
+    const [caldavAccounts, setCalDAVAccounts] = useState<Caldav_Summary[]>([])
     const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
     const [calendartoDelete, setCalendartoDelete] = useState<CaldavAccount | null>(null)
     const [updated, setUpdatedVal] = useState(Date.now())
@@ -128,7 +129,7 @@ export const CaldavAccountTable = (props: functionalProps) => {
                             <h5 className="textDefault">{calendars[j].displayName}</h5>
                         </Col>
                         <Col className="d-flex justify-content-center">
-                            <ColourPicker onChange={calendarColourChanged} colour={calendars[j].calendarColor} keyName={calendars[j].calendars_id.toString()} />
+                            <ColourPicker onChange={calendarColourChanged} colour={calendars[j].calendarColor} keyName={calendars[j]?.calendars_id?.toString()} />
                         </Col>
 
                     </Row>

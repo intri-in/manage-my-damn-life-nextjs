@@ -9,6 +9,7 @@ import { toast } from "react-toastify"
 import Link from "next/link"
 import { FaExternalLinkAlt } from "react-icons/fa"
 import { useTranslation } from "next-i18next"
+import { Caldav_Summary } from "@/types/generic"
 
 export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Function}) =>{
     /**
@@ -21,7 +22,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
      * Local State
      */
 
-    const [finalOutput, setFinalOutput] = useState<JSX.Element[] | JSX.Element>([])
+    const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
     const [update, setUpdate] = useState(Date.now())
     const {t} = useTranslation()
 
@@ -34,7 +35,7 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
         postClick()
     }
 
-    const renderCalendarList = async (caldavSummary) =>{
+    const renderCalendarList = async (caldavSummary: Caldav_Summary[]) =>{
 
         const addCalendarResponse = (response) =>{
             if(response!=null && response.success!= null && response.success==true && response.data.message[0].status>=200 && response.data.message[0].status<300)
@@ -55,13 +56,17 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
     
         const showAddCalendarScreen = (caldav_account)=>{
               
-            setFinalOutput(<AddNewCalendar i18next={t} onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />)
+            setFinalOutput([<AddNewCalendar i18next={t} onClose={()=>setUpdate(Date.now())} caldav_accounts_id={caldav_account.caldav_accounts_id} onResponse={addCalendarResponse} accountName={caldav_account.name} />])
         }
 
     
         let finalOutput : JSX.Element[]= []
         for(let j=0; j<caldavSummary.length; j++)
         {
+            if(caldavSummary[j].authMethod?.toUpperCase()=="OAUTH" && caldavSummary[j].provider?.toUpperCase()=="GOOGLE"){
+                continue
+
+            }
             let accountInfo=(
                 <Row>
                     <Col className="defaultTex">
@@ -122,7 +127,8 @@ export const ShowCalendarListWithStateManagement = ({postClick}: {postClick: Fun
 
     return(
     <>
-    {finalOutput}
+    {(finalOutput.length>0) ? 
+    finalOutput : <>{t("NOTHING_TO_SHOW")}</>}
     </>
     )
 }

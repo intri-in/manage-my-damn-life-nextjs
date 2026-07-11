@@ -3,8 +3,6 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { Accordion, Alert, Button, Col, Form, Row } from "react-bootstrap"
 import { currentDateFormatAtom, currentSimpleDateFormatAtom } from "stateStore/SettingsStore"
-import "react-datetime/css/react-datetime.css";
-
 import Recurrence from "@/components/common/Recurrence";
 import { getStandardDateFormat } from "@/helpers/frontend/settings"
 import moment, { Moment } from "moment"
@@ -782,7 +780,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             {repeatInfoMessage}
             <h4>{t("CALENDAR")}</h4>
             <div style={{ marginBottom: 10 }}>
-                <CalendarPicker onSelectedHook={calendarSelected} key={uid} calendar_id={calendar_id} disabled={calendarDDLDisabled} />
+                <CalendarPicker type="task" onSelectedHook={calendarSelected} key={uid} calendar_id={calendar_id} disabled={calendarDDLDisabled} />
             </div>
             {showMoveEventOption ? <p onClick={copyMoveClicked} style={{ textAlign: "end", color: PRIMARY_COLOUR, fontSize: 14, }}>{t("COPY_MOVE")}</p> : null}
 

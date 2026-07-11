@@ -1,103 +1,146 @@
 import React, { useState, useEffect } from "react";
 import { SECONDARY_COLOUR } from "@/config/style";
 import { useRouter } from "next/router";
-import { Alert, Button, Col, Form, Row } from "react-bootstrap";
+import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap";
 import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 import { Loading } from "@/components/common/Loading";
 import { getLabelsFromServer } from "@/helpers/frontend/labels";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import { Toastify } from "@/components/Generic";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
-  checkifFilterValid,
-  filterDueIsValid,
-  filtertoWords,
-  getFilterReadytoPost,
   makeFilterEditRequest,
   saveFiltertoServer,
 } from "@/helpers/frontend/filters";
-import { isDateValid } from "@/helpers/frontend/general";
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels";
 import { useTranslation } from "next-i18next";
 import { currentDateFormatAtom, currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore";
 import { Datepicker } from "../common/Datepicker/Datepicker";
 import { useAtomValue } from "jotai";
 import { Labels } from "@/helpers/frontend/dexie/dexieDB";
+import { BasicMMDlFilter, TaskFilter } from "types/tasks/filters";
+import { checkIfFilterValid, filterDueIsValid, filterToWords } from "@/helpers/frontend/filtersTS";
+import { filterByLabels } from "stateStore/LocalTaskFilters";
 
-export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid, mode}:{onClose: Function, onAdd: Function, filterNameInput?: string,filterInput?: any, filterid?: string , mode?:string}) =>{
+type logicType = "or" |  "and"
+type unitType= "HOURS" | "DAYS"
+export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid, mode}:{onClose: Function, onAdd: Function, filterNameInput?: string,filterInput?: TaskFilter, filterid?: string , mode?:string}) =>{
   const {t} = useTranslation();
   const fullDateFormatFromAtom = useAtomValue(currentDateFormatAtom)
 
   const [filterName, setFilterName] = useState("");
-  const [filterResult, setFilterResult] = useState([]);
   const [filterbyDueChecked, setFilterbyDueChecked] = useState(false);
+  const [filterbyDueRelativeChecked, setFilterbyDueRelativeChecked] = useState(false);
+  const [dueDateRelativeDirection, setDueDateRelativeDirection] = useState("DUE_BEFORE")
+  const [dueDateRelativeValue, setDueDateRelativeValue] = useState(24)
+  const [dueDateRelativeUnit, setDueDateRelativeUnit] = useState<unitType>("HOURS")
   const [dueDateFrom, setDueDateFrom] = useState("");
   const [dueDateBefore, setDueDateBefore] = useState("");
-  const [filterLogic, setFilterLogic] = useState("or");
+  const [filterLogic, setFilterLogic] = useState <logicType>("or");
   const [filterbyLabelChecked, setFilterbyLabelChecked] = useState(false);
   const [filterbyPriority, setFilterbyPriority] = useState(false);
   const [priorityValue, setPriorityValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filternameInvalid, setFilternameInvalid] = useState(false);
   const [selectedLables, setSelectedLables] = useState<string[]>([]);
+  const [labelLogic, setLabelLogic] = useState("OR")
   const [labelListFromDexie, setLabelListFromDexie] = useState<Labels[]>([])
-  const [filterbyStartChecked, setFilterbyStartChecked] = useState(false);
   const [filterbyStart, setFilterbyStart] = useState(false)
   const [startAfter, setStartAfter] = useState("")
   const [startBefore, setStartBefore] = useState("")
+  const [filterbyStartRelative, setFilterbyStartRelative] = useState(false)
+  const [startRelativeDirection, setStartRelativeDirection] = useState("TASK_STARTS_BEFORE")
+  const [startRelativeValue, setStartRelativeValue] = useState(24)
+  const [startRelativeUnit, setStartRelativeUnit] = useState<unitType>("HOURS")
+  
   const processIncomingProps = () => {
-    // console.log(props)
+
+    generateLabelCheckList();
+
     if (mode === "edit" && filterInput) {
 
       if(filterNameInput){
         setFilterName(filterNameInput)
       }
-      if (filterDueIsValid(filterInput.filter.due)) {
+      if(!filterInput.filter){
+        return
         
+      }
+      if (filterInput.filter.due && Array.isArray(filterInput.filter.due)) {
+        const dueFromValid = moment(filterInput.filter.due[0]).isValid()
+        const dueBeforeValid = moment(filterInput.filter.due[1]).isValid()
 
-        setFilterbyDueChecked(true);
+        if(dueFromValid || dueBeforeValid){
+
+          setFilterbyDueChecked(true);
+        }
         setDueDateFrom(
-          moment(filterInput.filter.due[0]).isValid()
+          dueFromValid
             ? moment(filterInput.filter.due[0]).toISOString()
             : ""
         );
         setDueDateBefore(
-            moment(filterInput.filter.due[1]).isValid()
+          dueBeforeValid
             ? moment(filterInput.filter.due[1]).toISOString()
             : ""
         );
       } 
-
-      if (varNotEmpty(filterInput.filter.label)) {
-        // removeDanglingLabelsFromIncomingFilters(filter.filter.label);
-        setFilterbyLabelChecked(true);
-       if(Array.isArray(filterInput.filter.label) && filterInput.filter.label.length>0){
-        setSelectedLables(filterInput.filter.label)
-       } 
+      if(filterInput.filter.dueRelative && filterInput.filter.dueRelative.value && filterInput.filter.dueRelative.direction &&filterInput.filter.dueRelative.unit){
+        setFilterbyDueRelativeChecked(true)
+        setDueDateRelativeDirection(filterInput.filter.dueRelative.direction)
+        setDueDateRelativeUnit(filterInput.filter.dueRelative.unit as unitType)
+        setDueDateRelativeValue(filterInput.filter.dueRelative.value)
       }
-      if (filterInput.filter.priority) {
+
+      if(filterInput.filter.label){
+        let labelList: string[] = []
+        if(Array.isArray(filterInput.filter.label)){
+          labelList = filterInput.filter.label
+        }else{
+          if(filterInput.filter.label.logic && filterInput.filter.label.filters && Array.isArray(filterInput.filter.label.filters)){
+            labelList = filterInput.filter.label.filters
+            setLabelLogic(filterInput.filter.label.logic)
+          } 
+        }
+        if(labelList.length>0){
+          setFilterbyLabelChecked(true);
+          setSelectedLables(labelList)
+        }
+
+      }
+      if (filterInput.filter.priority && filterInput.filter.priority!="0" ) {
         setFilterbyPriority(true);
-        setPriorityValue(filterInput.filter.priority);
+        setPriorityValue(filterInput.filter.priority.toString());
       }
       
-      if("start" in filterInput.filter && filterInput.filter.start){
-        if("before" in filterInput.filter.start && filterInput.filter.start.before){
-          setStartBefore(filterInput.filter.start.before)
-        }
+      if(filterInput.filter.start && filterInput.filter.start.after &&  filterInput.filter.start.before){
 
-        if("after" in filterInput.filter.start && filterInput.filter.start.after){
-          setStartAfter(filterInput.filter.start.after)
+        const startAfterValid = moment(filterInput.filter.start.after).isValid()
+        const startBeforeValid = moment(filterInput.filter.start.before).isValid()
+        if(startAfterValid || startBeforeValid){
+          setFilterbyStart(true)
         }
+          setStartBefore(
+            startBeforeValid ? 
+            moment(filterInput.filter.start.before).toISOString() :"")
 
-        setFilterbyStart(true)
+          setStartAfter(
+            startAfterValid ?
+            moment(filterInput.filter.start.after).toISOString():"")
+
+      }
+
+      if(filterInput.filter.startRelative && filterInput.filter.startRelative.value && filterInput.filter.startRelative.direction &&filterInput.filter.startRelative.unit){
+        setFilterbyStartRelative(true)
+        setStartRelativeDirection(filterInput.filter.startRelative.direction)
+        setStartRelativeUnit(filterInput.filter.startRelative.unit as unitType)
+        setStartRelativeValue(filterInput.filter.startRelative.value)
       }
       setFilterLogic(filterInput.logic || "or");
+
     }
 
-    generateLabelCheckList();
   };
 
   const removeDanglingLabelsFromIncomingFilters = async (labelsFromProps) => {
@@ -173,8 +216,15 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
     setPriorityValue(e.target.value)
   }
 
-  const getCurrentSelectedFilter = () =>{
-    let filter= { due: [dueDateFrom, dueDateBefore], label: selectedLables, priority: priorityValue, start:{before:startBefore, after:startAfter} }
+  const getCurrentSelectedFilter = ()  =>{
+    let filter: BasicMMDlFilter =  { due: [dueDateFrom, dueDateBefore], label: {filters: selectedLables, logic: labelLogic}, priority: priorityValue, start:{before:startBefore, after:startAfter} }
+    if(filterbyDueRelativeChecked){
+      filter.dueRelative= {direction: dueDateRelativeDirection, value: dueDateRelativeValue, unit: dueDateRelativeUnit
+     }
+    }
+    if(filterbyStartRelative){
+      filter.startRelative= {direction: startRelativeDirection, value: startRelativeValue, unit: startRelativeUnit}
+    }
 
     return{
         logic: filterLogic, filter: filter
@@ -187,9 +237,33 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
       setFilternameInvalid(true);
       return;
     }
-
-    if (!checkifFilterValid(getCurrentSelectedFilter())) {
+  const resp = checkIfFilterValid(getCurrentSelectedFilter())
+  // console.log("resp", resp, getCurrentSelectedFilter())
+    if (!resp.status) {
       toast.error(t("INVALID_FILTER_DETAILS"));
+      if(resp.message){
+        if(resp.message.global){
+          toast.error(t(resp.message.global));
+        }
+        if(filterbyDueChecked && resp.message.due){
+          toast.error(t(resp.message.due));
+        }
+        if(filterbyDueRelativeChecked && resp.message.dueRelative){
+          toast.error(t(resp.message.dueRelative));
+
+        }
+        if(filterbyLabelChecked && resp.message.label){
+          toast.error(t(resp.message.label));
+
+        }
+        if(filterbyPriority && resp.message.priority){
+          toast.error(t(resp.message.priority));
+        }
+        if(filterbyStart && resp.message.start){
+          toast.error(t(resp.message.start));
+
+        }
+      }
       return;
     }
 
@@ -222,6 +296,8 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
 
   const getLabelListFromDexieandSave = async () =>{
     const labels = await getAllLabelsFromDexie();
+    //Add reserved Labels.
+    //labels=[...labels, {name :"mmdl-myday"}]
     setLabelListFromDexie(labels)
   }
 
@@ -240,15 +316,80 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
 
     }
   }
+  const dueDateRelativeDirectionChanged  = (e)=>{
+    setDueDateRelativeDirection(e.target.value)
+  }
+  const startRelativeDirectionChanged  = (e)=>{
+    setStartRelativeDirection(e.target.value)
+  }
+   const filterbyDueRelativeChanged = (e) =>{
+    setFilterbyDueRelativeChecked(e.target.checked)
+    if(!e.target.checked){
+    setDueDateRelativeDirection("DUE_BEFORE")
+    setDueDateRelativeValue(24)
+    setDueDateRelativeUnit("HOURS" as const)
+    }
+  }
+  const filterbyStartRelativeChanged = (e) =>{
+    setFilterbyStartRelative(e.target.checked)
+    if(!e.target.checked){
+    setStartRelativeDirection("TASK_STARTS_BEFORE")
+    setStartRelativeValue(24)
+    setStartRelativeUnit("HOURS" as const)
+    }
+  }
+
   const getFilterOutput = () =>{
 
-    return filtertoWords(getCurrentSelectedFilter(), fullDateFormatFromAtom,t)
+    return filterToWords(getCurrentSelectedFilter() as TaskFilter, fullDateFormatFromAtom,t)
   }
+  const dueDateRelativeValueChanged = (e)=>{
+    const value = parseFloat(e.target.value)
+    if(!isNaN(value)){
+      setDueDateRelativeValue(value)
+    }
+  }
+  const startRelativeValueChanged = (e)=>{
+    const value = parseFloat(e.target.value)
+    if(!isNaN(value)){
+      setStartRelativeValue(value)
+    }
+  }
+  const dueDateRelativeUnitChanged = (e) =>{
+    setDueDateRelativeUnit(e.target.value)
+  }
+  const startRelativeUnitChanged = (e) =>{
+    setStartRelativeUnit(e.target.value)
+  }
+
   const filterbyLabelChanged = (e) =>{
     setFilterbyLabelChecked(e.target.checked)
     if(!e.target.checked){
       setSelectedLables([])
     }
+  }
+
+  const labelLogicChanged = (e) =>{
+    setLabelLogic(e.target.value)
+  }
+
+  const addFormClosed = () =>{
+    // setFilterName("")
+    // setDueDateBefore("")
+    // setDueDateFrom("")
+    // setFilterbyDueChecked(false)
+    // setDueDateRelativeDirection("DUE_BEFORE")
+    // setDueDateRelativeUnit("HOURS")
+    // setDueDateRelativeValue(24)
+    // setFilterbyDueRelativeChecked(false)
+    // setStartAfter("")
+    // setStartBefore("")
+    // setFilterbyStart(false)
+    // setPriorityValue("")
+    // setSelectedLables([])
+    // setFilterbyLabelChecked(false)
+    // setFilterLogic("or")
+    onClose()
   }
   useEffect(() => {
     let isMounted =true
@@ -293,7 +434,7 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
 
         <Form.Select
           value={filterLogic}
-          onChange={(e) => setFilterLogic(e.target.value)}
+          onChange={(e) => setFilterLogic(e.target.value as logicType)}
         >
           <option value="and">{t("AND")}</option>
           <option value="or">{t("OR")}</option>
@@ -323,6 +464,29 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
           </>
         )}
         <Form.Check
+          checked={filterbyDueRelativeChecked}
+          type="switch"
+          label={t("FILTER_BY_DUE_RELATIVE")}
+          onChange={(e) => filterbyDueRelativeChanged(e)}
+        />
+        <br />
+        {filterbyDueRelativeChecked &&(
+          <>
+             <Stack style={{marginBottom:20}} direction="horizontal" gap={3}>
+                    <Form.Select value={dueDateRelativeDirection} onChange={dueDateRelativeDirectionChanged} key="direction_due_relative">
+                      <option value="DUE_BEFORE">{t("DUE_BEFORE")}</option>
+                      <option value="DUE_AFTER">{t("DUE_AFTER")}</option>
+                    </Form.Select>
+                    <Form.Control onChange={dueDateRelativeValueChanged} value={dueDateRelativeValue} type="number" />
+                    <Form.Select value={dueDateRelativeUnit} onChange={dueDateRelativeUnitChanged} key="valueName_due_relative" >
+                      <option>{t("HOURS")}</option>
+                      <option>{t("DAYS")}</option>
+                    </Form.Select>
+
+             </Stack>
+          </>
+        )}
+        <Form.Check
           checked={filterbyLabelChecked}
           type="switch"
           label={t("FILTER_BY_LABEL")}
@@ -331,6 +495,11 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
         <br />
         {filterbyLabelChecked && (
             <>
+            <Form.Select value={labelLogic} onChange={labelLogicChanged}>
+                <option value="OR">{t("OR")}</option>
+                <option value="AND">{t("AND")}</option>
+            </Form.Select>
+            <br />
             {generateLabelCheckList()}
             <br />
             </>
@@ -345,7 +514,7 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
         {filterbyPriority &&
         (
             <>
-            <Form.Select value={priorityValue} onChange={priorityMinimumSelected} aria-label="Default select example">
+            <Form.Select value={priorityValue} onChange={priorityMinimumSelected}>
                 <option value="0"></option>
                 <optgroup key={t("HIGH")} label="High">
                     <option value="1">1</option>
@@ -391,10 +560,35 @@ export const AddFilter = ({onClose, onAdd, filterNameInput,filterInput, filterid
           </div>
         )}
         <br />
+        <Form.Check
+          checked={filterbyStartRelative}
+          type="switch"
+          label={t("FILTER_BY_START_RELATIVE")}
+          onChange={(e) => filterbyStartRelativeChanged(e)}
+        />
+        <br />
+        {filterbyStartRelative &&(
+          <>
+             <Stack style={{marginBottom:20}} direction="horizontal" gap={3}>
+                    <Form.Select value={startRelativeDirection} onChange={startRelativeDirectionChanged} key="direction_start_relative">
+                      <option value="TASK_STARTS_BEFORE">{t("TASK_STARTS_BEFORE")}</option>
+                      <option value="TASK_STARTS_AFTER">{t("TASK_STARTS_AFTER")}</option>
+                    </Form.Select>
+                    <Form.Control onChange={startRelativeValueChanged} value={startRelativeValue} type="number" />
+                    <Form.Select value={startRelativeUnit} onChange={startRelativeUnitChanged} key="valueName_start_relative" >
+                      <option>{t("HOURS")}</option>
+                      <option>{t("DAYS")}</option>
+                    </Form.Select>
+
+             </Stack>
+          </>
+        )}
+
+        <br />
 
         <Alert variant="info"><b>{t("FILTER_RESULT")}</b> {t("FILTER_RESULT_DESC")} <br /> <br /> {filterResultinWords}</Alert>
 
-        <Button variant="secondary" onClick={()=>onClose()}>{t("CLOSE")}</Button> &nbsp; &nbsp;
+        <Button variant="secondary" onClick={addFormClosed}>{t("CLOSE")}</Button> &nbsp; &nbsp;
         <Button onClick={handleSubmitFilter}>{t("SAVE")}</Button> 
 
       </Form>
