@@ -3,7 +3,7 @@ v0.9.3
     - Added ability to create filters relative to due date and start date.
     - Added improved filtering ability with labels. User can now select "And/Or" logic for labels.
 - Others
-    - Google Calendars are no longer shown in task list as Google Tasks don't work using CalDAV (they use a separate API)
+    - Google Calendars are no longer shown in task list as "Google Tasks" doesn't use CalDAV (they use a separate API)
     - Minor UI Fixes and improvements
 v0.9.2
 - Bug fixes:
