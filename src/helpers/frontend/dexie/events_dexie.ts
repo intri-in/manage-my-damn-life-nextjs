@@ -179,6 +179,25 @@ export async function getCalendarEventFromUID_Dexie(uid){
 
 }
 /**
+ * Gets the id of multiple events from calendar_events from uid 
+ */
+
+export async function getCalendarEventsFromUIDMultiple_Dexie(uids: string[] | undefined){
+
+    if(!uids) return null
+    try {
+        const events = await db.calendar_events
+            .where('uid')
+            .anyOf(uids)
+            .toArray();
+        return events;
+
+    } catch (e) {
+        console.warn("getCalendarEventsFromUIDs_Dexie", e)
+        return null
+    }
+}
+/**
  * Gets the dexie id of the parent
  * @param uid 
  */

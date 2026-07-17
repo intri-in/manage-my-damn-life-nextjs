@@ -10,7 +10,10 @@ import { deleteEventByURLFromDexie, getEventbyURLFromDexie, restoreEventtoDexie,
 import { fetchLatestEventsV2 } from "./sync"
 import { toast } from "react-toastify"
 import { parseVALARMTIME } from "./rfc5545"
-import { applyEventFilter } from "./filtersTS"
+import { applyEventFilter, countConditionsInFilter, getLogicFromFilter } from "./filtersTS"
+import { Calendar_Events } from "./dexie/dexieDB"
+import { TaskFilter } from "types/tasks/filters"
+import { AlarmType } from "@/components/events/AlarmForm"
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= _.cloneDeep(calendarEvents)
@@ -24,42 +27,35 @@ export async function getEvents(calendarEvents, filter)
     return [listofTodos, getParsedTodoList(calendarEvents), unparsedData]
 
 }
-export function filterEvents(calendarEvents, filter)
+export function filterEvents(calendarEvents:Calendar_Events[], filter:TaskFilter)
 {
-    var finalArray=[]
-    if(calendarEvents!=null && Array.isArray(calendarEvents) && calendarEvents.length>0)
-    {
-        for(let i=0; i<calendarEvents.length; i++)
-        {
-            var todo = returnGetParsedVTODO(calendarEvents[i].data)
-
-            if(applyTaskFilter(todo, filter)==true )
+    let finalArray:Calendar_Events[]=[]
+    if(calendarEvents!=null && Array.isArray(calendarEvents) && calendarEvents.length>0){
+        let logic = getLogicFromFilter(filter)
+        for(let i=0; i<calendarEvents.length; i++){
+            let todo = calendarEvents[i].parsedData ? calendarEvents[i].parsedData : returnGetParsedVTODO(calendarEvents[i].data)
+            if(applyTaskFilter(todo, filter, logic)==true )
             {
                 finalArray.push(calendarEvents[i])
             }
         }
-    
     }
     return finalArray
 }
 
-export function filterParsedEvents(parsedEvents, filter){
-    var finalArray=[]
-    if(parsedEvents!=null && Array.isArray(parsedEvents) && parsedEvents.length>0)
-    {
-        for(let i=0; i<parsedEvents.length; i++)
-        {
-            let todo = parsedEvents[i]
+export function filterParsedEvents(parsedEvents: Calendar_Events[], filter: TaskFilter){
+    let finalArray: Calendar_Events[]=[]
+    if(parsedEvents!=null && Array.isArray(parsedEvents) && parsedEvents.length>0){
+        let logic = getLogicFromFilter(filter)
 
-            if(applyTaskFilter(todo, filter)==true && (parsedEvents[i].deleted==null || parsedEvents[i].deleted==""))
-            {
+        for(let i=0; i<parsedEvents.length; i++){
+            let todo = parsedEvents[i]
+            if(applyTaskFilter(todo, filter, logic)==true && (parsedEvents[i].deleted==null || parsedEvents[i].deleted=="")){
                 finalArray.push(parsedEvents[i])
             }
         }
-    
     }
     return finalArray
-
 }
 
 export function majorTaskFilter(todo)
@@ -80,10 +76,10 @@ export function majorTaskFilter(todo)
 }
 
 
-export function applyTaskFilter(todo,filter)
+export function applyTaskFilter(todo: any,filter: TaskFilter, logic: string)
 {
 
-    return applyEventFilter(todo, filter)
+    return applyEventFilter(todo, filter, logic)
     /*
     var toReturn = true
     if(filter!=null && filter.filter!=null)
@@ -232,10 +228,10 @@ function filterbyPriority(priorityFilter, priority)
 
 }
 
-export function getParsedEvent(dataInput)
+export function getParsedEvent(dataInput): any
 {
 
-    let data=null
+    let data: any=null
     try{
         data= ical.parseICS(dataInput)
 
@@ -310,7 +306,7 @@ export function rruleToObject(rrule)
 
     if(objectToReturn["INTERVAL"]=="" && objectToReturn["FREQ"]!="" )
     {
-        objectToReturn["INTERVAL"]=1
+        objectToReturn["INTERVAL"]="1"
     }
     return objectToReturn
 
@@ -365,7 +361,7 @@ export function rruleObjecttoWords(rrule)
 
         if(rrule["UNTIL"]!="")
         {
-            words+=" "+i18next.t("UNTIL").toLowerCase()+" "+ new Date(moment(rrule["UNTIL"]))
+            words+=" "+i18next.t("UNTIL").toLowerCase()+" "+ new Date(moment(rrule["UNTIL"]).toISOString())
         }
 
     }
@@ -469,7 +465,7 @@ export function getEmptyEventDataObject()
  */
 export function addAdditionalFieldsFromOldEvent(newEventData, oldEventData)
 {
-    var missingKeys=[]
+    var missingKeys: string[]=[]
     var toReturn=newEventData
 
     for (const i in oldEventData.data)
@@ -502,7 +498,7 @@ export function addAdditionalFieldsFromOldEventV2(newEventData, oldEventData)
     if(!oldEventData){
         return newEventData
     }
-    let missingKeys=[]
+    let missingKeys: string[]=[]
     let toReturn=newEventData
 
     for (const i in oldEventData)
@@ -570,7 +566,7 @@ export async function postNewEvent(calendar_id, data, etag, caldav_accounts_id, 
     }
     
     return new Promise( (resolve, reject) => {
-        fetch(url_api, requestOptions)
+        fetch(url_api, requestOptions as RequestInit)
         .then(response => response.json())
         .then((body) => {
             //console.log(body)
@@ -627,7 +623,7 @@ export async function preEmptiveUpdateEvent(calendar_id, url, etag, data, type){
 }
 
 
-export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id,type,oldEvent) {
+export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_id,type?, oldEvent?): Promise<{success: boolean, data:{message: string | any}}> {
     // If the CalDAV action fails, old version of the event event will be restored in local storage.
     const url_api = getAPIURL() + "v2/calendars/events/modify"
     
@@ -644,7 +640,7 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
     return new Promise( (resolve, reject) => {
-            fetch(url_api, requestOptions)
+            fetch(url_api, requestOptions as RequestInit)
                 .then(response => response.json())
                 .then((body) => {
                     if(body && body.success){
@@ -670,18 +666,6 @@ export async function updateEvent(calendar_id, url, etag, data, caldav_accounts_
                     }else{
 
                         return resolve(body)
-                        if(oldEvent){
-                            
-                            // The CalDAV action has failed.
-                            // We restore the older version of the event 
-                            // saveEventToDexie(calendar_id,oldEvent["url"], oldEvent["etag"],oldEvent["data"],typetoSend).then((resultOfInsert) =>{
-                                
-                            //     return resolve(body)
-                            // })
-                        }else{
-
-                        }
-
 
                     }
     
@@ -706,7 +690,7 @@ export async function deleteEventFromServer( caldav_accounts_id, calendar_id, ur
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
     return new Promise( (resolve, reject) => {
-        fetch(url_api, requestOptions)
+        fetch(url_api, requestOptions as RequestInit)
         .then(response => response.json())
         .then((body) => {
             if (varNotEmpty(body) && body.success == true) {
@@ -744,7 +728,7 @@ export async function geParsedtVAlarmsFromServer(data){
         headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
     }
     return new Promise( (resolve, reject) => {
-        fetch(url_api, requestOptions)
+        fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) => {
                 //console.log(body)
@@ -753,7 +737,7 @@ export async function geParsedtVAlarmsFromServer(data){
                 if(varNotEmpty(message) && varNotEmpty(message["VCALENDAR"]) && Array.isArray(message["VCALENDAR"]) && message["VCALENDAR"].length>0 && varNotEmpty(message["VCALENDAR"][0].VEVENT) && varNotEmpty(message["VCALENDAR"][0].VEVENT[0].VALARM) && Array.isArray(message["VCALENDAR"][0].VEVENT[0].VALARM) && message["VCALENDAR"][0].VEVENT[0].VALARM.length>0 )
                 {
                     //Has Alarms
-                    let alarms=[]
+                    let alarms: AlarmType[]=[]
                     for (const i in message["VCALENDAR"][0].VEVENT[0].VALARM)
                     {
                         let parsedAlarm = parseVALARMTIME(message["VCALENDAR"][0].VEVENT[0].VALARM[i])

@@ -1,1 +1,1 @@
-- Release v0.9.3.
+ Optimisation of the task rendering process. Tasks are now fetched and sorted faster.

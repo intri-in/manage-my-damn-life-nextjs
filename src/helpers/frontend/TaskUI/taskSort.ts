@@ -19,38 +19,28 @@ export function sortTasksByRequest(taskList: TaskArrayItem[], request){
 
 }
 
-function sortByDue(taskList: TaskArrayItem[], ascending: boolean){
-    if(ascending){
+function sortByDue(taskList: TaskArrayItem[], ascending: boolean): TaskArrayItem[]
+{
+    const decorated = taskList.map(task => ({
+        task,
+        key: task.due ? moment(task.due).unix() : (ascending ? 10000000000000 : -10000000000000)
+    }))
 
-        taskList.sort(function(a,b){
-            const dueDateA= a.due ? moment(a.due).unix() : 10000000000000
-            const dueDateB= b.due ? moment(b.due).unix() : 10000000000000
-            // console.log("sort", a.summary, moment(a.due).toString(), dueDateA, b.summary, moment(b.due).toISOString(), dueDateB, dueDateA-dueDateB)
-            return dueDateA - dueDateB
-        })
-    }else{
-        taskList.sort(function(a,b){
-            const dueDateA= a.due ? moment(a.due).unix() : -10000000000000
-            const dueDateB= b.due ? moment(b.due).unix() : -10000000000000
-            // console.log("sort", a.summary, a.due, dueDateA, b.summary, b.due, dueDateB, dueDateA-dueDateB)
-            return dueDateB - dueDateA
-        })
-    }
+    decorated.sort((a, b) => ascending ? (a.key - b.key) : (b.key - a.key))
 
-    return taskList
-
+    return decorated.map(d => d.task)
 }
+
 function sortbyPriority(taskList: TaskArrayItem[]){
-    taskList.sort(function(a,b){
-        let priorityA = a.priority ?? 10
-        if(typeof(priorityA)!=="number"){
-            priorityA=parseInt(priorityA)
+       const decorated = taskList.map(task => {
+        let priority = task.priority ?? 10
+        if(typeof(priority) !== "number"){
+            priority = parseInt(priority)
         }
-        let priorityB = b.priority ?? 10
-        if(typeof(priorityB)!=="number"){
-            priorityB=parseInt(priorityB)
-        }
-        return priorityA-priorityB
+        return { task, key: priority }
     })
-    return taskList
+
+    decorated.sort((a, b) => a.key - b.key)
+
+    return decorated.map(d => d.task)
 }

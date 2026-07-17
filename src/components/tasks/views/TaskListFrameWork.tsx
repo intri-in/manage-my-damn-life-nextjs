@@ -1,17 +1,13 @@
-import { fetchAllEventsFromDexie, fetchEventsForCalendarsFromDexie } from "@/helpers/frontend/dexie/events_dexie"
-import { filterEvents } from "@/helpers/frontend/events"
+import {  fetchEventsForCalendarsFromDexie } from "@/helpers/frontend/dexie/events_dexie"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useState } from "react"
 import { calDavObjectAtom, currentPageTitleAtom, currentViewAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
-import { TaskArrayItem, TaskSection, arrangeTodoListbyHierarchyV2, getCaldavAndCalendarNameForView, returnTaskListFilteredandSorted } from "@/helpers/frontend/TaskUI/taskUIHelpers"
+import { TaskSection, getCaldavAndCalendarNameForView, returnTaskListFilteredandSorted } from "@/helpers/frontend/TaskUI/taskUIHelpers"
 import { Loading } from "@/components/common/Loading"
-import { TaskViewMain } from "./TaskViewMain/TaskViewMain"
-import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort"
 import { getCalDAVSummaryFromDexie } from "@/helpers/frontend/dexie/caldav_dexie"
 import { isValidResultArray } from "@/helpers/general"
 import { TaskViewSectionsManager } from "./TaskViewMain/TaskViewSectionsManager"
 import { GanttViewWithState } from "./GanttView/GanttViewWithState"
-import { PAGE_VIEW_JSON } from "@/helpers/viewHelpers/pages"
 
 
 export const TaskListFrameWork = () => {

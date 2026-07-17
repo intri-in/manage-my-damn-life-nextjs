@@ -5,7 +5,7 @@ import { filterEvents, majorTaskFilter } from "../events"
 import { VTODO } from "../classes/VTODO"
 import { haystackHasNeedle, isValidObject, isValidResultArray, varNotEmpty } from "@/helpers/general"
 import { Calendar } from "@fullcalendar/core"
-import { getAllChildrenforTask_FromDexie, getCalendarEventFromUID_Dexie, getEventFromDexieByID } from "../dexie/events_dexie"
+import { getAllChildrenforTask_FromDexie, getCalendarEventFromUID_Dexie, getCalendarEventsFromUIDMultiple_Dexie, getEventFromDexieByID } from "../dexie/events_dexie"
 import { RecurrenceHelper } from "../classes/RecurrenceHelper"
 import { getCalDAVAccountbyCalDAVId_Dexie } from "../dexie/caldav_dexie"
 import { getCalendarNameByIDFromDexie } from "../dexie/calendars_dexie"
@@ -34,6 +34,7 @@ export async function returnTaskListFilteredandSorted(eventsFromDexie: Calendar_
     // console.time("returnTaskListFilteredandSorted: Time to get event list.")
 
     const sortby = sortOption?? DEFAULT_SORT_OPTION
+    if(!eventsFromDexie) return []
     const filteredTodos = filterEvents(eventsFromDexie, currentPageFilter)
     //console.log(filteredTodos)
 
@@ -51,44 +52,55 @@ export async function returnTaskListFilteredandSorted(eventsFromDexie: Calendar_
     return sortedTodoList
 }
 
-async function getAllChildrenforTask(uid):Promise<TaskArrayItem[]>{
+async function getAllChildrenforTask(uid, depth = 0): Promise<TaskArrayItem[]> {
+    if(process.env.NEXT_PUBLIC_SUBTASK_RECURSION_CONTROL_VAR && depth > Number(process.env.NEXT_PUBLIC_SUBTASK_RECURSION_CONTROL_VAR)) {
+        return []
+    }
+
     const childrenFromDexie = await getAllChildrenforTask_FromDexie(uid)
-    let toReturn: TaskArrayItem[] = []
-    if(childrenFromDexie && Array.isArray(childrenFromDexie) && childrenFromDexie.length>0){
+    if(!childrenFromDexie || !Array.isArray(childrenFromDexie) || childrenFromDexie.length===0){
+        return []
+    }
 
-        for(const child in childrenFromDexie){
-            if(childrenFromDexie[child]["uid"]){
-                //get Dexie Events ID from this uid
-                const event = await getCalendarEventFromUID_Dexie(childrenFromDexie[child]["uid"])
-                if(!event){
-                    continue;
-                }
-                // console.log(event[0]["parsedData"]["summary"])
-                if(event && Array.isArray(event) && event.length>0){
-                    // This is a valid event.
-   
-                    let dueDate = event[0]["parsedData"]["due"]
-                    // if(checkifRepeatingTask(event[0]["parsedData"])){
-                    //     //Repeating task
-                    //     const recurrenceObj = new RecurrenceHelper(event[0]["parsedData"])
-                    //     dueDate = recurrenceObj.getNextDueDate()
-            
-                    // }
+const childUids = childrenFromDexie
+    .map(c => c["uid"])
+    .filter((uid): uid is string => !!uid)
 
-                    const children =  await getAllChildrenforTask(event[0]["uid"])
-                    if(!checkifUIDAlreadyinChildren(event[0]["uid"], toReturn)){
+    if(childUids.length===0){
+        return []
+    }
 
-                        toReturn.push({uid: event[0]["uid"]!, id: event[0].calendar_events_id!, summary: event[0]["parsedData"]["summary"], priority: event[0]["parsedData"]["priority"], due: dueDate, children:children})
-                    }
+    if(!childUids) return []
+    const events = await getCalendarEventsFromUIDMultiple_Dexie(childUids)
+    if(!events || !Array.isArray(events)){
+        return []
+    }
 
-                }
-
+    // Recurse into each resolved event's children concurrently.
+    const results = await Promise.all(
+        events.map(async (event) => {
+            const children = await getAllChildrenforTask(event["uid"], depth + 1)
+            return {
+                uid: event["uid"]!,
+                id: event.calendar_events_id!,
+                summary: event["parsedData"]["summary"],
+                priority: event["parsedData"]["priority"],
+                due: event["parsedData"]["due"],
+                children
             }
+        })
+    )
+
+    const seen = new Set<string>()
+    const toReturn: TaskArrayItem[] = []
+    for(const r of results){
+        if(r && !seen.has(String(r.uid))){
+            seen.add(String(r.uid))
+            toReturn.push(r)
         }
     }
 
     return toReturn
-
 }
 
 /**
@@ -118,9 +130,8 @@ async function getTopLevelUID_V3(todoList: Calendar_Events[])
 
     if(todoList!=null && Array.isArray(todoList) && todoList.length>0)
     {
-
-        for(let i=0; i<todoList.length; i++)
-        {
+        const uidSet = new Set(todoList.map(t => String(t["uid"])))
+        for(let i=0; i<todoList.length; i++){
             let todo: {} | null | undefined  = undefined
             if(todoList[i].parsedData){
                 
@@ -146,25 +157,25 @@ async function getTopLevelUID_V3(todoList: Calendar_Events[])
 
             let addToList = false
 
-            if(!parent)
-            {
+            if(!parent){
                 //Probably a parent task with no relations to anyone. We add it to our top-level list.
                 addToList=true
                 
             }else{
                 // The task has a parent.
-
-                if(parentInFilteredList(parent, todoList)==false)
-                {
-                    // console.log(todo.summary, todo.relatedto)
-
-                    // Task is a sub task. Its parent however is not in the filtered list. Therefore, this is a top-level task for our current parameters. We add it to the array.
+                 if(!uidSet.has(String(parent))){
                     addToList=true
-                    
                 }
+                // if(parentInFilteredList(parent, todoList)==false)
+                // {
+                //     // console.log(todo.summary, todo.relatedto)
+
+                //     // Task is a sub task. Its parent however is not in the filtered list. Therefore, this is a top-level task for our current parameters. We add it to the array.
+                //     addToList=true
+                    
+                // }
             }
             if(addToList){
-
                 const children = await getAllChildrenforTask(todo["uid"])
                 finalArray.push({uid:todo["uid"], id: todoList[i].calendar_events_id!, children:children, summary: todo["summary"], priority: todo["priority"], due: dueDate })
             }
@@ -463,66 +474,56 @@ export function generateTaskArrayFromDexieOutput(tasksFromDexie: Calendar_Events
 }
 
 export async function filterTaskListArray(taskList: TaskArrayItem[], filter): Promise<TaskArrayItem[]>{
-    let newDexieList: TaskArrayItem[] = []
-    for(const k in taskList)
-    {
-        const event = await getEventFromDexieByID(parseInt(taskList[k].id.toString()))
-        if(event && Array.isArray(event) && event.length>0){
-            const throughFilter = filterEvents(event, filter)
-            if(throughFilter && Array.isArray(throughFilter) && throughFilter.length>0){
-                newDexieList.push(taskList[k])
-            }
+    const results = await Promise.all(taskList.map(async (task) => {
+    const event = await getEventFromDexieByID(parseInt(task.id.toString()))
+    if(event && Array.isArray(event) && event.length>0){
+        const throughFilter = filterEvents(event, filter)
+        if(throughFilter && Array.isArray(throughFilter) && throughFilter.length>0){
+            return task
         }
     }
-
-    return newDexieList
+    return null
+    }))
+    return results.filter((t): t is TaskArrayItem => t !== null)
 }
-
 /**
  * 
  * @param taskList Applies basic filter to entire Task Array List and removes done and comepleted tasks
  */
-export async function removeDoneTasksFromTaskListArray(taskList: TaskArrayItem[]){
-    let newTaskArrayList: TaskArrayItem[] = []
-    for(const k in taskList)
-    {
-        const event = await getEventFromDexieByID(parseInt(taskList[k].id.toString()))
+export async function removeDoneTasksFromTaskListArray(taskList: TaskArrayItem[]): Promise<TaskArrayItem[]>{
+    const results = await Promise.all(taskList.map(async (task) => {
+        const event = await getEventFromDexieByID(parseInt(task.id.toString()))
         if(event && Array.isArray(event) && event.length>0){
-
-            const todo = returnGetParsedVTODO(event[0].data)
+            const todo = event[0].parsedData ? event[0].parsedData : returnGetParsedVTODO(event[0].data)
             if(majorTaskFilter(todo) && TaskPending(todo)){
-                if(taskList[k].children.length>0){
-                    const row_children = await removeDoneTasksFromTaskListArray(taskList[k].children)
-                    let toAddRow = taskList[k]
+                if(task.children.length>0){
+                    const row_children = await removeDoneTasksFromTaskListArray(task.children)
+                    let toAddRow = task
                     toAddRow.children = row_children
-                    newTaskArrayList.push(toAddRow)
+                    return toAddRow
                 }else{
-
-                    newTaskArrayList.push(taskList[k])
+                    return task
                 }
             }
         }
-    }
-
-    return newTaskArrayList
+        return null
+    }))
+    return results.filter((t): t is TaskArrayItem => t !== null)
 }
 
 export async function filterTaskListArrayFromSearchTerm(taskList: TaskArrayItem[], searchTerm: string)
 {
-    let newTaskArrayList: TaskArrayItem[] = []
-    for(const k in taskList)
-    {
-        const event = await getEventFromDexieByID(parseInt(taskList[k].id.toString()))
+    const results = await Promise.all(taskList.map(async (task) => {
+        const event = await getEventFromDexieByID(parseInt(task.id.toString()))
         if(event && Array.isArray(event) && event.length>0){
-            const todo = returnGetParsedVTODO(event[0].data)
+            const todo = event[0].parsedData ? event[0].parsedData : returnGetParsedVTODO(event[0].data)
             if(haystackHasNeedle(searchTerm.trim(), todo?.summary) || haystackHasNeedle(searchTerm.trim(), todo?.description)){
-                newTaskArrayList.push(taskList[k])
+                return task
             }
-
         }
-    }
-
-    return newTaskArrayList
+        return null
+    }))
+    return results.filter((t): t is TaskArrayItem => t !== null)
 }
 /**
  * 
