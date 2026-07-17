@@ -7,7 +7,9 @@ import * as _ from 'lodash'
 import { VTODO } from "./classes/VTODO";
 import { getErrorResponse } from "../errros";
 import { getParsedAlarmsFromTodo } from "./VTODOHelpers";
-export async function getCaldavAccountsfromServer()
+import { AlarmType } from "@/components/events/AlarmForm";
+import { VAlarmType } from "@/types/valarm";
+export async function getCaldavAccountsfromServer(): Promise<any>
 {
     const url_api=getAPIURL()+"caldav/calendars" 
     const authorisationData=await getAuthenticationHeadersforUser()
@@ -21,7 +23,7 @@ export async function getCaldavAccountsfromServer()
 
     return new Promise( (resolve, reject) => {
      
-            const response =  fetch(url_api, requestOptions)
+            const response =  fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 //Save the events to db.
@@ -49,7 +51,7 @@ export async function caldavAccountsfromServer()
 
     return new Promise( (resolve, reject) => {
 
-            const response =  fetch(url_api, requestOptions)
+            const response =  fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 //Save the events to db.
@@ -93,7 +95,7 @@ export async function getLatestCalendarEvents(caldav_accounts_id, calendars_id, 
     }
 
     return new Promise( (resolve, reject) => {
-            const response =  fetch(url_api, requestOptions)
+            const response =  fetch(url_api, requestOptions as  RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 //Save the events to db.
@@ -129,7 +131,7 @@ export async function getAllEvents(filters)
 
     return new Promise( (resolve, reject) => {
        
-            const response =  fetch(url_api, requestOptions)
+            const response =  fetch(url_api, requestOptions as  RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 //Save the events to db.
@@ -144,93 +146,7 @@ export async function getAllEvents(filters)
 }
 
 
-export async function saveCaldavAccounstoDB(caldav_account_data)
-{
-    var db = getcalendarDB()
-    if(caldav_account_data!=null && Array.isArray(caldav_account_data) && caldav_account_data.length>0)
-    {
-        for(let i=0; i<caldav_account_data.length;i++)
-        {
-            db.caldav_accounts.where("caldav_account_id").equals(caldav_account_data[i].caldav_accounts_id.toString()).toArray().then((caldav_account_fromDB  => {
-            
-    
-                if(caldav_account_fromDB.length==0)
-                {
-                    // Account doesn't exist in DB. Insert.
-                    db.caldav_accounts.put({caldav_account_id: caldav_account_data[i].caldav_accounts_id, name: caldav_account_data[i].name, url:  caldav_account_data[i].url, username: caldav_account_data[i].username});
-                }
-                else
-                {
-                    
-                    //Skip
-                }
-            }))
-        }
-        
 
-    }
-}
-
-export async function getTodosfromDB(caldav_account_id, calendar_id)
-{
-    var db = getcalendarDB()
-
-    const calendarEvents = await db.calendar_events.where("[caldav_accounts_id+calendar_id+type]").equals([caldav_account_id, calendar_id, "VTODO"]).toArray()
-    var listofTodos= arrangeTodoListbyHierarchy(calendarEvents)
-
-    
-    return [listofTodos, getParsedTodoList(calendarEvents)]
-
-}
-
-export async function saveEventstoDB(data, caldav_accounts_id, calendar_id)
-{
-    var db = getcalendarDB()
-    if(data!=null && data.length>0)
-    {
-        var eventFromDB =null
-        for (let i=0; i<data.length; i++ )
-        {
-            var url =  data[i].url
-            var updated = Math.floor(Date.now()/1000)
-
-            //First we check if the event isn't already in the database.
-             await db.calendar_events
-            .where("url").equalsIgnoreCase(url)
-            .toArray().then((eventFromDB  => {
-                if(eventFromDB!=null && Array.isArray(eventFromDB) && eventFromDB.length>0)
-                {
-                    // Event exists in database.
-                    if(eventFromDB[0].etag==data[i].etag)
-                    {
-                        //No change in etag. No need to update
-                    }
-                    else
-                    {
-                        //Update the event.
-                        var idToUpdate= eventFromDB[0].id
-                         db.calendar_events.put({id: idToUpdate, etag: data[i].etag, data:  data[i].data, updated: updated});
-    
-                    }
-                }
-                else
-                {
-                    var type = returnEventType(data[i].data)
-                    var url =  data[i].url
-                    var etag = data[i].etag
-                    var eventData = data[i].data
-                    db.calendar_events.add({
-                        url: url, etag: etag, data: eventData, updated: updated, caldav_accounts_id: caldav_accounts_id, calendar_id: calendar_id, type: type
-                    });
-    
-                }
-    
-            }));
-
-      
-        }
-    }
-}
 
 export function returnEventType(data)
 {
@@ -268,7 +184,7 @@ function isValidParsedVTODO(parsedDataEntry){
     return true
 }
 
-export function returnGetParsedVTODO(vtodo)
+export function returnGetParsedVTODO(vtodo) : null | any
 {
     if(!vtodo){
         return null
@@ -282,27 +198,27 @@ export function returnGetParsedVTODO(vtodo)
                 continue;
             }
             
-            var entries = Object.entries(parsedData[k])
+            let entries = Object.entries(parsedData[k])
             //console.log(parsedData[k].recurrences)
-            var relatedto =""
-            var percentcomplete=""
+            let relatedto =""
+            let percentcomplete=""
     
             for(let i=0; i<entries.length; i++)
             {
-                var key = entries[i][0]
+                let key = entries[i][0]
                 if(key=="related-to")
                 {
-                    relatedto= entries[i][1]
+                    relatedto= entries[i][1] as string
     
                 }   
                 if(key=="percent-complete")
                 {
-                    percentcomplete=entries[i][1]
+                    percentcomplete=(entries[i][1] as string).toString()
                 }
             }      
             
     
-            var duedate=parsedData[k].due
+            let duedate=parsedData[k].due
             if(typeof(parsedData[k].due) =='object' && typeof(parsedData[k].due) !='string' ){
                 
                     try{
@@ -312,8 +228,8 @@ export function returnGetParsedVTODO(vtodo)
                         duedate=""
                     }
             }
-            var recurrences ={}
-            if(varNotEmpty(parsedData[k].recurrences))
+            let recurrences ={}
+            if(parsedData[k].recurrences && Array.isArray(parsedData[k].recurrences))
             {
                 for(const i in parsedData[k].recurrences)
                 {
@@ -340,7 +256,7 @@ export function returnGetParsedVTODO(vtodo)
                     }
                 }
             }
-            
+            let alarms: VAlarmType[] = []
             let toReturn= {
                 summary:parsedData[k].summary,
                 created: parsedData[k].created,
@@ -358,7 +274,7 @@ export function returnGetParsedVTODO(vtodo)
                 description: description,
                 rrule: parsedData[k].rrule,
                 recurrences: recurrences,
-                alarms: []
+                alarms: alarms
             }
     
             for (const key in parsedData[k])
@@ -411,7 +327,8 @@ function recursivelyAddChildren(listofTasks, todoList, counter)
     //Counter included so recursion doesn't go haywire.
     //Try increasing the environment variable, if subtasks aren't rednering properly.
     var toReturn=null
-    if(counter>process.env.NEXT_PUBLIC_SUBTASK_RECURSION_CONTROL_VAR)
+    const maxTries = process.env.NEXT_PUBLIC_SUBTASK_RECURSION_CONTROL_VAR ?? 100
+    if(counter>maxTries)
     {
         return false
     }
@@ -551,7 +468,7 @@ export function getUnparsedEventData(todoList)
 }
 function findChildrenOld(id, todoList)
 {
-    var children=[]
+    var children: string[]=[]
     for(let i=0; i<todoList.length; i++)
     {
         var todo = returnGetParsedVTODO(todoList[i].data)
@@ -569,7 +486,7 @@ function findChildrenOld(id, todoList)
 
 function findChildren(id, todoList)
 {
-    var children=[]
+    var children: string[]=[]
     for(let i=0; i<todoList.length; i++)
     {
         var todo = new VTODO(todoList[i])
@@ -604,27 +521,12 @@ export function parentInFilteredList(parent, todoList){
         
         if(todoList[i]["uid"]==parent)
         {
-            found=true
+            return true
         }
     }
 
 
     return found 
 }
-function path(c, name, v, currentPath, t){
-    var currentPath = currentPath || "root";
-    var v = v || ''
-    for(var i in c){
-      if(i == name ){
-        t = currentPath;
-      }
-      else if(typeof c[i] == "object"){
-        return path(c[i], name, v, currentPath + "." + i);
-      }
-    }
-
-    return t + "." + name;
-};
-
 
 

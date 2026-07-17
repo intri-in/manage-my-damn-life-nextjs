@@ -342,7 +342,7 @@ export function filterDueIsValid(due: any)
     return isValid
 }
 
-export function applyEventFilter(event: any, filter: TaskFilter)
+export function applyEventFilter(event: any, filter: TaskFilter, logic: string)
 {
 
 //    console.log("filter",  filter.filter)
@@ -354,115 +354,121 @@ export function applyEventFilter(event: any, filter: TaskFilter)
 
     if((!filter.filter)) return true
     
-    let logic="or"
-    if("logic" in filter && filter.logic)
+    let filterByLabelResult = false
+    if(filter.filter.label)
     {
-        logic=filter.logic.toLowerCase()
-    }
-
-    /**
-     * Only consider logic if there are more than one condition. Override logic to "or"
-     */
-    // console.log("countConditionsinFilter(filter)", countConditionsinFilter(filter), filter)
-    if(countConditionsinFilter(filter)<=1){
-        logic="or"
-    }
-    
-        let filterByLabelResult = false
-        if(filter.filter.label)
-        {
-            let labelList: string[] = []
-            let logicForLabel= "OR"
-            if(Array.isArray(filter.filter.label)){
-                labelList = filter.filter.label
-            }else{
-                if(filter.filter.label.logic && filter.filter.label.filters && Array.isArray(filter.filter.label.filters)){
-                    labelList = filter.filter.label.filters
-                    logicForLabel = filter.filter.label.logic
-                }
+        let labelList: string[] = []
+        let logicForLabel= "OR"
+        if(Array.isArray(filter.filter.label)){
+            labelList = filter.filter.label
+        }else{
+            if(filter.filter.label.logic && filter.filter.label.filters && Array.isArray(filter.filter.label.filters)){
+                labelList = filter.filter.label.filters
+                logicForLabel = filter.filter.label.logic
             }
-            if(labelList.length>0) filterByLabelResult= filterbyLabel(labelList, event.category, logicForLabel)
-            // console.log("filterByLabelResult", filterByLabelResult, event.category, event.summary)
         }
-        if(!filterByLabelResult && logic=="and"){
-            return false
-        }
+        if(labelList.length>0) filterByLabelResult= filterbyLabel(labelList, event.category, logicForLabel)
+        // console.log("filterByLabelResult", filterByLabelResult, event.category, event.summary)
+    }
+    if(!filterByLabelResult && logic=="and"){
+        return false
+    }
 
-        let filterByDueResult= false
-        if(filter.filter.due!=null)
-        {
-            let dueDate = event.due
+    let filterByDueResult= false
+    if(filter.filter.due!=null)
+    {
+        let dueDate = event.due
 
-            // if ("rrule" in event && event.rrule ) {
-            //     //Repeating Object
-            //     var recurrenceObj = new RecurrenceHelper(event)
-            //     dueDate= recurrenceObj.getNextDueDate()
-            // }
-    
-            
-            filterByDueResult = filterbyDue(filter.filter.due, dueDate)
-            
-            // console.log("filterbyDue 22", filter.filter.due, moment(dueDate).unix(), filterByDueResult)
-        }
+        // if ("rrule" in event && event.rrule ) {
+        //     //Repeating Object
+        //     var recurrenceObj = new RecurrenceHelper(event)
+        //     dueDate= recurrenceObj.getNextDueDate()
+        // }
 
-        if(!filterByDueResult && logic=="and"){
-            return false
-        }
+        
+        filterByDueResult = filterbyDue(filter.filter.due, dueDate)
+        
+        // console.log("filterbyDue 22", filter.filter.due, moment(dueDate).unix(), filterByDueResult)
+    }
 
-        let filterbyPriorityResult =false
-        // console.log(("priority" in filter.filter && filter.filter.priority!=null))
-        if("priority" in filter.filter && filter.filter.priority!=null)
-        {
-            filterbyPriorityResult=filterbyPriority(filter.filter.priority,event.priority)
-            // console.log(event.priority,filterbyPriorityResult)
-            
-           
-        }
+    if(!filterByDueResult && logic=="and"){
+        return false
+    }
 
-        if(!filterbyPriorityResult && logic=="and"){
-            return false
-        }
+    let filterbyPriorityResult =false
+    // console.log(("priority" in filter.filter && filter.filter.priority!=null))
+    if("priority" in filter.filter && filter.filter.priority!=null)
+    {
+        filterbyPriorityResult=filterbyPriority(filter.filter.priority,event.priority)
+        // console.log(event.priority,filterbyPriorityResult)
+        
+        
+    }
 
-        let filterbyStartResult = false
-        if("start" in filter.filter && filter.filter.start && "start" in event)
-        {
-            let startDate = event.start
+    if(!filterbyPriorityResult && logic=="and"){
+        return false
+    }
 
-            // if ("rrule" in event && event.rrule ) {
-            //    //Recurring event.
-            //    // We ignore the start date, because it can be way in the past.
-            //    // We instead use the due date.
-            //    var recurrenceObj = new RecurrenceHelper(event)
-            //    startDate= recurrenceObj.getNextDueDate()
+    let filterbyStartResult = false
+    if("start" in filter.filter && filter.filter.start && "start" in event)
+    {
+        let startDate = event.start
 
-            // }
+        // if ("rrule" in event && event.rrule ) {
+        //    //Recurring event.
+        //    // We ignore the start date, because it can be way in the past.
+        //    // We instead use the due date.
+        //    var recurrenceObj = new RecurrenceHelper(event)
+        //    startDate= recurrenceObj.getNextDueDate()
 
-            filterbyStartResult = filterbyStart(filter.filter.start, startDate)
-        }
-        if(!filterbyStartResult && logic=="and"){
-            return false
-        }
+        // }
 
-        let filterbyDueRelativeResult = false
-        if(filter.filter.dueRelative && filter.filter.dueRelative.value &&filter.filter.dueRelative.direction && filter.filter.dueRelative.unit){
-            filterbyDueRelativeResult = filterbyDueRelative(filter.filter.dueRelative, event.due)
-        }
-        let filterbyStartRelativeResult = false
-        if(filter.filter.startRelative && filter.filter.startRelative.value &&filter.filter.startRelative.direction && filter.filter.startRelative.unit ){
-            filterbyStartRelativeResult = filterbyStartRelative(filter.filter.startRelative, event.start)
-        }
-        //if Logic is OR, we return true if any of the filters were true.
-        return (filterbyPriorityResult  || filterByDueResult  || filterByLabelResult  || filterbyStartResult  || filterbyDueRelativeResult || filterbyStartRelativeResult )
+        filterbyStartResult = filterbyStart(filter.filter.start, startDate)
+    }
+    if(!filterbyStartResult && logic=="and"){
+        return false
+    }
+
+    let filterbyDueRelativeResult = false
+    if(filter.filter.dueRelative && filter.filter.dueRelative.value &&filter.filter.dueRelative.direction && filter.filter.dueRelative.unit){
+        filterbyDueRelativeResult = filterbyDueRelative(filter.filter.dueRelative, event.due)
+    }
+
+    if(!filterbyDueRelative && logic=="and"){
+        return false
+    }
+    let filterbyStartRelativeResult = false
+    if(filter.filter.startRelative && filter.filter.startRelative.value &&filter.filter.startRelative.direction && filter.filter.startRelative.unit ){
+        filterbyStartRelativeResult = filterbyStartRelative(filter.filter.startRelative, event.start)
+    }
+    if(!filterbyStartRelativeResult && logic=="and"){
+        return false
+    }
+    //if Logic is OR, we return true if any of the filters were true.
+    return (filterbyPriorityResult  || filterByDueResult  || filterByLabelResult  || filterbyStartResult  || filterbyDueRelativeResult || filterbyStartRelativeResult )
 
  
 
 }
 
+export function getLogicFromFilter(filter: TaskFilter){
+    let logic: string = "or"
+    if(filter && "logic" in filter && filter.logic)
+    {
+        logic = filter.logic.toLowerCase()
+    }
+    if(countConditionsInFilter(filter)<=1){
+        logic = "or"
+    }
+
+    return logic
+    
+}
 /**
  * Counts the number of condition there are in a filter
  * @param {*} filter 
  */
-function countConditionsinFilter(filter: TaskFilter){
+export function countConditionsInFilter(filter: TaskFilter){
 
     let counter =0
     if(!checkIfFilterValid(filter)){

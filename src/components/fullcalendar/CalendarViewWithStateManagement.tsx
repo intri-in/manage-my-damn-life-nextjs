@@ -483,9 +483,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         // console.log("messageHeader", messageHeader)
         console.log(ics)
         if (varNotEmpty(ics)) {
-            const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
-            console.log("response from Modify", response)
-            if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
+            const response  = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
+            // console.log("response from Modify", response)
+            if (response && response.success && response.success == true) {
                 toast.success(messageHeader + t("UPDATE_OK"))
 
 
