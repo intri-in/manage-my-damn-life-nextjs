@@ -4,7 +4,7 @@ import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { getAPIURL } from '@/helpers/general';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Alert, Button } from 'react-bootstrap';
@@ -129,7 +129,15 @@ const Register = ({registrationAllowed, installed}) => {
                     transform: "translate(-50%, -50%)"
                 }}>
                     <div style={{ textAlign: 'center' }}>
-                        <Image alt='Logo' src="/logo.png" width={100} height={100} />
+                        <Image
+                            alt='Logo'
+                            src="/logo.png"
+                            width={100}
+                            height={100}
+                            style={{
+                                maxWidth: "100%",
+                                height: "auto"
+                            }} />
                     </div>
                     <h2 style={{ textAlign: 'center' }}>{t("APP_NAME")}</h2>
                     <br />

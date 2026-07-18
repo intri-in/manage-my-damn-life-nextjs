@@ -6,7 +6,7 @@ import { getUserDataFromCookies } from "@/helpers/frontend/user";
 import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import Head from "next/head";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { Container, Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -182,7 +182,15 @@ const StartInstall = ({showRegistrationLink}:{showRegistrationLink: boolean}) =>
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <Image alt="Logo" src="/logo.png" width={100} height={100} />
+            <Image
+              alt="Logo"
+              src="/logo.png"
+              width={100}
+              height={100}
+              style={{
+                maxWidth: "100%",
+                height: "auto"
+              }} />
           </div>
           <h2 style={{ textAlign: "center" }}>{t("APP_NAME")}</h2>
           <br />

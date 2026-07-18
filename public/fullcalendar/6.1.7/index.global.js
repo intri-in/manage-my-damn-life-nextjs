@@ -471,9 +471,9 @@ var FullCalendar = (function (exports) {
                 months: 0,
                 days: sign * (m[2] ? parseInt(m[2], 10) : 0),
                 milliseconds: sign * ((// seconds
-                (m[3] ? parseInt(m[3], 10) : 0) * 60 * 60 * 1000 + // hours
+                ((m[3] ? parseInt(m[3], 10) : 0) * 60 * 60 * 1000 + // hours
                     (m[4] ? parseInt(m[4], 10) : 0) * 60 * 1000 + // minutes
-                    (m[5] ? parseInt(m[5], 10) : 0) * 1000 + (m[6] ? parseInt(m[6], 10) : 0)) // ms
+                    (m[5] ? parseInt(m[5], 10) : 0) * 1000 + (m[6] ? parseInt(m[6], 10) : 0))) // ms
                 ),
             };
         }
@@ -11934,10 +11934,10 @@ var FullCalendar = (function (exports) {
     function hasListItemDisplay(seg) {
         let { display } = seg.eventRange.ui;
         return display === 'list-item' || ((// "
-        display === 'auto' &&
+        (display === 'auto' &&
             !seg.eventRange.def.allDay &&
             seg.firstCol === seg.lastCol && // can't be multi-day
-            seg.isStart && seg.isEnd) // "
+            seg.isStart && seg.isEnd)) // "
         );
     }
 

@@ -8,7 +8,7 @@ import { fetchLatestEventsV2,   refreshCalendarListV2 } from "@/helpers/frontend
 import { logoutUser } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
 import Head from "next/head"
-import Image from "next/legacy/image"
+import Image from "next/image"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "next-i18next"
@@ -111,34 +111,42 @@ export default function SetupPage() {
         }
 
     }
-    return(
+    return (
         <>
-        <Head>
-          <title>{`${t("APP_NAME_TITLE")} - ${t("SETUP")}`}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <div className="container-fluid">
-        <div className="row text-center align-items-center vh-100">
-            <div >
-                <Image alt='Logo' src="/logo.png" width={100} height={100} />
-                <br />
-                <br />
-                {isLoading ? 
-                (   <>
-                        <h2>{t("SETTING_UP")}</h2>
-                        {currentWork}
-                        <Loading />
-                    </>
-                    ):
-                (<h2>{t("DONE")}</h2>)}
-                
-            </div>
+            <Head>
+              <title>{`${t("APP_NAME_TITLE")} - ${t("SETUP")}`}</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <div className="container-fluid">
+            <div className="row text-center align-items-center vh-100">
+                <div >
+                    <Image
+                        alt='Logo'
+                        src="/logo.png"
+                        width={100}
+                        height={100}
+                        style={{
+                            maxWidth: "100%",
+                            height: "auto"
+                        }} />
+                    <br />
+                    <br />
+                    {isLoading ? 
+                    (   <>
+                            <h2>{t("SETTING_UP")}</h2>
+                            {currentWork}
+                            <Loading />
+                        </>
+                        ):
+                    (<h2>{t("DONE")}</h2>)}
+                    
+                </div>
 
-        </div>
-        </div>
+            </div>
+            </div>
         </>
-    )
+    );
 }
 
 export async function getStaticProps({ locale }) {

@@ -138,10 +138,10 @@ FullCalendar.DayGrid = (function (exports, core, internal$1, preact) {
     function hasListItemDisplay(seg) {
         let { display } = seg.eventRange.ui;
         return display === 'list-item' || ((// "
-        display === 'auto' &&
+        (display === 'auto' &&
             !seg.eventRange.def.allDay &&
             seg.firstCol === seg.lastCol && // can't be multi-day
-            seg.isStart && seg.isEnd) // "
+            seg.isStart && seg.isEnd)) // "
         );
     }
 

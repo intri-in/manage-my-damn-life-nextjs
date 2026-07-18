@@ -9,7 +9,7 @@ import { IoSyncCircleOutline } from "react-icons/io5/index";
 import { BiLogOut } from "react-icons/bi";
 import Link from "next/link";
 import Dropdown from 'react-bootstrap/Dropdown';
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { MdOutlineDarkMode, MdOutlineLightMode } from "react-icons/md";
 import { isDarkModeEnabled, setThemeMode } from "@/helpers/frontend/theme";
 import { installCheck_Cookie } from "@/helpers/install";
@@ -212,7 +212,10 @@ const AppBarFunctionalComponent = ({ session}) => {
             height="30"
             className="d-inline-block align-top"
             alt="Manage my Damn Life"
-          />
+            style={{
+              maxWidth: "100%",
+              height: "auto"
+            }} />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
