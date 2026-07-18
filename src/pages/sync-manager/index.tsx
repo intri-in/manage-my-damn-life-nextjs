@@ -13,9 +13,10 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
+import SyncManagerMainComponent from "@/components/page/SyncManager/SyncManagerMainComponent";
 
 
-export default function ManageTemplates(){
+const SyncManagerPage = () =>{
   const { data: session, status } = useSession() 
   const [isloggedIn, setIsloggedIn] = useState(false)
   const router = useRouter()
@@ -59,12 +60,16 @@ export default function ManageTemplates(){
 
         <Container fluid >
              <div style={{marginTop: 20}}>
-              <TemplateManager />
+              <SyncManagerMainComponent />
              </div>
         </Container>
     </>
     )
+
 }
+
+export default SyncManagerPage
+
 
 export async function getStaticProps({ locale}) {
   return {

@@ -77,11 +77,11 @@ export class SyncManager{
         const task =  await getSyncTaskByIdFromDexie(id)
         // console.log("task", task)
         if(task && Array.isArray(task) && task.length>0){
-            const currenTask = task[0]
-            switch(currenTask.type){
+            const currentTask = task[0]
+            switch(currentTask.type){
                 case SyncManager.SYNC_CALENDER:
-                    console.log(`Executing task: ${currenTask.summary}`)
-                    this.syncCalendar(id, currenTask.input)
+                    console.log(`Executing task: ${currentTask.summary}`)
+                    this.syncCalendar(id, currentTask.input)
                     break;
                 default:
                     break;

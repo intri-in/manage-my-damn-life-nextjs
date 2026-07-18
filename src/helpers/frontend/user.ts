@@ -1,0 +1,133 @@
+import Cookies from "js-cookie";
+import { Base64 } from "js-base64";
+import { nextAuthEnabled } from "../thirdparty/nextAuth";
+import { signOut } from "next-auth/react";
+import { getAPIURL, varNotEmpty } from "../general";
+import { deleteAllCookies } from "./cookies";
+import { clearDexieDB } from "./dexie/dexie_helper";
+import { SETTING_NAME_NUKE_DEXIE_ON_LOGOUT } from "./settings";
+import { LAST_LOGIN_CHECK_TIME } from "./localstorage";
+import { LOGIN_CHECK_THRESHOLD_SECONDS } from "@/config/constants";
+import moment from "moment";
+import { getServerSession } from "next-auth";
+
+export function setLoginCookie(userhash, ssid) {
+    Cookies.set("USERHASH", userhash, { expires: 30 })
+    Cookies.set("SSID", ssid, { expires: 30 })
+}
+
+export async function logoutUser(nukeDexie)
+{
+    if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE" || nukeDexie){
+
+        clearDexieDB()
+    }
+
+    
+    // Just deleted the cookies. 
+    Cookies.remove("USERHASH")
+    Cookies.remove("SSID")
+    Cookies.remove("USER_DATA_LABELS")
+    Cookies.remove("USER_SETTING_SYNCTIMEOUT")
+
+    deleteAllCookies()
+    //Logout nextAuth Sessions.
+    if(await nextAuthEnabled()){
+        signOut()
+    }
+}
+
+/**
+ * Manages user logout with redirect. Calls the Logout function (which signs out the user either with NextAuth.js or with inbuilt mechanism, then redirects appropriately.)
+ */
+export async function logoutUser_withRedirect(router, redirectURL){
+    if(varNotEmpty(router)){
+        let url = '/login'
+        if(varNotEmpty(redirectURL)){
+            url+="/?redirect="+redirectURL
+        }
+        router.push(url)
+        
+        
+    }
+
+}
+export function getUserDataFromCookies() {
+    return ({
+        userhash: Cookies.get("USERHASH"),
+        ssid: Cookies.get("SSID")
+    })
+}
+export async function getAuthenticationHeadersforUser() {
+    //var userData = await getUserData()
+    var userData = getUserDataFromCookies()
+
+    var authorizationData = "Basic " + Base64.encode(userData.userhash + ":" + userData.ssid)
+
+    return authorizationData
+
+}
+export async function insertUserdata() {
+
+}
+
+export function shouldDisplayEmptyPage(isloggedIn){
+    if(isloggedIn){
+        return false
+    }
+
+    if(typeof(window)!="undefined"){
+
+        const lastChecked = Cookies.get(LAST_LOGIN_CHECK_TIME)
+        const currentUnixTimestamp = moment().unix();
+        if(!lastChecked){
+            localStorage.setItem(LAST_LOGIN_CHECK_TIME, currentUnixTimestamp.toString())
+            return true
+        }
+        console.log(currentUnixTimestamp, lastChecked, currentUnixTimestamp-lastChecked )
+        if(currentUnixTimestamp > parseInt(lastChecked) + LOGIN_CHECK_THRESHOLD_SECONDS ){
+            return true
+        }
+    }
+
+}
+export async function checkLogin_InBuilt(router, redirectURL){
+    const url_api=getAPIURL()+"auth/inbuilt/check"
+    const authorisationData=await getAuthenticationHeadersforUser()
+
+    const requestOptions =
+    {
+        method: 'GET',
+        mode: 'cors',
+        headers: new Headers({'authorization': authorisationData, 'Content-Type':'application/json'}),
+    }
+
+    return new Promise( (resolve, reject) => {
+        fetch(url_api, requestOptions as RequestInit)
+        .then(response => response.json())
+        .then((body) =>{
+            if(varNotEmpty(body) && varNotEmpty(body.success)){
+                if(body.success!=true){
+                    logoutUser_withRedirect(router, redirectURL)
+                    return resolve(false)
+                    
+                }
+                return resolve(true)
+                
+                
+            }else{
+                logoutUser_withRedirect(router, redirectURL)
+                return resolve(false)
+            }
+        }).catch(e=>
+            {
+                
+                console.error("checkLogin_InBuilt", e)
+                return resolve(false)
+
+            }
+        )
+
+    })
+}
+

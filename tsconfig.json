@@ -19,7 +19,7 @@
     "incremental": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -30,14 +30,13 @@
     ],
     "strictNullChecks": true,
     "target": "ES2017",
-    "allowSyntheticDefaultImports":true
+    "allowSyntheticDefaultImports": true
   },
   "include": [
-    "next-env.d.ts",
     "**/*.js",
     "**/*.ts",
     "**/*.tsx",
-    "jest.config.js.old",
+    "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [

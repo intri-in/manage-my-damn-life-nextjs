@@ -375,5 +375,10 @@
   "WHEN": "When",
   "YES": "Yes",
   "YOUR_ACCOUNTS": "Your Accounts",
-  "YOUR_FILTERS": "Your Filters"
+  "YOUR_FILTERS": "Your Filters",
+  "SYNC_MANAGER": "Sync Manager",
+  "SYNCMANAGER_SYNC_CALENDER": "Calendar Sync",
+  "DELETE_ALL":"Delete All",
+  "REMOVE_ALL_TASKS_WITH_ERRORS":"Delete All Tasks With Error",
+  "CLEAR_QUEUE":"Clear Queue"
 }

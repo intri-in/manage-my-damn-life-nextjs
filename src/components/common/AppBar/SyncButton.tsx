@@ -1,17 +1,16 @@
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 import { useSetAtom } from "jotai";
 import { Spinner } from "react-bootstrap";
-import { useTranslation } from "next-i18next";
 import { IoSyncCircleOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { IS_SYNCING } from "@/helpers/frontend/localstorage";
+import { useRouter } from "next/router";
 
-export const SyncButton = ({isSyncing}) =>{
-
+export const SyncButton = ({isSyncing, t}) =>{
+    const router = useRouter()
     const setUpdated = useSetAtom(updateViewAtom)
     const setUpdatedCalendarView = useSetAtom(updateCalendarViewAtom)
-    const {t} = useTranslation()
     const syncButtonClicked = async () => {
         await fetchLatestEventsV2()
         setUpdated(Date.now())
@@ -28,10 +27,11 @@ export const SyncButton = ({isSyncing}) =>{
 
     }
     const stopSync = (e) =>{
-        toast.info(t("SYNC_STOPPED"))
-        localStorage.setItem(IS_SYNCING, "false")
-        setUpdated(Date.now())
-        setUpdatedCalendarView(Date.now())
+        router.push("/sync-manager")
+        // toast.info(t("SYNC_STOPPED"))
+        // localStorage.setItem(IS_SYNCING, "false")
+        // setUpdated(Date.now())
+        // setUpdatedCalendarView(Date.now())
 
 
     }

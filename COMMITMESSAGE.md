@@ -1,2 +1,3 @@
-- npm audit fix executed
-- tsdav bumped to latest version
+Sync Manager
+- Page created
+- Calendar sync is now done via SyncManager

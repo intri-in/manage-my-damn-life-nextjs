@@ -1,5 +1,5 @@
+"use client"
 import { PRIMARY_COLOUR } from "@/config/style";
-import { useRouter } from "next/router";
 import { Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { useEffect, useState } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
@@ -19,17 +19,14 @@ import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { useSetAtom } from "jotai";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
-import { appendLanguageToURL, getCurrentLanguage, getDefaultLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useTranslation } from "next-i18next";
+import {  getCurrentLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
 import {  signOut } from "next-auth/react"
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { SyncButton } from "./SyncButton";
-import { db } from "@/helpers/frontend/dexie/dexieDB";
-import { SyncManager } from "@/helpers/frontend/SyncManager";
 import { syncEngine } from "@/helpers/frontend/SyncEngine";
+import { useRouter } from "next/navigation";
 // import i18n from "@/i18n/i18n";
-const AppBarFunctionalComponent = ({ session}) => {
+const AppBarFunctionalComponent = ({ session, t}) => {
   /**
    * Jotai
    */
@@ -43,9 +40,8 @@ const AppBarFunctionalComponent = ({ session}) => {
   const [installed, setInstalled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [lang, setLang] = useState(getCurrentLanguage())
-  const {t, i18n} = useTranslation()
 
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     let isMounted =true
@@ -140,7 +136,9 @@ const AppBarFunctionalComponent = ({ session}) => {
   const settingsClicked = () => {
     router.push("/accounts/settings");
   };
-
+  const syncManagerClicked = () =>{
+    router.push("/sync-manager")
+  }
   const manageFilterClicked = () => {
     router.push("/filters/manage");
   };
@@ -232,6 +230,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                   <Dropdown.Item onClick={webcalLinkClicked}>{t("WEBCAL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{t("TEMPLATE_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
+                  <Dropdown.Item onClick={syncManagerClicked}>{t("SYNC_MANAGER")}</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav.Item>
@@ -272,7 +271,7 @@ const AppBarFunctionalComponent = ({ session}) => {
                       {t("SYNC")}
                     </Tooltip>
                   }>
-                  <div style={{ color: "white", padding: 5 }}><SyncButton isSyncing={spinningButton} /></div>
+                  <div style={{ color: "white", padding: 5 }}><SyncButton t={t} isSyncing={spinningButton} /></div>
                 </OverlayTrigger>
               </Nav.Item>
               <Nav.Item style={{ color: "white", padding: 5 }}>
