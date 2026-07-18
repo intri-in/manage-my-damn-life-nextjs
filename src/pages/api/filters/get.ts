@@ -4,7 +4,7 @@ export default async function handler(req, res) {
    
     if (req.method !== 'GET') return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
 
-    if(!(await middleWareForAuthorisation(req, res))) return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} }) 
+    if(!await middleWareForAuthorisation(req, res)) return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} }) 
             
     const userid = await getUserIDFromLogin(req, res)
     if(!userid) return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })

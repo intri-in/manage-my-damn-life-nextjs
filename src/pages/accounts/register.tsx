@@ -4,7 +4,7 @@ import { getMessageFromAPIResponse } from '@/helpers/frontend/response';
 import { getAPIURL } from '@/helpers/general';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Alert, Button } from 'react-bootstrap';

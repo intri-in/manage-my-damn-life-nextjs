@@ -38,7 +38,7 @@ export async function deDuplicateUser(userIDArray: Users[])
     
 }
 export async function getUserIDForCurrentUser_Dexie(){
-    if(!(await nextAuthEnabled())){
+    if(!await nextAuthEnabled()){
 
         const userData = getUserDataFromCookies()
         const userHash = userData["userhash"]
@@ -54,7 +54,7 @@ export async function getUserIDForCurrentUser_Dexie(){
 }
 
 async function getUserHashforCurrentUser(){
-    if(!(await nextAuthEnabled())){
+    if(!await nextAuthEnabled()){
 
         const userData = getUserDataFromCookies()
         return userData["userhash"]

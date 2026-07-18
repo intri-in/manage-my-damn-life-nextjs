@@ -34,7 +34,7 @@ function DefaultCalendarViewSelect() {
         if(value){
             setValueofDDL(value)
             //Make request to Server.
-            if((await SettingsHelper.setKey("DEFAULT_VIEW_CALENDAR", value))==true)
+            if(await SettingsHelper.setKey("DEFAULT_VIEW_CALENDAR", value)==true)
             {
                 //Save to cookie if the insert was successful.
                 //setCookie("DEFAULT_VIEW_CALENDAR", value)

@@ -32,27 +32,17 @@ FullCalendar.List = (function (exports, core, internal$1, preact) {
                 ], elAttrs: {
                     'data-date': internal$1.formatDayString(dayDate),
                 }, renderProps: renderProps, generatorName: "dayHeaderContent", customGenerator: options.dayHeaderContent, defaultGenerator: renderInnerContent, classNameGenerator: options.dayHeaderClassNames, didMount: options.dayHeaderDidMount, willUnmount: options.dayHeaderWillUnmount }, (InnerContent) => ( // TODO: force-hide top border based on :first-child
-            (preact.createElement(
-                "th",
-                { scope: "colgroup", colSpan: 3, id: cellId, "aria-labelledby": textId },
+            preact.createElement("th", { scope: "colgroup", colSpan: 3, id: cellId, "aria-labelledby": textId },
                 preact.createElement(InnerContent, { elTag: "div", elClasses: [
                         'fc-list-day-cushion',
                         theme.getClass('tableCellShaded'),
-                    ] })
-            )))));
+                    ] })))));
         }
     }
     function renderInnerContent(props) {
-        return (preact.createElement(
-            preact.Fragment,
-            null,
+        return (preact.createElement(preact.Fragment, null,
             props.text && (preact.createElement("a", Object.assign({ id: props.textId, className: "fc-list-day-text" }, props.navLinkAttrs), props.text)),
-            props.sideText && ( /* not keyboard tabbable */(preact.createElement(
-                "a",
-                Object.assign({ "aria-hidden": true, className: "fc-list-day-side-text" }, props.sideNavLinkAttrs),
-                props.sideText
-            )))
-        ));
+            props.sideText && ( /* not keyboard tabbable */preact.createElement("a", Object.assign({ "aria-hidden": true, className: "fc-list-day-side-text" }, props.sideNavLinkAttrs), props.sideText))));
     }
 
     const DEFAULT_TIME_FORMAT = internal$1.createFormatter({

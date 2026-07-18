@@ -93,7 +93,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                 }else{
                     //Get Default calendar and set.
                     const default_calendar_id = await getDefaultCalendarID()
-                    if(default_calendar_id && (await isValidCalendarsID(default_calendar_id))){
+                    if(default_calendar_id && await isValidCalendarsID(default_calendar_id)){
                         setCalendarID(default_calendar_id)
                     }
 

@@ -39,7 +39,7 @@ function CalendarStartDayWeek(){
         if(value!=""){
             setValueofDDL(value)
             //Make request to Server.
-            if((await SettingsHelper.setKey(SETTING_NAME_CALENDAR_START_DAY, value))==true)
+            if(await SettingsHelper.setKey(SETTING_NAME_CALENDAR_START_DAY, value)==true)
             {
                 //Save to cookie if the insert was successful.
                 // setCookie(SETTING_NAME_CALENDAR_START_DAY, value)

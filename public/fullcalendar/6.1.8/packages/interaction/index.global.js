@@ -1018,7 +1018,7 @@ FullCalendar.Interaction = (function (exports, core, internal) {
                         let hit = component.queryHit(positionLeft, positionTop, width, height);
                         if (hit && (
                         // make sure the hit is within activeRange, meaning it's not a dead cell
-                        (internal.rangeContainsRange(hit.dateProfile.activeRange, hit.dateSpan.range))) &&
+                        internal.rangeContainsRange(hit.dateProfile.activeRange, hit.dateSpan.range)) &&
                             (!bestHit || hit.layer > bestHit.layer)) {
                             hit.componentId = id;
                             hit.context = component.context;

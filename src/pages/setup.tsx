@@ -8,7 +8,7 @@ import { fetchLatestEventsV2,   refreshCalendarListV2 } from "@/helpers/frontend
 import { logoutUser } from "@/helpers/frontend/user"
 import { useSetAtom } from "jotai"
 import Head from "next/head"
-import Image from "next/legacy/image"
+import Image from "next/image"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "next-i18next"
