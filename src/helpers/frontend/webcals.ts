@@ -48,6 +48,7 @@ export async function getWebCalsFromServer()
   
 
 }
+
 export async function syncWebcals(){
         const response = await getAllWebcalsforCurrentUserfromDexie()
         if(response){
@@ -62,7 +63,6 @@ export async function syncWebcals(){
                 }
             }
         }
-
 }
 export async function syncWebcalEvents_byId(id:string){
         const url_api = getAPIURL() + "webcal/sync?id=" + id

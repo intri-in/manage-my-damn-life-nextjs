@@ -20,13 +20,14 @@ import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { useSetAtom } from "jotai";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { appendLanguageToURL, getCurrentLanguage, getDefaultLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
-import { GetStaticProps } from "next";
-import { Props } from "next/script";
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useLiveQuery } from "dexie-react-hooks";
 import { useTranslation } from "next-i18next";
 import {  signOut } from "next-auth/react"
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { SyncButton } from "./SyncButton";
+import { db } from "@/helpers/frontend/dexie/dexieDB";
+import { SyncManager } from "@/helpers/frontend/SyncManager";
+import { syncEngine } from "@/helpers/frontend/SyncEngine";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session}) => {
   /**
@@ -52,6 +53,8 @@ const AppBarFunctionalComponent = ({ session}) => {
 
       checkInstallation();
       setDarkModeEnabled(isDarkModeEnabled());
+      syncEngine.start();
+
     }
     return ()=>{
       isMounted=false

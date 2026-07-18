@@ -1,1 +1,2 @@
- Optimisation of the task rendering process. Tasks are now fetched and sorted faster.
+- npm audit fix executed
+- tsdav bumped to latest version
