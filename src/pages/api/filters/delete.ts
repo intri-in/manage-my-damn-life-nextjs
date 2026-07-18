@@ -6,7 +6,7 @@ import validator from 'validator'
 export default async function handler(req, res) {
     if (req.method !== 'DELETE')         return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
 
-    if(!await middleWareForAuthorisation(req,res)) return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+    if(!(await middleWareForAuthorisation(req,res))) return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
     if(!req.query.filterid) return res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
 
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const filterId = validator.escape(req.query.filterid)
     let filterObject= new Filters(filterId)
                 
-    if(!await Filters.userHasAccess(userid,filterId)) return res.status(401).json({ success: false, data: { message: 'NO_ACCESS_TO_FILTER'} })
+    if(!(await Filters.userHasAccess(userid,filterId))) return res.status(401).json({ success: false, data: { message: 'NO_ACCESS_TO_FILTER'} })
 
     await filterObject.delete(userid)
 

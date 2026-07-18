@@ -138,22 +138,23 @@ FullCalendar.TimeGrid = (function (exports, core, internal$1, preact, internal$2
                     view: viewApi,
                 };
                 return (
-                // TODO: make reusable hook. used in list view too
-                preact.createElement(internal$1.ContentContainer, { elTag: "td", elClasses: [
-                        'fc-timegrid-axis',
-                        'fc-scrollgrid-shrink',
-                    ], elAttrs: {
-                        'aria-hidden': true,
-                    }, renderProps: renderProps, generatorName: "allDayContent", customGenerator: options.allDayContent, defaultGenerator: renderAllDayInner, classNameGenerator: options.allDayClassNames, didMount: options.allDayDidMount, willUnmount: options.allDayWillUnmount }, (InnerContent) => (preact.createElement("div", { className: [
-                        'fc-timegrid-axis-frame',
-                        'fc-scrollgrid-shrink-frame',
-                        rowHeight == null ? ' fc-timegrid-axis-frame-liquid' : '',
-                    ].join(' '), style: { height: rowHeight } },
-                    preact.createElement(InnerContent, { elTag: "span", elClasses: [
-                            'fc-timegrid-axis-cushion',
-                            'fc-scrollgrid-shrink-cushion',
-                            'fc-scrollgrid-sync-inner',
-                        ] })))));
+                    // TODO: make reusable hook. used in list view too
+                    (preact.createElement(internal$1.ContentContainer, { elTag: "td", elClasses: [
+                            'fc-timegrid-axis',
+                            'fc-scrollgrid-shrink',
+                        ], elAttrs: {
+                            'aria-hidden': true,
+                        }, renderProps: renderProps, generatorName: "allDayContent", customGenerator: options.allDayContent, defaultGenerator: renderAllDayInner, classNameGenerator: options.allDayClassNames, didMount: options.allDayDidMount, willUnmount: options.allDayWillUnmount }, (InnerContent) => (preact.createElement("div", { className: [
+                            'fc-timegrid-axis-frame',
+                            'fc-scrollgrid-shrink-frame',
+                            rowHeight == null ? ' fc-timegrid-axis-frame-liquid' : '',
+                        ].join(' '), style: { height: rowHeight } },
+                        preact.createElement(InnerContent, { elTag: "span", elClasses: [
+                                'fc-timegrid-axis-cushion',
+                                'fc-scrollgrid-shrink-cushion',
+                                'fc-scrollgrid-sync-inner',
+                            ] })))))
+                );
             };
             this.handleSlatCoords = (slatCoords) => {
                 this.setState({ slatCoords });
@@ -187,8 +188,11 @@ FullCalendar.TimeGrid = (function (exports, core, internal$1, preact, internal$2
                     type: 'body',
                     key: 'all-day-divider',
                     outerContent: ( // TODO: rename to cellContent so don't need to define <tr>?
-                    preact.createElement("tr", { role: "presentation", className: "fc-scrollgrid-section" },
-                        preact.createElement("td", { className: 'fc-timegrid-divider ' + context.theme.getClass('tableCellShaded') }))),
+                    (preact.createElement(
+                        "tr",
+                        { role: "presentation", className: "fc-scrollgrid-section" },
+                        preact.createElement("td", { className: 'fc-timegrid-divider ' + context.theme.getClass('tableCellShaded') })
+                    ))),
                 });
             }
             sections.push({
@@ -253,8 +257,11 @@ FullCalendar.TimeGrid = (function (exports, core, internal$1, preact, internal$2
                     key: 'all-day-divider',
                     type: 'body',
                     outerContent: ( // TODO: rename to cellContent so don't need to define <tr>?
-                    preact.createElement("tr", { role: "presentation", className: "fc-scrollgrid-section" },
-                        preact.createElement("td", { colSpan: 2, className: 'fc-timegrid-divider ' + context.theme.getClass('tableCellShaded') }))),
+                    (preact.createElement(
+                        "tr",
+                        { role: "presentation", className: "fc-scrollgrid-section" },
+                        preact.createElement("td", { colSpan: 2, className: 'fc-timegrid-divider ' + context.theme.getClass('tableCellShaded') })
+                    ))),
                 });
             }
             let isNowIndicator = context.options.nowIndicator;
@@ -268,7 +275,9 @@ FullCalendar.TimeGrid = (function (exports, core, internal$1, preact, internal$2
                         key: 'axis',
                         content: (arg) => (
                         // TODO: make this now-indicator arrow more DRY with TimeColsContent
-                        preact.createElement("div", { className: "fc-timegrid-axis-chunk" },
+                        (preact.createElement(
+                            "div",
+                            { className: "fc-timegrid-axis-chunk" },
                             preact.createElement("table", { "aria-hidden": true, style: { height: arg.expandRows ? arg.clientHeight : '' } },
                                 arg.tableColGroupNode,
                                 preact.createElement("tbody", null,
@@ -282,7 +291,8 @@ FullCalendar.TimeGrid = (function (exports, core, internal$1, preact, internal$2
                                         return (preact.createElement(internal$1.NowIndicatorContainer, { elClasses: ['fc-timegrid-now-indicator-arrow'], elStyle: { top: nowIndicatorTop }, isAxis: true, date: nowDate }));
                                     }
                                     return null;
-                                })))),
+                                }))
+                        ))),
                     },
                     {
                         key: 'cols',

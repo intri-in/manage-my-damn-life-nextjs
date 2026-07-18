@@ -178,7 +178,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                         // Get default calendar from perferences and store.
 
                         const defaultCalendarID = await getDefaultCalendarID()
-                        if (defaultCalendarID && await isValidCalendarsID(defaultCalendarID)) {
+                        if (defaultCalendarID && (await isValidCalendarsID(defaultCalendarID))) {
                             setCalendarID(defaultCalendarID)
                         }
                         // generateCalendarDDL(defaultCalendarID, false)
@@ -559,7 +559,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
 
         }
-        if (!calendar_id || await isValidCalendarsID(calendar_id) == false) {
+        if (!calendar_id || (await isValidCalendarsID(calendar_id)) == false) {
             toast.error(t("ERROR_PICK_A_CALENDAR"))
             return false
         }

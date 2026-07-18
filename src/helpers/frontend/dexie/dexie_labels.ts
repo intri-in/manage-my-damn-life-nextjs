@@ -81,7 +81,7 @@ export async function writeLabeltoDexie(labelString) {
     if(!userid){
         return
     }
-    if (await checkifLabelExistsinDexie(labelString,userid) == false) {
+    if ((await checkifLabelExistsinDexie(labelString,userid)) == false) {
         //Add Label
         try {
             const id = await db.labels.add({

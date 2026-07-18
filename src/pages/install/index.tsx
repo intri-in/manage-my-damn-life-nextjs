@@ -6,7 +6,7 @@ import { getUserDataFromCookies } from "@/helpers/frontend/user";
 import { getAPIURL, logVar, varNotEmpty } from "@/helpers/general";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { Container, Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";

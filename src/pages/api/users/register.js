@@ -16,7 +16,7 @@ export default async function handler(req, res) {
                 var username = validator.escape(req.body.username)
                 
                 
-                if(await checkifUserisInDB(username)==true)
+                if((await checkifUserisInDB(username))==true)
                 {
                     //User is in db. Ask to login with a password.
                     res.status(200).json({ success: false ,data: {message: "ERROR_LOGIN_WITH_PASSWORD"}  })

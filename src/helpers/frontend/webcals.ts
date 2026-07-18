@@ -103,7 +103,7 @@ export async function setupWebCalDataFromServer(){
     // console.log("webCals fetched from Server", webCals)
     if(webCals && Array.isArray(webCals) && webCals.length>0){
         for (const i in webCals){
-            if(await isWebCalAccountAlreadyinDexie(webCals[i]["id"]) == false){
+            if((await isWebCalAccountAlreadyinDexie(webCals[i]["id"])) == false){
 
                 await addWebCalAccounttoDexie(webCals[i]["id"],webCals[i]["name"],webCals[i]["link"],webCals[i]["updateInterval"],webCals[i]["lastFetched"],webCals[i]["colour"])
                 await addWebCalEventstoDexie(webCals[i]["id"],extractWebCalDataArrayFromGetAPIResponse(webCals[i]["data"]))

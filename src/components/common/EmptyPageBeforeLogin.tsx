@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Loading } from "./Loading"
 import { Container } from "react-bootstrap"
-import Image from "next/image"
+import Image from "next/legacy/image"
 export const EmptyPageBeforeLogin = () =>{
     
     return (

@@ -137,11 +137,11 @@ FullCalendar.DayGrid = (function (exports, core, internal$1, preact) {
     });
     function hasListItemDisplay(seg) {
         let { display } = seg.eventRange.ui;
-        return display === 'list-item' || (display === 'auto' &&
+        return display === 'list-item' || ((// "
+        display === 'auto' &&
             !seg.eventRange.def.allDay &&
             seg.firstCol === seg.lastCol && // can't be multi-day
-            seg.isStart && // "
-            seg.isEnd // "
+            seg.isStart && seg.isEnd) // "
         );
     }
 
@@ -222,25 +222,32 @@ FullCalendar.DayGrid = (function (exports, core, internal$1, preact) {
             // TODO: memoize this?
             const isMonthStart = props.showDayNumber &&
                 shouldDisplayMonthStart(date, dateProfile.currentRange, dateEnv);
-            return (preact.createElement(internal$1.DayCellContainer, { elTag: "td", elRef: this.handleRootEl, elClasses: [
-                    'fc-daygrid-day',
-                    ...(props.extraClassNames || []),
-                ], elAttrs: Object.assign(Object.assign(Object.assign({}, props.extraDataAttrs), (props.showDayNumber ? { 'aria-labelledby': state.dayNumberId } : {})), { role: 'gridcell' }), defaultGenerator: renderTopInner, date: date, dateProfile: dateProfile, todayRange: props.todayRange, showDayNumber: props.showDayNumber, isMonthStart: isMonthStart, extraRenderProps: props.extraRenderProps }, (InnerContent, renderProps) => (preact.createElement("div", { ref: props.innerElRef, className: "fc-daygrid-day-frame fc-scrollgrid-sync-inner", style: { minHeight: props.minHeight } },
-                props.showWeekNumber && (preact.createElement(internal$1.WeekNumberContainer, { elTag: "a", elClasses: ['fc-daygrid-week-number'], elAttrs: internal$1.buildNavLinkAttrs(context, date, 'week'), date: date, defaultFormat: DEFAULT_WEEK_NUM_FORMAT })),
-                !renderProps.isDisabled &&
-                    (props.showDayNumber || internal$1.hasCustomDayCellContent(options) || props.forceDayTop) ? (preact.createElement("div", { className: "fc-daygrid-day-top" },
-                    preact.createElement(InnerContent, { elTag: "a", elClasses: [
-                            'fc-daygrid-day-number',
-                            isMonthStart && 'fc-daygrid-month-start',
-                        ], elAttrs: Object.assign(Object.assign({}, internal$1.buildNavLinkAttrs(context, date)), { id: state.dayNumberId }) }))) : props.showDayNumber ? (
-                // for creating correct amount of space (see issue #7162)
-                preact.createElement("div", { className: "fc-daygrid-day-top", style: { visibility: 'hidden' } },
-                    preact.createElement("a", { className: "fc-daygrid-day-number" }, "\u00A0"))) : undefined,
-                preact.createElement("div", { className: "fc-daygrid-day-events", ref: props.fgContentElRef },
-                    props.fgContent,
-                    preact.createElement("div", { className: "fc-daygrid-day-bottom", style: { marginTop: props.moreMarginTop } },
-                        preact.createElement(TableCellMoreLink, { allDayDate: date, singlePlacements: props.singlePlacements, moreCnt: props.moreCnt, alignmentElRef: rootElRef, alignGridTop: !props.showDayNumber, extraDateSpan: props.extraDateSpan, dateProfile: props.dateProfile, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, todayRange: props.todayRange }))),
-                preact.createElement("div", { className: "fc-daygrid-day-bg" }, props.bgContent)))));
+            return (preact.createElement(
+                internal$1.DayCellContainer,
+                { elTag: "td", elRef: this.handleRootEl, elClasses: [
+                        'fc-daygrid-day',
+                        ...(props.extraClassNames || []),
+                    ], elAttrs: Object.assign(Object.assign(Object.assign({}, props.extraDataAttrs), (props.showDayNumber ? { 'aria-labelledby': state.dayNumberId } : {})), { role: 'gridcell' }), defaultGenerator: renderTopInner, date: date, dateProfile: dateProfile, todayRange: props.todayRange, showDayNumber: props.showDayNumber, isMonthStart: isMonthStart, extraRenderProps: props.extraRenderProps },
+                (InnerContent, renderProps) => (preact.createElement("div", { ref: props.innerElRef, className: "fc-daygrid-day-frame fc-scrollgrid-sync-inner", style: { minHeight: props.minHeight } },
+                    props.showWeekNumber && (preact.createElement(internal$1.WeekNumberContainer, { elTag: "a", elClasses: ['fc-daygrid-week-number'], elAttrs: internal$1.buildNavLinkAttrs(context, date, 'week'), date: date, defaultFormat: DEFAULT_WEEK_NUM_FORMAT })),
+                    !renderProps.isDisabled &&
+                        (props.showDayNumber || internal$1.hasCustomDayCellContent(options) || props.forceDayTop) ? (preact.createElement("div", { className: "fc-daygrid-day-top" },
+                        preact.createElement(InnerContent, { elTag: "a", elClasses: [
+                                'fc-daygrid-day-number',
+                                isMonthStart && 'fc-daygrid-month-start',
+                            ], elAttrs: Object.assign(Object.assign({}, internal$1.buildNavLinkAttrs(context, date)), { id: state.dayNumberId }) }))) : props.showDayNumber ? (
+                    // for creating correct amount of space (see issue #7162)
+                    (preact.createElement(
+                        "div",
+                        { className: "fc-daygrid-day-top", style: { visibility: 'hidden' } },
+                        preact.createElement("a", { className: "fc-daygrid-day-number" }, "\u00A0")
+                    ))) : undefined,
+                    preact.createElement("div", { className: "fc-daygrid-day-events", ref: props.fgContentElRef },
+                        props.fgContent,
+                        preact.createElement("div", { className: "fc-daygrid-day-bottom", style: { marginTop: props.moreMarginTop } },
+                            preact.createElement(TableCellMoreLink, { allDayDate: date, singlePlacements: props.singlePlacements, moreCnt: props.moreCnt, alignmentElRef: rootElRef, alignGridTop: !props.showDayNumber, extraDateSpan: props.extraDateSpan, dateProfile: props.dateProfile, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, todayRange: props.todayRange }))),
+                    preact.createElement("div", { className: "fc-daygrid-day-bg" }, props.bgContent)))
+            ));
         }
     }
     function renderTopInner(props) {
@@ -519,20 +526,32 @@ FullCalendar.DayGrid = (function (exports, core, internal$1, preact) {
              (props.eventDrag && props.eventDrag.affectedInstances) ||
                 (props.eventResize && props.eventResize.affectedInstances) ||
                 {};
-            return (preact.createElement("tr", { ref: this.rootElRef, role: "row" },
+            return (preact.createElement(
+                "tr",
+                { ref: this.rootElRef, role: "row" },
                 props.renderIntro && props.renderIntro(),
                 props.cells.map((cell, col) => {
                     let normalFgNodes = this.renderFgSegs(col, props.forPrint ? singleColPlacements[col] : multiColPlacements[col], props.todayRange, isForcedInvisible);
                     let mirrorFgNodes = this.renderFgSegs(col, buildMirrorPlacements(mirrorSegsByCol[col], multiColPlacements), props.todayRange, {}, Boolean(props.eventDrag), Boolean(props.eventResize), false);
-                    return (preact.createElement(TableCell, { key: cell.key, elRef: this.cellElRefs.createRef(cell.key), innerElRef: this.frameElRefs.createRef(cell.key) /* FF <td> problem, but okay to use for left/right. TODO: rename prop */, dateProfile: props.dateProfile, date: cell.date, showDayNumber: props.showDayNumbers, showWeekNumber: props.showWeekNumbers && col === 0, forceDayTop: props.showWeekNumbers /* even displaying weeknum for row, not necessarily day */, todayRange: props.todayRange, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, extraRenderProps: cell.extraRenderProps, extraDataAttrs: cell.extraDataAttrs, extraClassNames: cell.extraClassNames, extraDateSpan: cell.extraDateSpan, moreCnt: moreCnts[col], moreMarginTop: moreMarginTops[col], singlePlacements: singleColPlacements[col], fgContentElRef: this.fgElRefs.createRef(cell.key), fgContent: ( // Fragment scopes the keys
-                        preact.createElement(preact.Fragment, null,
-                            preact.createElement(preact.Fragment, null, normalFgNodes),
-                            preact.createElement(preact.Fragment, null, mirrorFgNodes))), bgContent: ( // Fragment scopes the keys
-                        preact.createElement(preact.Fragment, null,
-                            this.renderFillSegs(highlightSegsByCol[col], 'highlight'),
-                            this.renderFillSegs(businessHoursByCol[col], 'non-business'),
-                            this.renderFillSegs(bgEventSegsByCol[col], 'bg-event'))), minHeight: props.cellMinHeight }));
-                })));
+                    return (preact.createElement(
+                        TableCell,
+                        { key: cell.key, elRef: this.cellElRefs.createRef(cell.key), innerElRef: this.frameElRefs.createRef(cell.key) /* FF <td> problem, but okay to use for left/right. TODO: rename prop */, dateProfile: props.dateProfile, date: cell.date, showDayNumber: props.showDayNumbers, showWeekNumber: props.showWeekNumbers && col === 0, forceDayTop: props.showWeekNumbers /* even displaying weeknum for row, not necessarily day */, todayRange: props.todayRange, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, extraRenderProps: cell.extraRenderProps, extraDataAttrs: cell.extraDataAttrs, extraClassNames: cell.extraClassNames, extraDateSpan: cell.extraDateSpan, moreCnt: moreCnts[col], moreMarginTop: moreMarginTops[col], singlePlacements: singleColPlacements[col], fgContentElRef: this.fgElRefs.createRef(cell.key), fgContent: ( // Fragment scopes the keys
+                            (preact.createElement(
+                                preact.Fragment,
+                                null,
+                                preact.createElement(preact.Fragment, null, normalFgNodes),
+                                preact.createElement(preact.Fragment, null, mirrorFgNodes)
+                            ))), bgContent: ( // Fragment scopes the keys
+                            (preact.createElement(
+                                preact.Fragment,
+                                null,
+                                this.renderFillSegs(highlightSegsByCol[col], 'highlight'),
+                                this.renderFillSegs(businessHoursByCol[col], 'non-business'),
+                                this.renderFillSegs(bgEventSegsByCol[col], 'bg-event')
+                            ))), minHeight: props.cellMinHeight }
+                    ));
+                })
+            ));
         }
         componentDidMount() {
             this.updateSizing(true);

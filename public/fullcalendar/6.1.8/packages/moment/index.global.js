@@ -52,7 +52,7 @@ FullCalendar.Moment = (function (exports, core, moment, internal) {
         return convertToMoment(arg.date.array, arg.timeZone, arg.date.timeZoneOffset, arg.localeCodes[0]).format(cmd.whole); // TODO: test for this
     }
     function createMomentFormatFunc(mom) {
-        return (cmdStr) => (cmdStr ? mom.format(cmdStr) : '' // because calling with blank string results in ISO8601 :(
+        return (cmdStr) => ((cmdStr ? mom.format(cmdStr) : '') // because calling with blank string results in ISO8601 :(
         );
     }
     function parseCmdStr(cmdStr) {

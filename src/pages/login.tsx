@@ -1,7 +1,7 @@
 import { Toastify } from '@/components/Generic';
 import { PRIMARY_COLOUR, SECONDARY_COLOUR } from '@/config/style';
 import Head from 'next/head';
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useCallback } from 'react';

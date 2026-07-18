@@ -5,7 +5,7 @@ import { checkIfFilterValid } from '@/helpers/frontend/filtersTS';
 import validator from 'validator';
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
-    if( !await middleWareForAuthorisation(req,res))  return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
+    if( !(await middleWareForAuthorisation(req,res)))  return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
     if(!req.body.name || !req.body.filtervalue) return res.status(422).json({ success: false, data: {message: 'INVALID_INPUT'} })
 

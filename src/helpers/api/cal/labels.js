@@ -78,7 +78,7 @@ export async function updateLabels(userid)
                        }
 
                        //If the label isn't in DB already, we add it.
-                       if(await checkifLabelExistsinDB(parsedData.category[j], userid)==false)
+                       if((await checkifLabelExistsinDB(parsedData.category[j], userid))==false)
                        {
                             const insertResult = await insertLabelIntoDB(parsedData.category[j], userid)
 

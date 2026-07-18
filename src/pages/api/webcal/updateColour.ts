@@ -7,7 +7,7 @@ export default async function handler(req, res) {
             return res.status(403).json({ success: 'false' ,data: {message: 'INVALID_METHOD'}})
 
         }
-        if(await middleWareForAuthorisation(req, res)==false){
+        if((await middleWareForAuthorisation(req, res))==false){
             return res.status(401).json({ success: false, data: { message: 'PLEASE_LOGIN'} })
 
         }
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         }
 
         try{
-            if(! await userHasAccessToWebcal(userid, req.body.id)){
+            if(! (await userHasAccessToWebcal(userid, req.body.id))){
 
                 return  res.status(401).json({ success: false, data: { message: "USER_DOESNT_HAVE_ACCESS_TO_WEBCAL"} })
             }
