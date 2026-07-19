@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions"
 import * as _ from 'lodash'
 import { Form } from "react-bootstrap"
-import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
+import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
 import { useSetAtom } from "jotai"
 import { TaskFilter } from "types/tasks/filters"
 import { useTranslation } from "next-i18next"
@@ -22,7 +22,8 @@ export const HomeTasksDDL = () => {
     const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
     const setFilterAtom = useSetAtom(filterAtom)
     const setCalDavAtom = useSetAtom(calDavObjectAtom)
-
+    const setUpdated = useSetAtom(updateViewAtom)
+    
     const [menuOptionsSelect, setMenu] = useState<JSX.Element>(<></>)
     const [menuOptions, setMenuOptions] = useState<any | null>(defaultMenuOptions)
     const [selectedValue, setSelectedValue] = useState("MY_DAY")
@@ -71,14 +72,14 @@ export const HomeTasksDDL = () => {
                                     setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
 
                                 } else {
-                                    console.log("HERE!")
                                     //Probably a calendar Object.
                                     if (("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue) && filterValue.calendars_id) {
                                         if(filterValue["caldav_accounts_id"] && filterValue["calendars_id"].toString()){
 
                                             setCurrentPageTitle("")
-                                            setFilterAtom(null)
-                                            setCalDavAtom({caldav_accounts_id: Number(filterValue.caldav_accounts_id.toString()), calendars_id: Number(filterValue.calendars_id.toString())})
+                                            setFilterAtom({})
+                                            console.log("filterValue.caldav_accounts_id", filterValue)
+                                            setCalDavAtom({caldav_accounts_id: filterValue.caldav_accounts_id, calendars_id: filterValue.calendars_id})
                                         }
 
                                         // setCaldavAccountsId(filterValue["caldav_accounts_id"])

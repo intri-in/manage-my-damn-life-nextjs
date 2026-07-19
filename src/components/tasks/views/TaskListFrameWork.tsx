@@ -14,7 +14,6 @@ export const TaskListFrameWork = () => {
     /**
      * Jotai
      */
-    const currentPageTitle = useAtomValue(currentPageTitleAtom)
     const currentPageFilter = useAtomValue(filterAtom)
     const currentCalDavObjectAtom = useAtomValue(calDavObjectAtom)
     const updateView = useAtomValue(updateViewAtom)

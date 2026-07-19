@@ -4,8 +4,8 @@ import { useTranslation } from 'next-i18next'
 import { TaskFilter } from 'types/tasks/filters'
 
 interface calDavObject{
-  caldav_accounts_id: null | number,
-  calendars_id: null | number
+  caldav_accounts_id: null | number | string,
+  calendars_id: null | number | string
 }
 
 export const currentViewAtom = atom("tasklist")
