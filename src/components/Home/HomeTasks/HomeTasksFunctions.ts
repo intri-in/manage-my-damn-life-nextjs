@@ -16,6 +16,8 @@ export interface LabelsFromDexieType {
     labels_id: number;
 }
 
+
+
 export async function refreshMenuOptionsFromServer(menuOptions: {}, t)
 {
 

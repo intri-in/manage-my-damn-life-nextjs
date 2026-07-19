@@ -5,6 +5,7 @@ import { getErrorResponse } from "../errros";
 import { addWebCalAccounttoDexie, addWebCalEventstoDexie, getAllWebcalsforCurrentUserfromDexie, getEventsfromWebcal_Dexie, isWebCalAccountAlreadyinDexie, updateEventsinWebcal_Dexie, updateWebCalLastFetched_Dexie } from "./dexie/webcal_dexie";
 import { WebCalEvents } from "./dexie/dexieDB";
 import moment from "moment";
+import { SyncManager } from "./SyncManager";
 
 export async function getWebCalsFromServer()
 {
@@ -56,8 +57,11 @@ export async function syncWebcals(){
                 const diff = moment(moment.now()).diff(response[k].lastFetched, "hours")
                 // console.log("diff", diff)
                 if(diff>=parseInt(response[k].updateInterval.toString())){
-                    console.log(`Syncing Webcal ${response[k].name}`)
-                    await syncWebcalEvents_byId(response[k].webcals_id!.toString())
+                    // console.log(`Syncing Webcal ${response[k].name}`)
+                    if(response[k].webcals_id){
+
+                        SyncManager.addTask(SyncManager.SYNC_WEBCAL, `Syncing Webcal ${response[k].name}`,{webcals_id:response[k].webcals_id})
+                    }
                 }else{
                     console.log(`Sync interval prevents refresh of Webcal ${response[k].name}`)
                 }

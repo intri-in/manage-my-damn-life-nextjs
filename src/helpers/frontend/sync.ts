@@ -148,11 +148,11 @@ export async function fetchLatestEventsV2(forceSync?)
 
         }
     }
-    await syncWebcals()
+    syncWebcals()
     
-    if(!counter){
-        console.log("All calendars up-to-date.")
-    }
+    // if(!counter){
+    //     console.log("All calendars up-to-date.")
+    // }
     localStorage.setItem(LASTSYNC, Date.now().toString())
 }
 

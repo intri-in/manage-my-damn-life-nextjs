@@ -76,9 +76,12 @@ export function setUserCalendarStorageVar(calendarsFromServer){
 export function getUserCalendarsFromLocalStorage(){
     try{
         const userCalendarString= localStorage.getItem("MMDL_USER_CALENDARS")
-   
-        const toReturn = JSON.parse(userCalendarString)
-        return toReturn
+        if(userCalendarString){
+
+            const toReturn = JSON.parse(userCalendarString)
+            return toReturn
+        }
+        return null
     }
     catch(e){
         console.warn("getUserCalendarsFromLocalStorage", e)

@@ -5,6 +5,7 @@ import { Badge, Button, Card, Col, Row, Stack } from "react-bootstrap";
 import moment from "moment";
 import { useAtomValue } from "jotai";
 import { currentDateFormatAtom } from "stateStore/SettingsStore";
+import { IS_SYNCING } from "@/helpers/frontend/localstorage";
 const SyncManagerMainComponent = () =>{
 const {t} = useTranslation()
 const syncTasks = useLiveQuery(() => db.sync_manager.toArray());
@@ -17,7 +18,9 @@ const deleteWithError =()=>{
 const deleteAll =()=>{
     db.sync_manager.clear().catch(e =>{
         console.error("SyncManagerMainComponent deleteAll",e)
-    })
+    }).then(
+        output => localStorage.setItem(IS_SYNCING,"false")
+    )
 
 }
 return(

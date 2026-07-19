@@ -1,3 +1,1 @@
-Sync Manager
-- Page created
-- Calendar sync is now done via SyncManager
+- Sync Manager - Now handles webcal sync tasks to the queue

@@ -52,7 +52,7 @@ export async function getPrimaryKeyFromWebCalId_Dexie(webcalId){
     const webcal =  await db.webcals
     .where('webcals_id')
     .equals(parseInt(webcalId))
-    .toArray();
+    .toArray().catch(e=> console.log("getPrimaryKeyFromWebCalId_Dexie",e ));
 
     if(webcal && Array.isArray(webcal) && webcal.length>0){
         return webcal[0].id
@@ -106,9 +106,10 @@ export async function getAllWebcalsforCurrentUserfromDexie(){
 
 export async function updateWebCalLastFetched_Dexie(webcalid, lastFetched){
     const id = await getPrimaryKeyFromWebCalId_Dexie(webcalid)
+    if(!id) return
     await db.webcals.update(id, {
         lastFetched: lastFetched
-    })
+    }).catch(e=>console.error("updateWebCalLastFetched_Dexie",e))
 
 }
 

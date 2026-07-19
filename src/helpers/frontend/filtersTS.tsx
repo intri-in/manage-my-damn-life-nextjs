@@ -3,7 +3,6 @@ import { varNotEmpty } from "../general"
 import { dummyTranslationFunction } from "./translations"
 import { TaskFilter } from "types/tasks/filters"
 import { Fragment } from "react";
-import { C } from "@fullcalendar/core/internal-common";
 export function filterToWords(filter: TaskFilter, dateTimeFormat: string, t: any): JSX.Element[]
 {
     if(!filter.filter){
@@ -177,6 +176,11 @@ type errorMessageForFilterValidation ={
 export function checkIfFilterValid(filter: TaskFilter): {status: boolean, message : errorMessageForFilterValidation}
 {
     let errorMessages: errorMessageForFilterValidation = {due: "", dueRelative:"", label:"", logic:"", start:"", global:"", priority:"", startRelative:""}
+    if(!filter){
+        errorMessages.global="EMPTY_FILTER"
+        return {status: false, message:errorMessages}
+
+    }
     if(!filter.filter) {
         errorMessages.global="EMPTY_FILTER"
         return {status: false, message:errorMessages}
@@ -471,7 +475,7 @@ export function getLogicFromFilter(filter: TaskFilter){
 export function countConditionsInFilter(filter: TaskFilter){
 
     let counter =0
-    if(!checkIfFilterValid(filter)){
+    if(!checkIfFilterValid(filter).status){
         return counter
     }
     const filterData = filter.filter
