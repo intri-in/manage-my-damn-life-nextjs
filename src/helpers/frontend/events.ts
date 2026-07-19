@@ -27,8 +27,9 @@ export async function getEvents(calendarEvents, filter)
     return [listofTodos, getParsedTodoList(calendarEvents), unparsedData]
 
 }
-export function filterEvents(calendarEvents:Calendar_Events[], filter:TaskFilter)
+export function filterEvents(calendarEvents:Calendar_Events[], filter:TaskFilter | null)
 {
+    if(!filter) return []
     let finalArray:Calendar_Events[]=[]
     if(calendarEvents!=null && Array.isArray(calendarEvents) && calendarEvents.length>0){
         let logic = getLogicFromFilter(filter)

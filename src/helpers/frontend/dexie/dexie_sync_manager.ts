@@ -73,10 +73,10 @@ async function checkifSyncTasksWebcalPresentInDexie(userid:string,  input: SyncM
     .equals(userid)
     .and(task => task.type?.toLowerCase() == SyncManager.SYNC_WEBCAL.toLowerCase())
     .and(task => task.status.toString() == "pending")
-    .and(task => "webcal_id" in task.input && (task.input.webcal_id.toString() == input.webcal_id.toString()))
+    .and(task => "webcals_id" in task.input && (task.input.webcals_id.toString() == input.webcals_id.toString()))
     .toArray()
     .catch(e=>{
-        console.error("checkifSyncTasksWebcalPresentInDexie", e)
+        console.error("checkifSyncTasksCalendarPresentInDexie", e)
     })
     if(task && Array.isArray(task) && task.length>0){
         return true

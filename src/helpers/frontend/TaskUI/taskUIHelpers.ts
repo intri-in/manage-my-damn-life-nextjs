@@ -30,7 +30,7 @@ export interface TaskArrayItem{
 }
 
 
-export async function returnTaskListFilteredandSorted(eventsFromDexie: Calendar_Events[] | null, currentPageFilter: {} | TaskFilter, sortOption?: string){
+export async function returnTaskListFilteredandSorted(eventsFromDexie: Calendar_Events[] | null, currentPageFilter: {} | TaskFilter | null, sortOption?: string){
     // console.time("returnTaskListFilteredandSorted: Time to get event list.")
 
     const sortby = sortOption?? DEFAULT_SORT_OPTION

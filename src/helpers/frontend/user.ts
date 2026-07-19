@@ -16,7 +16,7 @@ export function setLoginCookie(userhash, ssid) {
     Cookies.set("SSID", ssid, { expires: 30 })
 }
 
-export async function logoutUser(nukeDexie)
+export async function logoutUser(nukeDexie?)
 {
     if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE" || nukeDexie){
 
@@ -91,7 +91,7 @@ export function shouldDisplayEmptyPage(isloggedIn){
     }
 
 }
-export async function checkLogin_InBuilt(router, redirectURL){
+export async function checkLogin_InBuilt(router, redirectURL): Promise<boolean>{
     const url_api=getAPIURL()+"auth/inbuilt/check"
     const authorisationData=await getAuthenticationHeadersforUser()
 
