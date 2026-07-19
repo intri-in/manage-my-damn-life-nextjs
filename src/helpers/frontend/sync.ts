@@ -11,27 +11,28 @@ import { Preference_CalendarsToShow } from "./classes/UserPreferences/Preference
 import { getSyncTimeout } from "./settings"
 import { IS_SYNCING, LASTSYNC, getValueFromLocalStorage } from "./localstorage"
 import { syncWebcals } from "./webcals"
+import { SyncManager } from "./SyncManager"
 
 export function isSyncing(){
     const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
 
-    return (isSyncingFromLocal==true ||  isSyncingFromLocal=="true")
+    return (isSyncingFromLocal=="true")
 }
 export function shouldSync(){
     const userSetTimeout = getSyncTimeout()
     const isSyncing = getValueFromLocalStorage(IS_SYNCING)
     // console.log("isSyncing", userSetTimeout, isSyncing)
-    if(isSyncing=="true" || isSyncing==true){
+    if(isSyncing=="true"){
         return false
     }
     // console.log("EHERE")
-    let lastSync = getValueFromLocalStorage(LASTSYNC)
+    let lastSync: string | Number | null= getValueFromLocalStorage(LASTSYNC)
     // console.log("lastSync", lastSync)
     if(!lastSync || isNaN(Number(lastSync))){
         lastSync = Date.now()
-        localStorage.setItem(LASTSYNC, lastSync)
+        localStorage.setItem(LASTSYNC, lastSync.toString())
     }
-    const timeFromLastSync = Date.now() - lastSync
+    const timeFromLastSync = Date.now() - Number(lastSync)
     if(timeFromLastSync < userSetTimeout)
     {
         return false
@@ -43,7 +44,7 @@ export function shouldSync(){
 
     
 export async function initAutoSync(){
-    localStorage.setItem(LASTSYNC, Date.now())
+    localStorage.setItem(LASTSYNC, Date.now().toString())
     //Check if the user even has any CalDAV accounts.
     const calDAVSummary = await getCalDAVSummaryFromDexie()
     let continueSync = false
@@ -58,7 +59,7 @@ export async function initAutoSync(){
     if(continueSync){
         
         console.log(new Date(Date.now()), "AUTO_SYNC_START")
-        localStorage.setItem(IS_SYNCING, true)
+        localStorage.setItem(IS_SYNCING, "true")
         fetchLatestEventsV2()
     }
 }
@@ -77,7 +78,7 @@ export async function makeSyncRequest()
 
     return new Promise( (resolve, reject) => {
        
-            const response =  fetch(url_api, requestOptions)
+            const response =  fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 return resolve(body)     
@@ -111,13 +112,13 @@ export async function fetchLatestEvents(refreshCalList)
     }
 }
 
-export async function fetchLatestEventsV2(forceSync)
+export async function fetchLatestEventsV2(forceSync?)
 {
-    if(isSyncing()){
-        // toast.warn(i18next.t("ALREADY_SYNCING"))
-        console.warn("Sync already in progress.")
-    }
-    localStorage.setItem(IS_SYNCING, true)
+    // if(isSyncing()){
+    //     // toast.warn(i18next.t("ALREADY_SYNCING"))
+    //     console.warn("Sync already in progress.")
+    // }
+    // localStorage.setItem(IS_SYNCING, "true")
     // let arrayFromDexie = await refreshCalendarListV2()
     if(forceSync)  await refreshCalendarListV2()
     let arrayFromDexie =  await getCalDAVSummaryFromDexie()
@@ -128,13 +129,18 @@ export async function fetchLatestEventsV2(forceSync)
             if(isValidResultArray(arrayFromDexie[i]["calendars"])){
                 for(const j in arrayFromDexie[i]["calendars"]){
                     const cal = arrayFromDexie[i]["calendars"][j]
+                    //Instead of actually making the sync request, we add the request to the SyncManager.
+                    if(cal["url"] && cal["ctag"] && cal["syncToken"] &&cal["calendars_id"]){
+                        // console.log(`Syncing Calendar: "${cal["displayName"]} ${cal["calendars_id"]}`)
 
-                    console.log("Syncing Calendar: "+cal["displayName"], cal["calendars_id"])
+                        SyncManager.addTask(SyncManager.SYNC_CALENDER, `Syncing Calendar: "${cal["displayName"]} ${cal["calendars_id"]}`,{calendars_id:cal["calendars_id"].toString(), caldav_accounts_id:arrayFromDexie[i]["caldav_accounts_id"].toString(),url:cal["url"],ctag:cal["ctag"],syncToken:cal["syncToken"]})
+                    }
+                    // console.log("Syncing Calendar: "+cal["displayName"], cal["calendars_id"])
                     counter++
-                    const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
-                    if(events && Array.isArray(events)) console.log("Total events fetched", events.length)
-                    //Now we save these events in dexie.
-                    await saveAPIEventReponseToDexie(cal["calendars_id"],events)
+                    // const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
+                    // if(events && Array.isArray(events)) console.log("Total events fetched", events.length)
+                    // //Now we save these events in dexie.
+                    // await saveAPIEventReponseToDexie(cal["calendars_id"],events)
 
                 }
             }
@@ -142,60 +148,16 @@ export async function fetchLatestEventsV2(forceSync)
 
         }
     }
-    await syncWebcals()
+    syncWebcals()
     
-    if(!counter){
-        console.log("All calendars up-to-date.")
-    }
-    localStorage.setItem(IS_SYNCING, false)
-    localStorage.setItem(LASTSYNC, Date.now())
+    // if(!counter){
+    //     console.log("All calendars up-to-date.")
+    // }
+    localStorage.setItem(LASTSYNC, Date.now().toString())
 }
 
-// export async function fetchLatestEvents_withoutCalendarRefresh()
-// {
-//     if(isSyncing()){
-//         //toast.warn(i18next.t("ALREADY_SYNCING"))
-//         console.warn("Sync already in progress.")
-//     }
-//     localStorage.setItem(IS_SYNCING, true)
-//     const arrayFromDexie = await getCalDAVSummaryFromDexie()
-//     //console.log("fetchLatestEvents_withoutCalendarRefresh: arrayFromDexie", arrayFromDexie)
-//     if(isValidResultArray(arrayFromDexie)){
-//         for(const i in arrayFromDexie){
-//             if(isValidResultArray(arrayFromDexie[i]["calendars"])){
-//                 for(const j in arrayFromDexie[i]["calendars"]){
-//                     const cal = arrayFromDexie[i]["calendars"][j]
-//                     console.log("Syncing Calendar: "+cal["displayName"], cal["calendars_id"])
-//                     const events= await fetchFreshEventsFromCalDAV_ForDexie(arrayFromDexie[i]["caldav_accounts_id"], cal["url"], cal["ctag"], cal["syncToken"])
-//                     //Now we save these events in dexie.
-//                     await saveAPIEventReponseToDexie(cal["calendars_id"],events)
-
-//                 }
-//             }
-//             //saveEventsIntoDexie(caldav_account)
-
-//         }
-//     }
-//     localStorage.setItem(IS_SYNCING, false)
-//     localStorage.setItem(LASTSYNC, Date.now())
-// }
 
 
-
-export async function fetchLatestEventsWithoutCalendarRefresh()
-{
-    var caldav_accounts= await caldavAccountsfromServer()
-    if(isValidResultArray(caldav_accounts))
-    {
-        for (const i in caldav_accounts)
-        {
-            if(caldav_accounts[i].account.caldav_accounts_id)
-            {
-                var response = await refreshEventsinDB(caldav_accounts[i].account.caldav_accounts_id)
-            }
-        }
-    }
-}
 
 export async function fetchFreshEventsFromCalDAV_ForDexie(caldav_accounts_id,url,ctag, syncToken){
     const url_api=getAPIURL()+"v2/calendars/events/fetch?caldav_accounts_id="+caldav_accounts_id+"&&url="+url+"&&ctag="+ctag+"&&syncToken="+syncToken
@@ -211,7 +173,7 @@ export async function fetchFreshEventsFromCalDAV_ForDexie(caldav_accounts_id,url
 
     return new Promise( (resolve, reject) => {
        
-        const response =  fetch(url_api, requestOptions)
+        const response =  fetch(url_api, requestOptions as RequestInit)
         .then(response => response.json())
         .then((body) =>{
             if(body && body.success && body.data && body.data.message){
@@ -246,7 +208,7 @@ export async function refreshEventsinDB(caldav_accounts_id)
 
     return new Promise( (resolve, reject) => {
        
-        const response =  fetch(url_api, requestOptions)
+        const response =  fetch(url_api, requestOptions as RequestInit)
         .then(response => response.json())
         .then((body) =>{
             return resolve(body)     
@@ -281,7 +243,7 @@ export async function refreshCalendarListV2()
     return new Promise( (resolve, reject) => {
 
         
-            fetch(url_api, requestOptions)
+            fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 if(body && body.success && body.data && isValidResultArray(body.data.details)){
@@ -324,7 +286,7 @@ export async function refreshCalendarList()
     return new Promise( (resolve, reject) => {
 
         
-            const response =  fetch(url_api, requestOptions)
+            const response =  fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 return resolve(body)     

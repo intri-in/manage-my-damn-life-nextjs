@@ -1,1 +1,1 @@
- Optimisation of the task rendering process. Tasks are now fetched and sorted faster.
+- Sync Manager - Now handles webcal sync tasks to the queue

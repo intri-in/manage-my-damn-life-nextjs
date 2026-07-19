@@ -1,4 +1,6 @@
-v0.9.4
+v0.10.0
+- Introduced Sync Manager for Calendar and Webcal syncing to better manage sync with CalDAV server
+- Upgraded multiple dependencies
 - Optimisation of the task rendering process.
 v0.9.3
 - New Features

@@ -1,4 +1,5 @@
-export const VERSION_NUMBER = "0.9.4-dev-rev2" 
+import type { Metadata } from 'next'
+export const VERSION_NUMBER = "0.10.0-dev-rev1" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
@@ -6,6 +7,10 @@ export const VERSION_NUMBER = "0.9.4-dev-rev2"
 export const SYSTEM_DEFAULT_LABEL_PREFIX="mmdl"
 export const MYDAY_LABEL=SYSTEM_DEFAULT_LABEL_PREFIX+"-myday"
 
+export const DEFAULT_METADATA: Metadata = {
+    title: "Manage My Damn Life",
+    icons: "./favicon.ico"
+}
 /**
  * Available languages
  */

@@ -3,20 +3,20 @@ import { Base64 } from "js-base64";
 import { nextAuthEnabled } from "../thirdparty/nextAuth";
 import { signOut } from "next-auth/react";
 import { getAPIURL, varNotEmpty } from "../general";
-import axios from "axios";
 import { deleteAllCookies } from "./cookies";
 import { clearDexieDB } from "./dexie/dexie_helper";
 import { SETTING_NAME_NUKE_DEXIE_ON_LOGOUT } from "./settings";
 import { LAST_LOGIN_CHECK_TIME } from "./localstorage";
 import { LOGIN_CHECK_THRESHOLD_SECONDS } from "@/config/constants";
 import moment from "moment";
+import { getServerSession } from "next-auth";
 
 export function setLoginCookie(userhash, ssid) {
     Cookies.set("USERHASH", userhash, { expires: 30 })
     Cookies.set("SSID", ssid, { expires: 30 })
 }
 
-export async function logoutUser(nukeDexie)
+export async function logoutUser(nukeDexie?)
 {
     if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE" || nukeDexie){
 
@@ -40,7 +40,7 @@ export async function logoutUser(nukeDexie)
 /**
  * Manages user logout with redirect. Calls the Logout function (which signs out the user either with NextAuth.js or with inbuilt mechanism, then redirects appropriately.)
  */
-export async function logoutUser_withRedirect(router, redirectURL, nukeDexie){
+export async function logoutUser_withRedirect(router, redirectURL){
     if(varNotEmpty(router)){
         let url = '/login'
         if(varNotEmpty(redirectURL)){
@@ -81,7 +81,7 @@ export function shouldDisplayEmptyPage(isloggedIn){
         const lastChecked = Cookies.get(LAST_LOGIN_CHECK_TIME)
         const currentUnixTimestamp = moment().unix();
         if(!lastChecked){
-            localStorage.setItem(LAST_LOGIN_CHECK_TIME, currentUnixTimestamp)
+            localStorage.setItem(LAST_LOGIN_CHECK_TIME, currentUnixTimestamp.toString())
             return true
         }
         console.log(currentUnixTimestamp, lastChecked, currentUnixTimestamp-lastChecked )
@@ -91,7 +91,7 @@ export function shouldDisplayEmptyPage(isloggedIn){
     }
 
 }
-export async function checkLogin_InBuilt(router, redirectURL){
+export async function checkLogin_InBuilt(router, redirectURL): Promise<boolean>{
     const url_api=getAPIURL()+"auth/inbuilt/check"
     const authorisationData=await getAuthenticationHeadersforUser()
 
@@ -103,7 +103,7 @@ export async function checkLogin_InBuilt(router, redirectURL){
     }
 
     return new Promise( (resolve, reject) => {
-        fetch(url_api, requestOptions)
+        fetch(url_api, requestOptions as RequestInit)
         .then(response => response.json())
         .then((body) =>{
             if(varNotEmpty(body) && varNotEmpty(body.success)){
@@ -130,3 +130,4 @@ export async function checkLogin_InBuilt(router, redirectURL){
 
     })
 }
+

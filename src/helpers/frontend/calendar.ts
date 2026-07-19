@@ -1,4 +1,3 @@
-import { getcalendarDB } from "./db";
 import ical from '@/../ical/ical'
 import { getAuthenticationHeadersforUser } from "./user";
 import { getAPIURL, isValidObject, isValidResultArray, logError, logVar, varNotEmpty } from "../general";
@@ -37,7 +36,7 @@ export async function getCaldavAccountsfromServer(): Promise<any>
     })
 
 }
-export async function caldavAccountsfromServer()
+export async function caldavAccountsfromServer(): Promise<any>
 {
     const url_api=getAPIURL()+"caldav/calendars" 
     const authorisationData=await getAuthenticationHeadersforUser()

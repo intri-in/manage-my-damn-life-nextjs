@@ -5,6 +5,7 @@ import { getErrorResponse } from "../errros";
 import { addWebCalAccounttoDexie, addWebCalEventstoDexie, getAllWebcalsforCurrentUserfromDexie, getEventsfromWebcal_Dexie, isWebCalAccountAlreadyinDexie, updateEventsinWebcal_Dexie, updateWebCalLastFetched_Dexie } from "./dexie/webcal_dexie";
 import { WebCalEvents } from "./dexie/dexieDB";
 import moment from "moment";
+import { SyncManager } from "./SyncManager";
 
 export async function getWebCalsFromServer()
 {
@@ -48,21 +49,25 @@ export async function getWebCalsFromServer()
   
 
 }
+
 export async function syncWebcals(){
         const response = await getAllWebcalsforCurrentUserfromDexie()
         if(response){
             for (const k in response){
+                if(!response[k]) continue
                 const diff = moment(moment.now()).diff(response[k].lastFetched, "hours")
                 // console.log("diff", diff)
-                if(diff>=parseInt(response[k].updateInterval.toString())){
-                    console.log(`Syncing Webcal ${response[k].name}`)
-                    await syncWebcalEvents_byId(response[k].webcals_id!.toString())
+                const row = response[k]
+                if(diff>=parseInt(row.updateInterval.toString())){
+                    // console.log(`Syncing Webcal ${row.name}`)
+                    if(("webcals_id" in row) &&row.webcals_id){
+                        SyncManager.addTask(SyncManager.SYNC_WEBCAL, `Syncing Webcal ${row.name}`,{webcals_id:row.webcals_id.toString()})
+                    }
                 }else{
-                    console.log(`Sync interval prevents refresh of Webcal ${response[k].name}`)
+                    console.log(`Sync interval prevents refresh of Webcal ${row.name}`)
                 }
             }
         }
-
 }
 export async function syncWebcalEvents_byId(id:string){
         const url_api = getAPIURL() + "webcal/sync?id=" + id

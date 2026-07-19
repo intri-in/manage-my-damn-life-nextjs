@@ -26,7 +26,7 @@ export function useAuthGuard(redirectPath: string): boolean | null {
         }
       } else {
         const loggedIn = await checkLogin_InBuilt(routerRef.current, redirectPath);
-        if (isMounted) setIsLoggedIn(loggedIn);
+        if (isMounted) setIsLoggedIn(loggedIn as boolean);
       }
     }
 

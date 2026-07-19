@@ -5,7 +5,6 @@ import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { getSessionFromNextAuthAPI, getUserIDFromNextAuthSession_API } from "../nextAuthHelpers";
 
 export async function getUserIDFromHash_Dexie(userhash){
-    // console.log("url, username", url, username)
 
     if(!userhash) return 
     //First we check if the data is even there.
