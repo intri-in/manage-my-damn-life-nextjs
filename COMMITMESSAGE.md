@@ -1,2 +1,1 @@
-- Sync Manager - Now handles task and edit sync events
-- Conflict Manager - Can now handle conflict during event edit
+- Sync Manager - Now handles task delete

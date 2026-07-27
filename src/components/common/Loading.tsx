@@ -1,7 +1,7 @@
 import { varNotEmpty } from '@/helpers/general';
 import Spinner from 'react-bootstrap/Spinner';
 
-export function Loading({size, centered, padding}:{size?: any , centered: boolean, padding?: number})
+export function Loading({size, centered, padding}:{size?: any , centered?: boolean, padding?: number})
 {
     let sizeToRender=size ??"sm" 
     

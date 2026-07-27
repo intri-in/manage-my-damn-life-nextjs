@@ -2,7 +2,7 @@ import { toast } from "react-toastify"
 import { getRandomString } from "../crypto"
 import {  getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie } from "./dexie/calendars_dexie"
 import { saveAPIEventReponseToDexie, saveEventToDexie } from "./dexie/events_dexie"
-import { SyncManagerAddTaskInput, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput } from "./SyncManager"
+import { SyncManagerAddTaskInput, SyncManagerDeleteEventInput, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput } from "./SyncManager"
 import { getAuthenticationHeadersforUser } from "./user"
 import { getAPIURL } from "../general"
 import { changeSyncTaskStatusinDexie, deleteSyncTaskinDexie } from "./dexie/dexie_sync_manager"
@@ -226,4 +226,39 @@ export async function syncManager_postNewEventIntoDexie (calendar_id: string | n
             }
 
             return 0
+}
+
+export async function syncManager_deleteEventFromCaldav(id:string | number, input: SyncManagerDeleteEventInput){
+        const url_api = getAPIURL() + "v2/calendars/events/delete"
+    
+        const authorisationData = await getAuthenticationHeadersforUser()
+        const requestOptions =
+        {
+            method: 'POST',
+            body: JSON.stringify({ "etag": input.etag, "url": input.url, "calendar_id": input.calendar_id, caldav_accounts_id: input.caldav_accounts_id}),
+            mode: 'cors',
+            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
+        }
+        return new Promise( (resolve, reject) => {
+            fetch(url_api, requestOptions as RequestInit)
+            .then(response => response.json())
+            .then((body) => {
+                if (body && body.success == true) {
+                    deleteSyncTaskinDexie(id)
+                } else {
+                    if(body){
+                        
+                        changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                    }else{
+                        changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
+
+                    }                 
+                }   
+            }).catch (e =>{
+                 changeSyncTaskStatusinDexie(id, "error",e.message)
+            }) 
+    
+        })
+    
+
 }

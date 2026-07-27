@@ -11,6 +11,8 @@ import { SYNCMANAGER_DEFAULT_MAX_RETRIES } from "@/config/constants";
 import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
 import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 import { useRouter } from "next/router";
+import { MdOutlineDelete } from "react-icons/md";
+import { deleteSyncTaskinDexie } from "@/helpers/frontend/dexie/dexie_sync_manager";
 const SyncManagerMainComponent = () =>{
 const {t} = useTranslation()
 const syncTasks = useLiveQuery(() => db.sync_manager.toArray());
@@ -49,13 +51,16 @@ export default SyncManagerMainComponent
 
 const SyncTaskTable = ({syncTasks, t}:{syncTasks: SyncManagerDexie[] | undefined, t:TFunction}) =>{
     const dateFormat = useAtomValue(currentDateFormatAtom)
-    
+    const deleteTask = (id:string | number | undefined) =>{
+        if(id) deleteSyncTaskinDexie(id)
+    }
     if(!syncTasks) return <></>
     if(!Array.isArray(syncTasks)) return <></>
     if(syncTasks.length==0) return <>{t("NOTHING_TO_SHOW")}</>
     let toReturn: JSX.Element[] = []
     for(const i in syncTasks){
         const badgeColor = (syncTasks[i].status=="error") ? "danger" : "primary"
+        if(!syncTasks[i].id) continue
         toReturn.push(
             <Card key={syncTasks[i].id} style={{ padding:30, width: '100%' }}>
                 <Row>
@@ -73,8 +78,9 @@ const SyncTaskTable = ({syncTasks, t}:{syncTasks: SyncManagerDexie[] | undefined
                     </Stack>
 
                     </Col>
-                    <Col  xs={3}>
-                        <Badge bg={badgeColor}>{syncTasks[i].status}</Badge>
+                    <Col  style={{ textAlign:"right"}} xs={3}>
+                        <Badge bg={badgeColor}>{syncTasks[i].status}</Badge> &nbsp;
+                        <MdOutlineDelete onClick={()=>deleteTask(syncTasks[i].id)} style={{color: 'red'}} />
                     </Col>
 
                 </Row>

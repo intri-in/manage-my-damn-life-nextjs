@@ -1,4 +1,4 @@
-import { SyncManager, SyncManagerAddTaskInput, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput, SyncManagerType_Type } from '@/helpers/frontend/SyncManager';
+import { SyncManager, SyncManagerAddTaskInput, SyncManagerDeleteEventInput, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput, SyncManagerType_Type } from '@/helpers/frontend/SyncManager';
 import Dexie, { Table } from 'dexie';
 
 export interface Users{
@@ -89,7 +89,7 @@ export interface WebCalEvents{
 export interface SyncManagerDexie{
   id?:number,
   summary: string,
-  input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput | SyncManagerAddTaskInput,
+  input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput | SyncManagerAddTaskInput | SyncManagerDeleteEventInput,
   type: SyncManagerType_Type
   status: SyncManagerStatus,
   created: string,
