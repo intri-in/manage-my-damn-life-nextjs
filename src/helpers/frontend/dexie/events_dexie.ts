@@ -245,6 +245,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         typeToInsert = parsedType
     }
 
+    let toReturn = 0
     if (eventID && eventID.calendar_events_id) {
         // Update if new etag is different.
         //console.log("events etag",eventID["etag"], etag,  eventID["etag"]==etag )
@@ -253,6 +254,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         const updated = await db.calendar_events.update(eventID, { etag: etag, data: data, type: typeToInsert,uid: parsed["uid"],
         parsedData:parsed, calendar_id:calendars_id
          })
+         toReturn=  updated
         //Update parsed value
         // console.log("updated", updated)
     } else {
@@ -270,11 +272,14 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
             parsedData:parsed
         }).catch(e => {
             console.log("saveEventToDexie", e)
+
         })
+        toReturn= id
 
         // console.log("saveEventToDexie -> id", id ,parsed.summary, )
     }
     await saveEventParenttoDexie(parsed)
+    return toReturn
     
 }
 

@@ -73,8 +73,10 @@ export const CALDAV_OAUTH_SERVER_URL={
 //Defines the hard coded default value for Due Before Field in ManageFilter Form.
 export const END_OF_THE_UNIVERSE_DATE= "4000-12-31T00:00:00.000Z"
 
-export const INSTALL_CHECK_THRESHOLD_SECONDS=86400
+export const INSTALL_CHECK_THRESHOLD_SECONDS= 86400
 export const SYNC_DEFAULT_TIMEOUT = 1000*60*5
 export const LOGIN_CHECK_THRESHOLD_SECONDS=1800
 
-export const OAUTH_REGISTRATION_URL =""
+export const OAUTH_REGISTRATION_URL = ""
+export const SYNCMANAGER_DEFAULT_RETRY_TIMER_SECONDS = 10
+export const SYNCMANAGER_DEFAULT_MAX_RETRIES = 5

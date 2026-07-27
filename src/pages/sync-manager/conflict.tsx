@@ -1,4 +1,3 @@
-
 import { useCustomTheme } from "@/helpers/frontend/theme";
 import { useRouter } from "next/router";
 import Head from 'next/head'
@@ -10,19 +9,33 @@ import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
 import SyncManagerMainComponent from "@/components/page/SyncManager/SyncManagerMainComponent";
 import { useAuthGuard } from "@/helpers/frontend/hooks/useAuthGuard";
+import { useEffect, useState } from "react";
+import ConflictResolutionComponent from "@/components/page/SyncManager/ConflictResolutionComponent";
 
 
-const SyncManagerPage = () =>{
-  const isLoggedIn = useAuthGuard("/sync-manager");
-  const router = useRouter()
+
+const ConflictResolutionPage = () =>{
+  const isLoggedIn = useAuthGuard("/sync-manager"); 
+  const [id, setId] = useState("")
+
   const {t} = useTranslation()
+  
   useCustomTheme()
 
+  useEffect(()=>{
+
+    if(typeof(window)!=="undefined"){
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id'); // "shoes"
+        if(id) setId(id)
+    }
+
+  },[])
     if(!isLoggedIn) return (<EmptyPageBeforeLogin />)   
     return(
         <>
         <Head>
-          <title>{t("APP_NAME_TITLE")+" - "+t("SYNC_MANAGER")}</title>
+          <title>{t("APP_NAME_TITLE")+" - "+t("CONFLICT_MANAGER")}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -30,7 +43,12 @@ const SyncManagerPage = () =>{
 
         <Container fluid >
              <div style={{marginTop: 20}}>
-              <SyncManagerMainComponent />
+                <div style={{padding:40}} className='container-fluid'>
+                  <h1>{t("CONFLICT_MANAGER")}</h1>
+                  <br />
+                    <ConflictResolutionComponent id={id} />
+                </div>
+
              </div>
         </Container>
     </>
@@ -38,7 +56,7 @@ const SyncManagerPage = () =>{
 
 }
 
-export default SyncManagerPage
+export default ConflictResolutionPage
 
 
 export async function getStaticProps({ locale}) {

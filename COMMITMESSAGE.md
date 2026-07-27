@@ -1,1 +1,2 @@
-- Sync Manager - Now handles webcal sync tasks to the queue
+- Sync Manager - Now handles task and edit sync events
+- Conflict Manager - Can now handle conflict during event edit

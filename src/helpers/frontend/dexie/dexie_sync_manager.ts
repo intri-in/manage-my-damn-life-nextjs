@@ -1,7 +1,10 @@
-import { SyncManager, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput } from "@/helpers/frontend/SyncManager";
+import { SyncManager, SyncManagerAddTaskInput, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput } from "@/helpers/frontend/SyncManager";
 import { SyncManagerDexie, db } from "./dexieDB";
 import { getUserIDForCurrentUser_Dexie } from "./users_dexie";
-
+interface RetryInput{
+    retryAfter?:string,
+    retryNumber?:string
+}
 export async function insertNewSyncTaskCalendarIntoSyncManagerDexie(summary: string, input: SyncManagerSyncCalendarInput){
     
     const userid = await getUserIDForCurrentUser_Dexie()    
@@ -50,6 +53,30 @@ export async function insertNewSyncTaskCalendarIntoSyncManagerDexie(summary: str
 
   }
 
+
+
+export async function insertEventTaskIntoSyncManagerDexie(type: typeof SyncManager.SYNC_ADD_TASK | typeof SyncManager.SYNC_EDIT_TASK, summary: string, input: SyncManagerAddTaskInput, eventIdInDexie: string){
+    const userid = await getUserIDForCurrentUser_Dexie()    
+    if(!userid) return
+    const isAlreadyPresent = await checkifAddEventTaskPresentInDexie(userid.toString(), input )
+    if(isAlreadyPresent) return
+    await db.sync_manager.add({
+            created: Date.now().toString(),
+            updated: Date.now().toString(),
+            type: type,
+            summary:summary,
+            input: input,
+            status: "pending",
+            userid: userid?.toString(),
+            eventIdInDexie: eventIdInDexie,
+            retryAfter: "60000",
+            retryNumber: "0",
+            message:""
+        }).catch(e =>{
+        console.error("insertNewEventTaskIntoSyncManagerDexie", e)
+        })
+
+}
 async function checkifSyncTasksCalendarPresentInDexie(userid:string, input: SyncManagerSyncCalendarInput){
     const task = await db.sync_manager
     .where("userid")
@@ -83,6 +110,22 @@ async function checkifSyncTasksWebcalPresentInDexie(userid:string,  input: SyncM
     }
     return false
 }
+async function checkifAddEventTaskPresentInDexie(userid:string,  input: SyncManagerAddTaskInput){
+    const task = await db.sync_manager
+    .where("userid")
+    .equals(userid)
+    .and(task => task.type?.toLowerCase() == SyncManager.SYNC_ADD_TASK.toLowerCase())
+    .and(task => task.status.toString() == "pending")
+    .and(task => "calendar_id" in task.input && (task.input.calendar_id.toString() == input.calendar_id.toString()))
+    .toArray()
+    .catch(e=>{
+        console.error("checkifAddEventTaskPresentInDexie", e)
+    })
+    if(task && Array.isArray(task) && task.length>0){
+        return true
+    }
+    return false
+}
 
 export async function getSyncTaskByIdFromDexie(id: number | string): Promise<SyncManagerDexie[] | null | void>{
     const userid = await getUserIDForCurrentUser_Dexie()    
@@ -105,15 +148,13 @@ export async function deleteSyncTaskinDexie(id: string | number){
     await db.sync_manager.delete(Number(id))
     
 }
-export async function changeSyncTaskStatusinDexie(id: string | number, status: SyncManagerStatus, message?: string, retryAfter?:string){
+export async function changeSyncTaskStatusinDexie(id: string | number, status: SyncManagerStatus, message?: string, retryOptions?:RetryInput){
     if(!id) return
     if(isNaN(Number(id))) return
-    await db.sync_manager.update(Number(id), {
-        status: status, 
-        message: message, 
-        updated: Date.now().toString(), 
-        retryAfter: retryAfter
-    });
-
-
+    const updatePayload: any = { status, message, updated: Date.now().toString() };
+    if (retryOptions?.retryAfter !== undefined) updatePayload.retryAfter = retryOptions.retryAfter;
+    if (retryOptions?.retryNumber !== undefined) updatePayload.retryNumber = retryOptions.retryNumber;
+    return await db.sync_manager.update(Number(id), updatePayload);
+    
 }
+

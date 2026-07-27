@@ -49,7 +49,7 @@ const AppBarFunctionalComponent = ({ session, t}) => {
 
       checkInstallation();
       setDarkModeEnabled(isDarkModeEnabled());
-      syncEngine.start();
+      syncEngine.start(postRunFunctionforSyncEngine);
 
     }
     return ()=>{
@@ -57,6 +57,10 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   }
 
   }, []);
+
+  const postRunFunctionforSyncEngine = () =>{
+    setUpdated(Date.now())
+  }
 
   useEffect(()=>{
     let isMounted =true

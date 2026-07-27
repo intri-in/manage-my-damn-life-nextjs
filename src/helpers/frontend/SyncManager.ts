@@ -1,11 +1,6 @@
-import { getErrorResponse } from "../errros"
-import { changeSyncTaskStatusinDexie, deleteSyncTaskinDexie, getSyncTaskByIdFromDexie, insertNewSyncTaskCalendarIntoSyncManagerDexie, insertNewSyncTaskWebcalIntoSyncManagerDexie } from "./dexie/dexie_sync_manager"
-import { saveAPIEventReponseToDexie } from "./dexie/events_dexie"
-import { getAuthenticationHeadersforUser } from "./user"
-import { getAPIURL } from "../general"
-import { IS_SYNCING } from "./localstorage"
-import { updateEventsinWebcal_Dexie, updateWebCalLastFetched_Dexie } from "./dexie/webcal_dexie"
-import { getMessageFromAPIResponse } from "./response"
+import { getSyncTaskByIdFromDexie, insertEventTaskIntoSyncManagerDexie, insertNewSyncTaskCalendarIntoSyncManagerDexie, insertNewSyncTaskWebcalIntoSyncManagerDexie } from "./dexie/dexie_sync_manager"
+import { saveEventToDexie } from "./dexie/events_dexie"
+import { syncManager_postNewEventIntoDexie, syncManager_pushNewEventToCaldav, syncManager_syncCalendar, syncManager_syncWebcal, syncManager_updateEventinCaldav } from "./syncManagerHelpers"
 
 export type SyncManagerSyncCalendarInput = {
 caldav_accounts_id: string | number, 
@@ -18,95 +13,25 @@ calendars_id: string | number
 export type SyncManagerSyncWebcalInput = {
     webcals_id: string | number
 }
+export type SyncManagerAddTaskInput = {
+    calendar_id: string | number,
+    oldData?: string,
+    newData:string,
+    etag:string,
+    fileName?:string,
+    type:string,
+    eventURL?:string
+}
 
 export type SyncManagerStatus = "pending" | "done" | "error" | "processing"
-export type SyncManagerType_Type = typeof SyncManager.SYNC_CALENDER | typeof SyncManager.SYNC_WEBCAL
+export type SyncManagerType_Type = typeof SyncManager.SYNC_CALENDER | typeof SyncManager.SYNC_WEBCAL | typeof SyncManager.SYNC_ADD_TASK | typeof SyncManager.SYNC_EDIT_TASK
 export class SyncManager{
 
     static SYNC_CALENDER = "SYNCMANAGER_SYNC_CALENDER" as const
     static SYNC_WEBCAL = "SYNCMANAGER_SYNC_WEBCAL" as const
-    static async syncCalendar(id: string | number, input: SyncManagerSyncCalendarInput){
-        
-        const url_api=getAPIURL()+"v2/calendars/events/fetch?caldav_accounts_id="+input.caldav_accounts_id.toString()+"&&url="+input.url+"&&ctag="+input.ctag+"&&syncToken="+input.syncToken
-        const authorisationData=await getAuthenticationHeadersforUser()
-
-        const requestOptions = {
-            method: 'GET',
-            mode: 'cors',
-            headers: new Headers({'authorization': authorisationData}),
-        }
-
-        return new Promise( (resolve, reject) => {
-        
-            const response =  fetch(url_api, requestOptions as RequestInit)
-            .then(response => response.json())
-            .then((body) =>{
-                if(body && body.success && body.data && body.data.message){
-                    const events = body.data.message
-                    if(events && Array.isArray(events)){
-                        saveAPIEventReponseToDexie(input.calendars_id,events)
-                        .then(response =>{
-                            //Mark task as 'completed' in dexie.
-                            // changeSyncTaskStatusinDexie(id, "done")    
-                            //Delete completed task in dexie
-                            deleteSyncTaskinDexie(id)                        
-                        })
-                    }else{
-                        changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
-                    }  
-                }else{
-                    const message = (body && body.data && body.data.message) ? body.data.message: "ERROR_GENERIC"
-                    changeSyncTaskStatusinDexie(id, "error", message)
-
-                }
-            }).catch(e =>{
-                console.error("SyncManager.syncCalendar", e)
-                changeSyncTaskStatusinDexie(id, "error",e.message)
-
-            })
-        })
-
-    }
-    static async syncWebcal(id:string, input: SyncManagerSyncWebcalInput){
-        const url_api = getAPIURL() + "webcal/sync?id=" + input.webcals_id
-        const authorisationData = await getAuthenticationHeadersforUser()
-        const requestOptions ={
-            method: 'GET',
-            mode: 'cors',
-            headers: new Headers({ 'authorization': authorisationData, 'Content-Type': 'application/json' }),
-        }
-        const  response = await fetch(url_api, requestOptions as RequestInit)
-        .then(response => response.json())
-        .then(async (body) => {
-            return body
-        }).catch(e =>{
-            console.error(`SyncManager.syncWebcal, ${id}`, e)
-            changeSyncTaskStatusinDexie(id, "error",e.message)
-        })
-        // console.log("response", response)
-        if (response && response.success == true) {
-            //We also need to update the WebCal in dexie.
-            if("data" in response && response.data){
-                const data = response.data
-                if("lastFetched" in data && "parsedCal" in data){
-                    console.log(data.parsedCal)
-                    await updateWebCalLastFetched_Dexie(input.webcals_id, data.lastFetched)
-                    await updateEventsinWebcal_Dexie(input.webcals_id, data.parsedCal)
-                    deleteSyncTaskinDexie(id)                        
-                }else{
-                    changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
-                }
-
-            }
-        }else{
-            const message = getMessageFromAPIResponse(response)
-            changeSyncTaskStatusinDexie(id, "error",message ??"ERROR_GENERIC")
-        }
-
-        
-        
-    }
-    static async addTask(type:SyncManagerType_Type, summary, input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput){
+    static SYNC_ADD_TASK = "SYNCMANAGER_SYNC_ADD_TASK" as const
+    static SYNC_EDIT_TASK = "SYNCMANAGER_SYNC_EDIT_TASK" as const
+    static async addTask(type:SyncManagerType_Type, summary, input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput | SyncManagerAddTaskInput){
 
         // console.log("type",type, type==SyncManager.SYNC_CALENDER.toString())
         switch(type){
@@ -120,6 +45,34 @@ export class SyncManager{
                     await insertNewSyncTaskWebcalIntoSyncManagerDexie(summary, {webcals_id: input.webcals_id})
                 }
                 break;
+            case SyncManager.SYNC_ADD_TASK:
+                if("calendar_id" in input && input.etag && input.newData && input.fileName){
+                    //First we faux add the event in dexie
+                    console.log("input", input)
+                    const id = await syncManager_postNewEventIntoDexie(input.calendar_id, input.etag, input.newData, input.fileName) 
+                    if(id && id!=0){
+                        // we now have the id of the newly created event.
+                        //We add the task to the Sync Manager
+                        await insertEventTaskIntoSyncManagerDexie(SyncManager.SYNC_ADD_TASK, summary, input, id.toString())
+                        return true
+                    }
+                }
+                break;
+            case SyncManager.SYNC_EDIT_TASK:
+                if("calendar_id" in input && input.eventURL && input.newData && input.oldData){
+                    //First we faux add the event in dexie
+                    console.log("input", input)
+                    const id = await saveEventToDexie(input.calendar_id, input.eventURL, input.etag, input.newData, "VTODO")
+                    if(id && id!=0){
+                        // we now have the id of the newly created event.
+                        //We add the task to the Sync Manager
+                        await insertEventTaskIntoSyncManagerDexie(SyncManager.SYNC_EDIT_TASK, summary, input, id.toString())
+                        return true
+                    }
+                }
+                break;
+            default:
+                return false
 
         }
 
@@ -127,7 +80,9 @@ export class SyncManager{
     }
 
     static async executeTask(id:number | string){
-        const task =  await getSyncTaskByIdFromDexie(id)
+        const id_toSearch =  Number(id)
+        if(isNaN(id_toSearch)) return
+        const task =  await getSyncTaskByIdFromDexie(id_toSearch)
         // console.log("task", task)
         if(task && Array.isArray(task) && task.length>0){
             const currentTask = task[0]
@@ -135,13 +90,25 @@ export class SyncManager{
                 case SyncManager.SYNC_CALENDER:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if(("calendars_id" in currentTask.input) && ("url" in currentTask.input)) {
-                        this.syncCalendar(id, currentTask.input)
+                        syncManager_syncCalendar(id, currentTask.input)
                     }
                     break;
                 case SyncManager.SYNC_WEBCAL:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if("webcals_id" in currentTask.input && currentTask.id){
-                        this.syncWebcal(id.toString(), currentTask.input)
+                        syncManager_syncWebcal(id.toString(), currentTask.input)
+                    }
+                    break;
+                case SyncManager.SYNC_ADD_TASK:
+                    console.log(`Executing task: ${currentTask.summary}`)
+                    if("calendar_id" in currentTask.input){
+                        syncManager_pushNewEventToCaldav(id.toString(), currentTask.input)
+                    }
+                    break;
+                case SyncManager.SYNC_EDIT_TASK:
+                    console.log(`Executing task: ${currentTask.summary}`)
+                    if("calendar_id" in currentTask.input){
+                        syncManager_updateEventinCaldav(id.toString(), currentTask.input)
                     }
                     break;
                 default:

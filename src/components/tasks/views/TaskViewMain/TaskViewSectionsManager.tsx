@@ -7,6 +7,7 @@ import i18next from "i18next";
 import { DEFAULT_SORT_OPTION, sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort";
 import { useSetAtom } from "jotai";
 import { updateViewAtom } from "stateStore/ViewStore";
+import { TaskFilter } from "types/tasks/filters";
 
 export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: TaskSection[]}) =>{
     /**
@@ -27,22 +28,22 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
 
     const refilterAndSortTaskList = useCallback(async (showDoneLocal, labelListLocal, taskListLocal: TaskArrayItem[], sortByOption:string, searchTerm) =>{
         // console.log("taskListLocal", taskListLocal)
+        let newTaskList_AfterDoneFilter: TaskArrayItem[] = []
+        if(showDoneLocal==false){
+            newTaskList_AfterDoneFilter = await removeDoneTasksFromTaskListArray(taskListLocal)
+        }else{ 
+            newTaskList_AfterDoneFilter=[...taskListLocal]
+        }
+
         let taskListAfterSearch : TaskArrayItem[] = []
         //First we search the tasks. 
         if(searchTerm){
 
-            taskListAfterSearch = await filterTaskListArrayFromSearchTerm(taskListLocal, searchTerm)
+            taskListAfterSearch = await filterTaskListArrayFromSearchTerm(newTaskList_AfterDoneFilter, searchTerm)
         }else{
-            taskListAfterSearch = [...taskListLocal]
+            taskListAfterSearch = [...newTaskList_AfterDoneFilter]
         }
 
-        const sortByOptionLocal = sortByOption ? sortByOption: sortOption
-        let newTaskList_AfterDoneFilter: TaskArrayItem[] = []
-        if(showDoneLocal==false){
-            newTaskList_AfterDoneFilter = await removeDoneTasksFromTaskListArray(taskListAfterSearch)
-        }else{ 
-            newTaskList_AfterDoneFilter=[...taskListAfterSearch]
-        }
         // Now we filter by Label.
 
         let newLabelArray: string[] = []
@@ -51,7 +52,7 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
                 newLabelArray.push(labelListLocal[k].name)
             }
         }
-        let filter= {}
+        let filter: TaskFilter= {}
         if(newLabelArray.length!=0){
             filter = {logic: "or", filter:{label: newLabelArray}}
         }
@@ -59,7 +60,8 @@ export const TaskViewSectionsManager = ({taskListSections}:{taskListSections: Ta
         let finalListToReturn: TaskArrayItem[] = []
 
 
-        finalListToReturn = await filterTaskListArray(newTaskList_AfterDoneFilter, filter)
+        finalListToReturn = await filterTaskListArray(taskListAfterSearch, filter)
+        const sortByOptionLocal = sortByOption ? sortByOption: sortOption
 
         const newSortedRow = sortTasksByRequest(finalListToReturn, sortByOptionLocal)
         return newSortedRow

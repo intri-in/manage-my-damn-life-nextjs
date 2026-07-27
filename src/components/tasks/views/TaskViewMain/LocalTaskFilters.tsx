@@ -188,7 +188,7 @@ const AppliedFilters = ({showDone, filterList, searchTerm, showDoneChanged, sear
     if(output.length>0){
         return(
         <Stack style={{display:"flex",  alignItems:"center", }} direction="horizontal" gap={1}>
-        <small>{t("FILTERS_APPLIED")}</small>
+        <small>{t("FILTERS_APPLIED")}</small><br/>
         {output}
         </Stack>
         )
