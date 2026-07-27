@@ -1,4 +1,4 @@
-import { SyncManager, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput, SyncManagerType_Type } from '@/helpers/frontend/SyncManager';
+import { SyncManager, SyncManagerAddTaskInput, SyncManagerDeleteEventInput, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput, SyncManagerType_Type } from '@/helpers/frontend/SyncManager';
 import Dexie, { Table } from 'dexie';
 
 export interface Users{
@@ -89,14 +89,16 @@ export interface WebCalEvents{
 export interface SyncManagerDexie{
   id?:number,
   summary: string,
-  input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput,
+  input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput | SyncManagerAddTaskInput | SyncManagerDeleteEventInput,
   type: SyncManagerType_Type
   status: SyncManagerStatus,
   created: string,
   updated: string,
   userid: string
   message?:string,
-  retryAfter?:string
+  retryAfter?:string,
+  retryNumber?:string, 
+  eventIdInDexie?: string
 }
 export class MySubClassedDexie extends Dexie {
   caldav_accounts!: Table<Caldav_Accounts>; 
@@ -160,7 +162,9 @@ export class MySubClassedDexie extends Dexie {
     this.version(11).stores({
        sync_manager: '++id,summary,input, type, status, created,updated,userid,message,retryAfter'
     })
-
+this.version(11).stores({
+       sync_manager: '++id,summary,input, type, status, created,updated,userid,message,retryAfter, retryNumber, eventIdInDexie'
+    })
  }
 }
 

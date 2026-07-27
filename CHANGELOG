@@ -1,7 +1,9 @@
 v0.10.0
 - Introduced Sync Manager for Calendar and Webcal syncing to better manage sync with CalDAV server
+    - Conflict Manager Introduced - MMDL can now handle sync conflicts
 - Upgraded multiple dependencies
 - Optimisation of the task rendering process.
+
 v0.9.3
 - New Features
     - Added ability to create filters relative to due date and start date.

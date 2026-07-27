@@ -32,7 +32,7 @@ export default async function handler(req, res) {
                 
                 // const responseFromDB_Update = await updateObjectinDB(req.body.url,req.body.etag, req.body.data, req.body.updated, req.body.type, req.body.calendar_id, req.body.deleted)
                 const decodedURL = decodeURIComponent(req.body.url)
-                console.log("req.body.url", decodedURL, req.body.url)
+                //console.log("req.body.url", decodedURL, req.body.url)
                 let objectToUpdate={
                 url: decodedURL,
                 data: req.body.data,

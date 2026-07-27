@@ -49,7 +49,7 @@ export default async function handler(req, res) {
         })
             // console.log("req.query.ctag", req.query.ctag, req.query.syncToken)
         if(!client){
-            return res.status(401).json({ success: false, data: { message: 'ERROR_GENERIC'} })
+            return res.status(401).json({ success: false, data: { message: 'USER_DOESNT_HAVE_ACCESS'} })
 
         }
         const calendarObjects = await client.fetchCalendarObjects({

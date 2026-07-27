@@ -5,7 +5,8 @@ import { deleteEventsFromCalendar_Dexie } from "./events_dexie";
 
 export async function getCalendarbyIDFromDexie(calendars_id){
     try{
-        const calendars_id_int = parseInt(calendars_id)
+        const calendars_id_int = Number(calendars_id)
+        if(isNaN(calendars_id_int)) return []
         //console.log("calendars_id", calendars_id)
         const calendars =  await db.calendars
         .where('calendars_id')

@@ -1,6 +1,6 @@
 "use client"
 import { PRIMARY_COLOUR } from "@/config/style";
-import { Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { Badge, Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { useEffect, useState } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -25,6 +25,8 @@ import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { SyncButton } from "./SyncButton";
 import { syncEngine } from "@/helpers/frontend/SyncEngine";
 import { useRouter } from "next/navigation";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/helpers/frontend/dexie/dexieDB";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session, t}) => {
   /**
@@ -42,14 +44,16 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   const [lang, setLang] = useState(getCurrentLanguage())
 
   const router = useRouter()
-
+  const syncTasksWithErrors = useLiveQuery(() =>  db.sync_manager.where("status").anyOf(["error"]).count().catch(e=>{
+      console.error("AppBarFunctionalComponent useLiveQuery",e )
+  }))
   useEffect(() => {
     let isMounted =true
     if(isMounted){
 
       checkInstallation();
       setDarkModeEnabled(isDarkModeEnabled());
-      syncEngine.start();
+      syncEngine.start(postRunFunctionforSyncEngine);
 
     }
     return ()=>{
@@ -57,6 +61,10 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   }
 
   }, []);
+
+  const postRunFunctionforSyncEngine = () =>{
+    setUpdated(Date.now())
+  }
 
   useEffect(()=>{
     let isMounted =true
@@ -186,7 +194,9 @@ const AppBarFunctionalComponent = ({ session, t}) => {
 
     // i18n.changeLanguage(e.target.value)
   }
-
+  const goToSyncManager = () =>{
+    router.push("/sync-manager")
+  }
   let notInstalledBanner: JSX.Element | null = null;
   if (!installed) {
     notInstalledBanner = (
@@ -236,6 +246,18 @@ const AppBarFunctionalComponent = ({ session, t}) => {
             </Nav.Item>
           </Nav>
             <Nav  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} className="ms-auto">
+              { (syncTasksWithErrors && syncTasksWithErrors>0) ? (<Nav.Item style={{}}><Badge onClick={goToSyncManager} bg="danger">{t("SYNC_ERRORS")}</Badge></Nav.Item>): <></> }
+              <Nav.Item style={{}}>
+                <OverlayTrigger key="SYNC_KEY" placement='bottom'
+                  overlay={
+                    <Tooltip id='tooltip_SYNC'>
+                      {t("SYNC")}
+                    </Tooltip>
+                  }>
+                  <div style={{ color: "white", padding: 5 }}><SyncButton t={t} isSyncing={spinningButton} /></div>
+                </OverlayTrigger>
+              </Nav.Item>
+
               <NavItem style={{ color: "white", display: "flex", margin: 10, justifyContent: "space-evenly", alignItems: "center" }}>
                 <OverlayTrigger key="KEY_USERNAME" placement='bottom'
                   overlay={
@@ -262,16 +284,6 @@ const AppBarFunctionalComponent = ({ session, t}) => {
                     </Tooltip>
                   }>
                   <div style={{ color: "white", padding: 5 }}>{darkModeButton} </div>
-                </OverlayTrigger>
-              </Nav.Item>
-              <Nav.Item style={{}}>
-                <OverlayTrigger key="SYNC_KEY" placement='bottom'
-                  overlay={
-                    <Tooltip id='tooltip_SYNC'>
-                      {t("SYNC")}
-                    </Tooltip>
-                  }>
-                  <div style={{ color: "white", padding: 5 }}><SyncButton t={t} isSyncing={spinningButton} /></div>
                 </OverlayTrigger>
               </Nav.Item>
               <Nav.Item style={{ color: "white", padding: 5 }}>

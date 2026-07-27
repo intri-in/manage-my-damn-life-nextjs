@@ -14,6 +14,7 @@ import { getCalDAVAccountIDFromCalendarID_Dexie } from "@/helpers/frontend/dexie
 import { getEventFromDexieByID } from "@/helpers/frontend/dexie/events_dexie"
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar"
 import { useTranslation } from "next-i18next"
+import { SyncManager, SyncManagerDeleteEventInput } from "@/helpers/frontend/SyncManager"
 
 /**
  * This is the common view manager for Task manager.
@@ -63,27 +64,50 @@ export const TaskEditorViewManager = () =>{
     const onDismissDeleteDialog = () =>{
         setShowConfirmDeleteDialog(false)
     }
-    const deleteTheTaskFromServer = async () =>{
-
+    const postDeleteEventToSyncManager = async () =>{
+        let success= false
         if(taskEditorInput.id){
 
             const event = await getEventFromDexieByID(parseInt(taskEditorInput.id.toString()))
-            if(event && event.length>0){
-                const calendar_id = event[0].calendar_id
-                const url = event[0].url
-                const etag = event[0].etag
-                const parsedTask = returnGetParsedVTODO(event[0].data)
+            if(event && Array.isArray(event) && event.length>0){
+                const eventToDelete = event[0]
+                const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventToDelete.calendar_id)
+                if(eventToDelete.calendar_id && caldav_accounts_id && eventToDelete.etag &&  eventToDelete.data && eventToDelete.url){
 
-                if(calendar_id){
-
-                    const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
-                    // console.log("caldav_accounts_id", caldav_accounts_id)
-                    handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse, t)
+                    const input: SyncManagerDeleteEventInput = {
+                        calendar_id: eventToDelete.calendar_id,
+                        caldav_accounts_id: caldav_accounts_id.toString(),
+                        etag: eventToDelete.etag,
+                        data: eventToDelete,
+                        url: eventToDelete.url
+                    }
+                    SyncManager.addTask(SyncManager.SYNC_DELETE_TASK, eventToDelete.parsedData["summary"], input)
+                    success=true
                     setShowConfirmDeleteDialog(false)
                     destroy()
-
                 }
             }
+        if(!success){
+            toast.error(t("ERROR_GENERIC"))
+        }
+            
+            
+            // if(event && event.length>0){
+            //     const calendar_id = event[0].calendar_id
+            //     const url = event[0].url
+            //     const etag = event[0].etag
+            //     const parsedTask = returnGetParsedVTODO(event[0].data)
+
+            //     if(calendar_id){
+
+            //         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+            //         // console.log("caldav_accounts_id", caldav_accounts_id)
+            //         handleDeleteEventUI(caldav_accounts_id, calendar_id, url, etag, parsedTask?.summary, onServerResponse, t)
+            //         setShowConfirmDeleteDialog(false)
+            //         destroy()
+
+            //     }
+            // }
         }
 
 
@@ -137,8 +161,9 @@ export const TaskEditorViewManager = () =>{
     {showConfirmDeleteDialog ? <TaskDeleteConfirmation
                     show={showConfirmDeleteDialog}
                     onHide={onDismissDeleteDialog}
+                    t={t}
                     onDismissDeleteDialog={onDismissDeleteDialog}
-                    onDeleteOK={deleteTheTaskFromServer}
+                    onDeleteOK={postDeleteEventToSyncManager}
 
                 />
             : null}

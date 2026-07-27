@@ -37,6 +37,8 @@ import { VAlarmForm } from "@/components/valarm/VAlarmForm"
 import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
 import { VAlarmType } from "@/types/valarm"
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
+import { SyncManager } from "@/helpers/frontend/SyncManager"
+import { updateViewAtom } from "stateStore/ViewStore"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
@@ -47,7 +49,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const dateFullFormat = useAtomValue(currentDateFormatAtom)
     const showMoveModal = useSetAtom(showMoveEventModal)
     const setMoveEventInput = useSetAtom(moveEventModalInput)
-
+    const setUpdateViewTime = useSetAtom(updateViewAtom)
 
     /**
      * Local State
@@ -456,8 +458,15 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 }
                 if (isNewTask) {
                     const etag = getRandomString(32)
+                    let fileName = getRandomString(64) + ".ics"
+                    SyncManager.addTask(SyncManager.SYNC_ADD_TASK, summary, {calendar_id:calendar_id, oldData: "", newData: finalVTODO, etag:etag, type:"VTODO", fileName:fileName}).then( res =>{
+                        if(res){
+                            setUpdateViewTime(Date.now())
+                            closeEditor()
+                        }
+                    }
+                    )
     
-                    await postNewTodo(calendar_id, finalVTODO, etag)
                 } else {
                     // Make an update request.
                     if (input.id) {
@@ -467,10 +476,19 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                             console.error("Etag is null!")
                             toast.error(t("ERROR_GENERIC"))
     
+                        }else{
+                            
+                            const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
+                            SyncManager.addTask(SyncManager.SYNC_EDIT_TASK, summary, {calendar_id:calendar_id, oldData: rawICS, newData: finalVTODO, etag:etag, type:"VTODO",  eventURL: eventURL}).then( res =>{
+                                if(res){
+                                    setUpdateViewTime(Date.now())
+                                    closeEditor()
+                                }else{
+                                    toast.error(t("ERROR_GENERIC"))
+                                }
+                            })
+                            // await updateTodoLocal(calendar_id, eventURL, etag, finalVTODO)
                         }
-                        const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
-    
-                        await updateTodoLocal(calendar_id, eventURL, etag, finalVTODO)
                     }
                 }
             }catch(e){

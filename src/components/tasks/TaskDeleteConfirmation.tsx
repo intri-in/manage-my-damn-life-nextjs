@@ -1,31 +1,32 @@
 
-import { useState } from 'react';
+import { MouseEventHandler, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { Loading } from '../common/Loading';
+import { TFunction } from 'next-i18next';
 
-export function TaskDeleteConfirmation(props) {
-const [loading, setLoading] = useState(false)
+interface propsType{
+  onDismissDeleteDialog: MouseEventHandler<HTMLButtonElement>,
+  onDeleteOK : Function,
+  t:TFunction
+  show:boolean,
+  onHide: Function
+}
+export function TaskDeleteConfirmation(props:propsType) {
+  const [loading, setLoading] = useState(false)
 
-const onDeleteOK = () =>{
-  setLoading(true)
-  props.onDeleteOK()
-}
-if(loading)
-{
-  var buttons=(<p style={{textAlign: "center"}}><Loading /></p>)
-}
-else
-{
-  var buttons= (          <Modal.Footer>
+  const onDeleteOK = () =>{
+    setLoading(true)
+    props.onDeleteOK()
+  }
+  let buttons=loading ?(<p style={{textAlign: "center"}}><Loading /></p>) : (          <Modal.Footer>
     <Button variant="secondary" onClick={props.onDismissDeleteDialog}>Cancel</Button>
     <Button variant="danger" onClick={onDeleteOK}>Delete</Button></Modal.Footer>)
   
-}
 
     return (
       <Modal
-        {...props}
+        show={props.show}
         size="lg"
         centered
         backdrop="static"

@@ -1,1 +1,1 @@
-- Sync Manager - Now handles webcal sync tasks to the queue
+- Sync Manager - Now handles task delete
