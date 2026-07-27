@@ -63,8 +63,8 @@ import { getMessageFromAPIResponse } from "./response"
         .then(async (body) => {
             return body
         }).catch(e =>{
-            console.error(`SyncManager.syncWebcal, ${id}`, e)
-            changeSyncTaskStatusinDexie(id, "error",e.message)
+             console.error("SyncManager.syncWebcal, id: %s", id, e)
+             changeSyncTaskStatusinDexie(id, "error",e.message)
         })
         // console.log("response", response)
         if (response && response.success == true) {
