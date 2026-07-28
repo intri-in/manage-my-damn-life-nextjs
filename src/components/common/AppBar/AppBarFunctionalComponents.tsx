@@ -27,6 +27,7 @@ import { syncEngine } from "@/helpers/frontend/SyncEngine";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/helpers/frontend/dexie/dexieDB";
+import { getUserIDForCurrentUser_Dexie } from "@/helpers/frontend/dexie/users_dexie";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session, t}) => {
   /**
@@ -42,19 +43,24 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   const [installed, setInstalled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [lang, setLang] = useState(getCurrentLanguage())
-
+  const [userId, setUserId] = useState("")
   const router = useRouter()
-  const syncTasksWithErrors = useLiveQuery(() =>  db.sync_manager.where("status").anyOf(["error"]).count().catch(e=>{
-      console.error("AppBarFunctionalComponent useLiveQuery",e )
-  }))
+
+  const syncTasksWithErrors = useLiveQuery(() =>  db.sync_manager.where("status").anyOf(["error"]).filter(item=>item.userid==userId).count().catch(e=>{
+    console.error("AppBarFunctionalComponent useLiveQuery",e )
+  }), [userId])    
+
   useEffect(() => {
     let isMounted =true
     if(isMounted){
 
       checkInstallation();
       setDarkModeEnabled(isDarkModeEnabled());
-      syncEngine.start(postRunFunctionforSyncEngine);
+      syncEngine.start(postRunFunctionforSyncEngine)
+      getUserIDForCurrentUser_Dexie().then(userid =>{
 
+        if(userid) setUserId(userid.toString())
+      })
     }
     return ()=>{
       isMounted=false

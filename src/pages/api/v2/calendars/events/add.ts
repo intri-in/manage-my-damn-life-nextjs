@@ -8,6 +8,7 @@ import { addTrailingSlashtoURL, isValidResultArray, logVar } from '@/helpers/gen
 import validator from 'validator';
 const LOG_TAG="api/v2/calendars/events/add"
 import ical from '@/../ical/ical'
+import { shouldLogforAPI } from '@/helpers/logs';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -43,11 +44,11 @@ export default async function handler(req, res) {
 
         const response = await createEventinCalDAVAccount(eventURL, req.body.caldav_accounts_id, req.body.calendar_id, req.body.data)
         if(!("result" in response) || response.result.status<200 || response.result.status>300 ){
-            console.log(response)
+            if(shouldLogforAPI()) console.log(response)
             return res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
 
         }
-        console.log(LOG_TAG, "response", response)
+        if(shouldLogforAPI()) console.log(LOG_TAG, "response", response)
         if(!response.client){
             res.status(500).json({ success: false, data: {message: 'ERROR_ADDING_EVENT', details: response.result.statusText}})
         }

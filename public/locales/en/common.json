@@ -299,6 +299,7 @@
   "REPEAT_TASK_MESSAGE_SIMPLE": "This is a repeating task.",
   "RESET_PASSWORD": "Reset your password",
   "RESOLVE_CONFLICT": "Resolve Conflict",
+  "RETRY": "Retry",
   "RRULE_EMPTY_FREQ": "Please select a frequency of recurrence.",
   "SAMPLE_CURRENT_TIME": "Sample Output for Date and Time",
   "SATURDAY": "Saturday",

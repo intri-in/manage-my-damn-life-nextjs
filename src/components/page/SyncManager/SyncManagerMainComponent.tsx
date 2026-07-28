@@ -13,18 +13,27 @@ import { fetchLatestEventsV2 } from "@/helpers/frontend/sync";
 import { useRouter } from "next/router";
 import { MdOutlineDelete } from "react-icons/md";
 import { deleteSyncTaskinDexie } from "@/helpers/frontend/dexie/dexie_sync_manager";
+import { getUserIDForCurrentUser_Dexie, getUserIDFromHash_Dexie } from "@/helpers/frontend/dexie/users_dexie";
+import { useEffect, useState } from "react";
 const SyncManagerMainComponent = () =>{
 const {t} = useTranslation()
-const syncTasks = useLiveQuery(() => db.sync_manager.toArray());
-const deleteWithError = async()=>{
+const [userId, setUserId] = useState("")
 
-    db.sync_manager.filter(item => item.status=="error").filter(item=>item.type!=SyncManager.SYNC_ADD_TASK).filter(item=>item.type!=SyncManager.SYNC_EDIT_TASK).delete().catch(e =>{
+useEffect(()=>{
+    getUserIDForCurrentUser_Dexie().then(userid => {
+       if(userid) setUserId(userid.toString())
+    })
+},[])
+const syncTasks = useLiveQuery(() => db.sync_manager.where('userid').equals(userId).toArray(),[userId]);
+const deleteWithError = async()=>{
+    db.sync_manager.filter(item=>item.userid===userId?.toString()).filter(item => item.status=="error").filter(item=>item.type!=SyncManager.SYNC_ADD_TASK).filter(item=>item.type!=SyncManager.SYNC_EDIT_TASK).delete().catch(e =>{
         console.error("SyncManagerMainComponent deleteWithError",e)
     })
 
 }
-const deleteAll =()=>{
-    db.sync_manager.clear().catch(e =>{
+const deleteAll =async ()=>{
+
+    db.sync_manager.filter(item=>item.userid ==userId?.toString()).delete().catch(e =>{
         console.error("SyncManagerMainComponent deleteAll",e)
     }).then(
         output => localStorage.setItem(IS_SYNCING,"false")
@@ -75,6 +84,7 @@ const SyncTaskTable = ({syncTasks, t}:{syncTasks: SyncManagerDexie[] | undefined
                          <b>{`${t("DETAILS")}: `}</b><br />
                          {`${(syncTasks[i].message)}`}
                          <ResolveConflictButton id={syncTasks[i].id} type={syncTasks[i].type}  t={t} message={syncTasks[i].message}/>
+                         {syncTasks[i].status=="error" ? <RetryButton  id={syncTasks[i].id} type={syncTasks[i].type}  t={t}  /> : <></>}
                     </Stack>
 
                     </Col>
@@ -96,7 +106,7 @@ const SyncTaskTable = ({syncTasks, t}:{syncTasks: SyncManagerDexie[] | undefined
 }
 
 const NoOfTriesOutput= ({type, retryNumber, t}:{type:string, retryNumber: string | undefined, t:TFunction}) =>{
-    if(type != SyncManager.SYNC_ADD_TASK && type != SyncManager.SYNC_EDIT_TASK) return <></>
+    if(type != SyncManager.SYNC_ADD_TASK && type != SyncManager.SYNC_EDIT_TASK && type != SyncManager.SYNC_DELETE_TASK) return <></>
     const noOfTries = (retryNumber && !isNaN(Number(retryNumber))) ? Number(retryNumber) : 0
     const tryMessage = (noOfTries>SYNCMANAGER_DEFAULT_MAX_RETRIES) ? `(${t("TRIES_EXCEEDED_MAX_AMOUNT")})` :""
     return(
@@ -114,7 +124,7 @@ const ResolveConflictButton = ({type,  t, message, id}:{type:string, t:TFunction
 
     }
     if(!message)  return (<></>)
-    if(type != SyncManager.SYNC_ADD_TASK && type != SyncManager.SYNC_EDIT_TASK) return (<></>)
+    if(type!=SyncManager.SYNC_EDIT_TASK) return (<></>)
     let parsedMessage
     try{
         parsedMessage = JSON.parse(message)
@@ -125,5 +135,14 @@ const ResolveConflictButton = ({type,  t, message, id}:{type:string, t:TFunction
     const messageFromAPI: string = getMessageFromAPIResponse(parsedMessage)
     if(messageFromAPI.toLowerCase()=="precondition failed") return (<Button onClick={onClick} style={{maxWidth:"50%", marginTop:3}}  variant="warning">{t("RESOLVE_CONFLICT")}</Button>)
     return(<></>)
+
+}
+
+const RetryButton = ({type,  t, id}:{type:string, t:TFunction, id: string | number | undefined}) =>{
+    const onClickRetry = () =>{
+        if(id) SyncManager.executeTask(id)
+    }
+    if(type != SyncManager.SYNC_ADD_TASK && type != SyncManager.SYNC_DELETE_TASK) return <></>
+    return (<Button onClick={onClickRetry} style={{maxWidth:"50%", marginTop:3}}  variant="warning">{t("RETRY")}</Button> )
 
 }

@@ -98,39 +98,39 @@ export class SyncManager{
         const id_toSearch =  Number(id)
         if(isNaN(id_toSearch)) return
         const task =  await getSyncTaskByIdFromDexie(id_toSearch)
-        // console.log("task", task)
+        console.log("executeTask task", task)
         if(task && Array.isArray(task) && task.length>0){
             const currentTask = task[0]
             switch(currentTask.type){
                 case SyncManager.SYNC_CALENDER:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if(("calendars_id" in currentTask.input) && ("url" in currentTask.input)) {
-                        syncManager_syncCalendar(id, currentTask.input)
+                        return await syncManager_syncCalendar(id, currentTask.input)
                     }
                     break;
                 case SyncManager.SYNC_WEBCAL:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if("webcals_id" in currentTask.input && currentTask.id){
-                        syncManager_syncWebcal(id.toString(), currentTask.input)
+                        return await syncManager_syncWebcal(id.toString(), currentTask.input)
                     }
                     break;
                 case SyncManager.SYNC_ADD_TASK:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if("calendar_id" in currentTask.input && ("newData" in currentTask.input)){
-                        syncManager_pushNewEventToCaldav(id.toString(), currentTask.input)
+                        return await syncManager_pushNewEventToCaldav(id.toString(), currentTask.input)
                     }
                     break;
                 case SyncManager.SYNC_EDIT_TASK:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if("calendar_id" in currentTask.input && ("newData" in currentTask.input)){
-                        syncManager_updateEventinCaldav(id.toString(), currentTask.input)
+                        return await syncManager_updateEventinCaldav(id.toString(), currentTask.input)
                     }
                     break;
 
                 case SyncManager.SYNC_DELETE_TASK:
                     console.log(`Executing task: ${currentTask.summary}`)
                     if("calendar_id" in currentTask.input && ("caldav_accounts_id" in currentTask.input)){
-                        syncManager_deleteEventFromCaldav(id.toString(), currentTask.input)
+                        return await syncManager_deleteEventFromCaldav(id.toString(), currentTask.input)
                     }
                     break;
                 default:
