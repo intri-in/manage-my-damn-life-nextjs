@@ -33,19 +33,24 @@ import { getMessageFromAPIResponse } from "./response"
                             //Mark task as 'completed' in dexie.
                             // changeSyncTaskStatusinDexie(id, "done")    
                             //Delete completed task in dexie
-                            deleteSyncTaskinDexie(id)                        
+                            deleteSyncTaskinDexie(id)
+                            return resolve (true)                        
                         })
                     }else{
                         changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                        return resolve (false)                        
+
                     }  
                 }else{
                     const message = (body && body.data && body.data.message) ? body.data.message: "ERROR_GENERIC"
                     changeSyncTaskStatusinDexie(id, "error", message)
+                    return resolve (false)                        
 
                 }
             }).catch(e =>{
                 console.error("SyncManager.syncCalendar", e)
                 changeSyncTaskStatusinDexie(id, "error",e.message)
+                return resolve (false)                        
             })
         })
 
@@ -75,15 +80,18 @@ import { getMessageFromAPIResponse } from "./response"
                     // console.log(data.parsedCal)
                     await updateWebCalLastFetched_Dexie(input.webcals_id, data.lastFetched)
                     await updateEventsinWebcal_Dexie(input.webcals_id, data.parsedCal)
-                    deleteSyncTaskinDexie(id)                        
+                    deleteSyncTaskinDexie(id)
+                    return true                        
                 }else{
                     changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
+                    return false
                 }
 
             }
         }else{
             // const message = getMessageFromAPIResponse(response)
             changeSyncTaskStatusinDexie(id, "error",JSON.stringify(response))
+            return true
         }
 
         
@@ -116,26 +124,31 @@ import { getMessageFromAPIResponse } from "./response"
                         
                         if(body.data && body.data.details){
                             const newEvent = body.data.details
-                            
+                            console.log('syncManager_pushNewEventToCaldav body', body)
                             let dataToSave = newEvent["data"]?? input.newData
                             if(newEvent && newEvent.etag && newEvent.data && newEvent.url){
 
                                 saveEventToDexie(input.calendar_id,newEvent["url"], newEvent["etag"],dataToSave,input.type).then((resultOfInsert) =>{
-                                    deleteSyncTaskinDexie(id)      
+                                    deleteSyncTaskinDexie(id)
+                                    return resolve (true)       
                                 })
                             }else{
                                 changeSyncTaskStatusinDexie(id, "error", "INVALID_NEW_EVENT")
+                                return resolve (false) 
                             }
                         }else{
                              changeSyncTaskStatusinDexie(id, "error", JSON.stringify(body))
+                             return resolve (false) 
                         }
 
                     } else {
                         changeSyncTaskStatusinDexie(id, "error", JSON.stringify(body))
+                        return resolve (false) 
 
                     }
                 }else{
                     changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
+                    return resolve (false) 
                 }
                 
                 
@@ -143,6 +156,7 @@ import { getMessageFromAPIResponse } from "./response"
             }).catch (e =>{
                 console.log("postNewEvent", e)
                 changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
+                return resolve (false) 
             }) 
         })
 
@@ -179,25 +193,29 @@ export async function syncManager_updateEventinCaldav(id:string, input: SyncMana
                                 saveEventToDexie(input.calendar_id, newEvent["url"], newEvent["etag"],dataToSave,typetoSend).then((resultOfInsert) =>{
                                 
                                     deleteSyncTaskinDexie(id)      
+                                    return resolve (true) 
                                 })
                             }else{
                                 changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                                return resolve (false) 
 
                             }
     
                         }else{
-                         changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
-
+                            changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                            return resolve (false) 
                         }
                     }else{
 
-                    changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                        changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                        return resolve (false) 
 
                     }
     
                 }).catch (e =>{
                     console.error(e)
                     changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
+                    return resolve (false) 
                 })
     
     
@@ -249,13 +267,15 @@ export async function syncManager_deleteEventFromCaldav(id:string | number, inpu
                     if(body){
                         
                         changeSyncTaskStatusinDexie(id, "error",JSON.stringify(body))
+                        return resolve (true) 
                     }else{
                         changeSyncTaskStatusinDexie(id, "error","ERROR_GENERIC")
-
+                        return resolve (false) 
                     }                 
                 }   
             }).catch (e =>{
                  changeSyncTaskStatusinDexie(id, "error",e.message)
+                 return resolve (false) 
             }) 
     
         })

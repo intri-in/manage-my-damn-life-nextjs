@@ -61,11 +61,15 @@ export class Calendars{
         let displayName = typeof(calendar.displayName) == "string" ? calendar.displayName : validator.escape(calendar.displayName) 
         let url =  decodeURIComponent(calendar.url.toString())
         let ctag = calendar.ctag.toString()
-        let description = typeof(calendar.description) == "string" ? calendar.description : validator.escape(calendar.description).toString()
-        let calendarColor = validator.isHexColor(calendar.calendarColor.toString()) ? calendar.calendarColor : ""
+        let description = ""
+        if(calendar.description) description = typeof(calendar.description) == "string" ? calendar.description : validator.escape(calendar.description).toString()
+        let calendarColor=""
+        if(calendar.calendarColor){
+            calendarColor = validator.isHexColor(calendar.calendarColor.toString()) ? calendar.calendarColor : ""
+        }
         //let syncToken = calendar.syncToken.toString() //Sync token update causes problems, as far as I know. skip update.
     
-        let resourcetype = calendar.resourcetype.toString()
+        let resourcetype = calendar.resourcetype? calendar.resourcetype.toString() : ""
         const timezoneValidator = require('timezone-validator');
         let timezone =""
         try{

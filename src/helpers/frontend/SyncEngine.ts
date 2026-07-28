@@ -7,28 +7,35 @@ import { SYNCMANAGER_DEFAULT_MAX_RETRIES, SYNCMANAGER_DEFAULT_RETRY_TIMER_SECOND
 import * as constants from "@/config/constants";
 import { changeSyncTaskStatusinDexie } from "./dexie/dexie_sync_manager";
 import { useSetAtom } from "jotai";
+import { getUserIDForCurrentUser_Dexie } from "./dexie/users_dexie";
 class SyncEngine {
   private running = false;
   private started = false;
+  private userid = "";
   private postRunFunction = () =>{}
   
   start(postRunFunction) {
     if (this.started) return;
     this.started = true;
     this.postRunFunction = postRunFunction
-    db.sync_manager
-      .where("status").equals("processing")
-      .modify({ status: "pending" });
+    getUserIDForCurrentUser_Dexie().then(userid =>{
 
-    liveQuery(() =>
-      db.sync_manager.where("status").anyOf(["pending", "error"]).count()
-    ).subscribe(() => this.drain());
-    setInterval(() => this.drain(), 10*1000); // backstop for time-based retry eligibility
-    this.drain(); 
+      db.sync_manager
+        .where("status").equals("processing")
+        .filter(item => item.userid==userid?.toString())
+        .modify({ status: "pending" });
+      if(userid) this.userid = userid?.toString()
+      liveQuery(() =>
+        db.sync_manager.where("status").anyOf(["pending", "error"]).filter(item => item.userid==userid?.toString()).count()
+      ).subscribe(() => this.drain());
+    })
+      setInterval(() => this.drain(), 10*1000); // backstop for time-based retry eligibility
+      this.drain(); 
+
   }
   private isEligibleForRetry(task: SyncManagerDexie): boolean {
     // You define this — e.g.:
-    if(task.type==SyncManager.SYNC_ADD_TASK || task.type==SyncManager.SYNC_EDIT_TASK ){
+    if(task.type==SyncManager.SYNC_ADD_TASK || task.type==SyncManager.SYNC_EDIT_TASK || task.type == SyncManager.SYNC_DELETE_TASK){
       const updated =  Number(task.updated)
       const retryNumber = !isNaN(Number(task.retryNumber)) ? Number(task.retryNumber) : 0
       if(retryNumber <= SYNCMANAGER_DEFAULT_MAX_RETRIES){      
@@ -48,7 +55,7 @@ class SyncEngine {
           await SyncManager.executeTask(task.id?.toString()).catch(e=>{
             console.error("SyncEngine.drain",e, task?.summary)
           });
-          this.postRunFunction()
+          if(this.postRunFunction) this.postRunFunction()
           localStorage.setItem(IS_SYNCING, "false")
           task = await this.claimNext();
         }
@@ -66,13 +73,10 @@ class SyncEngine {
     // });
 
     return db.transaction("rw", db.sync_manager, async () => {
-    let isErrorTask =  false
-    let task = await db.sync_manager.where("status").equals("pending").first();
-    console.log("task", task)
+    let task = await db.sync_manager.where("status").equals("pending").filter(item=>item.userid==this.userid).first();
     if (!task) {
-      const errorTasks = await db.sync_manager.where("status").equals("error").toArray();
+      const errorTasks = await db.sync_manager.where("status").equals("error").filter(item=>item.userid==this.userid).toArray();
       task = errorTasks.find(this.isEligibleForRetry);
-      if(task) isErrorTask = true
     }
 
 
@@ -81,6 +85,7 @@ class SyncEngine {
       // await db.sync_manager.update(task.id, { status: "processing", retryNumber: newRetryNumber });
       const result = await changeSyncTaskStatusinDexie(task.id, "processing", "",{retryNumber: newRetryNumber})
     }
+
     return task;
   });
   }
