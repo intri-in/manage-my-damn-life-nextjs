@@ -1,1 +1,1 @@
-- Sync Manager - Now handles task delete
+- Bug fix - Fixed a bug where the user would be denied access to a calendar (especially if multiple users have the same calendars in the database.)

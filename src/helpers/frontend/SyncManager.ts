@@ -98,7 +98,6 @@ export class SyncManager{
         const id_toSearch =  Number(id)
         if(isNaN(id_toSearch)) return
         const task =  await getSyncTaskByIdFromDexie(id_toSearch)
-        console.log("executeTask task", task)
         if(task && Array.isArray(task) && task.length>0){
             const currentTask = task[0]
             switch(currentTask.type){

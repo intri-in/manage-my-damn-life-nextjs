@@ -22,9 +22,9 @@ export default async function handler(req, res) {
 
         }
 
-        var userObj = new User(userid)
+        const userObj = new User(userid)
         const calendars_id = await userObj.getCalendarID_FromURLandCaldavAccountID(req.query.caldav_accounts_id, decodeURIComponent(req.query.url))
-            // console.log("calendars_id", calendars_id,req.query.url)
+        // console.log("calendars_id", calendars_id,req.query.url, userid, userObj, "req.query.caldav_accounts_id", req.query.caldav_accounts_id)
         if(!calendars_id){
             return  res.status(401).json({ success: false, data: { message: 'USER_DOESNT_HAVE_ACCESS'} })
 

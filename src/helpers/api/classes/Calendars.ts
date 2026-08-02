@@ -228,11 +228,12 @@ export class Calendars{
     
     }
 
-    static async getIDFromURL(url)
+    static async getIDFromURL(url, caldav_accounts_id)
     {
         const calendar =  await calendarsModel.findAll({
             where:{
-                url: url
+                url: url,
+                caldav_accounts_id: caldav_accounts_id
             },
         })
         if(calendar && Array.isArray(calendar) && calendar.length>0 && ("calendars_id" in calendar[0]) && calendar[0].calendars_id){
