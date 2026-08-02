@@ -280,7 +280,7 @@ export function fixDueDateWithFormat(inputDate, dateFormat) {
     return dueDate
 }
 
-export function getISO8601Date(date, skipTime)
+export function getISO8601Date(date, skipTime?)
 {
     var toReturn = ""
     if(date!=null)
