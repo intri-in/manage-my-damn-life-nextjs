@@ -1,1 +1,1 @@
-- Bug fix - Fixed a bug where the user would be denied access to a calendar (especially if multiple users have the same calendars in the database.)
+- Bug fix - AuthentikProvider now automatically removes trailing slash from the AUTHENTIK_ISSUER value
