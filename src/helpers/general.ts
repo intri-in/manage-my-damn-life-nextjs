@@ -87,6 +87,11 @@ export function addTrailingSlashtoURL(url)
 
 }
 
+export function removeTrailingSlashFromString(inp: string){
+    const cleanString = inp.replace(/\/+$/, ""); 
+    return cleanString
+}
+
 export function replaceNewLineCharacters(string)
 {
     return string.replace(/(?:\r\n|\r|\n)/g, '\\n');
@@ -156,7 +161,7 @@ export function isStringEmpty(val){
 }
 export function isNumber(value) {
     if (typeof value === "string") {
-        return !isNaN(value);
+        return !isNaN(Number(value));
     }
 }
 
@@ -197,7 +202,7 @@ export function appendLangParamtoURL(url, lng, langArray)
 
 export function logError(error, additionalDetails)
 {
-    if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
+    if(process.env.NEXT_PUBLIC_DEBUG_MODE && process.env.NEXT_PUBLIC_DEBUG_MODE.toString().trim()=="true")
     {
         console.error("=====================")
         console.error(error)
@@ -210,7 +215,7 @@ export function logError(error, additionalDetails)
 
 export function logVar(variable,tag)
 {
-    if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
+    if(process.env.NEXT_PUBLIC_DEBUG_MODE && process.env.NEXT_PUBLIC_DEBUG_MODE.toString().trim()=="true")
     {
         console.log("=====================")
         if(varNotEmpty(tag)) console.log(tag)
@@ -220,7 +225,7 @@ export function logVar(variable,tag)
 }
 export function debugging()
 {
-    if(process.env.NEXT_PUBLIC_DEBUG_MODE=="true" || process.env.NEXT_PUBLIC_DEBUG_MODE==true)
+    if( process.env.NEXT_PUBLIC_DEBUG_MODE && process.env.NEXT_PUBLIC_DEBUG_MODE.toString().trim()=="true")
     {
         return true
     }else{
@@ -327,7 +332,7 @@ export function stringInStringArray(toSearch, haystackArray){
 
 }
 
-export function isValidJSON(stringTocheck){
+export function isValidJSON(str){
     try {
         JSON.parse(str);
     } catch (e) {
