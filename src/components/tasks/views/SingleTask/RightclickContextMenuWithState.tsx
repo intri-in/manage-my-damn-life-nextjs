@@ -1,3 +1,4 @@
+import VTodoGenerator from '@../../vtodogenerator/dist/index'
 
 import { MYDAY_LABEL } from '@/config/constants';
 import { getEtagFromURL_Dexie, getEventFromDexieByID } from '@/helpers/frontend/dexie/events_dexie';
@@ -23,6 +24,7 @@ import moment from 'moment';
 import { moveEventModalInput, showMoveEventModal } from 'stateStore/MoveEventStore';
 import { useTranslation } from 'next-i18next';
 import { toast } from 'react-toastify';
+import { SyncManager } from '@/helpers/frontend/SyncManager';
 interface propsType {
   id: number | string,
   parsedTask: ParsedTask,
@@ -50,6 +52,7 @@ export function RightclickContextMenuWithState(props: propsType) {
   const [calendar_id, setCalendarsID] =  useState(0)
   const [eventURL, setEventURL] = useState("")
   const [options, setOptions] = useState<JSX.Element[]>([])
+  const [unparsedData, setUnparsedData] = useState("")
   useEffect(() => {
     let isMounted = true
     if (isMounted) {
@@ -65,6 +68,7 @@ export function RightclickContextMenuWithState(props: propsType) {
 
         getEventFromDexieByID(id).then(event =>{
           if(event && event.length>0){
+            if(event[0].data) setUnparsedData(event[0].data)
             if(event[0].calendar_id)  setCalendarsID(parseInt(event[0].calendar_id?.toString()))
             if(event[0].url) setEventURL(event[0].url)
           }
@@ -157,19 +161,34 @@ export function RightclickContextMenuWithState(props: propsType) {
       if(props.parsedTask.rrule){
         newTodo.rrule = RRuleHelper.rruleToObject(props.parsedTask.rrule)
       }
-      const eventEtag = await getEtagFromURL_Dexie(eventURL)
-      let message = newTodo["summary"] ? newTodo["summary"]+": " : "" 
-      toast.info(message+t("ACTION_SENT_TO_CALDAV"))
+      pushTaskToSyncManager(newTodo)
+      // let message = newTodo["summary"] ? newTodo["summary"]+": " : "" 
+      // toast.info(message+t("ACTION_SENT_TO_CALDAV"))
   
-      updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo,toastOnReponse ).then(reponse =>{
-        setUpdateViewTime(Date.now())
-      })
+      // updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo,toastOnReponse ).then(reponse =>{
+      //   setUpdateViewTime(Date.now())
+      // })
 
 
 
     }
   }
+  const pushTaskToSyncManager = async(newTodo) =>{
+      const eventEtag = await getEtagFromURL_Dexie(eventURL)
+      const todoGen = new VTodoGenerator(newTodo, {strict: false})
+      const todo = todoGen.generate()
+      if(todo && eventEtag){
 
+        SyncManager.addTask(SyncManager.SYNC_EDIT_TASK, props.parsedTask.summary, {calendar_id:calendar_id, oldData: unparsedData, newData: todo, etag:eventEtag, type:"VTODO",  eventURL: eventURL}).then( res =>{
+            if(res){
+                setUpdateViewTime(Date.now())
+            }else{
+                toast.error(t("ERROR_GENERIC"))
+            }
+        })
+      }
+
+  }
   const toastOnReponse = (body, taskName) =>{
     onServerResponse_UI(body,taskName, t)
   }
@@ -184,10 +203,11 @@ export function RightclickContextMenuWithState(props: propsType) {
       if(props.parsedTask.rrule){
         newTodo.rrule = RRuleHelper.rruleToObject(props.parsedTask.rrule)
       }
-      const eventEtag = await getEtagFromURL_Dexie(eventURL)
-      updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo, toastOnReponse).then(reponse =>{
-        setUpdateViewTime(Date.now())
-      })
+      pushTaskToSyncManager(newTodo)
+      // const eventEtag = await getEtagFromURL_Dexie(eventURL)
+      // updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo, toastOnReponse).then(reponse =>{
+      //   setUpdateViewTime(Date.now())
+      // })
     }
 
   }
