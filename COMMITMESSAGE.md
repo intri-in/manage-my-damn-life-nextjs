@@ -1,1 +1,1 @@
-- Bug fix - AuthentikProvider now automatically removes trailing slash from the AUTHENTIK_ISSUER value
+- Add to My day, and removal from My Day is now handled through Sync Manager.

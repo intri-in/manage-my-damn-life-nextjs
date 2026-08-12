@@ -288,7 +288,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     </div>
                 </div>
             </ContextMenuTrigger>
-            <RightclickContextMenuWithState parsedTask={parsedTask} id={id} />
+            <RightclickContextMenuWithState  parsedTask={parsedTask} id={id} />
         </div>
     )
 
