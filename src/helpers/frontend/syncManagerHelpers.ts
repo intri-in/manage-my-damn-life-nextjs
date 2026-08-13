@@ -185,21 +185,16 @@ export async function syncManager_updateEventinCaldav(id: string, input: SyncMan
             .then((body) => {
                 if (body && body.success) {
                     // console.log("update Event", body)
-                    if (body.data && body.data.details) {
-                        const newEvent = body.data.details
-                        let dataToSave = newEvent["data"] ?? input
-                        if (newEvent && newEvent.url) {
+                    if (body.data && body.data.refresh && "details" in body.data) {
+                        const newEtag = body.data.details.etag
+                        // console.log("old etag", input.etag, "new etag", newEtag)
+                        let dataToSave = input.newData 
 
-                            saveEventToDexie(input.calendar_id, newEvent["url"], newEvent["etag"], dataToSave, typetoSend).then((resultOfInsert) => {
+                            saveEventToDexie(input.calendar_id, input.eventURL, newEtag, dataToSave, typetoSend).then((resultOfInsert) => {
 
                                 deleteSyncTaskinDexie(id)
                                 return resolve(true)
                             })
-                        } else {
-                            changeSyncTaskStatusinDexie(id, "error", JSON.stringify(body))
-                            return resolve(false)
-
-                        }
 
                     } else {
                         changeSyncTaskStatusinDexie(id, "error", JSON.stringify(body))

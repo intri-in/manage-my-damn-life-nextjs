@@ -4,7 +4,7 @@ import { changeSyncTaskStatusinDexie, deleteSyncTaskinDexie, getSyncTaskByIdFrom
 import { db, SyncManagerDexie } from "@/helpers/frontend/dexie/dexieDB"
 import { getEventbyURLFromDexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie"
 import { getParsedEvent } from "@/helpers/frontend/events"
-import { fetchLatestEventsV2 } from "@/helpers/frontend/sync"
+import { fetchLatestEventsFromCalendar, fetchLatestEventsV2 } from "@/helpers/frontend/sync"
 import { SyncManager, SyncManagerAddTaskInput } from "@/helpers/frontend/SyncManager"
 import { useLiveQuery } from "dexie-react-hooks"
 import { useAtomValue } from "jotai"
@@ -39,7 +39,14 @@ const ConflictResolutionComponent =({id}:{id: string | undefined})=>{
     }))
 
     useEffect(()=>{
-        fetchLatestEventsV2().then( res =>fetchConflictDataFromDB(id))
+        fetchConflictDataFromDB(id).then(tasks =>{
+            // console.log("tasks", tasks , Array.isArray(tasks) , tasks ? tasks.length : "" , "calendars_id" in tasks[0].input )
+            if(tasks && Array.isArray(tasks) && tasks.length>0 && "calendar_id" in tasks[0].input){
+                fetchLatestEventsFromCalendar(tasks[0].input.calendar_id)
+            }else{
+                toast.error(t("ERROR_GENERIC"))
+            }
+        })
     },[id])
     useEffect(()=>{
         fetchConflictDataFromDB(id)
@@ -99,13 +106,16 @@ const ConflictResolutionComponent =({id}:{id: string | undefined})=>{
                         setOutput(<>{JSON.stringify(event?.parsedData, null, 20)}</>)
                     }
                 }
+            return task
+
             }else{
                 setHasResolved(true)
                 setUserChanges(<></>)
                 setOutput(<></>)
             }
-
         }
+
+        return null
     }
     const backClicked = ()=>{
         router.push("/sync-manager")

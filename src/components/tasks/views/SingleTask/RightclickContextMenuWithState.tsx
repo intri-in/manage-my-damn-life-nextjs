@@ -186,6 +186,9 @@ export function RightclickContextMenuWithState(props: propsType) {
                 toast.error(t("ERROR_GENERIC"))
             }
         })
+      }else{
+          toast.error(t("ERROR_GENERIC"))
+
       }
 
   }
@@ -208,6 +211,8 @@ export function RightclickContextMenuWithState(props: propsType) {
       // updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTodo, toastOnReponse).then(reponse =>{
       //   setUpdateViewTime(Date.now())
       // })
+    }else{
+      toast.error(t("ERROR_GENERIC"))
     }
 
   }

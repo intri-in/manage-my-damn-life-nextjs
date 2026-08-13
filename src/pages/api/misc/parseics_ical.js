@@ -7,7 +7,6 @@ export default async function handler(req, res) {
         {
             var type="vevent"
             var dataICS= req.body.ics
-            var dataICS="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:DAVx5/4.3.1-ose ical4j/3.2.7 (at.techbee.jtx)\nBEGIN:VTODO\nDTSTAMP:20230426T141018Z\nUID:e2a44cc4-de64-4f24-80d5-c7652eb2af22\nSEQUENCE:6\nCREATED:20230426T193533Z\nLAST-MODIFIED:20230426T141008Z\nSUMMARY:Test jtx board task \n DESCRIPTION:asdasd\nRESOURCES:Yhh\nATTENDEE;CN=Ghjj;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT:\nPERCENT-COMPLETE:0\nPRIORITY:0\nEND:VTODO\nEND:VCALENDAR"
             if(varNotEmpty(req.body.type) && req.body.type!="")
             {
                 type=req.body.type.toLowerCase()

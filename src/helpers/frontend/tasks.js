@@ -82,31 +82,33 @@ export async function generateNewTaskObject(currenTaskObject, oldData, oldUnpars
 
     /**
      * Now we parse with ICAL.js
+     * Removed in v0.10.0. It just adds an extra API call during task/event save.
+     * If some data goes missing, we will investigate if those cases arise.
      */
 
-    if(varNotEmpty(oldUnparsed) && oldUnparsed!="")
-    {
-        var response = await makeParseICSRequest(oldUnparsed,"VTODO")
-        if(varNotEmpty(response) && varNotEmpty(response.success) && response.success==true)
-        {
-            var newICALJSParsedData = response.data.message
-            for(const key in newICALJSParsedData)
-            {
-                if (!(key in newTaskObject) && includeKeyInICS(key)==true)
-                {
-                    // This key is not in our object. So we include it.
-                    if(varNotEmpty(newICALJSParsedData[key]["value"]) && newICALJSParsedData[key]["value"]!="")
-                    {
-                        newTaskObject[key]=newICALJSParsedData[key]["value"]
+    // if(varNotEmpty(oldUnparsed) && oldUnparsed!="")
+    // {
+    //     var response = await makeParseICSRequest(oldUnparsed,"VTODO")
+    //     if(varNotEmpty(response) && varNotEmpty(response.success) && response.success==true)
+    //     {
+    //         var newICALJSParsedData = response.data.message
+    //         for(const key in newICALJSParsedData)
+    //         {
+    //             if (!(key in newTaskObject) && includeKeyInICS(key)==true)
+    //             {
+    //                 // This key is not in our object. So we include it.
+    //                 if(varNotEmpty(newICALJSParsedData[key]["value"]) && newICALJSParsedData[key]["value"]!="")
+    //                 {
+    //                     newTaskObject[key]=newICALJSParsedData[key]["value"]
     
-                    }else{
-                        newTaskObject[key]=newICALJSParsedData[key]["additional"]
-                    }
+    //                 }else{
+    //                     newTaskObject[key]=newICALJSParsedData[key]["additional"]
+    //                 }
     
-                }
-            }
-        }
-    }
+    //             }
+    //         }
+    //     }
+    // }
     
     return newTaskObject
 
