@@ -1,1 +1,2 @@
-- Add to My day, and removal from My Day is now handled through Sync Manager.
+- Improved updating of event.
+- Removed excess ICS parsing API call in save event/task job to remove blockage of Task/Event Editor. 

@@ -12,6 +12,8 @@ import { getSyncTimeout } from "./settings"
 import { IS_SYNCING, LASTSYNC, getValueFromLocalStorage } from "./localstorage"
 import { syncWebcals } from "./webcals"
 import { SyncManager } from "./SyncManager"
+import { Calendars, SyncManagerDexie } from "./dexie/dexieDB"
+import { getCalendarbyIDFromDexie } from "./dexie/calendars_dexie"
 
 export function isSyncing(){
     const isSyncingFromLocal = getValueFromLocalStorage(IS_SYNCING)
@@ -112,6 +114,21 @@ export async function fetchLatestEvents(refreshCalList)
     }
 }
 
+export async function fetchLatestEventsFromCalendar(calendar_id){
+    if (!calendar_id) return false
+    const calArray = await getCalendarbyIDFromDexie(calendar_id)
+    // console.log(`fetchLatestEventsFromCalendar ${calendar_id}`, calArray)
+    if(calArray && Array.isArray(calArray) && calArray.length>0 && calArray[0]){
+        const cal: Calendars = calArray[0]
+        if(!cal.calendars_id || !cal.caldav_accounts_id || !cal.url || !cal.ctag || !cal.syncToken) return false
+        
+        SyncManager.addTask(SyncManager.SYNC_CALENDER, `Syncing Calendar: "${cal.displayName} ${cal.calendars_id}`,{calendars_id:cal.calendars_id.toString(), caldav_accounts_id:cal.caldav_accounts_id.toString(),url:cal.url,ctag:cal.ctag,syncToken:cal.syncToken}).then(res =>{
+            return true
+        })
+
+    }
+    return false
+}
 export async function fetchLatestEventsV2(forceSync?)
 {
     // if(isSyncing()){

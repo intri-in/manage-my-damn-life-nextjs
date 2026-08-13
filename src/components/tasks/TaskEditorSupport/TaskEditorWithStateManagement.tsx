@@ -54,7 +54,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     /**
      * Local State
      */
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [isSubmitting, setSubmitting] = useState(false)
     const [unParsedData, setUnparsedDataFromDexie] = useState("")
     const [taskDone, setTaskDone] = useState(false)
@@ -86,22 +86,22 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [isTemplate, setIsTemplate] = useState(false)
     const [alarms, setVAlarm] = useState<VAlarmType[]>([])
     const changeDoneStatus = (isDone: boolean) => {
-        if(!isDone){
+        if (!isDone) {
             setCompleted("")
             setStatus("")
             if (completion && parseInt(completion) == 100) {
                 setCompletion("0")
             }
         }
-        if(!isRepeatingTask && isDone){
-                const completedDate = getISO8601Date(moment().toISOString())
-                // console.log(completedDate)
-                setCompleted(completedDate!)
-                setCompletion("100")
-                setStatus("COMPLETED")
-            
+        if (!isRepeatingTask && isDone) {
+            const completedDate = getISO8601Date(moment().toISOString())
+            // console.log(completedDate)
+            setCompleted(completedDate!)
+            setCompletion("100")
+            setStatus("COMPLETED")
+
         }
-        
+
     }
     useEffect(() => {
         let isMounted = true
@@ -220,20 +220,20 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (input.start && moment(input.start).isValid()) {
                 setTaskStart(moment(input.start).toISOString())
             }
-            if("priority" in input && input.priority){
+            if ("priority" in input && input.priority) {
 
                 setPriority(input.priority.toString())
             }
-            if("completion" in input && input.completion){
+            if ("completion" in input && input.completion) {
 
                 setCompletion(input.completion.toString())
             }
-            if("status" in input && input.status){
+            if ("status" in input && input.status) {
                 // console.log("input.status", input.status)
                 setStatus(input.status.toString())
             }
 
-            if("description" in input && input.description){
+            if ("description" in input && input.description) {
 
                 setDescription(input.description.toString())
             }
@@ -269,15 +269,15 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (calendar_id) {
                 setCalendarID(calendar_id)
 
-                    setCalendarDDLDisabled(true)
-                    setShowMoveEventOption(true)
+                setCalendarDDLDisabled(true)
+                setShowMoveEventOption(true)
             }
-    
+
         }
 
         return null
     }
-    const processTaskData = (unParsedData) =>{
+    const processTaskData = (unParsedData) => {
         if (unParsedData) setRawICS(unParsedData)
         // console.log(unParsedData)
         const parsedData = returnGetParsedVTODO(unParsedData)
@@ -304,7 +304,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             }
             //Check and set repeating task parameters.
             setRrule(rruleToObject(parsedData["rrule"]))
-            console.log("rruleToObject(parsedData",rruleToObject(parsedData["rrule"]))
+            console.log("rruleToObject(parsedData", rruleToObject(parsedData["rrule"]))
             const isRecurring = parsedData["rrule"] ? true : false
             if (parsedData["rrule"]) {
                 /**
@@ -335,7 +335,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (parsedData["start"]) {
                 setTaskStart(new Date(moment(parsedData["start"]).unix() * 1000).toString())
             }
-            if (parsedData["alarms"] && Array.isArray(parsedData["alarms"]) && parsedData["alarms"].length>0) {
+            if (parsedData["alarms"] && Array.isArray(parsedData["alarms"]) && parsedData["alarms"].length > 0) {
                 setVAlarm(parsedData["alarms"])
             }
             // console.log(parsedData)
@@ -415,25 +415,25 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             return
         }
         // if (dueDate != null) {
-            //     //dueDateToSave = fixDueDate(dueDate)
-            //     dueDateToSave = moment(moment(dueDate).format(dateFullFormat)).toISOString()
-            // }
+        //     //dueDateToSave = fixDueDate(dueDate)
+        //     dueDateToSave = moment(moment(dueDate).format(dateFullFormat)).toISOString()
+        // }
         let dueDateToSave = dueDate
         let taskStartToSave = taskStart
 
         // console.log("due date to save", dueDate, taskStart, isTemplate)
-        const valid = isTemplate ? true: await checkifValid()
+        const valid = isTemplate ? true : await checkifValid()
         if (valid) {
             // Now comes the patch work for repeating tasks.
             // If this is a repeating task and it has been marked as done, we just forward the start and due date based on the RRULE.
-            if(isRepeatingTask && taskDone){
+            if (isRepeatingTask && taskDone) {
                 // console.log("RRULE", rrule)
-                if(taskStart){
-                    taskStartToSave =  RRuleHelper.addRecurrenceDelaytoDate(rrule, taskStart).toISOString()
+                if (taskStart) {
+                    taskStartToSave = RRuleHelper.addRecurrenceDelaytoDate(rrule, taskStart).toISOString()
                 }
-                if(dueDate){
+                if (dueDate) {
 
-                    dueDateToSave =  RRuleHelper.addRecurrenceDelaytoDate(rrule, dueDate).toISOString()
+                    dueDateToSave = RRuleHelper.addRecurrenceDelaytoDate(rrule, dueDate).toISOString()
 
                 }
             }
@@ -444,46 +444,50 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
             const todo = new VTodoGenerator(finalTodoData, { strict: false })
             console.log("Generated TODO: -> ", summary, todo, finalTodoData)
-            try{
+            try {
 
                 const finalVTODO = todo.generate()
                 // console.log(finalVTODO)
                 if (isTemplate) {
-                    if("templateReturn" in input && input.templateReturn && typeof(input.templateReturn) == "function"){
-                        input.templateReturn({calendar_id:calendar_id,data:finalVTODO})
+                    if ("templateReturn" in input && input.templateReturn && typeof (input.templateReturn) == "function") {
+                        input.templateReturn({ calendar_id: calendar_id, data: finalVTODO })
                     }
                     closeEditor()
-    
+
                     return
                 }
                 if (isNewTask) {
                     const etag = getRandomString(32)
                     let fileName = getRandomString(64) + ".ics"
-                    SyncManager.addTask(SyncManager.SYNC_ADD_TASK, summary, {calendar_id:calendar_id, oldData: "", newData: finalVTODO, etag:etag, type:"VTODO", fileName:fileName}).then( res =>{
-                        if(res){
+                    SyncManager.addTask(SyncManager.SYNC_ADD_TASK, summary, { calendar_id: calendar_id, oldData: "", newData: finalVTODO, etag: etag, type: "VTODO", fileName: fileName }).then(res => {
+                        if (res) {
                             setUpdateViewTime(Date.now())
                             closeEditor()
                         }
                     }
                     )
-    
+
                 } else {
                     // Make an update request.
                     if (input.id) {
-    
+
                         const etag = await getEtagFromEventID_Dexie(input.id)
                         if (!etag) {
                             console.error("Etag is null!")
                             toast.error(t("ERROR_GENERIC"))
-    
-                        }else{
-                            
+
+                        } else {
+
                             const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
-                            SyncManager.addTask(SyncManager.SYNC_EDIT_TASK, summary, {calendar_id:calendar_id, oldData: rawICS, newData: finalVTODO, etag:etag, type:"VTODO",  eventURL: eventURL}).then( res =>{
-                                if(res){
+                            console.time(`dexie_syncManagerAddTaskTimer_${summary}`)
+
+                            SyncManager.addTask(SyncManager.SYNC_EDIT_TASK, summary, { calendar_id: calendar_id, oldData: rawICS, newData: finalVTODO, etag: etag, type: "VTODO", eventURL: eventURL }).then(res => {
+                                if (res) {
                                     setUpdateViewTime(Date.now())
                                     closeEditor()
-                                }else{
+                                    console.timeEnd(`dexie_syncManagerAddTaskTimer_${summary}`)
+
+                                } else {
                                     toast.error(t("ERROR_GENERIC"))
                                 }
                             })
@@ -491,10 +495,10 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                         }
                     }
                 }
-            }catch(e){
+            } catch (e) {
                 toast.error(e.message)
             }
-           
+
 
         }
 
@@ -552,7 +556,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const checkifValid = async () => {
         // console.log("taskStart && !dueDate)", taskStart , dueDate, RRuleHelper.isValidObject(rrule), rrule)
 
-        if(isTemplate){
+        if (isTemplate) {
             return true
         }
         var dueDateUnix = moment(dueDate).unix()
@@ -583,7 +587,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         }
 
         if (varNotEmpty(rrule) && RRuleHelper.isValidObject(rrule)) {
-            if(!taskStart && !dueDate){
+            if (!taskStart && !dueDate) {
                 toast.error(t("ERROR_START_DUE_DATE_REQUIRED_FOR_RECCURENCE"))
                 return false
             }
@@ -724,9 +728,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         showMoveModal(true)
 
     }
-    const alarmChanged = (alarms) =>{
+    const alarmChanged = (alarms) => {
         // console.log("alarms" , alarms)
-        
+
         setVAlarm(alarms)
         onChange()
     }
@@ -784,7 +788,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     <div style={{ height: "50px", display: "flex", justifyContent: "flex-start", alignContent: "flex-start" }}>
 
                         <Form.Check
-                            label={t("TASK_DONE")+"?"}
+                            label={t("TASK_DONE") + "?"}
                             className="align-middle"
                             style={{}}
                             checked={taskDone}
@@ -793,7 +797,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     </div>
                 </Col>
             </Row>
-            <h4>{t("TASK")+" "+t("SUMMARY")}</h4>
+            <h4>{t("TASK") + " " + t("SUMMARY")}</h4>
             <div style={{ marginBottom: 10 }}><Form.Control onChange={taskSummaryChanged} autoFocus={true} value={summary} placeholder={t("ENTER_A_SUMMARY") ?? ""} /></div>
             {repeatInfoMessage}
             <h4>{t("CALENDAR")}</h4>
@@ -802,7 +806,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             </div>
             {showMoveEventOption ? <p onClick={copyMoveClicked} style={{ textAlign: "end", color: PRIMARY_COLOUR, fontSize: 14, }}>{t("COPY_MOVE")}</p> : null}
 
-            <h4>{t("PARENT")+" "+t("TASK")}</h4>
+            <h4>{t("PARENT") + " " + t("TASK")}</h4>
             <div style={{ marginBottom: 10 }}>
                 <ParentTaskView parentID={parentID} uid={uid} calendar_id={calendar_id} removeParentClicked={removeParentClicked} onParentSelect={onParentSelect} />
             </div>
@@ -818,7 +822,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 {/* {isRepeatingTask ? <p>{dueDateFixed}</p> : (<>
                     <Datepicker value={dueDate} onChangeHook={dueDateChanged} />
                 </>)} */}
-                   
+
                 <Datepicker value={dueDate} onChangeHook={dueDateChanged} />
 
             </Row>

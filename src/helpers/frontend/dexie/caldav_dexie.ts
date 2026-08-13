@@ -7,16 +7,8 @@ import { Caldav_Summary } from "@/types/generic";
 import { caldav_accounts, caldav_accountsAttributes } from "models/caldav_accounts";
 
 export async function getCalDAVSummaryFromDexie():Promise<Caldav_Summary[]>{
-  const userData = getUserDataFromCookies()
-  const userHash = userData["userhash"]
-  // console.log("userData", userData)
-  // console.time("dexie_getUserIDFromHash_Dexie")
   const userid = await getUserIDForCurrentUser_Dexie()    
-  // console.timeEnd("dexie_getUserIDFromHash_Dexie")
-  // console.time("dexie_getAllCalDavAccountsFromDexie")
   const caldavAccounts: Caldav_Summary[] = await getAllCalDavAccountsFromDexie(userid) as Caldav_Summary[]
-  // console.log("userid, caldavAccounts", userid, caldavAccounts)
-  // console.timeEnd("dexie_getAllCalDavAccountsFromDexie")
 
   let toReturn :Caldav_Summary[] = []
   if(Array.isArray(caldavAccounts)){

@@ -40,39 +40,46 @@ export default async function handler(req, res) {
                 }
 
                 let response = await updateEventinCalDAVAccount(caldav_accounts_id, objectToUpdate)
-                // console.log("response for Edit", response.result.status)
+                // console.log("response for Edit", req.body.etag, response)
                 let newEvent
                     if(response.result.status>=200 && response.result.status<300 && ( response.result.error==null || response.result.error==""))
                     {
                         //Looks like event has been updated successfully.
                         // Now we fetch it again, to get the new etag.
-                        if(response.client!=null)
-                        {
-                            const calendar =  await getCalendarFromEventURL(decodedURL)
-                            // console.log("decodedURL", calendar, decodedURL)
-                            if(calendar){
-                                const objects = await response.client.fetchCalendarObjects({
-                                calendar: calendar[0],
-                                objectUrls:[decodeURIComponent(req.body.url)],
-                              });
-                            if(shouldLogforAPI()) console.log(`${LOG_TAG} objects`, objects)
-                            if(isValidResultArray(objects))
-                            {
-                                newEvent = objects[0]
-                                if(!newEvent)
-                                {
-                                    if(!newEvent["data"]){
-                                        newEvent["data"] = req.body.data
-                                    }
-                                }
-                                    if(!newEvent["data"]){
-                                        newEvent["data"] = req.body.data
-                                    }
-                            }
-                            }
+                        // if(response.client!=null)
+                        // {
+                        //     const calendar =  await getCalendarFromEventURL(decodedURL)
+                        //     // console.log("decodedURL", calendar, decodedURL)
+                        //     if(calendar){
+                        //         const objects = await response.client.fetchCalendarObjects({
+                        //         calendar: calendar[0],
+                        //         objectUrls:[decodeURIComponent(req.body.url)],
+                        //       });
+                        //         console.log("objects", objects)
+                        //         if(shouldLogforAPI()) console.log(`${LOG_TAG} objects`, objects)
+                        //         if(isValidResultArray(objects))
+                        //         {
+                        //             newEvent = objects[0]
+                        //             if(!newEvent)
+                        //             {
+                        //                 if(!newEvent["data"]){
+                        //                     newEvent["data"] = req.body.data
+                        //                 }
+                        //             }
+                        //                 if(!newEvent["data"]){
+                        //                     newEvent["data"] = req.body.data
+                        //                 }
+                        //         }
+                        //     }
                            
 
+                        // }
+
+                        newEvent = {
+                            etag: response.result.headers.get('etag'),
+                            data: req.body.data
                         }
+                        
                         return res.status(200).json({ success: true, data: {message: "UPDATE_OK", details: newEvent, refresh:{url: decodedURL,calendar_id: req.body.calendar_id, caldav_accounts_id: caldav_accounts_id} }})
 
                     }else
