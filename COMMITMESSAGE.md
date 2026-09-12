@@ -1,1 +1,2 @@
 - Events are now also handled with SyncManager.
+- Fixed bug where the event's parent was not removed from UI after it was removed from Task Data.
