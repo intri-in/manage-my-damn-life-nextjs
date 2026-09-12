@@ -1,2 +1,2 @@
-- Improved updating of event.
-- Removed excess ICS parsing API call in save event/task job to remove blockage of Task/Event Editor. 
+- Improved fetching of userId, should reduce API calls.
+- Minor UI improvement - Overlay for label list fixed.

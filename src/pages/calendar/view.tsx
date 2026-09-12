@@ -15,40 +15,15 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
+import { useAuthGuard } from "@/helpers/frontend/hooks/useAuthGuard";
 
-export default function CalendarViewPage(){
-  const { data: session, status } = useSession() 
-  const [isloggedIn, setIsloggedIn] = useState(false)
-  const router = useRouter()
+export default function CalendarViewPage(props){
+  const isLoggedIn = useAuthGuard("/calendar/view", props.nextAuthEnabled);
   const {t} = useTranslation()
   useCustomTheme()
-  useEffect(() =>{
+  
 
-    let isMounted =true
-    async function checkAuth(){
-      
-        if(await nextAuthEnabled()){
-          if (status=="unauthenticated" ) {
-            signIn()
-          }else{
-              setIsloggedIn(true)
-          }
-        }else{
-          // Check login using inbuilt function.
-          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
-        }
-      }
-
-      if(isMounted){
-
-        checkAuth()
-      }
-      return () =>{
-        isMounted = false
-    }
-  }, [status, router])
-
-    if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
+    if(!isLoggedIn) return (<EmptyPageBeforeLogin />)   
 
 
      
@@ -74,6 +49,7 @@ export async function getStaticProps({ locale}) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+      nextAuthEnabled: await nextAuthEnabled()
       // Will be passed to the page component as props
     },
   }

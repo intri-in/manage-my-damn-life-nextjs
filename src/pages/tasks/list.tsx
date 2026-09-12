@@ -13,12 +13,13 @@ import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } fr
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
+import { useAuthGuard } from "@/helpers/frontend/hooks/useAuthGuard";
 
 
-export default function TaskListPage(){
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [isloggedIn, setIsloggedIn] = useState(false)
+export default function TaskListPage(props: any){
+const isLoggedIn = useAuthGuard("/tasks/list", props.nextAuthEnabled);
+
+const router = useRouter()
 
     useCustomTheme()
      /**
@@ -29,31 +30,7 @@ export default function TaskListPage(){
     const setCalDavAtom = useSetAtom(calDavObjectAtom)
     const [urlParsed, setURLPased] = useState(false)
     const {t} = useTranslation()
-    useEffect(() =>{
-
-      let isMounted =true
-      async function checkAuth(){
-        
-          if(await nextAuthEnabled()){
-            if (status=="unauthenticated" ) {
-              signIn()
-            }else{
-                setIsloggedIn(true)
-            }
-          }else{
-            // Check login using inbuilt function.
-            setIsloggedIn(await checkLogin_InBuilt(router,"/tasks/list"))
-          }
-        }
-
-        if(isMounted){
-
-          checkAuth()
-        }
-        return () =>{
-          isMounted = false
-      }
-    }, [status, router])
+   
 
     
      
@@ -115,7 +92,7 @@ export default function TaskListPage(){
       
     
   },[setCalDavAtom, setCurrentPageTitle, setFilterAtom, urlParsed])
-  if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
+if(!isLoggedIn) return(<EmptyPageBeforeLogin />)
 
 
   const output = urlParsed ? <TaskViewListWithStateManagement />: null
@@ -131,6 +108,7 @@ export async function getStaticProps({ locale}) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+      nextAuthEnabled: await nextAuthEnabled()
       // Will be passed to the page component as props
     },
   }

@@ -7,7 +7,7 @@ import { Caldav_Summary } from "@/types/generic";
 import { caldav_accounts, caldav_accountsAttributes } from "models/caldav_accounts";
 
 export async function getCalDAVSummaryFromDexie():Promise<Caldav_Summary[]>{
-  const userid = await getUserIDForCurrentUser_Dexie()    
+  const userid = await getUserIDForCurrentUser_Dexie() 
   const caldavAccounts: Caldav_Summary[] = await getAllCalDavAccountsFromDexie(userid) as Caldav_Summary[]
 
   let toReturn :Caldav_Summary[] = []
