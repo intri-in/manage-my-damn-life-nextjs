@@ -53,7 +53,7 @@ export const LabelListForTask = ({parsedTask, id}: {parsedTask: ParsedTask, id: 
 
             setFinalOutput([
                 <OverlayTrigger
-                placement="right"
+                placement="top"
                 overlay={renderTooltip}
                 key={`${id}_key_Overlay`}
                 >
