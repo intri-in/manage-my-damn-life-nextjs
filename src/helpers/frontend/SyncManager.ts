@@ -37,6 +37,7 @@ export class SyncManager{
     static SYNC_CALENDER = "SYNCMANAGER_SYNC_CALENDER" as const
     static SYNC_WEBCAL = "SYNCMANAGER_SYNC_WEBCAL" as const
     static SYNC_ADD_TASK = "SYNCMANAGER_SYNC_ADD_TASK" as const
+    static SYNC_ADD_EVENT = "SYNC_ADD_EVENT " as const
     static SYNC_EDIT_TASK = "SYNCMANAGER_SYNC_EDIT_TASK" as const
     static SYNC_DELETE_TASK = "SYNCMANAGER_SYNC_DELETE_TASK" as const
     static async addTask(type:SyncManagerType_Type, summary, input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput | SyncManagerAddTaskInput | SyncManagerDeleteEventInput){
@@ -56,7 +57,7 @@ export class SyncManager{
             case SyncManager.SYNC_ADD_TASK:
                 if("calendar_id" in input && input.etag && ("newData" in input && input.newData) && input.fileName){
                     //First we faux add the event in dexie
-                    const id = await syncManager_postNewEventIntoDexie(input.calendar_id, input.etag, input.newData, input.fileName) 
+                    const id = await syncManager_postNewEventIntoDexie(input.calendar_id, input.etag, input.newData, input.fileName, input.type) 
                     if(id && id!=0){
                         // we now have the id of the newly created event.
                         //We add the task to the Sync Manager
@@ -68,7 +69,7 @@ export class SyncManager{
             case SyncManager.SYNC_EDIT_TASK:
                 if("calendar_id" in input && ("eventURL" in input && input.eventURL)  && ("newData" in input && input.newData) && input.oldData){
                     //First we faux add the event in dexie
-                    const id = await saveEventToDexie(input.calendar_id, input.eventURL, input.etag, input.newData, "VTODO")
+                    const id = await saveEventToDexie(input.calendar_id, input.eventURL, input.etag, input.newData, input.type)
                     if(id && id!=0){
                         // we now have the id of the newly created event.
                         //We add the task to the Sync Manager

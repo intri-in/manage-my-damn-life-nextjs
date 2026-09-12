@@ -1,2 +1,1 @@
-- Improved fetching of userId, should reduce API calls.
-- Minor UI improvement - Overlay for label list fixed.
+- Events are now also handled with SyncManager.

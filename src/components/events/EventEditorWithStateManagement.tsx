@@ -26,6 +26,8 @@ import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { PRIMARY_COLOUR } from "@/config/style";
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore";
 import { useTranslation } from "next-i18next";
+import { SyncManager } from "@/helpers/frontend/SyncManager";
+import { updateViewAtom } from "stateStore/ViewStore";
 
 
 export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: EventEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) =>{
@@ -34,10 +36,10 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
      * Jotai
      */
 
-    const dateFormat = useAtomValue(currentSimpleDateFormatAtom)
     const dateFullFormat = useAtomValue(currentDateFormatAtom)
     const showMoveModal = useSetAtom(showMoveEventModal)
     const setMoveEventInput = useSetAtom(moveEventModalInput)
+    const setUpdateViewTime = useSetAtom(updateViewAtom)
 
     /**
      * Local State
@@ -259,14 +261,14 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             finalToDate = moment(toDate).add(1, "day").startOf("day").toISOString()
         }
 
-        let eventData = {uid: uid, summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
+        let eventData = {uid: uid ?? getRandomString(32), summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
         
         if(isValidEvent()){
             // console.log("calendar_id", finalFromDate, finalToDate)
             eventData = addAdditionalFieldsFromOldEventV2(eventData, parsedData)
             const obj = getObjectForAPICallV2(eventData)
             const ics = await makeGenerateICSRequest({ obj })
-            // console.log("ics Event Editor", ics)
+            console.log("ics Event Editor", ics)
             if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if(ics){
                 setIsSubmitting(true)
@@ -288,10 +290,23 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                             console.error("Etag is null!")
                             toast.error(t("ERROR_GENERIC"))
     
+                        }else{
+                            const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
+                            console.time(`dexie_syncManagerAddTaskTimer_${summary}`)
+
+                            SyncManager.addTask(SyncManager.SYNC_EDIT_TASK, summary, { calendar_id: calendar_id, oldData: rawICS, newData: ics, etag: etag, type: "VEVENT", eventURL: eventURL }).then(res => {
+                                if (res) {
+                                    setUpdateViewTime(Date.now())
+                                    closeEditor()
+                                    console.timeEnd(`dexie_syncManagerAddTaskTimer_${summary}`)
+
+                                } else {
+                                    toast.error(t("ERROR_GENERIC"))
+                                }
+                            })
+
                         }
-                        const eventURL = await getEventURLFromDexie(parseInt(input.id.toString()))
     
-                        updateTodoLocal(calendar_id, eventURL, etag, ics)
                     }
                 }
             }
@@ -302,7 +317,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     }
     const saveNewEvent = async (ics) => {
         const message = summary ? summary + ": " : ""
-        toast.info(message + t("ACTION_SENT_TO_CALDAV"))
+        // toast.info(message + t("ACTION_SENT_TO_CALDAV"))
 
         let fileName = getRandomString(8) + ".ics"
         const calendarFromDexie = await getCalendarbyIDFromDexie(parseInt(calendar_id))
@@ -317,12 +332,19 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                 url += fileName
             }
             const etag = getRandomString(32)
+            SyncManager.addTask(SyncManager.SYNC_ADD_TASK, summary, { calendar_id: calendar_id, oldData: "", newData: ics, etag: etag, type: "VEVENT", fileName: fileName }).then(res => {
+                        if (res) {
+                            setUpdateViewTime(Date.now())
+                            closeEditor()
+                        }
+                    }
+            )
 
-            const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
-            postNewEvent(calendar_id, ics, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], "VEVENT", fileName).then((body) => {
-                onServerResponse(body, summary)
-            })
-            closeEditor()
+            // const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(calendar_id)
+            // // postNewEvent(calendar_id, ics, etag, caldav_accounts_id, calendarFromDexie[0].ctag, calendarFromDexie[0]["syncToken"], calendarFromDexie[0]["url"], "VEVENT", fileName).then((body) => {
+            // //     onServerResponse(body, summary)
+            // // })
+            // closeEditor()
 
         }
 
