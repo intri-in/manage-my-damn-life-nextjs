@@ -22,7 +22,7 @@ export const EventEditorViewManager =() =>{
      */
     const show = useAtomValue(showEventEditorAtom)
     const setShow = useSetAtom(showEventEditorAtom)
-    const setUpdateViewTime = useSetAtom(updateCalendarViewAtom)
+    const setUpdateViewTime = useSetAtom(updateViewAtom)
 
     const eventEditorInput = useAtomValue(eventEditorInputAtom)
     const setEventEditorInput = useSetAtom(eventEditorInputAtom)
@@ -81,8 +81,10 @@ export const EventEditorViewManager =() =>{
                         data: eventToDelete,
                         url: eventToDelete.url
                     }
-                    SyncManager.addTask(SyncManager.SYNC_DELETE_TASK, eventToDelete.parsedData["summmary"], input)
+                    SyncManager.addTask(SyncManager.SYNC_DELETE_TASK, eventToDelete.parsedData["summary"], input)
                     success=true
+                    setShowConfirmDeleteDialog(false)
+                    destroy()
                 }
             }
             // if(event && event.length>0){

@@ -124,7 +124,7 @@ export async function syncManager_pushNewEventToCaldav(id: string, input: SyncMa
 
                         if (body.data && body.data.details) {
                             const newEvent = body.data.details
-                            console.log('syncManager_pushNewEventToCaldav body', body)
+                            // console.log('syncManager_pushNewEventToCaldav body', body)
                             let dataToSave = newEvent["data"] ?? input.newData
                             if (newEvent && newEvent.etag && newEvent.data && newEvent.url) {
 
@@ -217,7 +217,7 @@ export async function syncManager_updateEventinCaldav(id: string, input: SyncMan
     })
 }
 
-export async function syncManager_postNewEventIntoDexie(calendar_id: string | number, etag: string, data: string, fileName: string) {
+export async function syncManager_postNewEventIntoDexie(calendar_id: string | number, etag: string, data: string, fileName: string, type="VTODO") {
 
     const calendarFromDexie = await getCalendarbyIDFromDexie(calendar_id)
     if (calendarFromDexie && calendarFromDexie.length > 0) {
@@ -228,7 +228,7 @@ export async function syncManager_postNewEventIntoDexie(calendar_id: string | nu
                 url = url + '/';
             }
             url += fileName
-            const id = await saveEventToDexie(calendar_id, url, etag, data, "VTODO")
+            const id = await saveEventToDexie(calendar_id, url, etag, data, type)
             return id
         } else {
             console.error("SyncManager.postNewEventIntoDexie: url is empty.")
@@ -258,11 +258,12 @@ export async function syncManager_deleteEventFromCaldav(id: string | number, inp
             .then((body) => {
                 if (body && body.success == true) {
                     deleteSyncTaskinDexie(id)
+                    return resolve(false)
                 } else {
                     if (body) {
 
                         changeSyncTaskStatusinDexie(id, "error", JSON.stringify(body))
-                        return resolve(true)
+                        return resolve(false)
                     } else {
                         changeSyncTaskStatusinDexie(id, "error", "ERROR_GENERIC")
                         return resolve(false)

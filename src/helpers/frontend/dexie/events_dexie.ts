@@ -233,7 +233,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         }
     }
 
-    // console.log("calendars_id, url", calendars_id, url, )
+    // console.log("parsed",parsed, parsedInput, data)
 
 
     //Check if event exists in Dexie already, if so, we update it.
@@ -278,7 +278,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
 
         // console.log("saveEventToDexie -> id", id ,parsed.summary, )
     }
-    await saveEventParenttoDexie(parsed)
+    await saveEventParenttoDexie(parsed, eventID?.uid)
     return toReturn
     
 }
