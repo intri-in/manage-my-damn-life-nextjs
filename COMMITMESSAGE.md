@@ -1,6 +1,1 @@
-- Fixed #301, temporarily
-- Fixed #356 - On screens larger than 2000px in width, the due date on the Home Page is rendered.
-- Fixed syncManager not mounting on Logout.
-- Logout now displays a dialog.
-- Minor UI Fix.
-- Upgraded dependencies.
+Version bump to v0.10.0 before launch.
