@@ -8,7 +8,7 @@ import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import Form from 'react-bootstrap/Form';
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Stack } from "react-bootstrap";
 import { getEmptyEventDataObject, getParsedEvent, isAllDayEvent, majorTaskFilter, rruleToObject, updateEvent } from "@/helpers/frontend/events";
 import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
@@ -44,6 +44,8 @@ import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateS
 import momentPlugin from '@fullcalendar/moment';
 import { Caldav_Summary } from "@/types/generic";
 import { SyncManager } from "@/helpers/frontend/SyncManager";
+import { DateFormatter } from "@fullcalendar/core/internal";
+import { FormatterInput } from "@fullcalendar/core/index.js";
 interface EventObject {
     id: string,
     title: string,
@@ -68,7 +70,7 @@ interface ExtendedProps{
 interface ExtendedWebcalEvents extends WebCalEvents{
     colour?: string
 }
-export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: number }) => {
+export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: number }) => {
     /**
      * Jotai
      */
@@ -102,6 +104,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         if (calendarRef && calendarRef.current) {
 
             const calendarApi = calendarRef.current.getApi()
+            
             // calendarApi.eventDragStart = this.eventDrag
             const view = getDefaultViewForCalendar()
             if (view) {
@@ -587,32 +590,41 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             return `${dateFormat} ddd`
         }
     }
+    const headerDateFormatter = () : FormatterInput | DateFormatter | undefined =>{
+        
+        switch(viewValue){
+            case "dayGridMonth":
+                return {weekday:"short"}
+            case "dayGridWeek":
+                return {weekday:"short", month:"long" , dateStyle: undefined}
+        }
+        return 
+
+    }
     return (
 
-        <>
-            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center"}} >
+        <div style={{minHeight:"120vh", height: "auto"}}>
+            <Row className="gy-3 " style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center", }} >
                 <Col md={8} >
                     <Form.Select value={viewValue} onChange={viewChanged}>
                         {options}
                     </Form.Select>
                 </Col>
-                <Col md={2} >
-
-                    <Form.Check
-                        type="switch"
-                        inline
-                        id="show_tasks_switch"
-                        checked={showTasksChecked}
-                        onChange={showTasksChanged}
-                        label={t("SHOW_TASKS")}
-                    />
-
-                </Col>
-                <Col md={2} >
-                    {calendarsSelect}
+                <Col style={{display: "flex", justifyContent: "flex-end"}} md={4}>
+                    <Stack direction="horizontal">
+                        <Form.Check
+                            type="switch"
+                            inline
+                            id="show_tasks_switch"
+                            checked={showTasksChecked}
+                            onChange={showTasksChanged}
+                            label={t("SHOW_TASKS")}
+                        />
+                        {calendarsSelect}
+                    </Stack>
                 </Col>
             </Row>
-            <div>
+            <div style={{marginBottom:3}}>
                 <AddFromTemplateModal />
 
             </div>
@@ -623,10 +635,10 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 themeSystem="standard"
                 events={events}
                 editable={true}
-                aspectRatio={calendarAR}
                 eventClick={eventClick}
                 dateClick={handleDateClick}
                 selectable={true}
+                aspectRatio={calendarAR}
                 nowIndicator={true}
                 eventDrop={eventDrop}
                 eventResize={eventResize}
@@ -635,9 +647,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 locale={i18n.language}
                 titleFormat={dateFormat} 
                 eventTimeFormat={timeFormat ?? "HH:mm"}
-                dayHeaderFormat={dateFormat? `${addDayNameInHeader()}` :  "DD/MM/YYYY ddd"}
+                dayHeaderFormat={headerDateFormatter()}
                 slotLabelFormat={timeFormat?? "HH:mm"}
             />
-        </>
+        </div>
     )
 }

@@ -1,2 +1,6 @@
-- Events are now also handled with SyncManager.
-- Fixed bug where the event's parent was not removed from UI after it was removed from Task Data.
+- Fixed #301, temporarily
+- Fixed #356 - On screens larger than 2000px in width, the due date on the Home Page is rendered.
+- Fixed syncManager not mounting on Logout.
+- Logout now displays a dialog.
+- Minor UI Fix.
+- Upgraded dependencies.

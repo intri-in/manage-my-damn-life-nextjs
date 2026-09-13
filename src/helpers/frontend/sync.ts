@@ -139,7 +139,7 @@ export async function fetchLatestEventsV2(forceSync?)
     // let arrayFromDexie = await refreshCalendarListV2()
     if(forceSync)  await refreshCalendarListV2()
     let arrayFromDexie =  await getCalDAVSummaryFromDexie()
-    // console.log("arrayFromDexie_caldavAccounts", arrayFromDexie)
+    console.log("fetchLatestEventsV2 -> arrayFromDexie_caldavAccounts", arrayFromDexie)
     let counter=0
     if(isValidResultArray(arrayFromDexie)){
         for(const i in arrayFromDexie){

@@ -57,18 +57,34 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     const setUIBasedOnUrl = () =>{
         if(typeof(window)!=="undefined"){
             const path = window.location.pathname;
-            if(path=="/"){
-                const screenWidth = window.screen.width;
-                // console.log("screenWidth",screenWidth )
-                setParentIsSmall(true)
-            }
+                const screenWidth = window.innerWidth;
+                // console.log("screenWidth",screenWidth, Number(screenWidth)<1024 )
+                if(screenWidth){
+                    if(path=="/"){
+                        if(Number(screenWidth)<1366){
+                            setParentIsSmall(true)
+    
+                        }else{
+                            setParentIsSmall(false)
+                        }
+                    }else{
+
+                        if(Number(screenWidth)<1024){
+                            setParentIsSmall(true)
+    
+                        }else{
+                            setParentIsSmall(false)
+    
+                        }
+                    }
+                }
         }
     }
     useEffect(() => {
         setUIBasedOnUrl()
         window.addEventListener('resize', setUIBasedOnUrl);
         return () => {
-        window.removeEventListener('resize', setUIBasedOnUrl);
+            window.removeEventListener('resize', setUIBasedOnUrl);
         };
     }, []);
 
@@ -246,8 +262,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
 
 
     priorityStar = (<div onClick={priorityStarClicked} style={{ padding: 0, verticalAlign: 'middle', textAlign: 'center' }} className="col-1">{priorityStar}</div>)
-
-    const hideOnCombinedViewClasses = parentIsSmall ? "":""
+    // console.log("parentIsSam", parentIsSmall)
     return (
         <div key={id.toString()}>
             <ContextMenuTrigger key={id.toString() + "_" + parsedTask.uid + "_contextMenuTrigger"} id={"RIGHTCLICK_MENU_" + id} >
@@ -264,14 +279,14 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                             <Col onClick={taskClicked} className={`d-none d-sm-block ${parentIsSmall? "d-lg-none":"d-lg-block"}`} xs={0} sm={3} md={5} lg={4}>
                                 <SummaryText color={dueDateColor} text={dueDateText} /> 
                             </Col>
-                            <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
+                            <Col onClick={taskClicked} className="d-none  d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
                                 <div style={{ width: "80%" }} className="textDefault">
                                     <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
                                 </div>
 
                             </Col>
                             
-                            <Col onClick={taskClicked} className={`d-sm-none d-md-none ${parentIsSmall?"":"d-lg-block"}`} lg={1} >
+                            <Col onClick={taskClicked} className={`d-none d-sm-none d-md-none ${parentIsSmall?"":"d-lg-block"}`} lg={1} >
                                 {repeatingTaskIcon} {hasDescriptionIcon}
                             </Col>
                                 

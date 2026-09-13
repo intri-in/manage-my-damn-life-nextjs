@@ -398,5 +398,11 @@
   "YES": "Yes",
   "YOUR_ACCOUNTS": "Your Accounts",
   "YOUR_EDIT_VERSION": "Your Edited Version",
-  "YOUR_FILTERS": "Your Filters"
+  "YOUR_FILTERS": "Your Filters",
+  "LOGOUT": "Logout",
+  "LOGOUT_DESC": "Are you sure you want to logout?",
+  "LOGOUT_NUKE_FAQ": "What happens when I \"Logout and Delete Local Data\"?",
+  "LOGOUT_NUKE_DESC": "When you logout this way, MMDL deletes all local data, including locally saved events. The data will have to be refetched the next time you login. You should use this option if you are on a machine that you don't own.",
+  "LOGOUT_AND_DELETE_LOCAL_DATA": "Logout and Delete Local Data"
+
 }

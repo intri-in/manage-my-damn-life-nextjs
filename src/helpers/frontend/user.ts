@@ -18,18 +18,16 @@ export function setLoginCookie(userhash, ssid) {
 
 export async function logoutUser(nukeDexie?)
 {
+    if(typeof(window)==="undefined"){
+        throw new Error("This function must be called only from the frontend.")
+    }
     if(localStorage.getItem(SETTING_NAME_NUKE_DEXIE_ON_LOGOUT)=="TRUE" || nukeDexie){
 
-        clearDexieDB()
+        await clearDexieDB()
     }
 
     
     // Just deleted the cookies. 
-    Cookies.remove("USERHASH")
-    Cookies.remove("SSID")
-    Cookies.remove("USER_DATA_LABELS")
-    Cookies.remove("USER_SETTING_SYNCTIMEOUT")
-
     deleteAllCookies()
     //Logout nextAuth Sessions.
     if(await nextAuthEnabled()){

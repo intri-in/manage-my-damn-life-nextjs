@@ -13,9 +13,14 @@ class SyncEngine {
   private started = false;
   private userid = "";
   private postRunFunction = () =>{}
-  
+  stop(){
+    this.started=false
+  }
   start(postRunFunction) {
+    // console.log("I HAVE BEEN SUMMONED")
     if (this.started) return;
+    // console.log("I HAVE STARTED")
+
     this.started = true;
     this.postRunFunction = postRunFunction
     getUserIDForCurrentUser_Dexie().then(userid =>{
