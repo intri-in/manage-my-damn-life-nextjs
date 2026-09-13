@@ -13,7 +13,7 @@ export function Loading({size, centered, padding}:{size?: any , centered?: boole
     
         return(
             <div key="loading" style={{padding: padding??5, textAlign:centeredVal as CanvasTextAlign}}>
-                  <Spinner size={size} animation="grow" variant="primary" />
+                  <Spinner size={sizeToRender} animation="grow" variant="primary" />
             </div>
         )
    

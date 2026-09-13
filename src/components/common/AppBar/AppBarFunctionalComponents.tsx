@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/helpers/frontend/dexie/dexieDB";
 import { getUserIDForCurrentUser_Dexie } from "@/helpers/frontend/dexie/users_dexie";
+import { LogoutDialog } from "../LogoutDialog";
 // import i18n from "@/i18n/i18n";
 const AppBarFunctionalComponent = ({ session, t}) => {
   /**
@@ -45,18 +46,18 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   const [lang, setLang] = useState(getCurrentLanguage())
   const [userId, setUserId] = useState("")
   const router = useRouter()
-
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const syncTasksWithErrors = useLiveQuery(() =>  db.sync_manager.where("status").anyOf(["error"]).filter(item=>item.userid==userId).count().catch(e=>{
     console.error("AppBarFunctionalComponent useLiveQuery",e )
   }), [userId])    
 
   useEffect(() => {
+    syncEngine.start(postRunFunctionforSyncEngine)
     let isMounted =true
     if(isMounted){
 
       checkInstallation();
       setDarkModeEnabled(isDarkModeEnabled());
-      syncEngine.start(postRunFunctionforSyncEngine)
       getUserIDForCurrentUser_Dexie().then(userid =>{
 
         if(userid) setUserId(userid.toString())
@@ -125,7 +126,8 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   };
 
   const logOutClicked = async () => {
-    commonlogoutFunction(false)
+    syncEngine.stop()
+    setShowLogoutDialog(true)
   };
   const commonlogoutFunction = async (nukeDexie) =>{
     logoutUser(nukeDexie)
@@ -203,6 +205,9 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   const goToSyncManager = () =>{
     router.push("/sync-manager")
   }
+  const onDismissLogoutDialog = () =>{
+    setShowLogoutDialog(false)
+  }
   let notInstalledBanner: JSX.Element | null = null;
   if (!installed) {
     notInstalledBanner = (
@@ -218,6 +223,9 @@ const AppBarFunctionalComponent = ({ session, t}) => {
   return (
     <>
       {notInstalledBanner}
+      {
+        showLogoutDialog ? <LogoutDialog show={showLogoutDialog} onDismissLogoutDialog={onDismissLogoutDialog} /> :null
+      }
       <Navbar  variant={navVariant} className="nav-pills nav-fill" style={{ background: PRIMARY_COLOUR, padding: 20,  }} sticky="top" expand="lg">
         <Navbar.Brand onClick={logoClicked}>
           <Image
@@ -245,8 +253,8 @@ const AppBarFunctionalComponent = ({ session, t}) => {
                   <Dropdown.Item onClick={manageCaldavClicked}>{t("MANAGE") + " " + t("CALDAV_ACCOUNTS")}</Dropdown.Item>
                   <Dropdown.Item onClick={webcalLinkClicked}>{t("WEBCAL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{t("TEMPLATE_MANAGER")}</Dropdown.Item>
-                  <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
                   <Dropdown.Item onClick={syncManagerClicked}>{t("SYNC_MANAGER")}</Dropdown.Item>
+                  <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav.Item>
@@ -293,7 +301,7 @@ const AppBarFunctionalComponent = ({ session, t}) => {
                 </OverlayTrigger>
               </Nav.Item>
               <Nav.Item style={{ color: "white", padding: 5 }}>
-                <BiLogOut onContextMenu={logoutRightClicked} onClick={logOutClicked} size={24} />
+                <BiLogOut  onClick={logOutClicked} size={24} />
               </Nav.Item>
             </Nav>
         </Navbar.Collapse>

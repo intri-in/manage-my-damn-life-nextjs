@@ -26,6 +26,8 @@ export async function clearDexieDB(){
     await db.users.clear()
     await db.webcals.clear()
     await db.webcals_events.clear()
+    await db.sync_manager.clear()
+    
     return true
     
 }

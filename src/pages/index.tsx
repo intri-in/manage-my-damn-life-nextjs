@@ -22,30 +22,8 @@ import { useAuthGuard } from '@/helpers/frontend/hooks/useAuthGuard'
 export default function HomePage(props) {
 const isLoggedIn = useAuthGuard("/", props.nextAuthEnabled);
   const { t } = useTranslation()
-  const router = useRouter()
 
-  // useEffect(()=>{
-  //   i18n.changeLanguage(getCurrentLanguage())
-  // },[])
-
-  //const [finalOutput, setFinalOutput] =useState()
-  // useEffect(()=>{
-     
-
-  //   // if(!loginChecked.current){
-  //   //   loginChecked.current=true
-  //   //   const checkAuth = async() =>{
-  //   //     const auth = await isUserLoggedIn()
-  //   //     if(auth){
-  //   //       setUserAuthenticated(true)
-  //   //     }
-  //   //   }
-  //   //   checkAuth()
-  //   // }
-    
-  //   // }, [userAuthenticated])
   useCustomTheme()
-
    
 
   if(!isLoggedIn) return (<EmptyPageBeforeLogin />)
