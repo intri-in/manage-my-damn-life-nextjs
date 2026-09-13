@@ -34,7 +34,7 @@ export default function ManageTemplates(){
           }
         }else{
           // Check login using inbuilt function.
-          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
+          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav") as boolean)
         }
       }
 

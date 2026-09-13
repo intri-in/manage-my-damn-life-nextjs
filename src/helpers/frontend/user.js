@@ -1,5 +1,4 @@
 import Cookies from "js-cookie";
-import { getUserDB } from "./db";
 import { Base64 } from "js-base64";
 import { nextAuthEnabled } from "../thirdparty/nextAuth";
 import { signOut } from "next-auth/react";
@@ -11,14 +10,6 @@ import { SETTING_NAME_NUKE_DEXIE_ON_LOGOUT } from "./settings";
 import { LAST_LOGIN_CHECK_TIME } from "./localstorage";
 import { LOGIN_CHECK_THRESHOLD_SECONDS } from "@/config/constants";
 import moment from "moment";
-
-
-export async function getUserData() {
-
-    var db = getUserDB()
-    const userdata = await db.user.toArray();
-    return userdata
-}
 
 export function setLoginCookie(userhash, ssid) {
     Cookies.set("USERHASH", userhash, { expires: 30 })

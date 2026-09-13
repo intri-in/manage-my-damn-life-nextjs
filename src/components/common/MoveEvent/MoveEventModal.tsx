@@ -336,26 +336,6 @@ export const MoveEventModal = ({show, handleClose, onServerResponse}:{show:boole
         // console.log("responseBody", responseBody)
 
         return responseBody
-        if(!deleteTask){
-            if(!isChild){
-
-                onServerResponse(responseBody, summary)
-                handleClose()
-                return
-            }
-        }else{
-            if(responseBody && responseBody.success==true){
-                //Task was successfully copied.
-                //Make a request to delete it from the original calendar.
-                handleDelete(eventFromDexie, caldav_accounts_id, isChild)
-                
-            }else{
-                toast.error(t("ERROR_GENERIC"))
-                console.error("copyEvent responseBody", responseBody)
-            }
-
-
-        }
     }
     const moveCheckedChanged = (e) =>{
         setMoveChecked(e.target.checked)

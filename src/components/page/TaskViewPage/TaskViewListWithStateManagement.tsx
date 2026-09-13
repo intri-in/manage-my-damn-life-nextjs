@@ -23,10 +23,10 @@ export const TaskViewListWithStateManagement =  () =>{
        /**
      * Jotai
      */
-       const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
-       const setFilterAtom = useSetAtom(filterAtom)
-       const setCalDavAtom = useSetAtom(calDavObjectAtom)
-       const setUpdateView= useSetAtom(updateViewAtom)
+    const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
+    const setFilterAtom = useSetAtom(filterAtom)
+    const setCalDavAtom = useSetAtom(calDavObjectAtom)
+    const setUpdateView= useSetAtom(updateViewAtom)
   
   
   /**

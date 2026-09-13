@@ -3,7 +3,7 @@ import { Calendars } from "@/helpers/api/classes/Calendars"
 import { User } from "@/helpers/api/classes/User"
 import { getUserIDFromLogin, middleWareForAuthorisation } from "@/helpers/api/user"
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar"
-import { applyTaskFilter, majorTaskFilter } from "@/helpers/frontend/events"
+import { majorTaskFilter } from "@/helpers/frontend/events"
 import { haystackHasNeedle } from "@/helpers/general"
 
 export default async function handler(req, res) {

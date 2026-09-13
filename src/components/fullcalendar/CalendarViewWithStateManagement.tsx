@@ -8,7 +8,7 @@ import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { isValidResultArray, varNotEmpty } from "@/helpers/general";
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import Form from 'react-bootstrap/Form';
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Stack } from "react-bootstrap";
 import { getEmptyEventDataObject, getParsedEvent, isAllDayEvent, majorTaskFilter, rruleToObject, updateEvent } from "@/helpers/frontend/events";
 import bootstrap from "@fullcalendar/bootstrap";
 import interactionPlugin from '@fullcalendar/interaction'
@@ -38,11 +38,14 @@ import { showTaskEditorAtom, taskEditorInputAtom } from "stateStore/TaskEditorSt
 import { AddFromTemplateModal } from "../common/AddTask/AddFromTemplateModal";
 import { useTranslation } from "next-i18next";
 import { getAllEventsFromWebcalForRender } from "@/helpers/frontend/webcals";
-import { WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
+import { Calendar_Events, WebCalEvents } from "@/helpers/frontend/dexie/dexieDB";
 import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/frontend/classes/UserPreferences/Preference_WebCalsToShow";
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore";
 import momentPlugin from '@fullcalendar/moment';
 import { Caldav_Summary } from "@/types/generic";
+import { SyncManager } from "@/helpers/frontend/SyncManager";
+import { DateFormatter } from "@fullcalendar/core/internal";
+import { FormatterInput } from "@fullcalendar/core/index.js";
 interface EventObject {
     id: string,
     title: string,
@@ -67,7 +70,7 @@ interface ExtendedProps{
 interface ExtendedWebcalEvents extends WebCalEvents{
     colour?: string
 }
-export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: number }) => {
+export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: number }) => {
     /**
      * Jotai
      */
@@ -76,12 +79,13 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
     const setEditorInput = useSetAtom(eventEditorInputAtom)
     const setTaskEditorInput = useSetAtom(taskEditorInputAtom)
     const setShowTaskEditor = useSetAtom(showTaskEditorAtom)
-    const updated = useAtomValue(updateCalendarViewAtom)
     const setUpdatedCalendarView = useSetAtom(updateCalendarViewAtom)
+    
     const allUpdated = useAtomValue(updateViewAtom)
     const timeFormat = useAtomValue(currentSimpleTimeFormatAtom)
     const dateFormat = useAtomValue(currentSimpleDateFormatAtom)
-    
+    const setUpdateViewTime = useSetAtom(updateViewAtom)
+
     /**
      * Local State
      */
@@ -100,6 +104,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         if (calendarRef && calendarRef.current) {
 
             const calendarApi = calendarRef.current.getApi()
+            
             // calendarApi.eventDragStart = this.eventDrag
             const view = getDefaultViewForCalendar()
             if (view) {
@@ -128,7 +133,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 }
             })
             getEventsFromDexie_LikeAPI().then(allEventsFromDexie => {
-                setEventsArray([])
+                //setEventsArray([])
                 // console.log("allEventsFromDexie", allEventsFromDexie)
                 setEventsArray(allEventsFromDexie)
             })
@@ -142,7 +147,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         return () => {
             isMounted = false
         }
-    }, [updated, allUpdated])
+    }, [allUpdated])
 
     useEffect(() => {
         let isMounted = true
@@ -152,7 +157,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         return () => {
             isMounted = false
         }
-    }, [allEvents, showTasksChecked, updateLocal, webCalEvents])
+    }, [ showTasksChecked, allEvents, allUpdated, webCalEvents])
     const viewChanged = (e) => {
         if (calendarRef && calendarRef.current) {
 
@@ -475,39 +480,49 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
         // console.log(moment(e.date).toISOString(),moment(end).toISOString())
         setShow(true)
     }
-    const makeQuickRequesttoCaldav = async (eventData, eventInfoFromDexie, summary) => {
+    const saveRequestToSyncManager = async (eventData, eventInfoFromDexie: Calendar_Events[], summary) => {
         const obj = getObjectForAPICallV2(eventData)
         let ics = await makeGenerateICSRequest({ obj })
         const caldav_accounts_id = await getCalDAVAccountIDFromCalendarID_Dexie(eventInfoFromDexie[0].calendar_id)
+        console.log("eventInfoFromDexie", eventInfoFromDexie)
         const messageHeader = summary ? summary + ": " : ""
         // console.log("messageHeader", messageHeader)
-        console.log(ics)
-        if (varNotEmpty(ics)) {
-            const response = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
-            console.log("response from Modify", response)
-            if (varNotEmpty(response) && varNotEmpty(response.success) && response.success == true) {
-                toast.success(messageHeader + t("UPDATE_OK"))
+        // console.log(ics)
+        if (varNotEmpty(ics) && eventInfoFromDexie[0].calendar_id && eventInfoFromDexie[0].data && eventInfoFromDexie[0].etag) {
+            SyncManager.addTask(SyncManager.SYNC_EDIT_TASK, summary, { calendar_id: eventInfoFromDexie[0].calendar_id, oldData: eventInfoFromDexie[0].data, newData: ics, etag: eventInfoFromDexie[0].etag, type: "VEVENT", eventURL: eventInfoFromDexie[0].url }).then(res => {
+                if (res) {
+                    setUpdateViewTime(Date.now())
+                    console.timeEnd(`dexie_syncManagerAddTaskTimer_${summary}`)
 
-
-            } else {
-                let message = getMessageFromAPIResponse(response)
-                if (message != "" && varNotEmpty(message)) {
-                    toast.error(messageHeader + t(message.toString()))
-                    console.log(response)
                 } else {
-                    toast.error(messageHeader + (t("ERROR_GENERIC")))
-
+                    toast.error(t("ERROR_GENERIC"))
                 }
-            }
+            })
+            
+            // const response  = await updateEvent(eventInfoFromDexie[0].calendar_id, eventInfoFromDexie[0].url, eventInfoFromDexie[0].etag, ics, caldav_accounts_id)
+            // // console.log("response from Modify", response)
+            // if (response && response.success && response.success == true) {
+            //     toast.success(messageHeader + t("UPDATE_OK"))
+
+
+            // } else {
+            //     let message = getMessageFromAPIResponse(response)
+            //     if (message != "" && varNotEmpty(message)) {
+            //         toast.error(messageHeader + t(message.toString()))
+            //         console.log(response)
+            //     } else {
+            //         toast.error(messageHeader + (t("ERROR_GENERIC")))
+
+            //     }
+            // }
 
         } else {
             toast.error(messageHeader + t("ERROR_GENERIC"))
             console.log("makeQuickRequesttoCaldav: ics is null")
         }
-        setUpdatedCalendarView(Date.now())
     }
     const eventDrop = async (e) => {
-        toast.info(t("ACTION_SENT_TO_CALDAV"))
+        // toast.info(t("ACTION_SENT_TO_CALDAV"))
         // console.log("eventDrop", e)
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
@@ -525,7 +540,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
             eventData.start = newStart
             eventData.end = newEnd
-            makeQuickRequesttoCaldav(eventData, eventInfoFromDexie, eventData["summary"])
+            saveRequestToSyncManager(eventData, eventInfoFromDexie, eventData["summary"])
         } else {
             toast.error(t("ERROR_GENERIC"))
             console.error("eventDrop: eventInfoFromDexie is empty")
@@ -535,7 +550,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
 
     }
     const eventResize = async (e) => {
-        toast.info(t("ACTION_SENT_TO_CALDAV"))
+        // toast.info(t("ACTION_SENT_TO_CALDAV"))
         const newID = e.event.id
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(newID.toString()))
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
@@ -549,7 +564,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             //console.log(newStart, newEnd)
 
             eventData.end = newEnd
-            makeQuickRequesttoCaldav(eventData, eventInfoFromDexie, eventData["summary"])
+            saveRequestToSyncManager(eventData, eventInfoFromDexie, eventData["summary"])
 
         }
 
@@ -575,32 +590,41 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
             return `${dateFormat} ddd`
         }
     }
+    const headerDateFormatter = () : FormatterInput | DateFormatter | undefined =>{
+        
+        switch(viewValue){
+            case "dayGridMonth":
+                return {weekday:"short"}
+            case "dayGridWeek":
+                return {weekday:"short", month:"long" , dateStyle: undefined}
+        }
+        return 
+
+    }
     return (
 
-        <>
-            <Row style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center"}} >
+        <div style={{minHeight:"120vh", height: "auto"}}>
+            <Row className="gy-3 " style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center", }} >
                 <Col md={8} >
                     <Form.Select value={viewValue} onChange={viewChanged}>
                         {options}
                     </Form.Select>
                 </Col>
-                <Col md={2} >
-
-                    <Form.Check
-                        type="switch"
-                        inline
-                        id="show_tasks_switch"
-                        checked={showTasksChecked}
-                        onChange={showTasksChanged}
-                        label={t("SHOW_TASKS")}
-                    />
-
-                </Col>
-                <Col md={2} >
-                    {calendarsSelect}
+                <Col style={{display: "flex", justifyContent: "flex-end"}} md={4}>
+                    <Stack direction="horizontal">
+                        <Form.Check
+                            type="switch"
+                            inline
+                            id="show_tasks_switch"
+                            checked={showTasksChecked}
+                            onChange={showTasksChanged}
+                            label={t("SHOW_TASKS")}
+                        />
+                        {calendarsSelect}
+                    </Stack>
                 </Col>
             </Row>
-            <div>
+            <div style={{marginBottom:3}}>
                 <AddFromTemplateModal />
 
             </div>
@@ -611,10 +635,10 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 themeSystem="standard"
                 events={events}
                 editable={true}
-                aspectRatio={calendarAR}
                 eventClick={eventClick}
                 dateClick={handleDateClick}
                 selectable={true}
+                aspectRatio={calendarAR}
                 nowIndicator={true}
                 eventDrop={eventDrop}
                 eventResize={eventResize}
@@ -623,9 +647,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR: nu
                 locale={i18n.language}
                 titleFormat={dateFormat} 
                 eventTimeFormat={timeFormat ?? "HH:mm"}
-                dayHeaderFormat={dateFormat? `${addDayNameInHeader()}` :  "DD/MM/YYYY ddd"}
+                dayHeaderFormat={headerDateFormatter()}
                 slotLabelFormat={timeFormat?? "HH:mm"}
             />
-        </>
+        </div>
     )
 }

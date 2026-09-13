@@ -65,7 +65,7 @@ export default function Settings({registrationDisabledFromEnv}:{registrationDisa
 export async function getServerSideProps({ locale }) {
     return {
         props: {
-            registrationDisabledFromEnv: process.env.DISABLE_USER_REGISTRATION ? true: false, // or fetch from DB, etc.
+            registrationDisabledFromEnv: (process.env.DISABLE_USER_REGISTRATION=="true") ? true: false, // or fetch from DB, etc.
             ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
         },
     };

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { refreshMenuOptionsFromServer } from "./HomeTasksFunctions"
 import * as _ from 'lodash'
 import { Form } from "react-bootstrap"
-import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from "stateStore/ViewStore"
+import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } from "stateStore/ViewStore"
 import { useSetAtom } from "jotai"
 import { TaskFilter } from "types/tasks/filters"
 import { useTranslation } from "next-i18next"
@@ -22,7 +22,8 @@ export const HomeTasksDDL = () => {
     const setCurrentPageTitle= useSetAtom(currentPageTitleAtom)
     const setFilterAtom = useSetAtom(filterAtom)
     const setCalDavAtom = useSetAtom(calDavObjectAtom)
-
+    const setUpdated = useSetAtom(updateViewAtom)
+    
     const [menuOptionsSelect, setMenu] = useState<JSX.Element>(<></>)
     const [menuOptions, setMenuOptions] = useState<any | null>(defaultMenuOptions)
     const [selectedValue, setSelectedValue] = useState("MY_DAY")
@@ -51,7 +52,6 @@ export const HomeTasksDDL = () => {
 
         if (isMounted) {
             const value = selectedValue
-            console.log(value)
             let filterValue: FilterValueType = { logic: "or", filter: {} }
             if (varNotEmpty(value) && typeof (value == "string")) {
                 var valueArray = value.split(',')
@@ -62,25 +62,24 @@ export const HomeTasksDDL = () => {
                             if (valueArray[1] in menuOptions[valueArray[0]][k]) {
 
                                 filterValue = menuOptions[valueArray[0]][k][valueArray[1]]
-                                if (checkIfFilterValid(filterValue)) {
+                                if (checkIfFilterValid(filterValue).status) {
                                     // setFilter(filterValue)
                                     // setCaldavAccountsId(null)
                                     // setCalendarsId(null) 
-                                    console.log(filterValue)
+                                    // console.log(filterValue)
                                     setFilterAtom(filterValue)
                                     setCurrentPageTitle(valueArray[0] + " >> " + t(valueArray[1]))
                                     setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
 
                                 } else {
                                     //Probably a calendar Object.
-                                    // setFilter(null)
                                     if (("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue) && filterValue.calendars_id) {
                                         if(filterValue["caldav_accounts_id"] && filterValue["calendars_id"].toString()){
 
                                             setCurrentPageTitle("")
                                             setFilterAtom({})
-                                    
-                                            setCalDavAtom({caldav_accounts_id: parseInt(filterValue.caldav_accounts_id.toString()), calendars_id: parseInt(filterValue.calendars_id.toString())})
+                                            console.log("filterValue.caldav_accounts_id", filterValue)
+                                            setCalDavAtom({caldav_accounts_id: filterValue.caldav_accounts_id, calendars_id: filterValue.calendars_id})
                                         }
 
                                         // setCaldavAccountsId(filterValue["caldav_accounts_id"])
@@ -122,7 +121,7 @@ export const HomeTasksDDL = () => {
         let isMounted = true
 
         if(isMounted){
-            let allMenuOptions:any[] = []
+            let allMenuOptions:JSX.Element[] = []
             for(const key in menuOptions)
             {
                 if(varNotEmpty(menuOptions[key]))
@@ -130,7 +129,7 @@ export const HomeTasksDDL = () => {
                     if(Array.isArray(menuOptions[key]))
                     {
                         //It is an array, and therefore has children
-                        var tempChildren:any[] = []
+                        var tempChildren:JSX.Element[] = []
                         for(const children in menuOptions[key] )
                         {
                             for(const internalKey in menuOptions[key][children])
@@ -164,7 +163,8 @@ export const HomeTasksDDL = () => {
     },[menuOptions, selectedValue])
 
     const menuOptionSelected = (e) =>{
-        var value = e.target.value
+        const value = e.target.value
+        // console.log("menuOptionSelected value",value)
         setSelectedValue(value)
 
     }

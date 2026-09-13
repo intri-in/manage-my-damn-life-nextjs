@@ -79,7 +79,7 @@ const isValid = () =>{
         toast.error(i18next.t("ENTER_TEMPLATE_NAME"))
         return false
     }
-    if(!("data in data"))
+    if(!("data" in data))
     {
         toast.error(i18next.t("ENTER_TEMPLATE_DATA"))
         return false

@@ -1,34 +1,10 @@
 import { MYDAY_LABEL } from '@/config/constants';
 import { getAPIURL, isValidObject, isValidResultArray, logVar } from '../general';
-import { getUserDB } from './db';
-import { objectArrayHasKey, getRandomColourCode} from './general';
+import { objectArrayHasKey} from './general';
 import { getAuthenticationHeadersforUser } from './user';
 import { getLabelArrayFromCookie, saveLabelArrayToCookie } from './settings';
 import { getErrorResponse } from '../errros';
 
-export async function saveLabeltoDB(label)
-{
-    //Check if label exists, else add.
-    var db =getUserDB()
-    const labelFromDB= await getUserDB().labels
-    .where("name").equalsIgnoreCase(label)
-    .toArray().then((labelFromDB)  => {
-        if(labelFromDB==null|| labelFromDB!=null && labelFromDB.length==0)
-        {
-            var name = label
-            var colour = getRandomColourCode()
-            db.labels.add({
-                name: name, colour: colour
-            });
-    
-        }
-       
-
-    })
-
-
-
-}
 
 export async function getLabelColourFromDB(label)
 {

@@ -1,6 +1,6 @@
+"use client"
 import { PRIMARY_COLOUR } from "@/config/style";
-import { useRouter } from "next/router";
-import { Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
+import { Badge, Button, Container, Form, NavItem, NavLink, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
 import React, { useEffect, useState } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -19,16 +19,18 @@ import { getUserNameFromCookie } from "@/helpers/frontend/cookies";
 import { updateCalendarViewAtom, updateViewAtom } from "stateStore/ViewStore";
 import { useSetAtom } from "jotai";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
-import { appendLanguageToURL, getCurrentLanguage, getDefaultLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
-import { GetStaticProps } from "next";
-import { Props } from "next/script";
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from "next-i18next";
+import {  getCurrentLanguage, setCurrentLanguage } from "@/helpers/frontend/translations";
 import {  signOut } from "next-auth/react"
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { SyncButton } from "./SyncButton";
+import { syncEngine } from "@/helpers/frontend/SyncEngine";
+import { useRouter } from "next/navigation";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/helpers/frontend/dexie/dexieDB";
+import { getUserIDForCurrentUser_Dexie } from "@/helpers/frontend/dexie/users_dexie";
+import { LogoutDialog } from "../LogoutDialog";
 // import i18n from "@/i18n/i18n";
-const AppBarFunctionalComponent = ({ session}) => {
+const AppBarFunctionalComponent = ({ session, t}) => {
   /**
    * Jotai
    */
@@ -42,22 +44,34 @@ const AppBarFunctionalComponent = ({ session}) => {
   const [installed, setInstalled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [lang, setLang] = useState(getCurrentLanguage())
-  const {t, i18n} = useTranslation()
-
-  const router = useRouter();
+  const [userId, setUserId] = useState("")
+  const router = useRouter()
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const syncTasksWithErrors = useLiveQuery(() =>  db.sync_manager.where("status").anyOf(["error"]).filter(item=>item.userid==userId).count().catch(e=>{
+    console.error("AppBarFunctionalComponent useLiveQuery",e )
+  }), [userId])    
 
   useEffect(() => {
+    syncEngine.start(postRunFunctionforSyncEngine)
     let isMounted =true
     if(isMounted){
 
       checkInstallation();
       setDarkModeEnabled(isDarkModeEnabled());
+      getUserIDForCurrentUser_Dexie().then(userid =>{
+
+        if(userid) setUserId(userid.toString())
+      })
     }
     return ()=>{
       isMounted=false
   }
 
   }, []);
+
+  const postRunFunctionforSyncEngine = () =>{
+    setUpdated(Date.now())
+  }
 
   useEffect(()=>{
     let isMounted =true
@@ -112,7 +126,8 @@ const AppBarFunctionalComponent = ({ session}) => {
   };
 
   const logOutClicked = async () => {
-    commonlogoutFunction(false)
+    syncEngine.stop()
+    setShowLogoutDialog(true)
   };
   const commonlogoutFunction = async (nukeDexie) =>{
     logoutUser(nukeDexie)
@@ -137,7 +152,9 @@ const AppBarFunctionalComponent = ({ session}) => {
   const settingsClicked = () => {
     router.push("/accounts/settings");
   };
-
+  const syncManagerClicked = () =>{
+    router.push("/sync-manager")
+  }
   const manageFilterClicked = () => {
     router.push("/filters/manage");
   };
@@ -185,7 +202,12 @@ const AppBarFunctionalComponent = ({ session}) => {
 
     // i18n.changeLanguage(e.target.value)
   }
-
+  const goToSyncManager = () =>{
+    router.push("/sync-manager")
+  }
+  const onDismissLogoutDialog = () =>{
+    setShowLogoutDialog(false)
+  }
   let notInstalledBanner: JSX.Element | null = null;
   if (!installed) {
     notInstalledBanner = (
@@ -201,6 +223,9 @@ const AppBarFunctionalComponent = ({ session}) => {
   return (
     <>
       {notInstalledBanner}
+      {
+        showLogoutDialog ? <LogoutDialog show={showLogoutDialog} onDismissLogoutDialog={onDismissLogoutDialog} /> :null
+      }
       <Navbar  variant={navVariant} className="nav-pills nav-fill" style={{ background: PRIMARY_COLOUR, padding: 20,  }} sticky="top" expand="lg">
         <Navbar.Brand onClick={logoClicked}>
           <Image
@@ -228,12 +253,25 @@ const AppBarFunctionalComponent = ({ session}) => {
                   <Dropdown.Item onClick={manageCaldavClicked}>{t("MANAGE") + " " + t("CALDAV_ACCOUNTS")}</Dropdown.Item>
                   <Dropdown.Item onClick={webcalLinkClicked}>{t("WEBCAL_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={() =>{router.push('/templates/manage/')}}>{t("TEMPLATE_MANAGER")}</Dropdown.Item>
+                  <Dropdown.Item onClick={syncManagerClicked}>{t("SYNC_MANAGER")}</Dropdown.Item>
                   <Dropdown.Item onClick={settingsClicked}>{t("SETTINGS")}</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav.Item>
           </Nav>
             <Nav  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} className="ms-auto">
+              { (syncTasksWithErrors && syncTasksWithErrors>0) ? (<Nav.Item style={{}}><Badge onClick={goToSyncManager} bg="danger">{t("SYNC_ERRORS")}</Badge></Nav.Item>): <></> }
+              <Nav.Item style={{}}>
+                <OverlayTrigger key="SYNC_KEY" placement='bottom'
+                  overlay={
+                    <Tooltip id='tooltip_SYNC'>
+                      {t("SYNC")}
+                    </Tooltip>
+                  }>
+                  <div style={{ color: "white", padding: 5 }}><SyncButton t={t} isSyncing={spinningButton} /></div>
+                </OverlayTrigger>
+              </Nav.Item>
+
               <NavItem style={{ color: "white", display: "flex", margin: 10, justifyContent: "space-evenly", alignItems: "center" }}>
                 <OverlayTrigger key="KEY_USERNAME" placement='bottom'
                   overlay={
@@ -262,18 +300,8 @@ const AppBarFunctionalComponent = ({ session}) => {
                   <div style={{ color: "white", padding: 5 }}>{darkModeButton} </div>
                 </OverlayTrigger>
               </Nav.Item>
-              <Nav.Item style={{}}>
-                <OverlayTrigger key="SYNC_KEY" placement='bottom'
-                  overlay={
-                    <Tooltip id='tooltip_SYNC'>
-                      {t("SYNC")}
-                    </Tooltip>
-                  }>
-                  <div style={{ color: "white", padding: 5 }}><SyncButton isSyncing={spinningButton} /></div>
-                </OverlayTrigger>
-              </Nav.Item>
               <Nav.Item style={{ color: "white", padding: 5 }}>
-                <BiLogOut onContextMenu={logoutRightClicked} onClick={logOutClicked} size={24} />
+                <BiLogOut  onClick={logOutClicked} size={24} />
               </Nav.Item>
             </Nav>
         </Navbar.Collapse>

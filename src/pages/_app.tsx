@@ -7,12 +7,10 @@ import '../styles/global.css'
 import { SessionProvider } from "next-auth/react"
 import { useEffect, useState } from 'react';
 import { initAutoSync, shouldSync } from '@/helpers/frontend/sync';
-import { UserConfig } from 'next-i18next';
-import { appWithTranslation } from 'next-i18next';
-
+import { appWithTranslation } from 'next-i18next'
 import * as nextI18NextConfig from '@/../next-i18next.config'
 
-const emptyInitialI18NextConfig: UserConfig = {
+const emptyInitialI18NextConfig= {
   i18n: {
     defaultLocale: nextI18NextConfig.i18n.defaultLocale,
     locales: nextI18NextConfig.i18n.locales,

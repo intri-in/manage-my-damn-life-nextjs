@@ -13,12 +13,13 @@ import { calDavObjectAtom, currentPageTitleAtom, filterAtom, updateViewAtom } fr
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { AVAILABLE_LANGUAGES } from "@/config/constants";
 import { EmptyPageBeforeLogin } from "@/components/common/EmptyPageBeforeLogin";
+import { useAuthGuard } from "@/helpers/frontend/hooks/useAuthGuard";
+import validator from "validator";
+import { checkIfFilterValid } from "@/helpers/frontend/filtersTS";
+export default function TaskListPage(props: any){
+const isLoggedIn = useAuthGuard("/tasks/list", props.nextAuthEnabled);
 
-
-export default function TaskListPage(){
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [isloggedIn, setIsloggedIn] = useState(false)
+const router = useRouter()
 
     useCustomTheme()
      /**
@@ -29,31 +30,7 @@ export default function TaskListPage(){
     const setCalDavAtom = useSetAtom(calDavObjectAtom)
     const [urlParsed, setURLPased] = useState(false)
     const {t} = useTranslation()
-    useEffect(() =>{
-
-      let isMounted =true
-      async function checkAuth(){
-        
-          if(await nextAuthEnabled()){
-            if (status=="unauthenticated" ) {
-              signIn()
-            }else{
-                setIsloggedIn(true)
-            }
-          }else{
-            // Check login using inbuilt function.
-            setIsloggedIn(await checkLogin_InBuilt(router,"/tasks/list"))
-          }
-        }
-
-        if(isMounted){
-
-          checkAuth()
-        }
-        return () =>{
-          isMounted = false
-      }
-    }, [status, router])
+   
 
     
      
@@ -65,8 +42,8 @@ export default function TaskListPage(){
             
               const queryString = window.location.search;
               const params = new URLSearchParams(queryString);
-              const pageName = params.get('name')
-              const type = params.get('type')
+              const pageName = validator.escape(params.get('name') ?? "")
+              const type = validator.escape(params.get('type') ?? "")
 
               // console.log("pageName",urlParsed, pageName ,PAGE_VIEW_JSON[pageName!])
               if(pageName){
@@ -79,24 +56,31 @@ export default function TaskListPage(){
               if(type){
                 switch(type.toUpperCase()){
                   case "CAL":
-                    const caldav_accounts_id = params.get('caldav_accounts_id')
-                    const calendars_id = params.get('calendars_id')
+                    const caldav_accounts_id = validator.escape(params.get('caldav_accounts_id') ??"")
+                    const calendars_id = validator.escape(params.get('calendars_id') ?? "")
                     if(caldav_accounts_id && calendars_id){
 
                       setCurrentPageTitle("")
                       setFilterAtom({})
-                      setCalDavAtom({caldav_accounts_id: parseInt(caldav_accounts_id), calendars_id: parseInt(calendars_id)})
+                      setCalDavAtom({caldav_accounts_id: Number(caldav_accounts_id), calendars_id: Number(calendars_id)})
                     }
                     break;
                   case "FILTER":
-                    const q=params.get('q')
-                    const filter_name=params.get('filter_name')
-                    if(filter_name && q){
-
-                      setCurrentPageTitle(filter_name)
-                      setFilterAtom(JSON.parse(q))
-                      setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
-                    }
+                    try{
+                      const q=params.get('q')
+                      const filter_name=validator.escape(params.get('filter_name') ?? "")
+                      if(filter_name && q){
+                          setCurrentPageTitle(filter_name)
+                          let filter = JSON.parse(q)
+                          if(checkIfFilterValid(filter)){
+    
+                            setFilterAtom(JSON.parse(q))
+                            setCalDavAtom({caldav_accounts_id: null, calendars_id: null})
+                          }
+                        }
+                      }catch(e){
+                        console.error("Error while parsing filter in URL",e)
+                      }
                     break;
                   case "LABEL":
                     const label_name = params.get('label_name')
@@ -115,7 +99,7 @@ export default function TaskListPage(){
       
     
   },[setCalDavAtom, setCurrentPageTitle, setFilterAtom, urlParsed])
-  if(!isloggedIn) return (<EmptyPageBeforeLogin />)   
+if(!isLoggedIn) return(<EmptyPageBeforeLogin />)
 
 
   const output = urlParsed ? <TaskViewListWithStateManagement />: null
@@ -131,6 +115,7 @@ export async function getStaticProps({ locale}) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+      nextAuthEnabled: await nextAuthEnabled()
       // Will be passed to the page component as props
     },
   }

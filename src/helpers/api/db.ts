@@ -1,7 +1,7 @@
 import { varNotEmpty } from '../general';
 import { shouldLogforAPI, shouldLogforSequelize } from '../logs';
 const { Sequelize } = require('sequelize');
-
+const globalForSequelize = globalThis as unknown as { __sequelize?: typeof Sequelize };
 export function getConnectionVar()
 {
 
@@ -39,7 +39,13 @@ export function getSimpleConnectionVar()
 
 
 export function getSequelizeObj(raw?): typeof Sequelize{
-
+  /**
+   * Fix for connection pool problem, especially in a dev environment.
+   * Creates a global sequelize object and shares connections through it.
+   */
+  if (globalForSequelize.__sequelize) {
+    return globalForSequelize.__sequelize;
+  }
   const dialect= process.env.DB_DIALECT ? process.env.DB_DIALECT.toLowerCase() :  "mysql"
   const db_host_settings={
     host: process.env.DB_HOST,

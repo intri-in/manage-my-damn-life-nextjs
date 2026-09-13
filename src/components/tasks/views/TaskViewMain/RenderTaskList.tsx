@@ -12,40 +12,49 @@ export const RenderTaskList = ({taskList, level, sortBy, }: {taskList: TaskArray
 
     const [finalOutput, setFinalOutput] = useState<JSX.Element[]>([])
     const {t} = useTranslation()
+
     const renderList = async () =>{
-
-        let final:JSX.Element[] = []
-        for(const k in taskList){
-            let levelTask = level ? level : 0
-            const id = parseInt(taskList[k].id.toString())
+        const results = await Promise.all(taskList.map(async (item) => {
+            const id = parseInt(item.id.toString())
             const event = await getEventFromDexieByID(id)
-            if(event && Array.isArray(event) && event.length>0){
-                const todo = returnGetParsedVTODO(event[0].data)
-                if(todo){
-                    let dueDate = ISODatetoHuman(todo.due)
-                    let timeDifference = timeDifferencefromNowinWords(dueDate)
-                    let secondaryText=""
-                    if(dueDate!=null && dueDate!="")
-                    {
-                        secondaryText = dueDate+" "+timeDifference
-                    }
-                    const taskParent = <SingleTask key={taskList[k].id} id={taskList[k].id} level={levelTask} parsedTask={todo} />
-                    let taskChildren: JSX.Element | null = null
-                    if(taskList[k].children.length>0){
-                        const sortedKids = sortTasksByRequest(taskList[k].children, sortBy)
-                        
-                        taskChildren = <RenderTaskList sortBy={sortBy} taskList={sortedKids} level={levelTask+1} />
-                    }
-                    final.push(
-                    <TaskGroup key={`${taskList[k].id.toString()}_taskGroup`} keyName={`${taskList[k].id.toString()}_taskGroup`} parent={taskParent}>
-                            {taskChildren}
-                    </TaskGroup> )
-                }
+            if(!event || !Array.isArray(event) || event.length===0){
+                return null
             }
-            
-        }
-        if(final.length>0){
+            const todo = event[0].parsedData ? event[0].parsedData : returnGetParsedVTODO(event[0].data)
+            if(!todo){
+                return null
+            }
+            return { item, event, todo }
+        }))
 
+        let final: JSX.Element[] = []
+        const levelTask = level ? level : 0
+
+        for(const result of results){
+            if(!result) continue
+            const { item, todo } = result
+
+            let dueDate = ISODatetoHuman(todo.due)
+            let timeDifference = timeDifferencefromNowinWords(dueDate)
+            let secondaryText = ""
+            if(dueDate!=null && dueDate!=""){
+                secondaryText = dueDate+" "+timeDifference
+            }
+
+            const taskParent = <SingleTask key={item.id} id={item.id} level={levelTask} parsedTask={todo} />
+            let taskChildren: JSX.Element | null = null
+            if(item.children.length>0){
+                const sortedKids = sortTasksByRequest(item.children, sortBy)
+                taskChildren = <RenderTaskList sortBy={sortBy} taskList={sortedKids} level={levelTask+1} />
+            }
+            final.push(
+                <TaskGroup key={`${item.id.toString()}_taskGroup`} keyName={`${item.id.toString()}_taskGroup`} parent={taskParent}>
+                    {taskChildren}
+                </TaskGroup>
+            )
+        }
+
+        if(final.length>0){
             setFinalOutput(final)
         }else{
             setFinalOutput([<p key="RenderTaskList_nothing_toShow">{t("NOTHING_TO_SHOW")}</p>])
@@ -54,14 +63,14 @@ export const RenderTaskList = ({taskList, level, sortBy, }: {taskList: TaskArray
 
     useEffect(()=>{
         let isMounted = true
-        if(isMounted)
-        {
-            renderList()
-        }
+        renderList().catch(err => {
+            console.error("RenderTaskList: renderList failed", err)
+        })
         return ()=>{
             isMounted = false
         }
     },[taskList])
+
     return(
         <>
         {finalOutput}

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { checkLogin_InBuilt } from "../user";
 
-export function useAuthGuard(redirectPath: string): boolean | null {
+export function useAuthGuard(redirectPath: string, nextAuthEnabledFromProps?: boolean): boolean | null {
   const { status } = useSession();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const router = useRouter();
@@ -18,7 +18,8 @@ export function useAuthGuard(redirectPath: string): boolean | null {
     let isMounted = true;
 
     async function checkAuth(): Promise<void> {
-      if (await nextAuthEnabled()) {
+      const isNextAuthEnabled = nextAuthEnabledFromProps ?? await nextAuthEnabled()
+      if (isNextAuthEnabled) {
         if (status === "unauthenticated") {
           signIn();
         } else if (isMounted) {
@@ -26,7 +27,7 @@ export function useAuthGuard(redirectPath: string): boolean | null {
         }
       } else {
         const loggedIn = await checkLogin_InBuilt(routerRef.current, redirectPath);
-        if (isMounted) setIsLoggedIn(loggedIn);
+        if (isMounted) setIsLoggedIn(loggedIn as boolean);
       }
     }
 

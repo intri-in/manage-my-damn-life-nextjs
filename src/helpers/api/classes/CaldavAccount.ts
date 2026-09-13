@@ -238,8 +238,8 @@ export class CaldavAccount{
     }
 
     static async checkIfCalendarURLinCaldavAccount_GetID(caldav_accounts_id, url){
-        const calendar_id = await Calendars.getIDFromURL(url)
-        // console.log("calendar_id", calendar_id)
+        const calendar_id = await Calendars.getIDFromURL(url, caldav_accounts_id)
+        console.log("checkIfCalendarURLinCaldavAccount_GetID calendar_id", calendar_id)
         if(!calendar_id) return ""
         const calendar = await calendarsModel.findAll({
             where:{

@@ -42,10 +42,11 @@ export async function refreshOAuthTokenFromProvider(caldav_account: caldav_accou
 
         const decryptedPass = decryptCalDAVPassword(caldav_account.password!)
         const url_api = OAUTH_TOKEN_URL[caldav_account.provider!]
+        if(!caldav_account.refresh_token || !caldav_account.client_id) return {}
         const body = new URLSearchParams({
-            client_id: caldav_account.client_id!,
+            client_id: caldav_account.client_id,
             client_secret: decryptedPass,
-            refresh_token:caldav_account.refresh_token!,
+            refresh_token:caldav_account.refresh_token,
             grant_type:"refresh_token"
           })
         // console.log("body", body)

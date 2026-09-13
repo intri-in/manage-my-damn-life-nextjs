@@ -3,9 +3,9 @@ import { Users, db } from "./dexieDB";
 import { getUserDataFromCookies, logoutUser } from "../user";
 import { nextAuthEnabled } from "@/helpers/thirdparty/nextAuth";
 import { getSessionFromNextAuthAPI, getUserIDFromNextAuthSession_API } from "../nextAuthHelpers";
+const LOCAL_STORAGE_USER_ID="LOCAL_STORAGE_USER_ID"
 
 export async function getUserIDFromHash_Dexie(userhash){
-    // console.log("url, username", url, username)
 
     if(!userhash) return 
     //First we check if the data is even there.
@@ -38,18 +38,33 @@ export async function deDuplicateUser(userIDArray: Users[])
     }
     
 }
-export async function getUserIDForCurrentUser_Dexie(){
+export async function getUserIDForCurrentUser_Dexie(): Promise<number>{
+    if(typeof(window)==="undefined"){
+        throw new Error("This function must be called only from the Client side.")
+    }
+    //First we try to fetch from local storage.
+    const userID_fromLocalStorage = localStorage.getItem(LOCAL_STORAGE_USER_ID)
+    if(userID_fromLocalStorage) return Number(userID_fromLocalStorage)
     if(!await nextAuthEnabled()){
-
         const userData = getUserDataFromCookies()
         const userHash = userData["userhash"]
-        const userid = await getUserIDFromHash_Dexie(userHash)    
-        return userid
+        const userid = await getUserIDFromHash_Dexie(userHash)
+        if(userid) {
+            localStorage.setItem(LOCAL_STORAGE_USER_ID,userid?.toString())
+        }else{
+            console.warn("getUserIDForCurrentUser_Dexie: userid is empty")
+        }
+        return Number(userid)
     }else{
         //NextAuth is being used.
         const userhash = await getUserIDFromNextAuthSession_API()
-
-        return await getUserIDFromHash_Dexie(userhash)    
+        const userid = await getUserIDFromHash_Dexie(userhash)  
+        if(userid) {
+            localStorage.setItem(LOCAL_STORAGE_USER_ID,userid?.toString())
+        }else{
+            console.warn("getUserIDForCurrentUser_Dexie: userid is empty")
+        }
+        return Number(userid)
 
     }
 }

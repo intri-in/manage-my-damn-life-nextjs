@@ -179,6 +179,25 @@ export async function getCalendarEventFromUID_Dexie(uid){
 
 }
 /**
+ * Gets the id of multiple events from calendar_events from uid 
+ */
+
+export async function getCalendarEventsFromUIDMultiple_Dexie(uids: string[] | undefined){
+
+    if(!uids) return null
+    try {
+        const events = await db.calendar_events
+            .where('uid')
+            .anyOf(uids)
+            .toArray();
+        return events;
+
+    } catch (e) {
+        console.warn("getCalendarEventsFromUIDs_Dexie", e)
+        return null
+    }
+}
+/**
  * Gets the dexie id of the parent
  * @param uid 
  */
@@ -214,7 +233,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         }
     }
 
-    // console.log("calendars_id, url", calendars_id, url, )
+    // console.log("parsed",parsed, parsedInput, data)
 
 
     //Check if event exists in Dexie already, if so, we update it.
@@ -226,6 +245,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         typeToInsert = parsedType
     }
 
+    let toReturn = 0
     if (eventID && eventID.calendar_events_id) {
         // Update if new etag is different.
         //console.log("events etag",eventID["etag"], etag,  eventID["etag"]==etag )
@@ -234,6 +254,7 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
         const updated = await db.calendar_events.update(eventID, { etag: etag, data: data, type: typeToInsert,uid: parsed["uid"],
         parsedData:parsed, calendar_id:calendars_id
          })
+         toReturn=  updated
         //Update parsed value
         // console.log("updated", updated)
     } else {
@@ -251,11 +272,14 @@ export async function saveEventToDexie(calendars_id, url, etag, data, type, pars
             parsedData:parsed
         }).catch(e => {
             console.log("saveEventToDexie", e)
+
         })
+        toReturn= id
 
         // console.log("saveEventToDexie -> id", id ,parsed.summary, )
     }
-    await saveEventParenttoDexie(parsed)
+    await saveEventParenttoDexie(parsed, eventID?.uid)
+    return toReturn
     
 }
 

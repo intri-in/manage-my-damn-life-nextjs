@@ -1,13 +1,14 @@
 'use client'
 import { useSession } from "next-auth/react";
 import AppBarFunctionalComponent from "./AppBarFunctionalComponents";
+import { useTranslation } from "next-i18next";
 
 interface propsType{
     isSyncing?: boolean,
     onSynComplete?: Function
 }
 const AppBarGeneric= ({isSyncing, onSynComplete}:propsType) =>{
-
+    
     // const [lastSync, setLastSync] = useState(0)
     // useEffect(()=>{
     // const interval= setInterval(() => {
@@ -24,9 +25,10 @@ const AppBarGeneric= ({isSyncing, onSynComplete}:propsType) =>{
     // },[])
 
     const session = useSession()
+    const {t} = useTranslation()
     return (
     <>
-        <AppBarFunctionalComponent session={session} />
+        <AppBarFunctionalComponent t={t} session={session} />
     </>)
 }
 

@@ -33,7 +33,7 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
         if (isMounted) {
 
             // setAlarms(input) 
-            console.log("input Alarm", input)
+            // console.log("input Alarm", input)
             if (input && Array.isArray(input) && input.length > 0) {
                 let inputNew: vAlarmVTODOGEN[] = []
                 for (const i in input) {

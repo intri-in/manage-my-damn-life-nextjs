@@ -1,3 +1,4 @@
+import { SyncManager, SyncManagerAddTaskInput, SyncManagerDeleteEventInput, SyncManagerStatus, SyncManagerSyncCalendarInput, SyncManagerSyncWebcalInput, SyncManagerType_Type } from '@/helpers/frontend/SyncManager';
 import Dexie, { Table } from 'dexie';
 
 export interface Users{
@@ -84,6 +85,21 @@ export interface WebCalEvents{
   webcals_id: string;
   data: string | any;
 }
+
+export interface SyncManagerDexie{
+  id?:number,
+  summary: string,
+  input: SyncManagerSyncCalendarInput | SyncManagerSyncWebcalInput | SyncManagerAddTaskInput | SyncManagerDeleteEventInput,
+  type: SyncManagerType_Type
+  status: SyncManagerStatus,
+  created: string,
+  updated: string,
+  userid: string
+  message?:string,
+  retryAfter?:string,
+  retryNumber?:string, 
+  eventIdInDexie?: string
+}
 export class MySubClassedDexie extends Dexie {
   caldav_accounts!: Table<Caldav_Accounts>; 
   calendars!: Table<Calendars>;
@@ -94,6 +110,7 @@ export class MySubClassedDexie extends Dexie {
   users!:Table<Users>
   webcals!: Table<WebCals>
   webcals_events!: Table<WebCalEvents>
+  sync_manager!: Table<SyncManagerDexie>
   constructor() {
     super('mmdl_dexie_db');
     this.version(1).stores({
@@ -136,8 +153,19 @@ export class MySubClassedDexie extends Dexie {
     this.version(8).stores({
       caldav_accounts: '++id,caldav_accounts_id, username, url, name, authMethod,userid,provider',
     })
-
-  }
+    this.version(9).stores({
+       sync_manager: '++id,summary,input, type, status, created,updated,userid'
+    })
+    this.version(10).stores({
+       sync_manager: '++id,summary,input, type, status, created,updated,userid,message'
+    })
+    this.version(11).stores({
+       sync_manager: '++id,summary,input, type, status, created,updated,userid,message,retryAfter'
+    })
+this.version(11).stores({
+       sync_manager: '++id,summary,input, type, status, created,updated,userid,message,retryAfter, retryNumber, eventIdInDexie'
+    })
+ }
 }
 
 export const db = new MySubClassedDexie();

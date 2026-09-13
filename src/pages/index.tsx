@@ -17,70 +17,16 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getCurrentLanguage } from '@/helpers/frontend/translations'
 import { AVAILABLE_LANGUAGES } from '@/config/constants'
 import { EmptyPageBeforeLogin } from '@/components/common/EmptyPageBeforeLogin'
+import { useAuthGuard } from '@/helpers/frontend/hooks/useAuthGuard'
 
-export default function HomePage() {
-  const { data: session, status } = useSession()  
-  const [updated, setUpdated]=useState('')
-  const [isSyncing, setIsSyncing] = useState(false)
-  const { t, i18n } = useTranslation()
-  const router = useRouter()
-  const [isloggedIn, setIsloggedIn] = useState(false)
+export default function HomePage(props) {
+const isLoggedIn = useAuthGuard("/", props.nextAuthEnabled);
+  const { t } = useTranslation()
 
-  // useEffect(()=>{
-  //   i18n.changeLanguage(getCurrentLanguage())
-  // },[])
-  const onSynComplete = () =>{
-      var updated = Math.floor(Date.now() / 1000)
-      setUpdated(updated)
-    }
-
-  //const [finalOutput, setFinalOutput] =useState()
-  // useEffect(()=>{
-     
-
-  //   // if(!loginChecked.current){
-  //   //   loginChecked.current=true
-  //   //   const checkAuth = async() =>{
-  //   //     const auth = await isUserLoggedIn()
-  //   //     if(auth){
-  //   //       setUserAuthenticated(true)
-  //   //     }
-  //   //   }
-  //   //   checkAuth()
-  //   // }
-    
-  //   // }, [userAuthenticated])
   useCustomTheme()
-
    
 
-  useEffect(() =>{
-
-    let isMounted =true
-    async function checkAuth(){
-      
-        if(await nextAuthEnabled()){
-          if (status=="unauthenticated" ) {
-            signIn()
-          }else{
-              setIsloggedIn(true)
-          }
-        }else{
-          // Check login using inbuilt function.
-          setIsloggedIn(await checkLogin_InBuilt(router,"/accounts/caldav"))
-        }
-      }
-
-      if(isMounted){
-
-        checkAuth()
-      }
-      return () =>{
-        isMounted = false
-    }
-  }, [status, router])
-
-  if(!isloggedIn) return (<EmptyPageBeforeLogin />)
+  if(!isLoggedIn) return (<EmptyPageBeforeLogin />)
 
     
 
@@ -93,7 +39,7 @@ export default function HomePage() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <AppBarGeneric  onSynComplete={onSynComplete} isSyncing={isSyncing}/>
+        <AppBarGeneric  />
         <div className='container-fluid'>
           <CombinedViewFunctional />
           <GlobalViewManager />         
@@ -108,6 +54,7 @@ export async function getStaticProps({ locale}) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ["common"], null, AVAILABLE_LANGUAGES)),
+      nextAuthEnabled: await nextAuthEnabled()
       // Will be passed to the page component as props
     },
   }

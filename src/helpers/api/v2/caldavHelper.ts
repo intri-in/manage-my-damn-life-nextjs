@@ -22,7 +22,7 @@ export function processCalendarFromCaldav(calendar){
         calendartoReturn.url =  calendar.url.toString()
         calendartoReturn.ctag = calendar.ctag.toString()
         calendartoReturn.description = typeof(calendar.description) == "string" ? calendar.description : validator.escape(calendar.description).toString()
-        calendartoReturn.calendarColor = validator.isHexColor(calendar.calendarColor.toString()) ? calendar.calendarColor : ""
+        calendartoReturn.calendarColor = (calendar.calendarColor && validator.isHexColor(calendar.calendarColor.toString())) ? calendar.calendarColor : ""
         calendartoReturn.syncToken = calendar.syncToken.toString()
         calendartoReturn.resourcetype = calendar.resourcetype.toString()
         const timezoneValidator = require('timezone-validator');

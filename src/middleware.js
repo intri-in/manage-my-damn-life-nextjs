@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import acceptLanguage from 'accept-language'
 import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from './config/constants'
 import { LOCALSTORAGE_KEYNAME_CURRENT_LANGUAGE, appendLanguageToURL, langAlreadyinURL, shouldRedirectWithLang } from './helpers/frontend/translations'
-import { appendLangParamtoURL } from './helpers/general'
 
 acceptLanguage.languages(AVAILABLE_LANGUAGES)
 
@@ -24,7 +23,6 @@ export function middleware(req) {
 
   if (req.cookies.has(LOCALSTORAGE_KEYNAME_CURRENT_LANGUAGE) && req.cookies.get(LOCALSTORAGE_KEYNAME_CURRENT_LANGUAGE)) lng = acceptLanguage.get(req.cookies.get(LOCALSTORAGE_KEYNAME_CURRENT_LANGUAGE).value)
   
-  // if (!lng) lng = acceptLanguage.get(req.headers.get('Accept-Language'))
   if (!lng) lng = DEFAULT_LANGUAGE
   
   // Redirect if lng in path is not supported
@@ -43,19 +41,6 @@ export function middleware(req) {
   }
 
 
-  // if (req.headers.has('referer')) {
-  //   const refererUrl = new URL(req.headers.get('referer')!)
-  //   console.log("lang", refererUrl)
-  //   const lngInReferer = langArray.find((l) => {
-  //     const lang = refererUrl.searchParams.get("lng")
-  //     if(l===lang){
-  //       return true
-  //     }
-  //   })
-  //   const response = NextResponse.next()
-  //   if (lngInReferer) response.cookies.set(cookieName, lngInReferer)
-  //   return response
-  // }
 
   return NextResponse.next()
 }

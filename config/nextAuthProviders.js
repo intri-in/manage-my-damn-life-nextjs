@@ -1,7 +1,7 @@
 import KeycloakProvider from "next-auth/providers/keycloak";
 import GoogleProvider from 'next-auth/providers/google'
 import AuthentikProvider from 'next-auth/providers/authentik'
-import { varNotEmpty } from "@/helpers/general";
+import { removeTrailingSlashFromString, varNotEmpty } from "@/helpers/general";
 
 /**
  * Array of authProviders that will be passed to NextAuth.js
@@ -41,7 +41,7 @@ if(varNotEmpty(process.env.AUTHENTIK_CLIENT_ID) && varNotEmpty(process.env.AUTHE
     AuthentikProvider({
       clientId: process.env.AUTHENTIK_CLIENT_ID,
       clientSecret: process.env.AUTHENTIK_CLIENT_SECRET,
-      issuer: process.env.AUTHENTIK_ISSUER,
+      issuer: removeTrailingSlashFromString(process.env.AUTHENTIK_ISSUER),
     })
     )
 }

@@ -57,18 +57,34 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     const setUIBasedOnUrl = () =>{
         if(typeof(window)!=="undefined"){
             const path = window.location.pathname;
-            if(path=="/"){
-                const screenWidth = window.screen.width;
-                // console.log("screenWidth",screenWidth )
-                setParentIsSmall(true)
-            }
+                const screenWidth = window.innerWidth;
+                // console.log("screenWidth",screenWidth, Number(screenWidth)<1024 )
+                if(screenWidth){
+                    if(path=="/"){
+                        if(Number(screenWidth)<1366){
+                            setParentIsSmall(true)
+    
+                        }else{
+                            setParentIsSmall(false)
+                        }
+                    }else{
+
+                        if(Number(screenWidth)<1024){
+                            setParentIsSmall(true)
+    
+                        }else{
+                            setParentIsSmall(false)
+    
+                        }
+                    }
+                }
         }
     }
     useEffect(() => {
         setUIBasedOnUrl()
         window.addEventListener('resize', setUIBasedOnUrl);
         return () => {
-        window.removeEventListener('resize', setUIBasedOnUrl);
+            window.removeEventListener('resize', setUIBasedOnUrl);
         };
     }, []);
 
@@ -102,42 +118,29 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
     }, [parsedTask, id, level])
 
     const checkBoxClicked = async () => {
-        // setTaskChecked(prev => !prev)
-        /**
-        setTaskEditorInput({id: id,
-            taskDone: true
-        })
-        setShowTaskEditor(true)
-        // console.log(completedDate)
-        setCompleted(completedDate!)
-        setCompletion("100")
-        setStatus("COMPLETED")
-        
-        */
         let newTask: ParsedTask = _.cloneDeep(parsedTask)
-        console.log(newTask)
-        const eventInfoFromDexie = await getEventFromDexieByID(parseInt(id.toString()))
+
+    // These two only depend on `id`, not on each other — run them concurrently.
+        const [eventInfoFromDexie, eventURL] = await Promise.all([
+            getEventFromDexieByID(parseInt(id.toString())),
+            getEventURLFromDexie(id)
+        ])
+
         if (eventInfoFromDexie) {
             const calendar_id = eventInfoFromDexie[0].calendar_id
             if (isDone) {
-                //Task is done. We have to mark it as pending.
-                // console.log("task is clicked")
                 if (!newTask["rrule"]) {
-
                     newTask["completed"] = ""
                     newTask["completion"] = "0"
                     newTask["status"] = ""
                 }
             } else {
-                //Task is pending. We have to mark it as done.
                 const completedDate = moment().toISOString()
                 if (!parsedTask.rrule) {
-
                     newTask["completed"] = completedDate
                     newTask["completion"] = "100"
                     newTask["status"] = "COMPLETED"
                 } else {
-                    // Recurring Task.
                     let dueDateToSave = parsedTask["due"]
                     let taskStartToSave = parsedTask["start"]
                     let rruleObject = RRuleHelper.stringToObject(parsedTask.rrule)
@@ -146,20 +149,14 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                         taskStartToSave = RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["start"]).toISOString()
                     }
                     if (parsedTask["due"]) {
-
                         dueDateToSave = RRuleHelper.addRecurrenceDelaytoDate(rruleObject, parsedTask["due"]).toISOString()
-
                     }
                     newTask["due"] = dueDateToSave
                     newTask["start"] = taskStartToSave
                     newTask['rrule'] = rruleObject
-                    // console.log("rrule", newTask)
-
-
-
                 }
             }
-            //Add advancedTriggerMode to alarms.
+
             if (newTask["alarms"] && Array.isArray(newTask["alarms"])) {
                 newTask.valarms = newTask["alarms"]
                 for (const i in newTask["valarms"]) {
@@ -168,18 +165,15 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                 }
             }
 
-            const eventURL = await getEventURLFromDexie(id)
             const eventEtag = await getEtagFromURL_Dexie(eventURL)
             let message = newTask["summary"] ? newTask["summary"] + ": " : ""
 
-            updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTask, null).then(reponse => {
+            updateTodo_WithUI(calendar_id, eventURL, eventEtag, newTask, null).then(response => {
                 setUpdateViewTime(Date.now())
+            }).catch(error=>{
+                toast.error(error)
             })
-
-            console.log(message + "Task updated!")
-
         }
-
 
     }
 
@@ -268,8 +262,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
 
 
     priorityStar = (<div onClick={priorityStarClicked} style={{ padding: 0, verticalAlign: 'middle', textAlign: 'center' }} className="col-1">{priorityStar}</div>)
-
-    const hideOnCombinedViewClasses = parentIsSmall ? "":""
+    // console.log("parentIsSam", parentIsSmall)
     return (
         <div key={id.toString()}>
             <ContextMenuTrigger key={id.toString() + "_" + parsedTask.uid + "_contextMenuTrigger"} id={"RIGHTCLICK_MENU_" + id} >
@@ -286,14 +279,14 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                             <Col onClick={taskClicked} className={`d-none d-sm-block ${parentIsSmall? "d-lg-none":"d-lg-block"}`} xs={0} sm={3} md={5} lg={4}>
                                 <SummaryText color={dueDateColor} text={dueDateText} /> 
                             </Col>
-                            <Col onClick={taskClicked} className="d-none d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
+                            <Col onClick={taskClicked} className="d-none  d-sm-none d-md-block d-none d-sm-block d-md-none d-lg-block" lg={1}>
                                 <div style={{ width: "80%" }} className="textDefault">
                                     <LabelListForTask id={id.toString()} parsedTask={parsedTask} />
                                 </div>
 
                             </Col>
                             
-                            <Col onClick={taskClicked} className={`d-sm-none d-md-none ${parentIsSmall?"":"d-lg-block"}`} lg={1} >
+                            <Col onClick={taskClicked} className={`d-none d-sm-none d-md-none ${parentIsSmall?"":"d-lg-block"}`} lg={1} >
                                 {repeatingTaskIcon} {hasDescriptionIcon}
                             </Col>
                                 
@@ -310,7 +303,7 @@ export const SingleTask = ({ parsedTask, level, id }: { parsedTask: ParsedTask, 
                     </div>
                 </div>
             </ContextMenuTrigger>
-            <RightclickContextMenuWithState parsedTask={parsedTask} id={id} />
+            <RightclickContextMenuWithState  parsedTask={parsedTask} id={id} />
         </div>
     )
 

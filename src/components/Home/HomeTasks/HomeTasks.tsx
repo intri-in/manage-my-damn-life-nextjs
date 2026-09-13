@@ -7,6 +7,8 @@ import * as _ from 'lodash'
 import { storeValuetoLocalStorage } from "@/helpers/frontend/localstorage";
 import { useTranslation } from "next-i18next";
 import { checkIfFilterValid } from '@/helpers/frontend/filtersTS';
+import { useSetAtom } from 'jotai';
+import { calDavObjectAtom, currentPageTitleAtom, filterAtom } from 'stateStore/ViewStore';
 
 export const STORAGE_KEY_MENU_OPTION_SELECTED= "STORAGE_KEY_MENU_OPTION_SELECTED"
 
@@ -38,7 +40,6 @@ const defaultMenuOptions = {
 
 } 
 function HomeTasks(props:homeTasksPropsInterface) {
-    const [taskView, setTaskView ] = useState(props.view)
     const [updated, setUpdated]  =  useState(props.updated)
     const [title, setTitle] = useState("MY_DAY")
     const [caldav_accounts_id, setCaldavAccountsId] = useState(props.caldav_accounts_id)
@@ -109,14 +110,14 @@ function HomeTasks(props:homeTasksPropsInterface) {
                                     setFilter(filterValue)
                                     setCaldavAccountsId(null)
                                     setCalendarsId(null)
-        
                                 }else{
                                     //Probably a calendar Object.
-                                    setFilter(null)
                                     if(("caldav_accounts_id" in filterValue) && ("calendars_id" in filterValue) && filterValue.calendars_id)
                                     {
                                         setCaldavAccountsId(filterValue["caldav_accounts_id"])
                                         setCalendarsId(filterValue["calendars_id"].toString())
+                                        // setCalDavAtom({caldav_accounts_id: Number((filterValue["caldav_accounts_id"] as string).toString()), calendars_id: Number(filterValue["calendars_id"].toString())})
+                                        // setFilterAtom({})
                                     }
                                 }
     
@@ -146,8 +147,8 @@ function HomeTasks(props:homeTasksPropsInterface) {
       },[selectedValue, menuOptions])
       
     const menuOptionSelected = (e: { target: { value: any; }; }) =>{
-        var value = e.target.value
-        console.log("value", value)
+        const value = e.target.value
+        console.log("menuOptionSelected value", value)
         setSelectedValue(value)
         storeValuetoLocalStorage(STORAGE_KEY_MENU_OPTION_SELECTED, value)    
 
