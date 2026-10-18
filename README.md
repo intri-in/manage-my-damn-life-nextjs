@@ -41,6 +41,9 @@ MMDL also supports OAuth authentication for CalDAV Accounts. As of now, Google C
 
 To get started, you can checkout installation documentation [here](docs/install/index.md).
 
+## ☁️ One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/manage-my-damn-life/)
 
 ## Translation
 
@@ -49,4 +52,3 @@ This project uses [Weblate](https://hosted.weblate.org/projects/mmdl-manage-my-d
 <a href="https://hosted.weblate.org/engage/mmdl-manage-my-damn-life/">
 <img src="https://hosted.weblate.org/widget/mmdl-manage-my-damn-life/multi-auto.svg" alt="Translation status" />
 </a>
-
