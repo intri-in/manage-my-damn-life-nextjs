@@ -1,11 +1,12 @@
 
-import * as moment from 'moment';
+import moment from "moment";
 import { isValidResultArray, varNotEmpty } from '../general';
 import { getMessageFromAPIResponse } from './response';
 import { getDummyI18nObject } from './translations';
+import { FauxI18nObject } from 'src/types/generic';
 
 
-export function getI18nObject()
+export function getI18nObject(): FauxI18nObject
 {
     return getDummyI18nObject()
 
@@ -21,7 +22,7 @@ export function ISODatetoHuman(date)
         {
             var year=""
             var month=""
-            var date=""
+            var dateVal=""
             var hh=""
             var mm=""
             var ss=""
@@ -30,9 +31,9 @@ export function ISODatetoHuman(date)
             {
                 year=dateArray[0].substring(0,4)
                 month=dateArray[0].substring(4,6)
-                date=dateArray[0].substring(6,8)
+                dateVal=dateArray[0].substring(6,8)
 
-                dateToReturn= date+"/"+month+"/"+year
+                dateToReturn= dateVal+"/"+month+"/"+year
             }
             if(dateArray.length>1)
             {
@@ -50,9 +51,7 @@ export function ISODatetoHuman(date)
         }
      
     }
-    else
-    {
-    }
+    
     return ""
 }
 
@@ -84,7 +83,7 @@ export function ISODatetoHumanISO(date)
         {
             var year=""
             var month=""
-            var date=""
+            var dateVal=""
             var hh=""
             var mm=""
             var ss=""
@@ -93,7 +92,7 @@ export function ISODatetoHumanISO(date)
             {
                 year=dateArray[0].substring(0,4)
                 month=dateArray[0].substring(4,6)
-                date=dateArray[0].substring(6,8)
+                dateVal=dateArray[0].substring(6,8)
 
                 dateToReturn= year+"-"+month+"-"+date
             }
@@ -152,30 +151,6 @@ export function timeDifferencefromNowinWords(date, i18next)
     return timeDifferenceStatement
 
 }
-export function timeDifferencefromNowinWords_FromUnixSeconds(unixTime){
-    var timeDifference=Math.floor((unixTime - Math.floor(Date.now() / 1000))/86400)
-    var timeDifferenceStatement=""
-    if(isNaN(timeDifference))
-    {
-        timeDifferenceStatement =""
-    }
-    else
-    {
-        if(timeDifference<0)
-        {
-            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
-        }else if(timeDifference ==0 ){
-            timeDifferenceStatement="("+i18next.t("TODAY")+")"
-        }
-        else{
-            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
-        }
-        
-    }
-
-    return timeDifferenceStatement
-
-}
 
 export function fixNullDate(dateToCheck, newDate){
     if(dateToCheck){
@@ -194,28 +169,8 @@ export function timeDifferencefromNowinWords_Generic(date)
 
         return `(${durationDifference.humanize(true).toString()})`
     }
+    return ""
     
-    var timeDifference=Math.floor((moment(date).unix() - Math.floor(Date.now() / 1000))/86400)
-    var timeDifferenceStatement=""
-    if(isNaN(timeDifference))
-    {
-        timeDifferenceStatement =""
-    }
-    else
-    {
-        if(timeDifference<0)
-        {
-            timeDifferenceStatement="("+(timeDifference*-1)+" "+i18next.t("DAYS")+" "+ i18next.t("AGO")+")"
-        }else if(timeDifference ==0 ){
-            timeDifferenceStatement="("+i18next.t("TODAY")+")"
-        }
-        else{
-            timeDifferenceStatement="("+ i18next.t("IN") +" "+(timeDifference)+" "+i18next.t("DAYS_DUE")+")"
-        }
-        
-    }
-
-    return timeDifferenceStatement
 
 }
 
@@ -300,8 +255,6 @@ export function getRandomColourCode()
     return (moment(time, 'HH:mm', true).isValid() || moment(time, 'H:m', true).isValid() || moment(time, 'H:mm', true).isValid() || moment(time, 'H:mm', true).isValid())
   }
 
-  export function isDateValid(dateStr) {
-    const isValid =  !isNaN(new Date(dateStr));
-    // console.log("dateStr", dateStr, isValid)
-    return isValid
-  }
+export function getEnumKeyByValue(enumObject, value) {
+  return Object.keys(enumObject).find(key => enumObject[key] === Number(value));
+}

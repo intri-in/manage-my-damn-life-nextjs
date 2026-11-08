@@ -5,8 +5,14 @@ import { rruleToObject } from "./events";
 import { getMessageFromAPIResponse } from "./response";
 import { getAuthenticationHeadersforUser } from "./user";
 import { getI18nObject } from "./general";
-
-export async function makeGenerateICSRequest(eventObj)
+const { createEventsAsync } = require('ics')
+export async function generateICSUsingExternalLib(data:any){
+    const { error, value } = await createEventsAsync([data])
+    if(error) throw Error(`generateICSUsingExternalLib: ${JSON.stringify(error)}`)
+    return value    
+    
+}
+export async function makeGenerateICSRequest(eventObj): Promise<string>
 {
     const url_api=getAPIURL()+"misc/generateics"
 
@@ -21,7 +27,7 @@ export async function makeGenerateICSRequest(eventObj)
     return new Promise( (resolve, reject) => {
 
 
-            fetch(url_api, requestOptions)
+            fetch(url_api, requestOptions as RequestInit)
             .then(response => response.json())
             .then((body) =>{
                 if(varNotEmpty(body) && varNotEmpty(body.success) && body.success==true )
@@ -34,16 +40,16 @@ export async function makeGenerateICSRequest(eventObj)
                     {
                         toast.error(message)
                     }else{
-                        toast.error(getI18nObject.t("GENERIC_ERROR"))
+                        toast.error(getI18nObject().t("GENERIC_ERROR"))
                     }
     
-                    return resolve(null)
+                    return resolve("")
                 }
                 
             }).catch(e =>{
                 console.error("makeGenerateICSRequest", e)
 
-                return resolve(null)
+                return resolve("")
             })
          
     })
@@ -307,7 +313,7 @@ export async function makeParseICSRequest(data,type)
         return new Promise( (resolve, reject) => {
             
             
-                fetch(url_api, requestOptions)
+                fetch(url_api, requestOptions as RequestInit)
                     .then(response => response.json())
                     .then((body) => {
                         return resolve(body)
