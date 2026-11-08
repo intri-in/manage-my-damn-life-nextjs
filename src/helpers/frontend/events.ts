@@ -14,6 +14,7 @@ import { applyEventFilter, countConditionsInFilter, getLogicFromFilter } from ".
 import { Calendar_Events } from "./dexie/dexieDB"
 import { TaskFilter } from "types/tasks/filters"
 import { AlarmType } from "@/components/events/AlarmForm"
+
 export async function getEvents(calendarEvents, filter)
 {
     var filteredEvents= _.cloneDeep(calendarEvents)
@@ -273,34 +274,40 @@ export function isAllDayEvent(start, end)
 
 export function rruleToObject(rrule)
 {
-    var objectToReturn = {"FREQ": "", "INTERVAL":"", "UNTIL":""}
+    let objectToReturn: {"FREQ": string, "INTERVAL":string, "UNTIL":string, "BYDAY":string[]} = {"FREQ": "", "INTERVAL":"", "UNTIL":"", "BYDAY":[]}
     if(varNotEmpty(rrule) && rrule!="" &&typeof(rrule)=="string")
     {
-        var burst = rrule.split(';')
+        let burst = rrule.split(';')
 
-        if(varNotEmpty(burst) && Array.isArray(burst))
+        if(burst && Array.isArray(burst))
         {
             for(const i in burst)
             {
                 if(burst[i].startsWith("FREQ="))
                 {
-                    var freq = burst[i].split('=')[1]
+                    let freq = burst[i].split('=')[1]
                     objectToReturn["FREQ"]=freq
                 }
 
                 if(burst[i].startsWith("INTERVAL="))
                 {
-                    var interval = burst[i].split('=')[1]
+                    let interval = burst[i].split('=')[1]
                     objectToReturn["INTERVAL"]=interval
 
                 }
                 if(burst[i].startsWith("UNTIL="))
                 {
-                    var interval = burst[i].split('=')[1]
+                    let interval = burst[i].split('=')[1]
                     objectToReturn["UNTIL"]=interval
 
                 }
-
+                if(burst[i].startsWith("BYDAY=")){
+                    let byDay = burst[i].split('=')[1]
+                    let newByDay= byDay.split(',')
+                    const lowerCase = newByDay.map(day => day.toLowerCase());                    
+                    
+                    objectToReturn.BYDAY=lowerCase
+                }
             }
         }
     }

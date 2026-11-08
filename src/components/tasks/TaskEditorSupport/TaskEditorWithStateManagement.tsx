@@ -17,10 +17,10 @@ import { fixDueDate, fixDueDateWithFormat, getISO8601Date, isValidDateString, is
 import * as _ from 'lodash'
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper"
 // import VTodoGenerator from 'vtodogenerator'
-import VTodoGenerator from '@../../vtodogenerator/dist/index'
+import VTodoGenerator from 'vtodogenerator'
 import { toast } from "react-toastify"
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarURLByID_Dexie, getCalendarbyIDFromDexie, isValidCalendarsID } from "@/helpers/frontend/dexie/calendars_dexie"
-import { generateNewTaskObject } from "@/helpers/frontend/tasks"
+import { addRRuleIntervalToDate, generateNewTaskObject } from "@/helpers/frontend/tasks"
 import { TaskEditorInputType } from "stateStore/TaskEditorStore"
 import { getRandomString } from "@/helpers/crypto"
 import { Labels } from "@/helpers/frontend/dexie/dexieDB"
@@ -36,9 +36,10 @@ import { useTranslation } from "next-i18next"
 import { VAlarmForm } from "@/components/valarm/VAlarmForm"
 import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
 import { VAlarmType } from "@/types/valarm"
-import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper"
 import { SyncManager } from "@/helpers/frontend/SyncManager"
 import { updateViewAtom } from "stateStore/ViewStore"
+import { Frequency, RRule, rrulestr } from 'rrule'
+import { getEnumKeyByValue } from "src/helpers/frontend/general"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
@@ -70,7 +71,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
     const [completion, setCompletion] = useState("0")
     const [completed, setCompleted] = useState("")
     const [description, setDescription] = useState("")
-    const [rrule, setRrule] = useState<RruleObject>(RRuleHelper.getEmptyObject())
+    const [rrule, setRrule] = useState<RRule | null | undefined>(null)
     const [lastmodified, setLastModified] = useState(Date.now())
     const [isNewTask, setIsNewTask] = useState(false)
     const [parsedDataFromDexie, setParsedDataFromDexie] = useState<{} | undefined | any>({})
@@ -243,7 +244,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                  * 
                  */
                 // console.log(parsedRecurrenceObj)
-                setRrule(rruleToObject(input.rrule))
+                setRrule(rrulestr(input.rrule))
 
             }
 
@@ -303,8 +304,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setRelatedTo(parsedData["relatedto"])
             }
             //Check and set repeating task parameters.
-            setRrule(rruleToObject(parsedData["rrule"]))
-            console.log("rruleToObject(parsedData", rruleToObject(parsedData["rrule"]))
+            if (parsedData.rrule) setRrule(rrulestr(parsedData.rrule))
+            // if (parsedData.rrule) console.log("rruleToObject(parsedData", parsedData.rrule, rrulestr(parsedData.rrule))
             const isRecurring = parsedData["rrule"] ? true : false
             if (parsedData["rrule"]) {
                 /**
@@ -429,25 +430,27 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             if (isRepeatingTask && taskDone) {
                 // console.log("RRULE", rrule)
                 if (taskStart) {
-                    taskStartToSave = RRuleHelper.addRecurrenceDelaytoDate(rrule, taskStart).toISOString()
+                    taskStartToSave = addRRuleIntervalToDate( taskStart, rrule)
                 }
                 if (dueDate) {
 
-                    dueDateToSave = RRuleHelper.addRecurrenceDelaytoDate(rrule, dueDate).toISOString()
+                    dueDateToSave = addRRuleIntervalToDate( dueDate, rrule)
 
                 }
             }
 
-            // console.log("taskStart to Save", taskStartToSave, dueDateToSave)
             setSubmitting(true)
-            const todoData = { due: dueDateToSave, start: taskStartToSave, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule, valarms: alarms }
-            const finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
-            const todo = new VTodoGenerator(finalTodoData, { strict: false })
-            console.log("Generated TODO: -> ", summary, todo, finalTodoData)
-            try {
+            const freq = rrule ? getEnumKeyByValue(Frequency, rrule?.options.freq) : "DAILY"
+            console.log("rrule?.options.freq", rrule?.options.freq, getEnumKeyByValue(Frequency, rrule?.options.freq))
+            const todoData = { due: dueDateToSave, start: taskStartToSave, summary: summary, created: parsedDataFromDexie.created, completion: completion, completed: completed, status: status, uid: uid, categories: category, priority: priority, relatedto: relatedto, lastmodified: "", dtstamp: parsedDataFromDexie.dtstamp, description: description, rrule: rrule ? {FREQ: freq, INTERVAL: rrule?.options.interval, BYWEEKDAY: rrule?.options.byweekday, UNTIL: rrule?.options.until } : undefined, valarms: alarms }
+            let finalTodoData = await generateNewTaskObject(todoData, parsedDataFromDexie, unParsedData)
 
+            const todo = new VTodoGenerator(finalTodoData, { strict: false })
+            // console.log("rrule?.toString()", rrule?.toString())
+            try {
+                
                 const finalVTODO = todo.generate()
-                // console.log(finalVTODO)
+                console.log("Generated TODO: -> ", summary, finalVTODO, finalTodoData, rrule?.toString())
                 if (isTemplate) {
                     if ("templateReturn" in input && input.templateReturn && typeof (input.templateReturn) == "function") {
                         input.templateReturn({ calendar_id: calendar_id, data: finalVTODO })
@@ -496,6 +499,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                     }
                 }
             } catch (e) {
+                console.error("Taskeditor ->:",e)
                 toast.error(e.message)
             }
 
@@ -586,7 +590,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             return false
         }
 
-        if (varNotEmpty(rrule) && RRuleHelper.isValidObject(rrule)) {
+        if (rrule) {
             if (!taskStart && !dueDate) {
                 toast.error(t("ERROR_START_DUE_DATE_REQUIRED_FOR_RECCURENCE"))
                 return false
@@ -650,9 +654,8 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
         setDescription(e.target.value)
         onChange()
     }
-    const onRruleSet = (rrule) => {
-        const newRRULE = RRuleHelper.parseObject(rrule)
-        setRrule(newRRULE)
+    const onRruleSet = (rrule: RRule) => {
+        setRrule(rrule)
         onChange()
     }
     const deleteTask = () => {
@@ -863,9 +866,9 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
             <h4>{t("NOTES")}</h4>
             <Form.Control as="textarea" onChange={descriptionChanged} value={description} placeholder={t("ENTER_NOTES") ?? ""} />
             <br />
-            <VAlarmForm onChange={alarmChanged} input={alarms} />
+            <Recurrence i18next={t} onRruleSet={onRruleSet} rruleProp={rrule} start={taskStart} />
             <br />
-            <Recurrence i18next={t} onRruleSet={onRruleSet} rrule={rrule} />
+            <VAlarmForm onChange={alarmChanged} input={alarms} />
             <br />
             {deleteButton}
             <br />

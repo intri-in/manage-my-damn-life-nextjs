@@ -52,22 +52,25 @@ class SyncEngine {
   private async drain() {
     if (this.running) return;
     this.running = true;
+    let processedAny = false;
     try {
       let task = await this.claimNext();
       while (task) {
         if(task.id) {
           localStorage.setItem(IS_SYNCING, "true")
+          processedAny = true;
           await SyncManager.executeTask(task.id?.toString()).catch(e=>{
             console.error("SyncEngine.drain",e, task?.summary)
           });
-          if(this.postRunFunction) this.postRunFunction()
-          localStorage.setItem(IS_SYNCING, "false")
+          // if(this.postRunFunction) this.postRunFunction()
           task = await this.claimNext();
         }
       }
     } finally {
       this.running = false;
+      localStorage.setItem(IS_SYNCING, "false");
     }
+    if (processedAny && this.postRunFunction) this.postRunFunction();
   }
 
   private async claimNext() {
