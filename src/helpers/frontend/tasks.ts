@@ -8,6 +8,7 @@ import { getAPIURL, varNotEmpty } from "../general";
 import { makeParseICSRequest } from "./ics";
 import { getCalDAVAccountIDFromCalendarID_Dexie } from "./dexie/calendars_dexie";
 import {RRule} from 'rrule'
+import { parseRRuleString } from "./rrule";
 // export function sortTaskListbyDue(list, todoList)
 // {
 //     var sortedList= []
@@ -225,5 +226,32 @@ export function addRRuleIntervalToDate(date: string, rrule: RRule | null | undef
                 
         }
     return toReturn.toISOString()
+
+}
+
+export function getStartAndEndDateForTaskForCalendar(data: any): {start : string, end: string}{
+
+    let toReturn = {start: "", end:""}
+    if (!data ) return toReturn
+
+    if(!data.start && !data.due) return {start: "", end : ""}
+    const hasBothDates: boolean =  data.start && data.due
+    if(hasBothDates){
+        toReturn={
+            start: moment(data.start).toISOString(),
+            end:moment(data.end).toISOString(),
+        }
+        return toReturn
+    }
+
+    if(data.due){
+        const newStart = moment(data.due).subtract(1, "hours");
+        return  {start: newStart.toISOString(), end:moment(data.due).toISOString()}
+    }
+
+    const newEnd = moment(data.start).add(1, "hours");
+    return {start: moment(data.start).toISOString(), end: newEnd.toISOString()}
+
+    
 
 }

@@ -25,6 +25,7 @@ import { SyncManager } from "@/helpers/frontend/SyncManager";
 import { updateViewAtom } from "stateStore/ViewStore";
 
 import { RRule, rrulestr } from 'rrule'
+import { parseRRuleString } from "src/helpers/frontend/rrule";
 export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: EventEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) =>{
 
     /**
@@ -154,7 +155,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             setLocation(parsedData["location"])
             if(parsedData["rrule"]){
                 // console.log("parsedData.rrule", parsedData.rrule, rrulestr(parsedData.rrule))
-                setRrule(rrulestr(parsedData.rrule))
+                setRrule(parseRRuleString(parsedData.rrule))
             }
             const alarms = await geParsedtVAlarmsFromServer(unParsedData)
             if(alarms && Array.isArray(alarms) && alarms.length>0){ 

@@ -156,7 +156,7 @@ export const Datepicker = ({ title, value, onChangeHook, showDateOnly, isRequire
                 showDatePicker ?
                     (
                        
-                        <Datetime dateFormat={dateFormat} timeFormat={timeFormat} value={datePicked} input={false} onChange={onDatePicked} />
+                        <Datetime  dateFormat={dateFormat} timeFormat={timeFormat} value={datePicked} input={false} onChange={onDatePicked} />
                     )
                     : null
             }
