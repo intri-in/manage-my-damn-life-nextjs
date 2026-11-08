@@ -40,6 +40,7 @@ import { SyncManager } from "@/helpers/frontend/SyncManager"
 import { updateViewAtom } from "stateStore/ViewStore"
 import { Frequency, RRule, rrulestr } from 'rrule'
 import { getEnumKeyByValue } from "src/helpers/frontend/general"
+import { parseRRuleString } from "src/helpers/frontend/rrule"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
@@ -244,7 +245,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                  * 
                  */
                 // console.log(parsedRecurrenceObj)
-                setRrule(rrulestr(input.rrule))
+                setRrule(parseRRuleString(input.rrule))
 
             }
 
@@ -304,7 +305,7 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setRelatedTo(parsedData["relatedto"])
             }
             //Check and set repeating task parameters.
-            if (parsedData.rrule) setRrule(rrulestr(parsedData.rrule))
+            if (parsedData.rrule) setRrule(parseRRuleString(parsedData.rrule))
             // if (parsedData.rrule) console.log("rruleToObject(parsedData", parsedData.rrule, rrulestr(parsedData.rrule))
             const isRecurring = parsedData["rrule"] ? true : false
             if (parsedData["rrule"]) {

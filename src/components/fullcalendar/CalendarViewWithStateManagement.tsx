@@ -46,13 +46,18 @@ import themePlugin from '@fullcalendar/react/themes/monarch';
 import '@fullcalendar/react/themes/monarch/theme.css'; 
 import '@fullcalendar/react/themes/monarch/palettes/purple.css'; 
 import { isDarkModeEnabled } from "src/helpers/frontend/theme";
+import { parseRRuleString } from "src/helpers/frontend/rrule";
+import { getStartAndEndDateForTaskForCalendar } from "src/helpers/frontend/tasks";
+
 interface LocalRRule{
     freq:number ,
-    dtstart: string
+    dtstart?: string
     byweekday?: number[],
     interval: number,
     until?: string | Date
-
+    count? : number | null | undefined,
+    bymonth?: number[] ,
+    bymonthday? :number[]
 }
 interface EventObject {
     id: string,
@@ -223,52 +228,65 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                         }
 
 
-                        // console.log("Parsed Event", data.summary)
+                        console.log("Parsed Event", data)
                         let allDay = isAllDayEvent(data.start, data.end)
-
+                        // console.log("allDay", data.summary, allDay)
                         let eventObject: EventObject = {
                             id: event.calendar_events_id!.toString(),
                             title: data.summary,
-                            allDay: allDay,
                             editable: true,
                             draggable: true,
-                            color: allEvents[i].info.color
+                            allDay: allDay,
+                            color: allEvents[i].info.color,
+                            start: new Date(data.start).toISOString(),
+                            end: new Date(data.end).toISOString(),
 
                         }
                         //finalEvents.push(eventObject)
 
                         //Check if the event has a recurrence rule.
-                        if (data.rrule) {
-                            let rrule = RRule.fromString(data.rrule)
+                        let rrule: RRule | null = parseRRuleString(data.rrule)
+                        if (rrule) {
+                            
+                            
+                            if(rrule){
+                                eventObject={
+                                    ...eventObject,
+                                    editable:false,
+                                    draggable:false,
+                                }
+
+                            let dtstart = allDay ? new Date(data.start): moment(data.start)
+                            if(allDay){
+                                // dtstart.setDate(dtstart.getDate() - 1)
+                            }
+                            eventObject.rrule  = {
+                                freq: rrule.options.freq,
+                                dtstart: (!data.start) ? undefined: moment(data.start).toISOString(),
+                                byweekday: (rrule.options.byweekday)? rrule.options.byweekday: [],
+                                interval: rrule.options.interval,
+                                until: rrule.options.until ? rrule.options.until : undefined,
+                                count: rrule.options.count ?? undefined,
+                                bymonthday: rrule.options.bymonthday ?? undefined,
+                                bymonth: rrule.options.bymonth ?? undefined,
+                            }
+
+                            }
                             // if(rrule.options && rrule.options.dtstart) rrule.options.dtstart = new Date(moment(rrule.options.dtstart).ttoISOString())
                             // console.log("rrule", data.summary, rrule)
                             //let dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
-                            let eventDuration = {seconds: 3600}
-                            if(data.end && data.start){
-                                const eventDurationValue = moment(data.end).unix() - moment(data.start).unix()
-                                eventDuration = {seconds: eventDurationValue }
-
+                            if(allDay){
+                                eventObject.duration = {seconds: 86400}
                             }
-                            
-                            eventObject={
-                                ...eventObject,
-                                editable:false,
-                                draggable:false,
-                            }
-                            eventObject.rrule = {
-                                freq: rrule.options.freq,
-                                dtstart: data.start? data.start.toISOString(): "",
-                                byweekday: (rrule.options.byweekday)? rrule.options.byweekday: [],
-                                interval: rrule.options.interval,
-                                until: rrule.options.until ? rrule.options.until : undefined
-                            }
-                            // console.log("eventObject.rrule", data.summary, eventObject.rrule )
-                           
+                            // console.log("eventObject.rrule", data.summary, eventObject )
+                            if(data.end) eventObject.end = moment(data.end).toISOString()
+                            if(data.start) eventObject.start = moment(data.start).toISOString()
 
                         }else{
+                           
                              eventObject = {...eventObject, 
-                                start: new Date(data.start).toISOString(),
-                                end: new Date(data.end).toISOString(),
+                                start: moment(data.start).toISOString(),
+                                end: moment(data.end).toISOString(),
 
                             }    
                         }
@@ -294,7 +312,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                             const title = "[" + t("TASK") + "] " + data.summary
                             if (data.due || data.start) {
 
-                                
+                                let startEnd = getStartAndEndDateForTaskForCalendar(data)
                                 let dueDate = data.due ? moment(data.due).toISOString() : moment.unix(moment(data.start).unix() - (60 * 60)).toISOString()
                                 let startDate = data.start? moment(data.start).toISOString(): moment.unix(moment(data.due).unix() - (60 * 60)).toISOString()
                                 // console.log(startDate, title, dueDate, data.rrule)
@@ -307,14 +325,13 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                                     editable: false,
                                     draggable: false,
                                     color: allEvents[i].info.color,
-                                    
                                 }
 
                                 // console.log("data", data.summary, data.rrule, eventObject.rrule)
+                                let rrule: RRule | null = parseRRuleString(data.rrule)
 
                                 //Check if the event has a recurrence rule.
-                                if (data.rrule) {
-                                    const rrule = rrulestr(data.rrule)
+                                if (rrule) {
                                     
                                     // let recurrenceObj = new RecurrenceHelper(data)
                                     // let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
@@ -322,20 +339,26 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                                     // console.log("REPEATING", startDate, title, dueDate)
                                     eventObject.rrule = {
                                         freq: rrule.options.freq,
-                                        dtstart: data.start? data.start.toISOString(): "",
-                                        byweekday: (rrule.options.byweekday)? rrule.options.byweekday:undefined,
+                                        dtstart: startEnd.start,
+                                        byweekday: (rrule.options.byweekday)? rrule.options.byweekday: [],
                                         interval: rrule.options.interval,
-                                        until: rrule.options.until ? rrule.options.until : undefined
+                                        until: rrule.options.until ? rrule.options.until : undefined,
+                                        count: rrule.options.count ?? undefined,
+                                        bymonthday: rrule.options.bymonthday ?? undefined,
+                                        bymonth: rrule.options.bymonth ?? undefined,
                                     }
-                                    console.log("data", data.summary,rrule.toString() ,data.rrule, eventObject.rrule)
+                                    // console.log("data", data.summary,rrule.toString() ,data.rrule, eventObject.rrule)
 
                                     // 
                                 //    console.log("eventObject", data.summary, eventObject)
-    
+                                    eventObject = {...eventObject, 
+                                        start: startEnd.start,
+                                        end: startEnd.end,
+                                     }  
                                 }else{
                                     eventObject = {...eventObject, 
-                                        start: new Date(data.start).toISOString(),
-
+                                        start: startEnd.start ,
+                                        end: startEnd.end,
                                      }                            
                                 } 
                                    
@@ -644,11 +667,13 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                 nowIndicator={true}
                 eventDrop={eventDrop}
                 eventResize={eventResize}
+                
                 firstDay={firstDay}
-                locale={i18n.language}
+                locale={[i18n.language]}
                 headerToolbar={{
                 left: 'prev,next',
                 center: 'title',
+                right:"today"
                 } }
                 //titleFormat={dateFormat} 
                 //eventTimeFormat={timeFormat ?? "HH:mm"}
