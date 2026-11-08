@@ -1,13 +1,12 @@
 import { getRandomString } from "@/helpers/crypto"
-import { varNotEmpty } from "@/helpers/general"
 import { attendeeType, VAlarmType } from "@/types/valarm"
-import moment from "moment"
 import { useTranslation } from "next-i18next"
 import { useEffect, useState } from "react"
 import { Button, Col, Form, Row } from "react-bootstrap"
 import { AiOutlineDelete } from "react-icons/ai"
 import { BsAlarm } from "react-icons/bs"
 import { toast } from "react-toastify"
+import { getFormattedAlarm } from "src/helpers/alarm"
 
 export interface vAlarmVTODOGEN extends VAlarmType {
     id: string,
@@ -37,8 +36,8 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
             if (input && Array.isArray(input) && input.length > 0) {
                 let inputNew: vAlarmVTODOGEN[] = []
                 for (const i in input) {
-
-                    inputNew.push({ id: getRandomString(6), advancedTriggerMode:true, ...input[i] })
+                    const formattedAlarm = getFormattedAlarm(input[i]) 
+                    if(formattedAlarm) inputNew.push({ id: getRandomString(6), advancedTriggerMode:true, ...formattedAlarm})
                 }
                 setAlarms(inputNew)
             }
@@ -148,14 +147,17 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
         // console.log("alarms", alarms)
         if (alarms && Array.isArray(alarms) && alarms.length > 0) {
             for (const i in alarms) {
-                // console.log("alarms[i].trigger.value", alarms[i].trigger.value)
-                const direction = (parseInt(alarms[i].trigger.value.toString()) < 0) ? "BEFORE" : "AFTER"
+                console.log("alarm", alarms[i])
+                const alarm = {id: alarms[i].id, ...getFormattedAlarm(alarms[i])}
+                if(!alarm) continue
+                if(!alarm.trigger) continue
+                const direction = (parseInt(alarm.trigger.value.toString()) < 0) ? "BEFORE" : "AFTER"
                 toReturn.push(
                     <Row style={{ padding: 10 }}>
                         <Col>
-                            {`${alarms[i].action}, ${Math.abs(parseInt(alarms[i].trigger.value.toString()))} ${t("MINUTES").toLowerCase()} ${t(direction).toLowerCase()} ${t(alarms[i].trigger.relatedTo!).toLowerCase()}`}
+                            {`${alarm.action}, ${Math.abs(parseInt(alarm.trigger.value.toString()))} ${t("MINUTES").toLowerCase()} ${t(direction).toLowerCase()} ${t(alarm.trigger.relatedTo!).toLowerCase()}`}
                         </Col>
-                        <Col style={{ display: 'flex', alignItems: "center", justifyContent: "right" }} className="col-3" > <AiOutlineDelete style={{ color: "red" }} onClick={() => removeAlarm(alarms[i].id)} /> </Col>
+                        <Col style={{ display: 'flex', alignItems: "center", justifyContent: "right" }} className="col-3" > <AiOutlineDelete style={{ color: "red" }} onClick={() => removeAlarm(alarm.id)} /> </Col>
 
                     </Row>
                 )

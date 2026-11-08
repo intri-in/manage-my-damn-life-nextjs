@@ -26,6 +26,9 @@ import { updateViewAtom } from "stateStore/ViewStore";
 
 import { RRule, rrulestr } from 'rrule'
 import { parseRRuleString } from "src/helpers/frontend/rrule";
+import { VAlarmForm } from "../valarm/VAlarmForm";
+import { VAlarmType } from "src/types/valarm";
+import { formatAlarmArrayForICSGeneration } from "src/helpers/alarm";
 export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: EventEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) =>{
 
     /**
@@ -43,7 +46,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const {t} = useTranslation()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [parsedData, setParsedData] = useState<any>(null)
-    const [alarms, setAlarms] = useState<AlarmType[]>([])
+    const [alarms, setAlarms] = useState<VAlarmType[]>([])
     const [summary, setSummary]= useState("")
     const [allDay, setAllDay] = useState(false)
     const [calendar_id, setCalendarID] = useState('')
@@ -270,7 +273,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                 rruleToProcess = final[1]
             }
         }
-        let eventData = {uid: uid ? uid: getRandomString(32), title: summary, start: moment(finalFromDate).utc().format(RFC), startInputType: "local",end: moment(finalToDate).utc().format(RFC),  endInputType: "local", status: status ? status: "CONFIRMED", description: description, recurrenceRule: rruleToProcess ? rruleToProcess: "", location: location, alarms: alarms, method: undefined}
+        let eventData = {uid: uid ? uid: getRandomString(32), title: summary, start: moment(finalFromDate).utc().format(RFC), startInputType: "local",end: moment(finalToDate).utc().format(RFC),  endInputType: "local", status: status ? status: "CONFIRMED", description: description, recurrenceRule: rruleToProcess ? rruleToProcess: "", location: location, alarms: formatAlarmArrayForICSGeneration(alarms), method: undefined}
         console.log("eventData 1", eventData)
         if(isValidEvent()){
             // console.log("calendar_id", finalFromDate, finalToDate)
@@ -279,7 +282,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             console.log("eventData 2", eventData)
             // const ics = await makeGenerateICSRequest({ obj })
             const ics = await generateICSUsingExternalLib(eventData)
-            // console.log("ics", ics)
+            console.log("ics", ics)
             if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if(ics){
                 setIsSubmitting(true)
@@ -469,7 +472,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <Recurrence i18next={t} onRruleSet={onRruleSet} rruleProp={rrule} start={fromDate} />
         <br />
         <h3>{t("ALARMS")}</h3>
-            <AlarmForm onChange={alarmsChanged} alarmsArray={alarms} />
+            <VAlarmForm onChange={alarmsChanged} input={alarms} />
         <br />
         <h3>{t("LOCATION")}</h3>
         <Form.Control onChange={(e)=>setLocation(e.target.value)} value={location} />

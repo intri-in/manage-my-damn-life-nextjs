@@ -262,7 +262,6 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                             }
                             eventObject.rrule  = {
                                 freq: rrule.options.freq,
-                                dtstart: (!data.start) ? undefined: moment(data.start).toISOString(),
                                 byweekday: (rrule.options.byweekday)? rrule.options.byweekday: [],
                                 interval: rrule.options.interval,
                                 until: rrule.options.until ? rrule.options.until : undefined,
