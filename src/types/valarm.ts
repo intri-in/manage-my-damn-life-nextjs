@@ -4,7 +4,7 @@ export interface VAlarmType{
     description?: string;
     repeat?: vAlarmRepeat;
     summary?:string
-    attendees?:attendeeType[]
+    attendees?:attendeeType[],
 }
 /**
  *
