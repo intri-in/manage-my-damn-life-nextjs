@@ -58,7 +58,7 @@ export function getParsedAlarmsFromTodo(parsedDataRow): VAlarmType[]{
                             // console.log("value", value, (value!=""))
                             toReturn.push({
                                 action:parsedDataRow[k]["action"].toString(),
-                                trigger:{isRelated:true, value:value, relatedTo:relatedTo},
+                                trigger:{isRelated:true, value:value, relatedTo:relatedTo, unit: "minutes"},
                                 description:("description" in parsedDataRow[k]) ? parsedDataRow[k].description : "",
                                 summary:("summary" in parsedDataRow[k]) ? parsedDataRow[k].summary : "",
 

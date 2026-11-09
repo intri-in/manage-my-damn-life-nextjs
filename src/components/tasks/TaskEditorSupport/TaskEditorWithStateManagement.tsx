@@ -34,13 +34,13 @@ import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventSto
 import next from "next/types"
 import { useTranslation } from "next-i18next"
 import { VAlarmForm } from "@/components/valarm/VAlarmForm"
-import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
 import { VAlarmType } from "@/types/valarm"
 import { SyncManager } from "@/helpers/frontend/SyncManager"
 import { updateViewAtom } from "stateStore/ViewStore"
 import { Frequency, RRule, rrulestr } from 'rrule'
 import { getEnumKeyByValue } from "src/helpers/frontend/general"
 import { parseRRuleString } from "src/helpers/frontend/rrule"
+import { getFormattedAlarm } from "src/helpers/alarm"
 
 export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: TaskEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) => {
 
@@ -338,7 +338,14 @@ export const TaskEditorWithStateManagement = ({ input, onChange, showDeleteDailo
                 setTaskStart(new Date(moment(parsedData["start"]).unix() * 1000).toString())
             }
             if (parsedData["alarms"] && Array.isArray(parsedData["alarms"]) && parsedData["alarms"].length > 0) {
-                setVAlarm(parsedData["alarms"])
+                console.log("Task Editor parsedData['alarms']", parsedData["alarms"])
+                let alarms: VAlarmType[] = []
+                for (const i in parsedData["alarms"]){
+                    const alarmT = getFormattedAlarm(parsedData["alarms"][i])
+                    if(alarmT) alarms.push(alarmT)
+
+                }
+                if(alarms) setVAlarm(alarms)
             }
             // console.log(parsedData)
 

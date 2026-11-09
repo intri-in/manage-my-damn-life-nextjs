@@ -7,6 +7,7 @@ import { AiOutlineDelete } from "react-icons/ai"
 import { BsAlarm } from "react-icons/bs"
 import { toast } from "react-toastify"
 import { getFormattedAlarm } from "src/helpers/alarm"
+import { RFCDurationUnit } from "src/types/rfc"
 
 export interface vAlarmVTODOGEN extends VAlarmType {
     id: string,
@@ -21,6 +22,7 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
     const [alarmAction, setAlarmAction] = useState("DISPLAY")
     const [triggerValue, setTriggerValue] = useState(10)
     const [triggerDirection, setTriggerDirection] = useState("BEFORE")
+    const [triggerUnit, setTriggerUnit] = useState<RFCDurationUnit>("minutes")
     const [triggerRelatedto, setTriggerRelatedto] = useState("END")
     const [summary, setSummary] = useState("")
     const [attendeeList, setAttendeeLists] = useState("")
@@ -118,9 +120,10 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
             }
         }
         if (shouldContinue) {
-            let finalValue = (triggerDirection == "BEFORE") ? -1 * triggerValue : triggerValue
+            let finalValue = triggerValue
+            finalValue = (triggerDirection == "BEFORE") ? -1 * finalValue : finalValue
             let newAlarm: vAlarmVTODOGEN = {
-                advancedTriggerMode: true, id: getRandomString(6), action: alarmAction, trigger: { isRelated: true, value: finalValue, relatedTo: triggerRelatedto }, description: description, summary: summary, attendees: attendees
+                advancedTriggerMode: true, id: getRandomString(6), action: alarmAction, trigger: {unit: triggerUnit, isRelated: true, value: finalValue, relatedTo: triggerRelatedto }, description: description, summary: summary, attendees: attendees
             }
             setAlarms(prevAlarms => {
 
@@ -147,15 +150,15 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
         // console.log("alarms", alarms)
         if (alarms && Array.isArray(alarms) && alarms.length > 0) {
             for (const i in alarms) {
-                console.log("alarm", alarms[i])
-                const alarm = {id: alarms[i].id, ...getFormattedAlarm(alarms[i])}
+                // console.log("alarm", i,alarms[i])
+                const alarm = {...alarms[i]}
                 if(!alarm) continue
                 if(!alarm.trigger) continue
                 const direction = (parseInt(alarm.trigger.value.toString()) < 0) ? "BEFORE" : "AFTER"
                 toReturn.push(
-                    <Row style={{ padding: 10 }}>
+                    <Row key={alarm.id} style={{ padding: 10 }}>
                         <Col>
-                            {`${alarm.action}, ${Math.abs(parseInt(alarm.trigger.value.toString()))} ${t("MINUTES").toLowerCase()} ${t(direction).toLowerCase()} ${t(alarm.trigger.relatedTo!).toLowerCase()}`}
+                            {`${alarm.action}, ${Math.abs(parseInt(alarm.trigger.value.toString()))} ${t(alarm.trigger.unit.toUpperCase()).toLowerCase()} ${t(direction).toLowerCase()} ${t(alarm.trigger.relatedTo!).toLowerCase()}`}
                         </Col>
                         <Col style={{ display: 'flex', alignItems: "center", justifyContent: "right" }} className="col-3" > <AiOutlineDelete style={{ color: "red" }} onClick={() => removeAlarm(alarm.id)} /> </Col>
 
@@ -189,21 +192,32 @@ export const VAlarmForm = ({ input, onChange }: { input: VAlarmType[], onChange:
                 <Col md={4}>
                     <Form.Control
                         type="number"
+                        min={0}
                         value={triggerValue}
                         onChange={e => setTriggerValue(parseInt(e.target.value))}
                     />
                 </Col>
-
                 <Col md={8}>
-                    <Form.Select value={triggerDirection} onChange={(e) => setTriggerDirection(e.target.value)} style={{ width: "80%" }}  >
-                        <option value="BEFORE">{`${t("MINUTES").toLowerCase()} ${t("BEFORE").toLowerCase()}`}</option>
-                        <option value="AFTER">{`${t("MINUTES").toLowerCase()} ${t("AFTER").toLowerCase()}`}</option>
+                    <Form.Select value={triggerUnit} onChange={(e) => setTriggerUnit(e.target.value as RFCDurationUnit)} style={{ width: "80%" }}  >
+                        <option value="minutes">{`${t("MINUTES").toLowerCase()}`}</option>
+                        <option value="hours">{`${t("HOURS").toLowerCase()}`}</option>
+                        <option value="days">{`${t("DAYS").toLowerCase()}`}</option>
+                        <option value="weeks">{`${t("WEEKS").toLowerCase()}`}</option>
                     </Form.Select>
 
                 </Col>
+                <Row style={{marginTop: 10}}>
+                    <Col>
+                        <Form.Select value={triggerDirection} onChange={(e) => setTriggerDirection(e.target.value)} style={{ width: "80%" }}  >
+                            <option value="BEFORE">{`${t("BEFORE").toLowerCase()}`}</option>
+                            <option value="AFTER">{`${t("AFTER").toLowerCase()}`}</option>
+                        </Form.Select>
+
+                    </Col>
+                </Row>
             </Row>
             <Form.Select value={triggerRelatedto} onChange={(e) => setTriggerRelatedto(e.target.value)} style={{ width: "80%", marginTop: 10 }}  >
-                <option value="END">{t("DUE_DATE")}</option>
+                <option value="END">{t("DUE_DATE_OR_END")}</option>
                 <option value="START">{t("START")}</option>
             </Form.Select>
 
