@@ -1,5 +1,4 @@
-import VTodoGenerator from '@../../vtodogenerator/dist/index'
-
+import VTodoGenerator from 'vtodogenerator'
 import { MYDAY_LABEL } from '@/config/constants';
 import { getEtagFromURL_Dexie, getEventFromDexieByID } from '@/helpers/frontend/dexie/events_dexie';
 import { categoryArrayHasMyDayLabel, removeMyDayLabelFromArray } from '@/helpers/frontend/labels';

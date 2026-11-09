@@ -1,1 +1,1 @@
-Version bump to v0.10.0 before launch.
+Bug fix: VAlarm now works with ics library.

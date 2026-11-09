@@ -1,6 +1,6 @@
 import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper"
 import { getAllLabelsFromDexie } from "@/helpers/frontend/dexie/dexie_labels"
-import { ISODatetoHuman, timeDifferencefromNowinWords_FromUnixSeconds, timeDifferencefromNowinWords_Generic } from "@/helpers/frontend/general"
+import { ISODatetoHuman,  timeDifferencefromNowinWords_Generic } from "@/helpers/frontend/general"
 import { getISO8601Date, isValidResultArray, varNotEmpty } from "@/helpers/general"
 import { letterSpacing } from "@mui/system"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"

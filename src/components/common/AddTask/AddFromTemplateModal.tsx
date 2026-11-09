@@ -17,6 +17,7 @@ import { getCalendarIDFromUrl_Dexie } from '@/helpers/frontend/dexie/calendars_d
 import { geParsedtVAlarmsFromServer, getParsedEvent } from '@/helpers/frontend/events';
 import { useTranslation } from 'next-i18next';
 import { AlarmType } from '@/components/events/AlarmForm';
+import { VAlarmType } from 'src/types/valarm';
 
 export function AddFromTemplateModal() {
     const [show, setShow] = useState(false);
@@ -126,7 +127,7 @@ export function AddFromTemplateModal() {
                         finalTaskInput["status"] = parsedEvent["status"]
                     }
                     const alarms = await geParsedtVAlarmsFromServer(parsedTemplate.data)
-                    if(alarms && Array.isArray(alarms) && alarms.length>0) finalTaskInput["alarms"] = alarms as AlarmType[]
+                    if(alarms && Array.isArray(alarms) && alarms.length>0) finalTaskInput["alarms"] = alarms as VAlarmType[]
                     // console.log("alarms AddFromTemplateModal", alarms)
                     if(parsedEvent["description"]){
                         finalTaskInput["description"] = parsedEvent["description"]

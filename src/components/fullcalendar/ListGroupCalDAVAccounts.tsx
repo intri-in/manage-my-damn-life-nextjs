@@ -41,7 +41,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
     useEffect(()=>{
       let output : JSX.Element[]=[]
       //First we check if the preference matrix exists.
-      output.push(<h2>{t("CALDAV_ACCOUNTS")}</h2>
+      output.push(<h2 key="CALDAV_ACCOUNTS">{t("CALDAV_ACCOUNTS")}</h2>
       )
       let isMounted =true
       if(isMounted){
@@ -49,7 +49,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
         {
           for(const i in props.caldav_accounts){
            
-            output.push(<h3>{props.caldav_accounts[i].name}</h3>)
+            output.push(<h3 key={`${props.caldav_accounts[i].name}`}>{props.caldav_accounts[i].name}</h3>)
             let calendarOutput: JSX.Element[] =[]
             if(varNotEmpty(props.caldav_accounts[i].calendars) && props.caldav_accounts[i].calendars)
             {
@@ -68,7 +68,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
               }
             }
     
-            output.push(<Form>
+            output.push(<Form key="mainForm">
               {calendarOutput}
               </Form>)
           
@@ -99,8 +99,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
 
         if(webcals_output.length>0){
 
-          output.push(<Form style={{paddingTop:20}}>
-            <h2>{t("WEBCALS")}</h2>
+          output.push(<Form key="webcals_output" >
             {webcals_output}
             </Form>)
         }
@@ -144,6 +143,7 @@ export function ListGroupCalDAVAccounts(props: customProps ){
       </Modal.Header>
       <Modal.Body>
             {finalOutput}
+            {finalOutput_WebCals.length>0} <h2 style={{marginTop:10}} key="webcals_output-h2">{t("WEBCALS")}</h2>
             {finalOutput_WebCals}
       </Modal.Body>
       <Modal.Footer>

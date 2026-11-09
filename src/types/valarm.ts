@@ -1,17 +1,20 @@
+import { RFCDurationUnit } from "./rfc";
+
 export interface VAlarmType{
     action: string;
-    trigger: vAlarmTrigger;
+    trigger: VAlarmTrigger;
     description?: string;
     repeat?: vAlarmRepeat;
     summary?:string
-    attendees?:attendeeType[]
+    attendees?:attendeeType[],
 }
 /**
  *
  */
-interface vAlarmTrigger{
+export interface VAlarmTrigger{
     isRelated: boolean;
-    value: string | number ;
+    value: string | number;
+    unit: RFCDurationUnit
     relatedTo?: string;
 }
 

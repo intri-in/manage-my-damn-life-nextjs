@@ -1,3 +1,5 @@
+import { ParsedOptions } from "node_modules/rrule/dist/esm/types";
+
 export interface RruleObject{
 
     FREQ?:     string;
@@ -6,3 +8,5 @@ export interface RruleObject{
     COUNT?:    string;
 
 }
+
+export type { ParsedOptions as RRuleTypefromExternalLibrary };

@@ -8,28 +8,27 @@ import Recurrence from "@/components/common/Recurrence";
 import { getEtagFromEventID_Dexie, getEventFromDexieByID, getEventURLFromDexie, saveEventToDexie } from "@/helpers/frontend/dexie/events_dexie";
 import { addAdditionalFieldsFromOldEventV2, geParsedtVAlarmsFromServer, getParsedEvent, postNewEvent, preEmptiveUpdateEvent, rruleToObject, updateEvent} from "@/helpers/frontend/events";
 import { Datepicker } from "@/components/common/Datepicker/Datepicker"
-import { RruleObject } from "types/recurrence";
+import { RRuleTypefromExternalLibrary } from "types/recurrence";
 import { RRuleHelper } from "@/helpers/frontend/classes/RRuleHelper";
 import { AlarmForm, AlarmType } from "./AlarmForm";
 import { toast } from "react-toastify";
 import moment from "moment";
 import { CalendarPicker } from "../common/Calendarpicker";
 import {  getDefaultCalendarID } from "@/helpers/frontend/cookies";
-import { getObjectForAPICallV2, makeGenerateICSRequest } from "@/helpers/frontend/ics";
+import { generateICSUsingExternalLib, getObjectForAPICallV2, makeGenerateICSRequest } from "@/helpers/frontend/ics";
 import { getRandomString } from "@/helpers/crypto";
 import { getCalDAVAccountIDFromCalendarID_Dexie, getCalendarbyIDFromDexie, isValidCalendarsID } from "@/helpers/frontend/dexie/calendars_dexie";
-import { getAPIURL, varNotEmpty } from "@/helpers/general";
-import { getMessageFromAPIResponse } from "@/helpers/frontend/response";
-import { parseVALARMTIME } from "@/helpers/frontend/rfc5545";
-import { getAuthenticationHeadersforUser } from "@/helpers/frontend/user";
-import { RecurrenceHelper } from "@/helpers/frontend/classes/RecurrenceHelper";
 import { PRIMARY_COLOUR } from "@/config/style";
 import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventStore";
 import { useTranslation } from "next-i18next";
 import { SyncManager } from "@/helpers/frontend/SyncManager";
 import { updateViewAtom } from "stateStore/ViewStore";
 
-
+import { RRule, rrulestr } from 'rrule'
+import { parseRRuleString } from "src/helpers/frontend/rrule";
+import { VAlarmForm } from "../valarm/VAlarmForm";
+import { VAlarmType } from "src/types/valarm";
+import { formatAlarmArrayForICSGeneration, getAlarmsFromParsedEvent } from "src/helpers/alarm";
 export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: EventEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) =>{
 
     /**
@@ -47,7 +46,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const {t} = useTranslation()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [parsedData, setParsedData] = useState<any>(null)
-    const [alarms, setAlarms] = useState<AlarmType[]>([])
+    const [alarms, setAlarms] = useState<VAlarmType[]>([])
     const [summary, setSummary]= useState("")
     const [allDay, setAllDay] = useState(false)
     const [calendar_id, setCalendarID] = useState('')
@@ -61,7 +60,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     const [toDateValid, setToDateValid] = useState(true)
     const [status, setStatus]= useState("")
     const [description, setDescription]= useState("")
-    const [rrule, setRrule]= useState<RruleObject>(RRuleHelper.getEmptyObject())
+    const [rrule, setRrule]= useState<RRule | undefined | null>()
     const [location, setLocation]= useState("")
     const [isNewEvent, setIsNewEvent]= useState(false)
     const [lastModified, setLastModified]= useState("")
@@ -105,7 +104,6 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                     setDescription(input.description)
                 }
                 if("alarms" in input && input.alarms){
-                    console.log("alarms", input.alarms)
 
                     setAlarms(input.alarms)
                 }
@@ -128,7 +126,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         }
 
         const eventInfoFromDexie = await getEventFromDexieByID(parseInt(input.id.toString()))
-        console.log("eventInfoFromDexie", eventInfoFromDexie)
+        // console.log("eventInfoFromDexie", eventInfoFromDexie)
         if (eventInfoFromDexie && Array.isArray(eventInfoFromDexie) && eventInfoFromDexie.length > 0) {
             const unParsedData = eventInfoFromDexie[0].data
             if(unParsedData) setRawICS(unParsedData)
@@ -143,6 +141,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
 
                 // console.log("setSequence", parsedData["sequence"])
             }
+            // console.log("parsedDatastart",parsedData, unParsedData, parsedData["start"], parsedData["end"])
             setFromDate(moment(parsedData["start"]).toISOString())
             setToDate(moment(parsedData["end"]).toISOString())
             if(moment(parsedData["end"]).unix()-moment(parsedData["start"]).unix()>=86400){
@@ -157,10 +156,13 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             setLastModified(moment(parsedData["dtstamp"]).format(dateFullFormat))
             setLocation(parsedData["location"])
             if(parsedData["rrule"]){
-                setRrule(rruleToObject(parsedData.rrule))
+                // console.log("parsedData.rrule", parsedData.rrule, rrulestr(parsedData.rrule))
+                setRrule(parseRRuleString(parsedData.rrule))
             }
-            const alarms = await geParsedtVAlarmsFromServer(unParsedData)
-            if(alarms && Array.isArray(alarms) && alarms.length>0){
+            const alarms = await getAlarmsFromParsedEvent(parsedData)
+            // console.log("alarms Event Editor", parsedData)
+
+            if(alarms && Array.isArray(alarms) && alarms.length>0){ 
                     setAlarms(alarms)
 
             }
@@ -261,14 +263,25 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             finalToDate = moment(toDate).add(1, "day").startOf("day").toISOString()
         }
 
-        let eventData = {uid: uid ?? getRandomString(32), summary: summary, start: finalFromDate, end: finalToDate, status: status, description: description, rrule: rrule, location: location, alarms: alarms}
-        
+        // let eventData = {uid: uid ?? getRandomString(32), summary: summary, start: finalFromDate, end: finalToDate, status: status ?? "CONFIRMED", description: description, rrule: rrule ? rrule.toString(): "", location: location, alarms: alarms}
+        const RFC = 'YYYYMMDDTHHmmss[Z]';
+        let rruleToProcess = ""
+        if(rrule){
+            rruleToProcess = rrule.toString()
+            let final = rruleToProcess.split("RRULE:")
+            console.log("final", final, rruleToProcess)
+            if(final && final.length>0){
+                rruleToProcess = final[1]
+            }
+        }
+        let eventData = {uid: uid ? uid: getRandomString(32), title: summary, start: moment(finalFromDate).utc().format(RFC), startInputType: "local",end: moment(finalToDate).utc().format(RFC),  endInputType: "local", status: status ? status: "CONFIRMED", description: description, recurrenceRule: rruleToProcess ? rruleToProcess: "", location: location, alarms: formatAlarmArrayForICSGeneration(alarms), method: undefined}
         if(isValidEvent()){
             // console.log("calendar_id", finalFromDate, finalToDate)
             eventData = addAdditionalFieldsFromOldEventV2(eventData, parsedData)
             const obj = getObjectForAPICallV2(eventData)
-            const ics = await makeGenerateICSRequest({ obj })
-            console.log("ics Event Editor", ics)
+            // const ics = await makeGenerateICSRequest({ obj })
+            const ics = await generateICSUsingExternalLib(eventData)
+            console.log("ics", formatAlarmArrayForICSGeneration(alarms), eventData, ics)
             if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if(ics){
                 setIsSubmitting(true)
@@ -396,8 +409,9 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
     }
 
     const onRruleSet = (rrule) =>{
-        const newRRULE = RRuleHelper.parseObject(rrule)
-        setRrule(newRRULE)
+
+        // console.log("Event Editor", rrule)
+        setRrule(rrule)
         onChange()
         // setRrule(e.target.value)
 
@@ -454,10 +468,10 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         <h3>{t("DESCRIPTION")}</h3>
             <Form.Control value={description} onChange={(e)=>setDescription(e.target.value)} as="textarea" rows={3} />
         <br />
-        <Recurrence i18next={t} onRruleSet={onRruleSet} rrule={rrule} />
+        <Recurrence i18next={t} onRruleSet={onRruleSet} rruleProp={rrule} start={fromDate} />
         <br />
         <h3>{t("ALARMS")}</h3>
-            <AlarmForm onChange={alarmsChanged} alarmsArray={alarms} />
+            <VAlarmForm onChange={alarmsChanged} input={alarms} />
         <br />
         <h3>{t("LOCATION")}</h3>
         <Form.Control onChange={(e)=>setLocation(e.target.value)} value={location} />

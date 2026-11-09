@@ -1,7 +1,6 @@
 import { TaskArrayItem } from "@/helpers/frontend/TaskUI/taskUIHelpers";
 import { returnGetParsedVTODO } from "@/helpers/frontend/calendar";
 import { getEventFromDexieByID } from "@/helpers/frontend/dexie/events_dexie";
-import { ISODatetoHuman, timeDifferencefromNowinWords } from "@/helpers/frontend/general";
 import { useEffect, useState } from "react";
 import { SingleTask } from "../SingleTask/SingleTask";
 import { sortTasksByRequest } from "@/helpers/frontend/TaskUI/taskSort";
@@ -33,13 +32,6 @@ export const RenderTaskList = ({taskList, level, sortBy, }: {taskList: TaskArray
         for(const result of results){
             if(!result) continue
             const { item, todo } = result
-
-            let dueDate = ISODatetoHuman(todo.due)
-            let timeDifference = timeDifferencefromNowinWords(dueDate)
-            let secondaryText = ""
-            if(dueDate!=null && dueDate!=""){
-                secondaryText = dueDate+" "+timeDifference
-            }
 
             const taskParent = <SingleTask key={item.id} id={item.id} level={levelTask} parsedTask={todo} />
             let taskChildren: JSX.Element | null = null

@@ -112,8 +112,8 @@ const AppBarFunctionalComponent = ({ session, t}) => {
 
   const syncButtonClicked = async () => {
       await fetchLatestEventsV2()
-      setUpdated(Date.now())
-      setUpdatedCalendarView(Date.now())
+      //setUpdated(Date.now())
+      // setUpdatedCalendarView(Date.now())
    
   };
 

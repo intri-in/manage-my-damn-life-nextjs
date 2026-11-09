@@ -1,5 +1,6 @@
 import { AlarmType } from '@/components/events/AlarmForm'
 import { atom } from 'jotai'
+import { VAlarmType } from 'src/types/valarm'
 
 export interface EventEditorInputType{
     id: string | number | null,
@@ -12,7 +13,7 @@ export interface EventEditorInputType{
     summary?:string,
     calendar_id?:string | number,
     description?:string,
-    alarms?: AlarmType[]
+    alarms?: VAlarmType[]
     isTemplate?:boolean,
     templateReturn?:Function
     templateData?:templateData

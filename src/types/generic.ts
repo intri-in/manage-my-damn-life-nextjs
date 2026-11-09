@@ -4,3 +4,7 @@ export interface Caldav_Summary extends Caldav_Accounts{
     calendars: Calendars[]
 
 }
+
+export type FauxI18nObject = {
+    t: Function
+}

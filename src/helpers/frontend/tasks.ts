@@ -1,5 +1,5 @@
 import { ISODatetoHuman, getI18nObject } from "./general"
-import * as moment from 'moment';
+import moment from 'moment';
 import { majorTaskFilter, preEmptiveUpdateEvent, updateEvent } from "./events";
 import { getAuthenticationHeadersforUser } from "./user";
 import { toast } from "react-toastify";
@@ -7,42 +7,44 @@ import VTodoGenerator from "vtodogenerator";
 import { getAPIURL, varNotEmpty } from "../general";
 import { makeParseICSRequest } from "./ics";
 import { getCalDAVAccountIDFromCalendarID_Dexie } from "./dexie/calendars_dexie";
-export function sortTaskListbyDue(list, todoList)
-{
-    var sortedList= []
-    for(const key in list)
-    {
-        var sortedChildren = null
-        var dueDate= ISODatetoHuman(todoList[1][key].todo.due)
-        var unixTimestamp = moment(dueDate).unix();
+import {RRule} from 'rrule'
+import { parseRRuleString } from "./rrule";
+// export function sortTaskListbyDue(list, todoList)
+// {
+//     var sortedList= []
+//     for(const key in list)
+//     {
+//         var sortedChildren: any[] = []
+//         var dueDate= ISODatetoHuman(todoList[1][key].todo.due)
+//         var unixTimestamp = moment(dueDate).unix();
         
-        if(Object.keys(list[key]).length>0 )
-        {
-            //Has children. Sort the children.
-            sortedChildren=  sortTaskListbyDue(list[key], todoList)
-            sortedList.push([key, unixTimestamp, sortedChildren])
+//         if(Object.keys(list[key]).length>0 )
+//         {
+//             //Has children. Sort the children.
+//             sortedChildren=  sortTaskListbyDue(list[key], todoList)
+//             sortedList.push([key, unixTimestamp, sortedChildren])
 
-        }
-        else
-        {
-            sortedList.push([key, unixTimestamp])
+//         }
+//         else
+//         {
+//             sortedList.push([key, unixTimestamp])
 
-        }
+//         }
 
 
         
             
  
 
-    }
-    sortedList.sort(sortFunction);
+//     }
+//     sortedList.sort(sortFunction);
 
-    return sortedList
+//     return sortedList
        
 
 
     
-}
+// }
 
 export function filterTaskList()
 {
@@ -200,4 +202,56 @@ function includeKeyInICS(key)
     }
 
     return include
+}
+
+export function addRRuleIntervalToDate(date: string, rrule: RRule | null | undefined ){
+    if(!rrule) return date
+    let toReturn = moment(moment(date).toISOString())
+        switch(rrule.options.freq){
+            case RRule.YEARLY:
+                toReturn.add(rrule.options.interval, 'years')
+
+            case RRule.MONTHLY:
+                toReturn.add(rrule.options.interval, 'months')
+                break;
+            case RRule.WEEKLY:
+                toReturn.add(rrule.options.interval, 'w')
+                break;
+            case RRule.DAILY:
+                toReturn.add(rrule.options.interval, 'days')
+                break;
+
+            default:
+                break;
+                
+        }
+    return toReturn.toISOString()
+
+}
+
+export function getStartAndEndDateForTaskForCalendar(data: any): {start : string, end: string}{
+
+    let toReturn = {start: "", end:""}
+    if (!data ) return toReturn
+
+    if(!data.start && !data.due) return {start: "", end : ""}
+    const hasBothDates: boolean =  data.start && data.due
+    if(hasBothDates){
+        toReturn={
+            start: moment(data.start).toISOString(),
+            end:moment(data.end).toISOString(),
+        }
+        return toReturn
+    }
+
+    if(data.due){
+        const newStart = moment(data.due).subtract(1, "hours");
+        return  {start: newStart.toISOString(), end:moment(data.due).toISOString()}
+    }
+
+    const newEnd = moment(data.start).add(1, "hours");
+    return {start: moment(data.start).toISOString(), end: newEnd.toISOString()}
+
+    
+
 }
