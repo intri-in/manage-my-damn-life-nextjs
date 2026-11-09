@@ -28,7 +28,7 @@ import { RRule, rrulestr } from 'rrule'
 import { parseRRuleString } from "src/helpers/frontend/rrule";
 import { VAlarmForm } from "../valarm/VAlarmForm";
 import { VAlarmType } from "src/types/valarm";
-import { formatAlarmArrayForICSGeneration } from "src/helpers/alarm";
+import { formatAlarmArrayForICSGeneration, getAlarmsFromParsedEvent } from "src/helpers/alarm";
 export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDailog, onServerResponse, closeEditor }: { input: EventEditorInputType, onChange: Function, showDeleteDailog: Function, onServerResponse: Function, closeEditor: Function }) =>{
 
     /**
@@ -104,7 +104,6 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                     setDescription(input.description)
                 }
                 if("alarms" in input && input.alarms){
-                    console.log("alarms", input.alarms)
 
                     setAlarms(input.alarms)
                 }
@@ -160,7 +159,9 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
                 // console.log("parsedData.rrule", parsedData.rrule, rrulestr(parsedData.rrule))
                 setRrule(parseRRuleString(parsedData.rrule))
             }
-            const alarms = await geParsedtVAlarmsFromServer(unParsedData)
+            const alarms = await getAlarmsFromParsedEvent(parsedData)
+            // console.log("alarms Event Editor", parsedData)
+
             if(alarms && Array.isArray(alarms) && alarms.length>0){ 
                     setAlarms(alarms)
 
@@ -274,15 +275,13 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             }
         }
         let eventData = {uid: uid ? uid: getRandomString(32), title: summary, start: moment(finalFromDate).utc().format(RFC), startInputType: "local",end: moment(finalToDate).utc().format(RFC),  endInputType: "local", status: status ? status: "CONFIRMED", description: description, recurrenceRule: rruleToProcess ? rruleToProcess: "", location: location, alarms: formatAlarmArrayForICSGeneration(alarms), method: undefined}
-        console.log("eventData 1", eventData)
         if(isValidEvent()){
             // console.log("calendar_id", finalFromDate, finalToDate)
             eventData = addAdditionalFieldsFromOldEventV2(eventData, parsedData)
             const obj = getObjectForAPICallV2(eventData)
-            console.log("eventData 2", eventData)
             // const ics = await makeGenerateICSRequest({ obj })
             const ics = await generateICSUsingExternalLib(eventData)
-            console.log("ics", ics)
+            console.log("ics", formatAlarmArrayForICSGeneration(alarms), eventData, ics)
             if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
             if(ics){
                 setIsSubmitting(true)

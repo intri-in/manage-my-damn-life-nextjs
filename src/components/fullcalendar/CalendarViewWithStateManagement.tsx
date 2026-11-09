@@ -228,7 +228,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                         }
 
 
-                        console.log("Parsed Event", data)
+                        // console.log("Parsed Event", data)
                         let allDay = isAllDayEvent(data.start, data.end)
                         // console.log("allDay", data.summary, allDay)
                         let eventObject: EventObject = {
@@ -627,7 +627,7 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
     }
     return (
 
-        <div style={{minHeight:"120vh", height: "auto"}}>
+        <div style={{minHeight:"100vh", height: "auto"}}>
             <Row className="gy-3 " style={{ padding: 20, flex: 1, justifyContent: "center", alignItems: "center", textAlign:"center", }} >
                 <Col md={8} >
                     <Form.Select value={viewValue} onChange={viewChanged}>
@@ -666,13 +666,13 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                 nowIndicator={true}
                 eventDrop={eventDrop}
                 eventResize={eventResize}
-                
+                scrollTimeReset={false}
                 firstDay={firstDay}
                 locale={[i18n.language]}
                 headerToolbar={{
                 left: 'prev,next',
                 center: 'title',
-                right:"today"
+                right: "today"
                 } }
                 //titleFormat={dateFormat} 
                 //eventTimeFormat={timeFormat ?? "HH:mm"}
