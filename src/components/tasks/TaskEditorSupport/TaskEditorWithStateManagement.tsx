@@ -34,7 +34,6 @@ import { moveEventModalInput, showMoveEventModal } from "stateStore/MoveEventSto
 import next from "next/types"
 import { useTranslation } from "next-i18next"
 import { VAlarmForm } from "@/components/valarm/VAlarmForm"
-import { getParsedAlarmsFromTodo } from "@/helpers/frontend/VTODOHelpers"
 import { VAlarmType } from "@/types/valarm"
 import { SyncManager } from "@/helpers/frontend/SyncManager"
 import { updateViewAtom } from "stateStore/ViewStore"
