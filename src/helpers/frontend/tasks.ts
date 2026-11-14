@@ -235,11 +235,12 @@ export function getStartAndEndDateForTaskForCalendar(data: any): {start : string
     if (!data ) return toReturn
 
     if(!data.start && !data.due) return {start: "", end : ""}
-    const hasBothDates: boolean =  data.start && data.due
+    const hasBothDates: boolean =  (data.start!=null && data.start!=undefined) && (data.due!=null && data.due!=undefined)
+    // console.log("hasBothDates", data.start, data.due, hasBothDates)
     if(hasBothDates){
         toReturn={
             start: moment(data.start).toISOString(),
-            end:moment(data.end).toISOString(),
+            end:moment(data.due).toISOString(),
         }
         return toReturn
     }
@@ -251,7 +252,5 @@ export function getStartAndEndDateForTaskForCalendar(data: any): {start : string
 
     const newEnd = moment(data.start).add(1, "hours");
     return {start: moment(data.start).toISOString(), end: newEnd.toISOString()}
-
-    
 
 }
