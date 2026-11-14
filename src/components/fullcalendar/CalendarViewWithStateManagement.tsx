@@ -248,13 +248,11 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                         let rrule: RRule | null = parseRRuleString(data.rrule)
                         if (rrule) {
                             
-                            
-                            if(rrule){
-                                eventObject={
-                                    ...eventObject,
-                                    editable:false,
-                                    draggable:false,
-                                }
+                            eventObject={
+                                ...eventObject,
+                                editable:false,
+                                draggable:false,
+                            }
 
                             let dtstart = allDay ? new Date(data.start): moment(data.start)
                             if(allDay){
@@ -266,11 +264,12 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                                 interval: rrule.options.interval,
                                 until: rrule.options.until ? rrule.options.until : undefined,
                                 count: rrule.options.count ?? undefined,
-                                bymonthday: rrule.options.bymonthday ?? undefined,
+                                bymonthday: rrule.options.bymonthday ?? undefined, 
                                 bymonth: rrule.options.bymonth ?? undefined,
-                            }
+                                dtstart: moment(data.start).toISOString()
 
                             }
+
                             // if(rrule.options && rrule.options.dtstart) rrule.options.dtstart = new Date(moment(rrule.options.dtstart).ttoISOString())
                             // console.log("rrule", data.summary, rrule)
                             //let dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
@@ -358,10 +357,10 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                                     eventObject = {...eventObject, 
                                         start: startEnd.start ,
                                         end: startEnd.end,
-                                     }                            
+                                    }                            
                                 } 
                                    
-    
+     
                                 
     
                                 if (eventObject && ("id" in eventObject) && eventObject.id && eventinArray(finalEvents, eventObject) == false) {

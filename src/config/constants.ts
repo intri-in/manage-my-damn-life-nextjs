@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-export const VERSION_NUMBER = "0.10.1" 
+export const VERSION_NUMBER = "0.10.2" 
 /*
 * SYSTEM_DEFAULT_LABEL_PREFIX: Default prefix applied to all system generated labels like
 * "My Day"
