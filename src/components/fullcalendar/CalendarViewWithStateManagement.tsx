@@ -275,11 +275,16 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                             //let dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
                             if(allDay){
                                 eventObject.duration = {seconds: 86400}
+                            }else{
+                                if(data.end && data.start){
+                                    eventObject.duration =  {seconds: moment(data.end).diff(moment(data.start))/1000}
+                                    // console.log("eventObject.duration", data.summary, eventObject.duration)
+                                }
                             }
-                            // console.log("eventObject.rrule", data.summary, eventObject )
+                            // console.log("eventObject", data.summary, data.start, data.end )
                             if(data.end) eventObject.end = moment(data.end).toISOString()
                             if(data.start) eventObject.start = moment(data.start).toISOString()
-
+                            
                         }else{
                            
                              eventObject = {...eventObject, 
