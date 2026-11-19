@@ -1,1 +1,1 @@
-Fixed #376
+Bumped version number before release
