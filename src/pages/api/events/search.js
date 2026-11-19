@@ -23,7 +23,9 @@ export default async function handler(req, res) {
                 var user = new User(userid)
                 var calendarObject= {calendars_id: req.query.calendar_id}
                 var caldav_id = await CaldavAccount.getIDFromCalendar(calendarObject)
-                if(caldav_id!=null)
+                // Ensure the requested calendar belongs to the logged in user before returning its events.
+                var userHasAccess = caldav_id!=null && await user.hasAccesstoCaldavAccountID(caldav_id)
+                if(userHasAccess)
                 {
                     var calendar = new Calendars(calendarObject)
                     var allEvents = await calendar.getAllEvents(req.query.type) 
