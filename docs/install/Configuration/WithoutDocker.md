@@ -111,6 +111,8 @@ Example:
 DB_DIALECT=mysql
 ```
 
+If you want to use SQLite, see the [SQLite guide](SQLite.md).
+
 ### AES_PASSWORD
 
 > Required to Change From Default: **Yes**
