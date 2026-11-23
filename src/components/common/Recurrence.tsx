@@ -200,6 +200,7 @@ export default function RruleForm({ rruleProp, i18next, onRruleSet , start}:{rru
   }
   const removeRecurrence = () => {
     setShowEditForm(false)
+    setShowWeekDayForm(false)
     setDdlValue("")
     setRecurrence(null)
     //onRruleSet(null);

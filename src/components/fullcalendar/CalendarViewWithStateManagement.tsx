@@ -38,7 +38,7 @@ import { checkIfUserWanttoSeeWebCalIDFromPreferenceObject } from "@/helpers/fron
 import { currentSimpleDateFormatAtom, currentSimpleTimeFormatAtom } from "stateStore/SettingsStore";
 import { Caldav_Summary } from "@/types/generic";
 import { SyncManager } from "@/helpers/frontend/SyncManager";
-import { RRule, rrulestr } from 'rrule'
+import { Frequency, RRule, rrulestr } from 'rrule'
 import { DateFormatter } from "node_modules/rrule/dist/esm/nlp/totext";
 import '@fullcalendar/react/skeleton.css'; 
 import interactionPlugin from '@fullcalendar/react/interaction'
@@ -48,9 +48,10 @@ import '@fullcalendar/react/themes/monarch/palettes/purple.css';
 import { isDarkModeEnabled } from "src/helpers/frontend/theme";
 import { parseRRuleString } from "src/helpers/frontend/rrule";
 import { getStartAndEndDateForTaskForCalendar } from "src/helpers/frontend/tasks";
+import { getEnumKeyByValue } from "src/helpers/frontend/general";
 
 interface LocalRRule{
-    freq:number ,
+    freq?:string ,
     dtstart?: string
     byweekday?: number[],
     interval: number,
@@ -245,7 +246,10 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                         //finalEvents.push(eventObject)
 
                         //Check if the event has a recurrence rule.
-                        let rrule: RRule | null = parseRRuleString(data.rrule)
+                        let rruleOptions = {dtstart: data.start ? new Date(data.start)  : ""}
+
+                       
+                        let rrule: RRule | null = parseRRuleString(data.rrule, rruleOptions)
                         if (rrule) {
                             
                             eventObject={
@@ -258,20 +262,23 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                             if(allDay){
                                 // dtstart.setDate(dtstart.getDate() - 1)
                             }
+                            let freq = getEnumKeyByValue(Frequency, rrule.options.freq)
+                            // console.log("freq", data.summary, freq?.toLowerCase(), rrule.options.freq)
+
                             eventObject.rrule  = {
-                                freq: rrule.options.freq,
+                                freq: freq ? freq.toLowerCase(): undefined,
+                                bymonthday:(rrule.options.bymonthday)? rrule.options.bymonthday: [], 
                                 byweekday: (rrule.options.byweekday)? rrule.options.byweekday: [],
                                 interval: rrule.options.interval,
                                 until: rrule.options.until ? rrule.options.until : undefined,
                                 count: rrule.options.count ?? undefined,
-                                bymonthday: rrule.options.bymonthday ?? undefined, 
+                                // bymonthday: rrule.options.bymonthday ?? undefined, 
                                 bymonth: rrule.options.bymonth ?? undefined,
                                 dtstart: moment(data.start).toISOString()
 
                             }
-
+                            
                             // if(rrule.options && rrule.options.dtstart) rrule.options.dtstart = new Date(moment(rrule.options.dtstart).ttoISOString())
-                            // console.log("rrule", data.summary, rrule)
                             //let dtstart = new Date(moment(data.start).unix()*1000+86400*1000)
                             if(allDay){
                                 eventObject.duration = {seconds: 86400}
@@ -284,7 +291,8 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                             // console.log("eventObject", data.summary, data.start, data.end )
                             if(data.end) eventObject.end = moment(data.end).toISOString()
                             if(data.start) eventObject.start = moment(data.start).toISOString()
-                            
+                            // console.log("rrule", data.summary, eventObject, rrule, data.rrule)
+                                    
                         }else{
                            
                              eventObject = {...eventObject, 
@@ -340,8 +348,9 @@ export const CalendarViewWithStateManagement = ({ calendarAR }: { calendarAR?: n
                                     // let dueDate = moment(recurrenceObj.getNextDueDate()).toISOString()
                                     // let startDate = moment.unix(moment(dueDate).unix() - (60 * 60)).toISOString()
                                     // console.log("REPEATING", startDate, title, dueDate)
+                                    let freq = getEnumKeyByValue(Frequency, rrule.options.freq)
                                     eventObject.rrule = {
-                                        freq: rrule.options.freq,
+                                        freq: freq ? freq.toLowerCase(): undefined,
                                         dtstart: startEnd.start,
                                         byweekday: (rrule.options.byweekday)? rrule.options.byweekday: [],
                                         interval: rrule.options.interval,
