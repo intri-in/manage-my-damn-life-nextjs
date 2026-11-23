@@ -1,1 +1,1 @@
-Bumped version number before release
+Fixed #380
