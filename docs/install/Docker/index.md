@@ -19,7 +19,29 @@ Copy sample compose file.
 ```
 cp docker-compose.yml.sample docker-compose.yml 
 ```
-
+Copy the env file,
+```
+cp sample.env.local .env.local
+``` 
+or change it into the docker-compose.yml
+```
+...
+services:
+  app:
+    image: intriin/mmdl:latest
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    networks:
+      - app-tier
+    restart: always
+    environment:
+      DB_HOST: db
+    env_file:
+      - sample.env.local
+...
+``` 
 You can make changes to docker compose file using the [Configuration](../Configuration/WithDockerCompose.md) guide as a help. 
 
 After making the required changed, run:
