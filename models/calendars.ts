@@ -57,7 +57,7 @@ export class calendars extends Model<calendarsAttributes, calendarsCreationAttri
       allowNull: true
     },
     description: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(1000),
       allowNull: true
     },
     calendarColor: {
