@@ -1,1 +1,1 @@
-Bumped version number before release
+V0.10.4 release

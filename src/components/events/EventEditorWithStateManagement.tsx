@@ -157,7 +157,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             setLocation(parsedData["location"])
             if(parsedData["rrule"]){
                 // console.log("parsedData.rrule", parsedData.rrule, rrulestr(parsedData.rrule))
-                setRrule(parseRRuleString(parsedData.rrule))
+                setRrule(parseRRuleString(parsedData.rrule, {dtstart: parsedData["start"] ? new Date (parsedData["start"]): ""}))
             }
             const alarms = await getAlarmsFromParsedEvent(parsedData)
             // console.log("alarms Event Editor", parsedData)
@@ -269,7 +269,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
         if(rrule){
             rruleToProcess = rrule.toString()
             let final = rruleToProcess.split("RRULE:")
-            console.log("final", final, rruleToProcess)
+            // console.log("final", final, rruleToProcess)
             if(final && final.length>0){
                 rruleToProcess = final[1]
             }
@@ -282,7 +282,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
             // const ics = await makeGenerateICSRequest({ obj })
             const ics = await generateICSUsingExternalLib(eventData)
             console.log("ics", formatAlarmArrayForICSGeneration(alarms), eventData, ics)
-            if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, ics)
+            if(process.env.NEXT_PUBLIC_DEBUG_MODE==="true") console.log(eventData, rrule, ics)
             if(ics){
                 setIsSubmitting(true)
                 if (isTemplate) {
@@ -410,7 +410,7 @@ export const EventEditorWithStateManagement = ({ input, onChange, showDeleteDail
 
     const onRruleSet = (rrule) =>{
 
-        // console.log("Event Editor", rrule)
+        console.log("Event Editor", rrule)
         setRrule(rrule)
         onChange()
         // setRrule(e.target.value)

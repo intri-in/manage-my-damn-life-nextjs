@@ -11,23 +11,28 @@ import { currentDateFormatAtom, currentSimpleDateFormatAtom, currentSimpleTimeFo
 import { useAtomValue } from "jotai";
 
 const weekdays = [RRule.MO.weekday, RRule.TU.weekday, RRule.WE.weekday, RRule.TH.weekday, RRule.FR.weekday ]
+const getStartDatefromInput = (start: string | undefined) =>{
+  if(start) return new Date (start)
+  return new Date()
 
-const recurrenceFromValue =  (value: string, oldRecurrence: RRule | null | undefined): RRule | null | undefined =>{
+}
+const recurrenceFromValue =  (value: string, oldRecurrence: RRule | null | undefined, start: string): RRule | null | undefined =>{
 
   switch(value){
     case "daily":
       return new RRule({
         freq: RRule.DAILY,
         interval:1,
-        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined 
-        // dtstart:new Date(start)
+        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined,
+        dtstart:getStartDatefromInput(start)
       })
     case "weekly":
       return new RRule({
         interval:1,
         freq: RRule.WEEKLY,
         until: (oldRecurrence && oldRecurrence.options.until) ?? undefined,
-        byweekday:[]
+        byweekday:[],
+        dtstart:getStartDatefromInput(start)
 
         // dtstart:new Date(start),
       })
@@ -36,7 +41,8 @@ const recurrenceFromValue =  (value: string, oldRecurrence: RRule | null | undef
         freq: RRule.WEEKLY,
         interval:1,
         byweekday:weekdays,
-        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined 
+        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined,
+        dtstart:getStartDatefromInput(start)
 
       })
     case "somedays":
@@ -45,22 +51,23 @@ const recurrenceFromValue =  (value: string, oldRecurrence: RRule | null | undef
         byweekday: [dayToDay-1],
         interval:1,
         freq: RRule.WEEKLY,
-        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined 
-
+        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined,
+        dtstart:getStartDatefromInput(start)
       })
     case "monthly":
       return new RRule({
         freq: RRule.MONTHLY,
         interval:1,
-        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined 
-        // dtstart:new Date(start)
+        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined ,
+        dtstart:getStartDatefromInput(start)
       })
     
     case "custom":
       return new RRule({
         interval: 2,
         freq: RRule.DAILY,
-        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined 
+        until: (oldRecurrence && oldRecurrence.options.until) ?? undefined,
+        dtstart:getStartDatefromInput(start)
       })
     
     default:
@@ -139,10 +146,24 @@ export default function RruleForm({ rruleProp, i18next, onRruleSet , start}:{rru
     setRecurrence(rruleProp);
 
   }, [rruleProp]);
+
+  useEffect(()=>{
+
+    setRecurrence((prev) => {
+      if(prev) {
+        const newRrule = new RRule({freq: prev.options.freq, byweekday: prev.options.byweekday, interval: prev.options.interval, 
+          until: prev.options.until, dtstart: getStartDatefromInput(start) })
+        onRruleSet(newRrule)
+        return newRrule
+      }
+
+    });
+
+  },[start])
   const recurrenceIntervalChanged = (e) => {
     const value = e.target.value;
     setCustomInterval(value)
-    const newRecurrence = new RRule({freq: customFreq, interval: value, until: recurrence?.options.until})  
+    const newRecurrence = new RRule({freq: customFreq, interval: value, until: recurrence?.options.until, dtstart: getStartDatefromInput(start)})  
     onRruleSet(newRecurrence)
 
     
@@ -152,7 +173,7 @@ export default function RruleForm({ rruleProp, i18next, onRruleSet , start}:{rru
   const recurrenceFreqChanged = (e) => {
     const value = e.target.value;
     setCustomFreq(value)
-    const newRecurrence = new RRule({freq: value, interval: customInterval, until: recurrence?.options.until})
+    const newRecurrence = new RRule({freq: value, interval: customInterval, until: recurrence?.options.until, dtstart: getStartDatefromInput(start)})
     onRruleSet(newRecurrence)
     
 
@@ -162,21 +183,23 @@ export default function RruleForm({ rruleProp, i18next, onRruleSet , start}:{rru
   const recurrenceUntilChanged = (e) => {
     const value = e._d;
     setRecurrence((prev) => {
+      console.log("getStartDatefromInput(start)", getStartDatefromInput(start))
       if(prev) {
-        const newRrule = new RRule({ ...prev.options, until: value })
+        const newRrule = new RRule({freq: prev.options.freq, byweekday: prev.options.byweekday, interval: prev.options.interval, 
+          until: value, dtstart: getStartDatefromInput(start) })
         onRruleSet(newRrule)
         return newRrule
       }
-      onRruleSet(new RRule({until: value}))
+      onRruleSet(new RRule({until: value, dtstart: getStartDatefromInput(start)}))
 
-      return new RRule({until: value})
+      return new RRule({until: value, dtstart: getStartDatefromInput(start)})
     });
   };
 
 
   
   const ddlValueChanged = (e) =>{
-    const newRecurrence = recurrenceFromValue(e.target.value, recurrence)
+    const newRecurrence = recurrenceFromValue(e.target.value, recurrence, start)
     if(e.target.value=="custom") {
       setCustomFreq((newRecurrence?.options.freq!=null && newRecurrence?.options.freq!=undefined) ? newRecurrence?.options.freq: 0)
       setCustomInterval((newRecurrence?.options.interval) ? newRecurrence?.options.interval: 1)
@@ -200,9 +223,10 @@ export default function RruleForm({ rruleProp, i18next, onRruleSet , start}:{rru
   }
   const removeRecurrence = () => {
     setShowEditForm(false)
+    setShowWeekDayForm(false)
     setDdlValue("")
     setRecurrence(null)
-    //onRruleSet(null);
+    onRruleSet(null);
   };
   const OnDaysSelected = (day: number)=>{
     let newByWeekday: number[] = []
@@ -213,7 +237,7 @@ export default function RruleForm({ rruleProp, i18next, onRruleSet , start}:{rru
     }
     // console.log("newByWeekday", newByWeekday)
     setDaysSelected(newByWeekday)
-    let newRRule = new RRule({freq:RRule.WEEKLY, byweekday: newByWeekday})
+    let newRRule = new RRule({freq:RRule.WEEKLY, byweekday: newByWeekday, dtstart: getStartDatefromInput(start)})
     setRecurrence(newRRule);
     onRruleSet(newRRule)
 
