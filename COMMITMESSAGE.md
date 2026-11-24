@@ -1,1 +1,1 @@
-Fixed #380, finally?
+V0.10.4 release
